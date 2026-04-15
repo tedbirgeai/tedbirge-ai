@@ -1,0 +1,17 @@
+# Railway Nixpacks build configuration for Tedbirge AI backend
+# Docs: https://nixpacks.com/docs/configuration/file
+#
+# Tesseract ve Poppler (pdftoppm) OCR için gereklidir.
+# Railway otomatik Node.js sürümünü package.json'dan algılar.
+
+[phases.setup]
+nixPkgs = ["tesseract", "poppler_utils"]
+
+[phases.install]
+cmds = ["npm ci --omit=dev"]
+
+[phases.build]
+cmds = ["npx prisma generate"]
+
+[start]
+cmd = "npx prisma migrate deploy && node src/server.js"

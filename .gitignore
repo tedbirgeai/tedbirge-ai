@@ -1,0 +1,59 @@
+# ─── Dependencies ────────────────────────────────────────────────────────────
+node_modules/
+tedbirge-panel/node_modules/
+
+# ─── Environment (secrets — never commit) ────────────────────────────────────
+.env
+.env.local
+.env.production
+.env.*.local
+
+# ─── Next.js build output ────────────────────────────────────────────────────
+tedbirge-panel/.next/
+tedbirge-panel/out/
+tedbirge-panel/.vercel/
+
+# ─── Prisma ──────────────────────────────────────────────────────────────────
+prisma/dev.db
+prisma/dev.db-journal
+prisma/dev.db-shm
+prisma/dev.db-wal
+
+# ─── Uploads (user files — store in Supabase Storage in production) ──────────
+uploads/
+
+# ─── Logs ────────────────────────────────────────────────────────────────────
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+logs/
+
+# ─── Build / coverage ────────────────────────────────────────────────────────
+dist/
+build/
+coverage/
+
+# ─── OS artifacts ────────────────────────────────────────────────────────────
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# ─── Editor ──────────────────────────────────────────────────────────────────
+.vscode/settings.json
+.idea/
+*.swp
+*.swo
+
+# ─── Temp files ──────────────────────────────────────────────────────────────
+*.tmp
+*.temp
+*.tsbuildinfo
+tedbirge-panel/next-env.d.ts
+
+# ─── Internal task/notes files ───────────────────────────────────────────────
+gorev.md
+
+# ─── Railway / Nixpacks cache ────────────────────────────────────────────────
+.nixpacks/
