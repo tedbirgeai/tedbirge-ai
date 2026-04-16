@@ -1191,3 +1191,35 @@ SUPABASE_STORAGE_BUCKET= (boş - deploy'da)
 
 #### TypeScript
 - `npx tsc --noEmit` → **EXIT:0** (hata yok)
+
+---
+
+## Tamamlanan İşler (2026-04-16 — On Sekizinci Oturum)
+
+### Rol Bazlı Erişim Kontrolü (RBAC) — Güvenlik Kapama
+
+#### Sorun
+16 kritik RBAC açığı tespit edildi: REPRESENTATIVE tüm lead'leri görüyordu, CUSTOMER başka müvekkillerin sözleşmelerini indirebiliyordu, herhangi bir authenticated kullanıcı lead durumunu değiştirebiliyordu.
+
+#### Merkezi Erişim Katmanı
+- **`src/utils/leadAccess.js`** — Yeni dosya oluşturuldu:
+  - `assertLeadAccess(user, lead)` — tüm roller için erişim doğrular, izin yoksa `ApiError(403)` fırlatır
+  - `leadWhereByRole(user)` — `listLeads` gibi toplu sorgularda Prisma `where` fragment'i döner
+  - Kural tablosu: ADMIN/SALES → tam erişim; LAWYER → Assignment tablosunda ACTIVE kaydı; REPRESENTATIVE → `lead.createdById === user.id`; CUSTOMER → `lead.ownerId === user.id`
+
+#### Schema Değişikliği
+- **`prisma/schema.prisma`** — Lead modeline `createdById String?` + `createdByUser User? @relation("LeadCreatedBy")` eklendi; User modeline `createdLeads Lead[]` eklendi
+- `npx prisma db push` → Supabase'e uygulandı
+
+#### Servis Katmanı Düzeltmeleri
+- **`src/services/lead.service.js`**: `listLeads()` → `leadWhereByRole()`; `getLeadById()` → `assertLeadAccess()`; `updateLeadStatus()` user param + CUSTOMER bloğu; `createLead()` `createdById` parametresi; `bulkUpdateLeads()` REPRESENTATIVE ownership filtresi
+- **`src/services/assignment.service.js`** — REPRESENTATIVE sadece `createdById === caller.id` olan lead'lere avukat atayabilir
+
+#### Controller + Route Düzeltmeleri
+- **`src/controllers/hukuk.controller.js`** — Tüm handler'lara `requireLeadAccess()` eklendi (ihtarname, davaSurec, duruşma, bilirkişi, masraf)
+- **`src/controllers/document.controller.js`** — `assertLeadAccess()` ile tüm roller kontrol ediliyor
+- **`src/controllers/contract.controller.js`** — `generate`, `listByLead`, `update`, `getPdf` erişim kontrolü
+- **`src/controllers/petition.controller.js`** — tüm 5 handler erişim kontrolü
+- **`src/controllers/maluliyet.controller.js`** — `updateLeadMaluliyet` erişim kontrolü
+- **`src/routes/lead.routes.js`** — `PATCH /:id/status` artık `role("ADMIN","SALES","REPRESENTATIVE","LAWYER")` gerektiriyor
+- `node syntax check` + `npx tsc --noEmit` → **EXIT:0** | `git push` → `6fb1c38`
