@@ -20,6 +20,7 @@ const lexscanRoutes    = require("./lexscan.routes");
 const maluliyetRoutes  = require("./maluliyet.routes");
 const paymentRoutes    = require("./payment.routes");
 const onayRoutes       = require("./onay.routes");
+const testRoutes       = require("./test.routes");
 
 const router = express.Router();
 
@@ -44,6 +45,7 @@ router.use("/lexscan",    lexscanRoutes);
 router.use("/maluliyet",  maluliyetRoutes);
 router.use("/payments",   paymentRoutes);
 router.use("/onay",       onayRoutes);
+router.use("/test",       testRoutes);
 router.use('/', publicRoutes);
 
 module.exports = router;
