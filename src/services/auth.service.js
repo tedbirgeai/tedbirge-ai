@@ -34,6 +34,9 @@ async function register(data) {
       ...(hukukcuKomisyon != null && { hukukcuKomisyon: Number(hukukcuKomisyon) }),
       ...(primOrani     != null && { primOrani: Number(primOrani) }),
       ...(bolge         && { bolge }),
+      // Onay durumları — kayıt anında BEKLEMEDE
+      ...(role === "LAWYER"         && { baroOnayDurumu: "BEKLEMEDE" }),
+      ...(role === "REPRESENTATIVE" && { temsilciOnayDurumu: "BEKLEMEDE" }),
     }
   });
 
@@ -53,6 +56,25 @@ async function login(email, password) {
 
   const valid = await bcrypt.compare(password, user.passwordHash);
   if (!valid) throw new ApiError(401, "Gecersiz kullanici bilgileri");
+
+  // Onay durumu kontrolleri
+  if (user.role === "LAWYER") {
+    if (user.baroOnayDurumu === "BEKLEMEDE") {
+      throw new ApiError(403, "Hesabınız henüz yönetici onayını bekliyor. Lütfen onay için bekleyin.");
+    }
+    if (user.baroOnayDurumu === "REDDEDILDI") {
+      throw new ApiError(403, "Hesabınız reddedildi. Lütfen yönetici ile iletişime geçin.");
+    }
+  }
+
+  if (user.role === "REPRESENTATIVE") {
+    if (user.temsilciOnayDurumu === "BEKLEMEDE") {
+      throw new ApiError(403, "Hesabınız henüz yönetici onayını bekliyor. Lütfen onay için bekleyin.");
+    }
+    if (user.temsilciOnayDurumu === "REDDEDILDI") {
+      throw new ApiError(403, "Hesabınız reddedildi. Lütfen yönetici ile iletişime geçin.");
+    }
+  }
 
   // Her başarılı girişte sonGirisTarihi güncelle
   await prisma.user.update({

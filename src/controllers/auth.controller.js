@@ -65,6 +65,18 @@ exports.createCustomer = asyncHandler(async (req, res) => {
 exports.login = asyncHandler(async (req, res) => {
   const { email, password } = req.body;
   const result = await authService.login(email, password);
+
+  // 2FA etkinse: gerçek JWT yerine kısa ömürlü temp token döndür
+  if (result.user?.twoFactorEnabled) {
+    const jwt = require("jsonwebtoken");
+    const tempToken = jwt.sign(
+      { id: result.user.id, type: "2fa_pending" },
+      process.env.JWT_SECRET,
+      { expiresIn: "5m" }
+    );
+    return res.json({ success: true, data: { requires2fa: true, tempToken } });
+  }
+
   res.json({ success: true, data: result });
 });
 
@@ -225,6 +237,113 @@ exports.registerTemsilci = asyncHandler(async (req, res) => {
   });
 
   res.status(201).json({ success: true, data: { user, token }, message: "Temsilci kaydı oluşturuldu. Yönetici onayı bekleniyor." });
+});
+
+// ─── 2FA Setup ────────────────────────────────────────────────────────────────
+
+exports.setup2fa = asyncHandler(async (req, res) => {
+  const userId = req.user?.id;
+  if (!userId) return res.status(401).json({ success: false, message: "Kimlik doğrulama gerekli." });
+
+  const speakeasy = require("speakeasy");
+  const qrcode = require("qrcode");
+
+  const secret = speakeasy.generateSecret({
+    name: `Tedbirge.ai (${req.user.email})`,
+    length: 20,
+  });
+
+  await prisma.user.update({
+    where: { id: userId },
+    data: { twoFactorSecret: secret.base32, twoFactorEnabled: false },
+  });
+
+  const qrDataUrl = await qrcode.toDataURL(secret.otpauth_url);
+  res.json({ success: true, data: { secret: secret.base32, qrCode: qrDataUrl } });
+});
+
+// ─── 2FA Verify & Activate ────────────────────────────────────────────────────
+
+exports.verify2fa = asyncHandler(async (req, res) => {
+  const userId = req.user?.id;
+  const { token } = req.body;
+  if (!userId) return res.status(401).json({ success: false, message: "Kimlik doğrulama gerekli." });
+  if (!token) return res.status(400).json({ success: false, message: "OTP token zorunludur." });
+
+  const speakeasy = require("speakeasy");
+  const user = await prisma.user.findUnique({ where: { id: userId } });
+  if (!user?.twoFactorSecret) {
+    return res.status(400).json({ success: false, message: "Önce /setup-2fa çağrısı yapın." });
+  }
+
+  const verified = speakeasy.totp.verify({
+    secret: user.twoFactorSecret,
+    encoding: "base32",
+    token: String(token),
+    window: 1,
+  });
+
+  if (!verified) return res.status(400).json({ success: false, message: "Geçersiz OTP kodu." });
+
+  await prisma.user.update({ where: { id: userId }, data: { twoFactorEnabled: true } });
+  res.json({ success: true, message: "2FA etkinleştirildi." });
+});
+
+// ─── 2FA Disable ─────────────────────────────────────────────────────────────
+
+exports.disable2fa = asyncHandler(async (req, res) => {
+  const userId = req.user?.id;
+  const { token } = req.body;
+  if (!userId) return res.status(401).json({ success: false, message: "Kimlik doğrulama gerekli." });
+
+  const speakeasy = require("speakeasy");
+  const user = await prisma.user.findUnique({ where: { id: userId } });
+
+  if (user?.twoFactorEnabled) {
+    if (!token) return res.status(400).json({ success: false, message: "OTP token zorunludur." });
+    const ok = speakeasy.totp.verify({ secret: user.twoFactorSecret, encoding: "base32", token: String(token), window: 1 });
+    if (!ok) return res.status(400).json({ success: false, message: "Geçersiz OTP kodu." });
+  }
+
+  await prisma.user.update({ where: { id: userId }, data: { twoFactorEnabled: false, twoFactorSecret: null } });
+  res.json({ success: true, message: "2FA devre dışı bırakıldı." });
+});
+
+// ─── 2FA Login Verify ─────────────────────────────────────────────────────────
+// Login ikinci adımı: email+password sonrası 2FA token doğrulama
+
+exports.loginVerify2fa = asyncHandler(async (req, res) => {
+  const { tempToken, otpToken } = req.body;
+  if (!tempToken || !otpToken) {
+    return res.status(400).json({ success: false, message: "tempToken ve otpToken zorunludur." });
+  }
+
+  const jwt = require("jsonwebtoken");
+  let payload;
+  try {
+    payload = jwt.verify(tempToken, process.env.JWT_SECRET);
+  } catch {
+    return res.status(401).json({ success: false, message: "Geçersiz veya süresi dolmuş temp token." });
+  }
+
+  if (payload.type !== "2fa_pending") {
+    return res.status(400).json({ success: false, message: "Geçersiz token tipi." });
+  }
+
+  const speakeasy = require("speakeasy");
+  const user = await prisma.user.findUnique({ where: { id: payload.id } });
+  if (!user) return res.status(404).json({ success: false, message: "Kullanıcı bulunamadı." });
+
+  const ok = speakeasy.totp.verify({ secret: user.twoFactorSecret, encoding: "base32", token: String(otpToken), window: 1 });
+  if (!ok) return res.status(400).json({ success: false, message: "Geçersiz OTP kodu." });
+
+  const finalToken = jwt.sign(
+    { id: user.id, email: user.email, role: user.role, fullName: user.fullName },
+    process.env.JWT_SECRET,
+    { expiresIn: "24h" }
+  );
+
+  res.json({ success: true, data: { token: finalToken, user: { id: user.id, email: user.email, role: user.role, fullName: user.fullName } } });
 });
 
 exports.listLawyers = asyncHandler(async (_req, res) => {

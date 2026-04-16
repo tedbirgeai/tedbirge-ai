@@ -18,6 +18,8 @@ const pushRoutes      = require("./push.routes");
 const whatsappRoutes  = require("./whatsapp.routes");
 const lexscanRoutes    = require("./lexscan.routes");
 const maluliyetRoutes  = require("./maluliyet.routes");
+const paymentRoutes    = require("./payment.routes");
+const onayRoutes       = require("./onay.routes");
 
 const router = express.Router();
 
@@ -40,6 +42,8 @@ router.use("/push",      pushRoutes);
 router.use("/whatsapp",  whatsappRoutes);
 router.use("/lexscan",    lexscanRoutes);
 router.use("/maluliyet",  maluliyetRoutes);
+router.use("/payments",   paymentRoutes);
+router.use("/onay",       onayRoutes);
 router.use('/', publicRoutes);
 
 module.exports = router;

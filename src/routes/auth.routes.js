@@ -18,6 +18,12 @@ router.post("/accept-terms", auth, controller.acceptTerms);
 router.get("/users", auth, role("ADMIN"), controller.listUsers);
 router.get("/lawyers", auth, role("ADMIN", "SALES", "REPRESENTATIVE"), controller.listLawyers);
 
+// 2FA
+router.post("/setup-2fa",    auth, controller.setup2fa);
+router.post("/verify-2fa",   auth, controller.verify2fa);
+router.post("/disable-2fa",  auth, controller.disable2fa);
+router.post("/login-2fa",    controller.loginVerify2fa);
+
 module.exports = router;
 
 

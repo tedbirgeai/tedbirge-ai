@@ -90,6 +90,12 @@ model User {
   // Temsilci kayıt alanları
   primOrani          Float?       @default(5)
   bolge              String?
+  // 2FA
+  twoFactorSecret    String?
+  twoFactorEnabled   Boolean      @default(false)
+  // Onay durumları
+  baroOnayDurumu     String?      @default("BEKLEMEDE")  // BEKLEMEDE / ONAYLANDI / REDDEDILDI
+  temsilciOnayDurumu String?      @default("BEKLEMEDE")  // BEKLEMEDE / ONAYLANDI / REDDEDILDI
   createdAt          DateTime     @default(now())
   updatedAt          DateTime     @updatedAt
 
@@ -134,6 +140,8 @@ model Lead {
   uyapMahkeme           String?
   uyapDurum             String?
   uyapSonGuncelleme     DateTime?
+  // Ödeme
+  odemeDetay            String?       // JSON: { merchantOid, paymentAmount, status, paidAt }
   createdAt             DateTime      @default(now())
   updatedAt             DateTime      @updatedAt
 
