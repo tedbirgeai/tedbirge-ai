@@ -4,9 +4,14 @@ const { sendLawyerAssignedSms } = require("./sms.service");
 const { sendLawyerAssignedEmail } = require("./email.service");
 const { sendLawyerAssignedNotification } = require("./whatsapp.service");
 
-async function assignLeadToLawyer({ leadId, lawyerId, note }) {
+async function assignLeadToLawyer({ leadId, lawyerId, note, caller = null }) {
   const lead = await prisma.lead.findUnique({ where: { id: leadId } });
   if (!lead) throw new ApiError(404, "Lead bulunamadi");
+
+  // REPRESENTATIVE sadece kendi oluşturduğu lead'lere avukat atayabilir
+  if (caller?.role === "REPRESENTATIVE" && lead.createdById !== caller.id) {
+    throw new ApiError(403, "Bu dosyaya atama yapma yetkiniz yok");
+  }
 
   const lawyer = await prisma.user.findUnique({ where: { id: lawyerId } });
   if (!lawyer || lawyer.role !== "LAWYER") {

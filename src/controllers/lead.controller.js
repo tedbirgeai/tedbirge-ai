@@ -13,7 +13,12 @@ const PDFDocument = require("pdfkit");
 const path = require("path");
 
 exports.createLead = asyncHandler(async (req, res) => {
-  const lead = await leadService.createLead(req.body, req.user?.id || null);
+  const userId = req.user?.id || null;
+  const role = req.user?.role;
+  // CUSTOMER kendi başvurusunu oluşturuyorsa ownerId = kendi id'si; SALES/REP oluşturursa createdById olarak kaydedilir
+  const ownerId = role === "CUSTOMER" ? userId : null;
+  const createdById = userId;
+  const lead = await leadService.createLead(req.body, ownerId, createdById);
   res.status(201).json({ success: true, data: lead });
 });
 
@@ -28,7 +33,7 @@ exports.getLead = asyncHandler(async (req, res) => {
 });
 
 exports.updateStatus = asyncHandler(async (req, res) => {
-  const lead = await leadService.updateLeadStatus(req.params.id, req.body.status, req.body.note);
+  const lead = await leadService.updateLeadStatus(req.params.id, req.body.status, req.body.note, req.user);
   res.json({ success: true, data: lead });
 });
 
@@ -40,7 +45,11 @@ exports.assignOwner = asyncHandler(async (req, res) => {
 
 exports.bulkUpdate = asyncHandler(async (req, res) => {
   const { ids, action, value } = req.body;
-  const result = await leadService.bulkUpdateLeads({ ids, action, value, actorId: req.user?.id });
+  const result = await leadService.bulkUpdateLeads({
+    ids, action, value,
+    actorId: req.user?.id,
+    actorRole: req.user?.role,
+  });
   res.json({ success: true, data: result });
 });
 exports.getWhatsappRedirect = asyncHandler(async (req, res) => {

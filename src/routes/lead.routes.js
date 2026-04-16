@@ -9,7 +9,7 @@ router.post("/", auth, controller.createLead);
 router.post("/bulk-update", auth, role("ADMIN", "SALES", "REPRESENTATIVE"), controller.bulkUpdate);
 router.get("/", auth, controller.listLeads);
 router.get("/:id", auth, controller.getLead);
-router.patch("/:id/status", auth, controller.updateStatus);
+router.patch("/:id/status", auth, role("ADMIN", "SALES", "REPRESENTATIVE", "LAWYER"), controller.updateStatus);
 router.patch("/:id/owner", auth, role("ADMIN", "SALES", "REPRESENTATIVE"), controller.assignOwner);
 router.get("/:id/whatsapp-redirect", auth, controller.getWhatsappRedirect);
 

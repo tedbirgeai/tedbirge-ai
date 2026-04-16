@@ -6,6 +6,7 @@ const { generatePetition } = require("../services/ai.service");
 const PDFDocument = require("pdfkit");
 const path = require("path");
 const fs = require("fs");
+const { assertLeadAccess } = require("../utils/leadAccess");
 
 // Sayfa düzeni için sabit
 const FONT_PATH_ARIAL = "C:/Windows/Fonts/arial.ttf";
@@ -33,6 +34,9 @@ exports.createPetition = asyncHandler(async (req, res) => {
   if (!lead) {
     return res.status(404).json({ success: false, message: "Lead bulunamadı." });
   }
+
+  // Lead erişim kontrolü
+  await assertLeadAccess(req.user, lead);
 
   // Belgelerden parsedText listesini al
   const documents = lead.documents || [];
@@ -63,6 +67,9 @@ exports.createPetition = asyncHandler(async (req, res) => {
 exports.listPetitions = asyncHandler(async (req, res) => {
   const { leadId } = req.params;
 
+  const lead = await prisma.lead.findUnique({ where: { id: leadId }, include: { assignments: true } });
+  await assertLeadAccess(req.user, lead);
+
   const petitions = await prisma.petition.findMany({
     where: { leadId },
     orderBy: { createdAt: "desc" },
@@ -80,12 +87,15 @@ exports.downloadPetition = asyncHandler(async (req, res) => {
 
   const petition = await prisma.petition.findUnique({
     where: { id },
-    include: { lead: true },
+    include: { lead: { include: { assignments: true } } },
   });
 
   if (!petition) {
     return res.status(404).json({ success: false, message: "Dilekçe bulunamadı." });
   }
+
+  // Lead erişim kontrolü
+  await assertLeadAccess(req.user, petition.lead);
 
   const doc = new PDFDocument({ size: "A4", margin: 50, lang: "tr" });
 
@@ -198,6 +208,14 @@ exports.updatePetition = asyncHandler(async (req, res) => {
   const { id } = req.params;
   const { icerik, durum, muhatap, notlar } = req.body;
 
+  // Erişim kontrolü — güncelleme öncesi lead'e erişim doğrula
+  const existing = await prisma.petition.findUnique({
+    where: { id },
+    include: { lead: { include: { assignments: true } } },
+  });
+  if (!existing) return res.status(404).json({ success: false, message: "Dilekçe bulunamadı." });
+  await assertLeadAccess(req.user, existing.lead);
+
   const petition = await prisma.petition.update({
     where: { id },
     data: {
@@ -217,6 +235,14 @@ exports.updatePetition = asyncHandler(async (req, res) => {
  */
 exports.sendPetition = asyncHandler(async (req, res) => {
   const { id } = req.params;
+
+  // Erişim kontrolü
+  const existing = await prisma.petition.findUnique({
+    where: { id },
+    include: { lead: { include: { assignments: true } } },
+  });
+  if (!existing) return res.status(404).json({ success: false, message: "Dilekçe bulunamadı." });
+  await assertLeadAccess(req.user, existing.lead);
 
   const petition = await prisma.petition.update({
     where: { id },

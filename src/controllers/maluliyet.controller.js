@@ -1,6 +1,7 @@
 const asyncHandler = require("../utils/asyncHandler");
 const prisma = require("../config/db");
 const { hesaplaTazminat, AMA_TABLO } = require("../services/maluliyet.service");
+const { assertLeadAccess } = require("../utils/leadAccess");
 
 // AMA yaralanma türleri listesi
 exports.getYaralanmaTurleri = asyncHandler(async (_req, res) => {
@@ -28,8 +29,10 @@ exports.updateLeadMaluliyet = asyncHandler(async (req, res) => {
   const { id } = req.params;
   const { maluliyetOrani, kusurOrani, yaralanmaTuru, gercekTazminat } = req.body;
 
-  const lead = await prisma.lead.findUnique({ where: { id } });
+  const lead = await prisma.lead.findUnique({ where: { id }, include: { assignments: true } });
   if (!lead) return res.status(404).json({ success: false, message: "Lead bulunamadı." });
+
+  await assertLeadAccess(req.user, lead);
 
   // Eğer tutar girilmemişse otomatik hesapla
   let tazminat = gercekTazminat ? Number(gercekTazminat) : null;

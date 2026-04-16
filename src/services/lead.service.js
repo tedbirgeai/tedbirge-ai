@@ -1,8 +1,8 @@
 ﻿const prisma = require("../config/db");
 const { runWorkflow } = require("./workflow.service");
 const { buildDocumentDraftTexts } = require("./document-template.service");
-require("../config/db");
 const ApiError = require("../utils/ApiError");
+const { assertLeadAccess, leadWhereByRole } = require("../utils/leadAccess");
 const { generateLeadCode } = require("../utils/generateCode");
 const { calculateCompensation } = require("../utils/calculateCompensation");
 const { sendStatusChangeSms, sendSms } = require("./sms.service");
@@ -10,7 +10,7 @@ const { sendApplicationReceivedEmail } = require("./email.service");
 const { sendNewLeadNotification } = require("./whatsapp.service");
 const { sendToUser, sendToRole } = require("./pushNotification.service");
 
-async function createLead(data, ownerId = null) {
+async function createLead(data, ownerId = null, createdById = null) {
   if (!data.customerName || !data.customerPhone) {
     throw new ApiError(400, "customerName ve customerPhone zorunludur");
   }
@@ -28,7 +28,8 @@ async function createLead(data, ownerId = null) {
       injurySeverity: data.injurySeverity || null,
       accidentDate: data.accidentDate ? new Date(data.accidentDate) : null,
       estimatedCompensation: compensation.netEstimate,
-      ownerId
+      ownerId,
+      createdById: createdById || ownerId   // Oluşturan kullanıcı (SALES/REP); yoksa ownerId fallback
     }
   });
 
@@ -65,23 +66,12 @@ async function createLead(data, ownerId = null) {
 }
 
 async function listLeads(filters = {}, user = null) {
-  const where = {};
-
-  if (user?.role === "CUSTOMER") {
-    // Customer sees only their own lead
-    where.ownerId = user.id;
-  } else if (user?.role === "LAWYER") {
-    // Lawyer sees only leads assigned to them
-    where.assignments = {
-      some: {
-        lawyerId: user.id,
-        status: "ACTIVE",
-      },
-    };
-  }
+  // Rol bazlı temel filtre — tüm roller için merkezi kontrolden geçer
+  const where = leadWhereByRole(user);
 
   if (filters.status) where.status = filters.status;
-  if (filters.ownerId && user?.role !== "CUSTOMER" && user?.role !== "LAWYER") {
+  // ownerId filtresi: sadece ADMIN/SALES kullanabilir (diğer roller zaten kısıtlı)
+  if (filters.ownerId && ["ADMIN", "SALES"].includes(user?.role)) {
     where.ownerId = filters.ownerId;
   }
 
@@ -120,23 +110,21 @@ async function getLeadById(id, user = null) {
 
   if (!lead) throw new ApiError(404, "Lead bulunamadi");
 
-  if (user?.role === "CUSTOMER" && lead.ownerId !== user.id) {
-    throw new ApiError(403, "Bu dosyayi goruntuleme yetkiniz yok");
-  }
-
-  if (user?.role === "LAWYER") {
-    const isAssigned = lead.assignments.some(
-      (a) => a.lawyerId === user.id && a.status === "ACTIVE"
-    );
-    if (!isAssigned) {
-      throw new ApiError(403, "Bu dosyayi goruntuleme yetkiniz yok");
-    }
-  }
+  // Tüm roller için merkezi erişim kontrolü
+  await assertLeadAccess(user, lead);
 
   return lead;
 }
 
-async function updateLeadStatus(id, status, note) {
+async function updateLeadStatus(id, status, note, user = null) {
+  // Erişim kontrolü: CUSTOMER durum güncelleyemez; diğer roller kendi lead'lerini güncelleyebilir
+  if (user?.role === "CUSTOMER") throw new ApiError(403, "Durum güncelleme yetkiniz yok");
+  if (user) {
+    const existing = await prisma.lead.findUnique({ where: { id }, include: { assignments: true } });
+    if (!existing) throw new ApiError(404, "Lead bulunamadı");
+    await assertLeadAccess(user, existing);
+  }
+
   const lead = await prisma.lead.update({
     where: { id },
     data: { status }
@@ -240,7 +228,7 @@ async function operationApproveLead(id, payload = {}) {
  * Toplu lead güncelleme: durum değiştirme veya avukat atama
  * action: "status" | "assign"
  */
-async function bulkUpdateLeads({ ids, action, value, actorId }) {
+async function bulkUpdateLeads({ ids, action, value, actorId, actorRole }) {
   if (!Array.isArray(ids) || ids.length === 0) throw new ApiError(400, "En az bir lead seçilmeli");
   if (!["status", "assign"].includes(action)) throw new ApiError(400, "Geçersiz bulk action");
 
@@ -248,6 +236,15 @@ async function bulkUpdateLeads({ ids, action, value, actorId }) {
 
   for (const id of ids) {
     try {
+      // REPRESENTATIVE yalnızca kendi oluşturduğu lead'leri güncelleyebilir
+      if (actorRole === "REPRESENTATIVE" && actorId) {
+        const check = await prisma.lead.findUnique({ where: { id }, select: { createdById: true } });
+        if (!check || check.createdById !== actorId) {
+          results.failed.push({ id, error: "Bu dosyaya erişim yetkiniz yok" });
+          continue;
+        }
+      }
+
       if (action === "status") {
         await prisma.lead.update({ where: { id }, data: { status: value } });
         await prisma.activityLog.create({

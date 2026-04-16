@@ -4,6 +4,14 @@ const prisma = require("../config/db");
 const ApiError = require("../utils/ApiError");
 const fs = require("fs");
 const path = require("path");
+const { assertLeadAccess } = require("../utils/leadAccess");
+
+/** Lead'i çek ve kullanıcı erişimini doğrula */
+async function requireLeadAccessById(leadId, user) {
+  const lead = await prisma.lead.findUnique({ where: { id: leadId }, include: { assignments: true } });
+  await assertLeadAccess(user, lead);
+  return lead;
+}
 
 const TYPE_LABELS = {
   SERVICE_AGREEMENT: "Hizmet Sozlesmesi",
@@ -11,6 +19,7 @@ const TYPE_LABELS = {
 };
 
 exports.generate = asyncHandler(async (req, res) => {
+  await requireLeadAccessById(req.params.leadId, req.user);
   const contract = await generateContract({
     leadId: req.params.leadId,
     type: req.body.type,
@@ -21,6 +30,7 @@ exports.generate = asyncHandler(async (req, res) => {
 });
 
 exports.listByLead = asyncHandler(async (req, res) => {
+  await requireLeadAccessById(req.params.leadId, req.user);
   const contracts = await prisma.contract.findMany({
     where: { leadId: req.params.leadId },
     orderBy: { createdAt: "desc" }
@@ -33,6 +43,8 @@ exports.update = asyncHandler(async (req, res) => {
 
   const existing = await prisma.contract.findUnique({ where: { id: req.params.id } });
   if (!existing) throw new ApiError(404, "Sözleşme bulunamadı");
+
+  await requireLeadAccessById(existing.leadId, req.user);
 
   const updated = await prisma.contract.update({
     where: { id: req.params.id },
@@ -56,9 +68,11 @@ exports.update = asyncHandler(async (req, res) => {
 exports.getPdf = asyncHandler(async (req, res) => {
   const contract = await prisma.contract.findUnique({
     where: { id: req.params.id },
-    include: { lead: true }
+    include: { lead: { include: { assignments: true } } }
   });
   if (!contract) throw new ApiError(404, "Sözleşme bulunamadı");
+
+  await assertLeadAccess(req.user, contract.lead);
 
   const PDFDocument = require("pdfkit");
 

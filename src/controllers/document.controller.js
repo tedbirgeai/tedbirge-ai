@@ -2,6 +2,7 @@ const asyncHandler = require("../utils/asyncHandler");
 const prisma = require("../config/db");
 const path = require("path");
 const fs = require("fs");
+const { assertLeadAccess } = require("../utils/leadAccess");
 
 exports.downloadDocument = asyncHandler(async (req, res) => {
   const { id } = req.params;
@@ -11,15 +12,12 @@ exports.downloadDocument = asyncHandler(async (req, res) => {
     return res.status(404).json({ success: false, message: "Belge bulunamadı." });
   }
 
-  // LAWYER rolü sadece atandığı lead'e ait belgeye erişebilir
-  if (req.user?.role === "LAWYER") {
-    const assignment = await prisma.assignment.findFirst({
-      where: { leadId: doc.leadId, lawyerId: req.user.id, status: "ACTIVE" },
-    });
-    if (!assignment) {
-      return res.status(403).json({ success: false, message: "Bu belgeye erişim yetkiniz yok." });
-    }
-  }
+  // Lead erişim kontrolü — tüm roller için merkezi kontrol
+  const lead = await prisma.lead.findUnique({
+    where: { id: doc.leadId },
+    include: { assignments: true },
+  });
+  await assertLeadAccess(req.user, lead);
 
   // Dosya yolu: doc.path (kaydedildiği mutlak yol) veya uploads/ relatif yol
   let filePath = doc.path;

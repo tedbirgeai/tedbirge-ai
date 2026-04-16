@@ -94,6 +94,7 @@ model User {
   updatedAt          DateTime     @updatedAt
 
   ownedLeads         Lead[]             @relation("LeadOwner")
+  createdLeads       Lead[]             @relation("LeadCreatedBy")
   assignedLeads      Assignment[]       @relation("AssignedLawyer")
   chatSessions       ChatSession[]
   contracts          Contract[]         @relation("ContractCreatedBy")
@@ -138,6 +139,8 @@ model Lead {
 
   ownerId               String?
   owner                 User?         @relation("LeadOwner", fields: [ownerId], references: [id])
+  createdById           String?
+  createdByUser         User?         @relation("LeadCreatedBy", fields: [createdById], references: [id])
 
   chatSessions          ChatSession[]
   messages              ChatMessage[]
