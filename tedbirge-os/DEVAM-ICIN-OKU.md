@@ -37,11 +37,18 @@ Prisma log (src/config/db.js): Şu an ["warn","error"] — güvenli.
 parametreler plaintext loglanır. Debug gerekirse sadece local/dev ortamında,
 kısa süreliğine aç, prod'a kesinlikle taşıma.
 
-## 3c. 2FA OVERRIDE DOĞRULAMASI EKSİK
+## 3c. 2FA OVERRIDE DOĞRULAMASI — TAMAMLANDI (2026-04-20)
 
-verify2fa, disable2fa, loginVerify2fa handler'larına omit: { twoFactorSecret: false }
-eklendi ancak runtime'da doğrulanmadı — 2FA aktif test hesabı yoktu.
-Sonraki oturumda test hesabına 2FA aktif edilip end-to-end doğrulanacak.
+verify2fa, disable2fa, loginVerify2fa runtime'da doğrulandı.
+Setup → verify → login challenge → login-verify → disable akışı
+uçtan uca test edildi, tüm adımlar başarılı.
+
+Test özeti (test19nisan@tedbirge.test, REPRESENTATIVE rolü):
+- setup-2fa   → 200 OK, secret döndü
+- verify-2fa  → 200 OK, 2FA etkinleştirildi
+- login       → 200 OK, requires2fa:true, tempToken döndü
+- login-2fa   → 200 OK, final JWT token döndü
+- disable-2fa → 200 OK, 2FA devre dışı bırakıldı
 
 ## 4. BİLİNEN KIRIK / EKSİK NOKTALAR
 
