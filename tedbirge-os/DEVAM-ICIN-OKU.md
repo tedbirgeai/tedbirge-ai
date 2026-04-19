@@ -96,5 +96,10 @@ Arka plan: Markalize (tedbirge.com hâlâ onlarda) sürecinden kurtulma, tedbirg
 - Footer iletişim bloğu, 5 mail + cep + çağrı merkezi + Konya adresi — canlıda
 - Broşürler temsilcilerin elinde
 
+## 9. MİMARİ ÇALIŞMASI
+
+Mimari çalışması tedbirge-os/architecture/ altında — VISION, ACTORS,
+INTEGRATION_PLAN iskeletleri kuruldu, ortak oturumda doldurulacak.
+
 ---
-Son güncelleme: 2026-04-19 akşam — Claude Sonnet 4.6 + Mehmet DİNÇ kapatma seansı
+Son güncelleme: 2026-04-20 akşam — Claude Sonnet 4.6 + Mehmet DİNÇ kapatma seansı
