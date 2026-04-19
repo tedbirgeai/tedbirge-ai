@@ -11,6 +11,7 @@ const { generatePetition } = require("../services/ai.service");
 const prisma = require("../config/db");
 const PDFDocument = require("pdfkit");
 const path = require("path");
+const fs = require("fs");
 
 exports.createLead = asyncHandler(async (req, res) => {
   const userId = req.user?.id || null;
@@ -290,15 +291,105 @@ exports.getKazaRaporu = asyncHandler(async (req, res) => {
     where: { id: req.params.id },
     include: { assignments: true }
   });
-  if (!lead) return res.status(404).json({ success: false, message: "Lead bulunamadı." });
+  if (!lead) {
+    return res.status(404).json({ success: false, error: { message: "Lead bulunamadı" } });
+  }
   if (req.user?.role === "LAWYER") {
-    const isAssigned = (lead.assignments || []).some(
-      (a) => a.lawyerId === req.user.id && a.status === "ACTIVE"
+    const assigned = lead.assignments?.some(
+      (a) => a.lawyerId === req.user.id && a.status !== "REVOKED"
     );
-    if (!isAssigned) return res.status(403).json({ success: false, message: "Bu dosyaya erişim yetkiniz yok." });
+    if (!assigned) {
+      return res.status(403).json({ success: false, error: { message: "Bu lead size atanmamış" } });
+    }
   }
   const rapor = generateKazaRaporu(lead);
-  res.json({ success: true, data: rapor });
+  if (req.query.format !== "pdf") {
+    return res.json({ success: true, data: rapor });
+  }
+  const doc = new PDFDocument({ size: "A4", margin: 50 });
+  const filename = `kaza-raporu-${lead.leadCode || lead.id}.pdf`;
+  res.setHeader("Content-Type", "application/pdf");
+  res.setHeader("Content-Disposition", `inline; filename="${filename}"`);
+  doc.pipe(res);
+  const arialPath = "C:/Windows/Fonts/arial.ttf";
+  const arialBoldPath = "C:/Windows/Fonts/arialbd.ttf";
+  const hasArial = fs.existsSync(arialPath);
+  const useFont = (bold = false) => {
+    if (hasArial) {
+      const p = bold && fs.existsSync(arialBoldPath) ? arialBoldPath : arialPath;
+      doc.font(p);
+    } else {
+      doc.font(bold ? "Helvetica-Bold" : "Helvetica");
+    }
+  };
+  const labels = {
+    tur: "Kaza Türü", tarih: "Kaza Tarihi", sehir: "Şehir",
+    yaralanmaSiddeti: "Yaralanma Şiddeti", ozet: "Özet",
+    musteri: "Müşteri", telefon: "Telefon", yas: "Yaş",
+    aylikGelir: "Aylık Gelir", maluliyetOrani: "Maluliyet Oranı",
+    baslik: "Başlık", yasal: "Yasal Dayanak",
+    musterKusurOrani: "Müşteri Kusur Oranı", aciklama: "Açıklama",
+    sure: "Süre", kanun: "İlgili Kanun",
+    ilkDerece: "İlk Derece", istinaf: "İstinaf", temyiz: "Temyiz", toplam: "Toplam Süre",
+    olumTazminati: "Ölüm Tazminatı", sakatlikTazminati: "Sakatlık Tazminatı", malVarligi: "Mal Varlığı Zararı",
+    min: "Alt Sınır", max: "Üst Sınır", label: "Etiket"
+  };
+  const labelOf = (k) => labels[k] || k.replace(/([A-Z])/g, " $1").replace(/^./, (s) => s.toUpperCase()).trim();
+  const section = (title, body) => {
+    if (!body) return;
+    doc.moveDown(0.6);
+    useFont(true); doc.fontSize(13).fillColor("#1F4E79").text(title);
+    useFont(false); doc.fontSize(11).fillColor("black");
+    doc.moveDown(0.25);
+    if (typeof body === "string") {
+      doc.text(body, { align: "justify" });
+    } else if (Array.isArray(body)) {
+      body.forEach((item) => {
+        if (item && typeof item === "object") {
+          Object.entries(item).forEach(([k, v]) => {
+            useFont(true); doc.text(`${labelOf(k)}: `, { continued: true });
+            useFont(false); doc.text(String(v ?? "-"));
+          });
+        } else {
+          doc.text(`- ${String(item)}`, { indent: 10 });
+        }
+      });
+    } else if (typeof body === "object") {
+      Object.entries(body).forEach(([k, v]) => {
+        let dv;
+        if (v === null || v === undefined || v === "") dv = "-";
+        else if (Array.isArray(v)) dv = v.map(String).join(", ");
+        else if (typeof v === "object") dv = Object.entries(v).map(([kk, vv]) => `${labelOf(kk)}: ${vv}`).join(" - ");
+        else dv = String(v);
+        useFont(true); doc.text(`${labelOf(k)}: `, { continued: true });
+        useFont(false); doc.text(dv);
+      });
+    }
+  };
+  useFont(true);
+  doc.fontSize(18).fillColor("black").text("KAZA DEĞERLENDİRME RAPORU", { align: "center" });
+  doc.moveDown(0.3);
+  useFont(false);
+  doc.fontSize(10).fillColor("#666")
+     .text(`Rapor No: ${lead.leadCode || lead.id}`, { align: "center" });
+  doc.text(`Tarih: ${new Date().toLocaleDateString("tr-TR")}`, { align: "center" });
+  doc.moveDown(0.8);
+  doc.fillColor("black");
+  if (rapor.kazaBilgisi)       section("KAZA BİLGİSİ",          rapor.kazaBilgisi);
+  if (rapor.taraflar)          section("TARAFLAR",               rapor.taraflar);
+  if (rapor.kusurAnalizi)      section("KUSUR ANALİZİ",          rapor.kusurAnalizi);
+  if (rapor.eksikBelgeler)     section("EKSİK BELGELER",         rapor.eksikBelgeler);
+  if (rapor.zamanAsimi || rapor.zamAnasimi) section("ZAMANAŞIMI", rapor.zamanAsimi || rapor.zamAnasimi);
+  if (rapor.tahminiDavaSuresi) section("TAHMİNİ DAVA SÜRESİ",   rapor.tahminiDavaSuresi);
+  if (rapor.zmss2026)          section("ZMSS 2026 LİMİTLERİ",   rapor.zmss2026);
+  if (rapor.tahminiTazminat)   section("TAHMİNİ TAZMİNAT",      rapor.tahminiTazminat);
+  doc.moveDown(2);
+  useFont(false);
+  doc.fontSize(9).fillColor("#888").text(
+    "Bu rapor otomatik olarak Tedbirge.ai tarafından üretilmiştir. Bağlayıcı bir bilirkişi raporu değildir; avukat değerlendirmesine yardımcı ön analiz niteliğindedir.",
+    { align: "justify" }
+  );
+  doc.end();
 });
 
 exports.generateLeadPetition = asyncHandler(async (req, res) => {
