@@ -96,10 +96,10 @@ Dosyalar: src/controllers/accidentCase.controller.js, src/routes/accidentCase.ro
 Test edildi mi: Hayır (panel UI bağlantısı test edilmedi, 401/500 bloğu açık)
 Commit mesajı: `feat: accident reconstruction service and routes (WIP)`
 
-### ~~4. Karar Destek Motoru~~ — COMMITTED 3062888
-Dosyalar: src/services/decision-support.service.js, src/routes/decision-support.routes.js
-Not: index.js mount'u Grup #3 (accident-cases) ile karışık — ayrı commit bekliyor
-Commit: `feat(decision-support): integrate compensation engine into estimateTazminat`
+### ~~4. Karar Destek Motoru~~ — COMMITTED 3062888 + 82ced92
+Dosyalar: src/services/decision-support.service.js, src/routes/decision-support.routes.js, src/routes/index.js (mount)
+Not: index.js mount'u artık temiz — accident-cases ayrı commit bekliyor (Grup #3 testi sonrası)
+Commit: `feat(decision-support): integrate compensation engine` + `feat(routes): mount decision-support endpoints`
 
 ### ~~5. SMS Onay Bildirimi~~ — COMMITTED 9dc080a
 Dosyalar: src/controllers/onay.controller.js, src/services/sms.service.js
@@ -110,15 +110,14 @@ Dosyalar: .dockerignore, Dockerfile
 Test edildi mi: Hayır (build denenmedi)
 Commit mesajı: `chore: add Dockerfile and .dockerignore for production deploy`
 
-### 7. Lead / Route Çeşitli Güncellemeler
-Dosyalar: src/controllers/lead.controller.js, src/routes/lead.routes.js
-Test edildi mi: Kısmi
-Commit mesajı: `feat: lead controller additions (GDPR delete, UYAP, SGK, emsal, kaza raporu)`
+### ~~7. Lead / Route Çeşitli Güncellemeler~~ — COMMITTED 9bfd3ee
+Dosyalar: src/controllers/lead.controller.js (commit edildi)
+Not: lead.routes.js'deki tek yeni satır accident-cases rotası (Grup #3) — henüz commit edilmedi
+Commit: `feat(lead): add GDPR delete, UYAP, SGK, emsal, kaza raporu endpoints`
 
-### 8. Config / Meta
+### ~~8. Config / Meta~~ — COMMITTED da15ab0
 Dosyalar: .gitignore, CLAUDE.md, package.json, package-lock.json, tedbirge-os/CURRENT_STATE.md
-Test edildi mi: N/A
-Commit mesajı: `chore: update gitignore, deps, and project metadata`
+Commit: `chore: update gitignore, deps, and project metadata`
 
 ## Karar Destek Motoru Olgunlaştırma (sonraki fazda)
 
