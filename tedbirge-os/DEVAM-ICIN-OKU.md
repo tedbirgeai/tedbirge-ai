@@ -72,6 +72,15 @@ Uzun vade:
 5. Admin manuel avukat atama UI
 6. Wizard UX: "Devam Et disabled" sebep tooltip'i
 
+Yarın ilk iş: Mehmet Bey 4 seçenekten birini seçecek:
+  A) PDF görsel düzeltme (1-2 saat) — hukukçu görmeden utanılmayacak kalite
+  B) ZMSS & TAZMİNAT HESAPLAMA modülünü panel'e bağla (1 saat)
+  C) KAZA REKONSTRÜKSİYON 401/500 bug fix + uçtan uca test (1-2 saat)
+  D) SBM ENTEGRASYONU — önce Mehmet Bey'in TOBB üyeliği sorulacak,
+     sonra mock veya gerçek API kararı (30 dk karar, sonra kod)
+
+3 modül KARIŞTIRILMAYACAK. Her biri ayrı commit.
+
 ## 6. İŞLETİM KURALLARI (Mehmet'in açıkça koyduğu)
 
 - Yamalı bohça yapma, tek platform tercih et
@@ -110,5 +119,51 @@ compensation.engine entegrasyonu tamamlandı, estimateTazminat canlı.
 - POST /api/decision-support/tazminat endpoint aktif
 - Türk hukuku eksikleri (ZMSS limiti, SGK rücu, PMF) TASK_QUEUE'da takip ediliyor.
 
+## 11. MEHMET BEY'İN DİKKAT ÇEKTİĞİ 3 AYRI MODÜL (ÖNEMLİ — KARIŞTIRMA)
+
+Bu üç modül birbirinden FARKLI işlere hizmet eder. Karıştırmak
+kurucunun zamanını alır, güveni sarsar.
+
+### A) ZMSS & TAZMİNAT HESAPLAMA (panel'de şu an "Kaza Rekreasyon Raporu")
+- GÖREV: Müvekkilin vakasında tahmini tazminat hesaplama
+- GİRDİ: Lead bilgileri (yaş, gelir, maluliyet oranı, kusur)
+  + SGK verisi + UYAP durumu
+- ÇIKTI: Net tazminat + min/max aralık + ZMSS limit uyarısı
+  + avukat payı tahmini
+- MOTOR: compensation.engine.js (DÜN entegre edildi)
+- YAPILACAK:
+  1. Panel'de başlığı "ZMSS & TAZMİNAT HESAPLAMA" olarak değiştir
+  2. "Oluştur" butonu compensation engine'i çağırsın
+  3. Sonucu formatlı göster
+
+### B) KAZA REKONSTRÜKSİYON (panel'de "Yeni Vaka Aç" butonu)
+- GÖREV: Kör noktadaki / karmaşık kazaların AI destekli analizi
+- GİRDİ: Delil dosyaları — fotoğraf, tutanak, rapor (multimodal)
+- ÇIKTI:
+  - Olgusal tespitler (hız, pozisyon, çarpma açısı)
+  - Yasal çerçeve (hangi maddelere göre kim kusurlu)
+  - Bilirkişi notları
+  - PDF rapor
+- MOTOR: Var mı yok mu bilinmiyor — kontrol edilmeli
+  (src/services/kazaRekonstruksiyon.service.js dosyasına bak)
+- ŞU AN: "Yeni Vaka Aç" butonu 401/500 hata veriyor
+- YAPILACAK:
+  1. Service dosyasını incele, hangi AI ile çalışıyor
+  2. 401/500 hatasını düzelt
+  3. Uçtan uca test: fotoğraf yükle → analiz → PDF çıksın
+  4. Mehmet Bey'in 20 YILLIK HAYALİ — ciddiye al
+
+### C) SBM ENTEGRASYONU (panel'de YOK)
+- GÖREV: Sigorta Bilgi Merkezi'nden kaza tutanağı + ZMSS poliçesi
+  + araç hasar geçmişi çekmek
+- NEDEN: Trafik kazasının omurga verisi — UYAP dava sonrası,
+  SBM dava öncesi
+- ŞU AN: Hiç yok, TASK_QUEUE'da kayıtlı madde 5
+- YAPILACAK:
+  1. TOBB/SBM üyelik durumu kontrol et (Mehmet Bey'in üyeliği var mı?)
+  2. Üyelik yoksa: mock + manuel giriş ekranı
+  3. Üyelik varsa: gerçek API adaptörü — src/integrations/sbm/sbm.adapter.js
+  4. Panel'e SGK/UYAP sekmesi yanına "SBM" sekmesi ekle
+
 ---
-Son güncelleme: 2026-04-20 — Claude Sonnet 4.6 + Mehmet DİNÇ
+Son güncelleme: 2026-04-20 gece 22:15 — 3 modül net ayrımı + yarın 4 seçenek
