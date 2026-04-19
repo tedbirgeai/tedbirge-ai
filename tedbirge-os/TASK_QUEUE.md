@@ -17,6 +17,7 @@
 
 ## TODO
 1. Avukat bilgisi maskeleme — assignments[].lawyer temsilciye sızıyor, GÜVENLİK AÇIĞI
+0. [Faz 3] Panel ZMSS bloğunda maluliyet oranı input alanı — Mod A/B seçici, Sağlık Kurulu Raporu yüklenince otomatik hesap tetikle (compensation.engine.v2 bağlı)
 2. TÜRKAN DİNÇ bolge='Konya' güncellemesi (dün yarım kaldı)
 3. Müvekkil SMS onay akışı — Contract.musteriOnayladi/onayKodu DB'de hazır, endpoint ve SMS linki yok
 4. Admin manuel avukat atama UI
