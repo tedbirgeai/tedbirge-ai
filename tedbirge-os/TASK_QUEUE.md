@@ -124,9 +124,7 @@ Commit mesajı: `chore: update gitignore, deps, and project metadata`
 
 ## Karar Destek Motoru Olgunlaştırma (sonraki fazda)
 
-- estimateTazminat() — ölü kod (export edilmiş, hiçbir endpoint çağırmıyor).
-  Karar: compensation.engine.js ile entegre et veya sil. compensation.engine.js
-  mevcut (src/services/compensation.engine.js), bağlantı kurulmamış.
+- ~~estimateTazminat() — ölü kod~~ — TAMAMLANDI: compensation.engine.js ile entegre edildi, POST /api/decision-support/tazminat aktif (2026-04-20)
 - il-uyumu "enYakinIl: Konya" hardcoded — gerçek mesafe/bölge hesabı yok.
   Karar: 81 il listesi + bölge eşleşmesi ekle (TASK_QUEUE #7 il/bölge kararından sonra).
 

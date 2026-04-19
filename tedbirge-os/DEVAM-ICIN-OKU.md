@@ -103,5 +103,12 @@ Arka plan: Markalize (tedbirge.com hâlâ onlarda) sürecinden kurtulma, tedbirg
 Mimari çalışması tedbirge-os/architecture/ altında — VISION, ACTORS,
 INTEGRATION_PLAN iskeletleri kuruldu, ortak oturumda doldurulacak.
 
+## 10. COMPENSATION ENGINE ENTEGRASYONU
+
+compensation.engine entegrasyonu tamamlandı, estimateTazminat canlı.
+- decision-support.service.js → calculateCompensationEngine() çağrısı
+- POST /api/decision-support/tazminat endpoint aktif
+- Türk hukuku eksikleri (ZMSS limiti, SGK rücu, PMF) TASK_QUEUE'da takip ediliyor.
+
 ---
-Son güncelleme: 2026-04-20 akşam — Claude Sonnet 4.6 + Mehmet DİNÇ kapatma seansı
+Son güncelleme: 2026-04-20 — Claude Sonnet 4.6 + Mehmet DİNÇ
