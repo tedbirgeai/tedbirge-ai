@@ -87,25 +87,23 @@ Dosyalar: src/controllers/auth.controller.js, src/services/auth.service.js, pris
 Test edildi mi: Kısmi (login akışı test edildi, 2FA QR kodu tarayıcıda doğrulanmadı)
 Commit mesajı: `feat: add TOTP 2FA and terms acceptance flow for LAWYER role`
 
-### 2. Sözleşme Modülü
+### ~~2. Sözleşme Modülü~~ — COMMITTED c545f19
 Dosyalar: src/controllers/contract.controller.js, src/routes/contract.routes.js, src/templates/contracts/temsilci-contract.template.js
-Test edildi mi: Evet (sözleşme generate + PDF endpoint çalışıyor)
-Commit mesajı: `feat: contract generation with AI mode and PDF download`
+Commit: `feat: contract generation with AI mode and PDF download`
 
 ### 3. Kaza Rekonstrüksiyon
 Dosyalar: src/controllers/accidentCase.controller.js, src/routes/accidentCase.routes.js, src/services/kazaRekonstruksiyon.service.js
 Test edildi mi: Hayır (panel UI bağlantısı test edilmedi, 401/500 bloğu açık)
 Commit mesajı: `feat: accident reconstruction service and routes (WIP)`
 
-### 4. Karar Destek Motoru
-Dosyalar: src/services/decision-support.service.js, src/routes/decision-support.routes.js, src/routes/index.js (mount)
-Test edildi mi: Evet (5/5 curl testi PASS — 2026-04-19)
-Commit mesajı: `feat: decision support engine (zamanaşımı, TC doğrulama, il-avukat uyumu)`
+### ~~4. Karar Destek Motoru~~ — COMMITTED 3062888
+Dosyalar: src/services/decision-support.service.js, src/routes/decision-support.routes.js
+Not: index.js mount'u Grup #3 (accident-cases) ile karışık — ayrı commit bekliyor
+Commit: `feat(decision-support): integrate compensation engine into estimateTazminat`
 
-### 5. SMS Onay Bildirimi
+### ~~5. SMS Onay Bildirimi~~ — COMMITTED 9dc080a
 Dosyalar: src/controllers/onay.controller.js, src/services/sms.service.js
-Test edildi mi: Evet (gerçek NetGSM SMS gönderildi — 2026-04-19)
-Commit mesajı: `feat: send NetGSM SMS on temsilci approval`
+Commit: `feat: send NetGSM SMS on temsilci approval`
 
 ### 6. Docker Hazırlığı
 Dosyalar: .dockerignore, Dockerfile
