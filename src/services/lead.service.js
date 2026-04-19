@@ -27,6 +27,7 @@ async function createLead(data, ownerId = null, createdById = null) {
       accidentSummary: data.accidentSummary || null,
       injurySeverity: data.injurySeverity || null,
       accidentDate: data.accidentDate ? new Date(data.accidentDate) : null,
+      accidentType: data.accidentType || null,
       estimatedCompensation: compensation.netEstimate,
       ownerId,
       createdById: createdById || ownerId   // Oluşturan kullanıcı (SALES/REP); yoksa ownerId fallback
@@ -65,6 +66,14 @@ async function createLead(data, ownerId = null, createdById = null) {
   return lead;
 }
 
+// REPRESENTATIVE için avukat kişisel bilgilerini kırp; sadece ad kalır
+function sanitizeLawyerForRepresentative(assignments) {
+  return (assignments || []).map((a) => ({
+    ...a,
+    lawyer: a.lawyer ? { id: a.lawyer.id, fullName: a.lawyer.fullName } : null,
+  }));
+}
+
 async function listLeads(filters = {}, user = null) {
   // Rol bazlı temel filtre — tüm roller için merkezi kontrolden geçer
   const where = leadWhereByRole(user);
@@ -84,7 +93,7 @@ async function listLeads(filters = {}, user = null) {
     ];
   }
 
-  return prisma.lead.findMany({
+  const leads = await prisma.lead.findMany({
     where,
     orderBy: { createdAt: "desc" },
     include: {
@@ -93,6 +102,13 @@ async function listLeads(filters = {}, user = null) {
       documents: true
     }
   });
+  if (user?.role === "REPRESENTATIVE") {
+    return leads.map((l) => ({
+      ...l,
+      assignments: sanitizeLawyerForRepresentative(l.assignments),
+    }));
+  }
+  return leads;
 }
 
 async function getLeadById(id, user = null) {
@@ -112,6 +128,10 @@ async function getLeadById(id, user = null) {
 
   // Tüm roller için merkezi erişim kontrolü
   await assertLeadAccess(user, lead);
+
+  if (user?.role === "REPRESENTATIVE") {
+    lead.assignments = sanitizeLawyerForRepresentative(lead.assignments);
+  }
 
   return lead;
 }
