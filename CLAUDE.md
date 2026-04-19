@@ -1223,3 +1223,189 @@ SUPABASE_STORAGE_BUCKET= (boş - deploy'da)
 - **`src/controllers/maluliyet.controller.js`** — `updateLeadMaluliyet` erişim kontrolü
 - **`src/routes/lead.routes.js`** — `PATCH /:id/status` artık `role("ADMIN","SALES","REPRESENTATIVE","LAWYER")` gerektiriyor
 - `node syntax check` + `npx tsc --noEmit` → **EXIT:0** | `git push` → `6fb1c38`
+
+---
+
+## Tamamlanan İşler (2026-04-16 — On Dokuzuncu Oturum)
+
+### Framer Motion Premium Animasyonlar (gorev.md)
+
+#### Navbar Scroll Animasyonu
+- **`app/(public)/page.tsx`** — `PublicNav` bileşenine scroll listener eklendi:
+  - `scrolled` state: `window.scrollY > 50` eşiğinde true
+  - Scroll altında: transparan arka plan
+  - Scroll üstünde: `backdrop-blur-xl`, `bg-white/10`, `border-white/10`, `shadow-lg`
+  - `transition: all 0.3s ease` inline style ile
+
+#### Hero Bireysel Animasyonlar
+- Logo: `scale 0.8→1, opacity 0→1, 0.4s`
+- "Tazminat Hakkınızı" h1: `y 40→0, opacity 0→1, delay 0.4s`
+- "Yapay Zeka ile Öğrenin" h1: `y 40→0, opacity 0→1, delay 0.6s` (ayrı `motion.h1`)
+- Alt yazı: `y 20→0, opacity 0→1, delay 0.8s`
+- Butonlar container: `y 20→0, opacity 0→1, delay 1.0s`
+- Tüm animasyonlarda ease: `[0.25, 0.1, 0.25, 1]`
+
+#### useCountUp Hook
+- `useCountUp(val, inView)` — `IntersectionObserver` (framer `useInView`) + `animate()`, 2s easeOut
+- `StatCounter` bileşeni bu hook'u kullanıyor; `motion.div` ile kendi fade animasyonu var
+
+#### Bölüm Geçişleri (Scroll-triggered)
+- `SectionReveal` wrapper bileşeni: `whileInView opacity 0→1, y 30→0`, `viewport: once:true, margin:-100px`
+- `containerVariants` + `cardVariants`: `staggerChildren: 0.1s`
+- Uygulanan: HowItWorks, Features, Testimonials, News, CTA, Footer başlıkları
+
+#### AnimatePresence — Sayfa Geçişleri
+- **`app/(public)/layout.tsx`** — `"use client"` + `usePathname` key + `AnimatePresence mode="wait"`:
+  - Giriş: `opacity 0→1, y 10→0, 0.3s`
+  - Çıkış: `opacity 0, 0.2s`
+- **`app/(panel)/layout.tsx`** — Aynı yapı: giriş `y 6→0, 0.2s`
+
+#### Buton Efektleri
+- "Ücretsiz Başvur": `whileHover scale 1.05`, `whileTap scale 0.95`, pulse `boxShadow` animasyonu
+- Login dropdown + mobil menü: `AnimatePresence` slide animasyonu (height 0→auto)
+
+### Sosyal Medya Entegrasyonu (gorev.md)
+
+#### SVG İkonlar
+- **`public/`** — `whatsapp.svg`, `instagram.svg`, `facebook.svg`, `linkedin.svg`, `twitter.svg` oluşturuldu
+
+#### Floating WhatsApp Butonu
+- **`app/(public)/layout.tsx`** — `FloatingWhatsApp` bileşeni: sağ alt köşe, yeşil (#25D366), pulse ring animasyonu
+- `NEXT_PUBLIC_WHATSAPP_NUMBER` env yoksa gizlenir
+
+#### Footer Sosyal Medya
+- **`app/(public)/page.tsx`** — Footer sol kolona sosyal medya ikonları: `SOCIAL_LINKS` dizisinden env'de tanımlı olanlar gösterilir, `whileHover: scale 1.15`
+
+#### ENV
+- **`tedbirge-panel/.env.local`** — `NEXT_PUBLIC_WHATSAPP_NUMBER`, `NEXT_PUBLIC_INSTAGRAM_URL`, `NEXT_PUBLIC_FACEBOOK_URL`, `NEXT_PUBLIC_LINKEDIN_URL`, `NEXT_PUBLIC_TWITTER_URL`, `NEXT_PUBLIC_YOUTUBE_URL` eklendi
+- **`tedbirge-panel/.env.local.example`** — Aynı değerler eklendi
+
+---
+
+## Tamamlanan İşler (2026-04-16 — Yirminci Oturum)
+
+### Supabase Storage (gorev.md)
+- **`src/services/storage.service.js`** — Yeni servis: `uploadFile`, `downloadFile`, `getPublicUrl`, `deleteFile`
+  - `SUPABASE_STORAGE_BUCKET` env yoksa lokal `uploads/` fallback
+  - `@supabase/supabase-js` paketi eklendi
+
+### Admin 2FA — speakeasy TOTP (gorev.md)
+- **`prisma/schema.prisma`** — `User` modeline `twoFactorSecret String?` + `twoFactorEnabled Boolean @default(false)` eklendi
+- **`src/controllers/auth.controller.js`** — 4 yeni handler:
+  - `setup2fa`: secret üretir, QR kod döner
+  - `verify2fa`: TOTP doğrular, `twoFactorEnabled: true` yapar
+  - `disable2fa`: TOTP ile doğrulayıp devre dışı bırakır
+  - `loginVerify2fa`: login ikinci adımı — `tempToken` + OTP → gerçek JWT
+- **Login akışı**: 2FA aktifse 5 dakika ömürlü `tempToken { type: "2fa_pending" }` döner
+- **`src/routes/auth.routes.js`** — `POST /setup-2fa`, `/verify-2fa`, `/disable-2fa`, `/login-2fa` eklendi
+- `speakeasy` + `qrcode` paketleri kuruldu
+
+### PayTR Ödeme Altyapısı (gorev.md)
+- **`src/services/payment.service.js`** — PayTR iFrame API: `createPayment`, `verifyCallback`, `refundPayment`
+  - `PAYTR_MERCHANT_ID/KEY/SALT` yoksa mock mod (konsola yazar)
+- **`src/controllers/payment.controller.js`** — `initiatePayment`, `paymentCallback`, `getPaymentStatus`, `refund`
+- **`src/routes/payment.routes.js`** — `POST /callback` (public), `/leads/:leadId/initiate`, `/leads/:leadId/status`, `/leads/:leadId/refund`
+- **`prisma/schema.prisma`** — `Lead` modeline `odemeDetay String?` eklendi (JSON: merchantOid, paymentAmount, status, paidAt)
+- **`tedbirge-panel/app/(panel)/leads/[id]/odeme/page.tsx`** — Ödeme sayfası: tutar gir → PayTR iFrame; mock mod uyarısı; iade butonu
+- **`.env`** — `PAYTR_MERCHANT_ID=`, `PAYTR_MERCHANT_KEY=`, `PAYTR_MERCHANT_SALT=`, `BACKEND_URL=http://localhost:5000` eklendi
+
+### Hukukçu/Temsilci Baro Onay Akışı (gorev.md)
+- **`prisma/schema.prisma`** — `User` modeline `baroOnayDurumu String? @default("BEKLEMEDE")` + `temsilciOnayDurumu String? @default("BEKLEMEDE")` eklendi
+- **`src/services/auth.service.js`** — `register()`: LAWYER → `baroOnayDurumu: "BEKLEMEDE"`, REPRESENTATIVE → `temsilciOnayDurumu: "BEKLEMEDE"`; `login()`: BEKLEMEDE/REDDEDILDI ise `ApiError(403)`
+- **`src/controllers/onay.controller.js`** — `listHukukcuOnay`, `onaylaHukukcu`, `reddetHukukcu`, `listTemsilciOnay`, `onaylaTemsilci`, `reddetTemsilci`
+- **`src/routes/onay.routes.js`** — ADMIN only PATCH onay/reddet endpoint'leri
+- **`tedbirge-panel/app/(panel)/dashboard/hukukcu-onay/page.tsx`** — Bekleyenler (amber kart + onay/red butonları + sebep input) + geçmiş tablo
+- **`tedbirge-panel/app/(panel)/dashboard/temsilci-onay/page.tsx`** — Aynı yapı temsilciler için
+- **`AppLayout.tsx`** — HUKUK grubuna "✅ Hukukçu Onay" + "🤝 Temsilci Onay" linkleri eklendi (ADMIN)
+- `prisma db push` → başarılı; `npx tsc --noEmit` → EXIT:0; `npm audit fix --force` → 0 vulnerability
+
+---
+
+## Tamamlanan İşler (2026-04-16 — Yirmi Birinci Oturum)
+
+### Hakkımızda Sayfası (gorev.md)
+- **`tedbirge-panel/app/(public)/hakkimizda/page.tsx`** — 6 bölümlü animasyonlu sayfa:
+  - **Hero**: lacivert bg, logo scale-in, başlık/alt yazı fade-up
+  - **Vizyon**: 2 kolonlu, madde listesi (✓), `SectionReveal` wrapper
+  - **Misyon**: alıntı kartı (lacivert) + açıklama; kolon sırası mobilde değişir
+  - **Değerler**: 6 kart grid, `staggerChildren 0.1s`, `whileHover y: -4`
+  - **Sayılar**: lacivert bg, 4 animasyonlu `AnimCounter` (4200+, 42M+, %91, 500+)
+  - **Ekip**: 3 placeholder kart (baş harf avatarı + isim/unvan placeholder + kariyer CTA)
+  - **CTA**: yeşil banner (#5CB85C), `whileHover scale 1.05`
+- **`app/(public)/page.tsx`** — Desktop ve mobil navbar'a "Hakkımızda" linki eklendi
+
+---
+
+## Sistem Durumu (2026-04-16 Güncel)
+
+### Deploy — CANLI
+| Bileşen | URL | Platform |
+|---|---|---|
+| Frontend | `https://tedbirge-panel.vercel.app` | Vercel |
+| Backend | `https://tedbirge-ai.onrender.com` | Render |
+| DB | Supabase PostgreSQL | Supabase |
+| Repo Frontend | `github.com/tedbirgeai/tedbirge-panel` | GitHub |
+| Repo Backend | `github.com/tedbirgeai/tedbirge-ai` | GitHub |
+
+### Yerel Geliştirme
+| Bileşen | Adres | Başlatma |
+|---|---|---|
+| Backend | `localhost:5000` | `cd tedbirge.ai && npm run dev` |
+| Frontend | `localhost:3000` | `cd tedbirge-panel && npm run dev` |
+| Admin | `admin@tedbirge.ai` / `Tedbirge2026!` | — |
+
+### Güncel API Endpoint'leri (Eklenenler)
+```
+POST   /api/auth/setup-2fa           — 2FA QR kod üret
+POST   /api/auth/verify-2fa          — 2FA aktif et
+POST   /api/auth/disable-2fa         — 2FA kapat
+POST   /api/auth/login-2fa           — 2FA ikinci adım (tempToken → JWT)
+GET    /api/onay/hukukcu             — Hukukçu onay listesi (ADMIN)
+PATCH  /api/onay/hukukcu/:id/onayla  — Hukukçu onayla (ADMIN)
+PATCH  /api/onay/hukukcu/:id/reddet  — Hukukçu reddet (ADMIN)
+GET    /api/onay/temsilci            — Temsilci onay listesi (ADMIN)
+PATCH  /api/onay/temsilci/:id/onayla — Temsilci onayla (ADMIN)
+PATCH  /api/onay/temsilci/:id/reddet — Temsilci reddet (ADMIN)
+POST   /api/payments/callback        — PayTR callback (public)
+POST   /api/payments/leads/:id/initiate — Ödeme başlat
+GET    /api/payments/leads/:id/status   — Ödeme durumu
+POST   /api/payments/leads/:id/refund   — İade başlat (ADMIN)
+```
+
+### Güncel ENV Değişkenleri (Eklenenler)
+```
+# 2FA (otomatik, env gerekmez)
+# PayTR
+PAYTR_MERCHANT_ID=        (boş - mock mod)
+PAYTR_MERCHANT_KEY=       (boş - mock mod)
+PAYTR_MERCHANT_SALT=      (boş - mock mod)
+BACKEND_URL=http://localhost:5000
+# Supabase Storage
+SUPABASE_URL=             (boş - lokal fallback)
+SUPABASE_SERVICE_KEY=     (boş - lokal fallback)
+SUPABASE_STORAGE_BUCKET=  (boş - lokal fallback)
+# Panel sosyal medya
+NEXT_PUBLIC_WHATSAPP_NUMBER=905412031609
+NEXT_PUBLIC_INSTAGRAM_URL=https://instagram.com/tedbirge
+NEXT_PUBLIC_FACEBOOK_URL=https://facebook.com/tedbirge
+NEXT_PUBLIC_LINKEDIN_URL=https://linkedin.com/company/tedbirge
+NEXT_PUBLIC_TWITTER_URL=https://twitter.com/tedbirge
+NEXT_PUBLIC_YOUTUBE_URL=https://youtube.com/@tedbirge
+```
+
+### Genel Tamamlanma: %88
+
+### Kalan Öncelikli İşler (Sıralı)
+1. **Supabase Storage bucket** — `supabase.com` → Storage → New bucket: `tedbirge-uploads` (Public)
+2. **Gmail SMTP** — `myaccount.google.com` → Güvenlik → 2FA → Uygulama Şifreleri → `SMTP_PASS`
+3. **WhatsApp Business API** — `business.facebook.com` → token al → `WHATSAPP_TOKEN` + `WHATSAPP_PHONE_ID`
+4. **Netgsm SMS** — `netgsm.com.tr` → `NETGSM_USERNAME` + `NETGSM_PASSWORD`
+5. **PayTR gerçek credentials** — Render env: `PAYTR_MERCHANT_ID`, `PAYTR_MERCHANT_KEY`, `PAYTR_MERCHANT_SALT`
+6. **Domain tedbirge.ai** — Vercel Domains + Render Custom Domain + env güncelle
+7. **Ekip fotoğrafları** — `/hakkimizda` sayfasına gerçek fotoğraflar
+8. **Google My Business** kaydı
+
+### Yeni Sohbette Başlangıç
+```
+CLAUDE.md oku, Tedbirge.ai projesine kaldığın yerden devam et, eksik ve yarım kalanları listele
+```

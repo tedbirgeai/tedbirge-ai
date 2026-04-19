@@ -46,14 +46,29 @@ desktop.ini
 *.swp
 *.swo
 
+# ─── Claude Code ─────────────────────────────────────────────────────────────
+.claude/
+
 # ─── Temp files ──────────────────────────────────────────────────────────────
 *.tmp
 *.temp
 *.tsbuildinfo
 tedbirge-panel/next-env.d.ts
 
+# ─── Prisma backups (otomatik oluşturulur, commit'e girmez) ──────────────────
+prisma/schema.prisma.backup-*
+
+# ─── Geçici test scriptleri ──────────────────────────────────────────────────
+scripts/reset-test19.js
+src/routes/test.js
+
 # ─── Internal task/notes files ───────────────────────────────────────────────
 gorev.md
 
 # ─── Railway / Nixpacks cache ────────────────────────────────────────────────
 .nixpacks/
+
+# ─── Frontend (ayrı repo — tedbirge-panel kendi .git'ine sahip) ──────────────
+# Vercel'e ayrı repo olarak deploy edilir.
+# Yerel geliştirmede bu dizini buradan yönetme; cd tedbirge-panel && git ... kullan.
+tedbirge-panel/
