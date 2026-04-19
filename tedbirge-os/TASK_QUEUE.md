@@ -169,3 +169,52 @@ function estimateTazminat(leadData, documentText = "") {
 - Geçici iş göremezlik (istirahat günlüğü) hesabı yok
 - TBK m.76 denkleştirme (sigorta ödemesi mahsubu) yok
 - Tüm bu eksikler için gerçek dava verileriyle kalibrasyon + avukat onayı gerekli
+
+## Panel Geliştirme — Kullanıcı Notları (2026-04-20 gece)
+
+### 1. Emsal Yargıtay Kararları
+- Şu an: liste boş, placeholder var, "Aç" butonu çalışmıyor
+- İstenen: Güncel Yargıtay kararları otomatik gelsin, "Aç" butonu kararı tam metniyle açsın
+- Not: Yargıtay emsal karar kaynağı ne olacak — Lexpera, Jurix, manual scraper?
+  Karar sonraki oturumda. Mimari seçim yapılmadan kodlanmayacak.
+
+### 2. Kaza Rekreasyon Raporu → "ZMSS & Tazminat Hesapla"
+- Şu an: "Kaza Rekreasyon Raporu" başlıklı boş bölüm
+- İstenen: Başlığı "ZMSS & Tazminat Hesapla" olarak değiştir
+  Fonksiyon: compensation.engine + SGK/UYAP verileri birleşik tam tazminat raporu:
+    SGK'daki gelir + UYAP'taki durum + maluliyet → net tazminat + ZMSS limit uyarısı + avukat payı tahmini
+
+### 3. Kaza Rekonstrüksiyon (20 yıllık hayal)
+- Şu an: "Yeni Vaka Aç" butonu var, modül boş (Grup #3 test edilmedi)
+- İstenen: Delil dosyaları (fotoğraf, tutanak, rapor) yüklenince AI destekli kaza analizi:
+  olgusal tespitler, yasal çerçeve, bilirkişi notları, PDF rapor
+- Not: Mehmet Bey'in 20 yıllık vizyonu. Ayrı oturumda mimari tasarım:
+  multimodal AI, görüntü analizi, Avukatlık Kanunu çerçevesi.
+  ŞİMDİLİK DOKUNMA — önce Grup #3 testi yapılacak.
+
+### 4. Malpraktis (Tıbbi Hata) Modülü — YENİ
+- Şu an: yok
+- İstenen: Trafik kazası paralelinde tıbbi hata davaları için kusur ve tazminat modülü
+- Mimari gereksinim: Ayrı case type (lead.accidentType = "MALPRACTICE") + kendi:
+  - Zamanaşımı: TBK m.146 genel 10 yıl / HMK hizmet sözleşmesi 5 yıl / sağlık mesleki sorumluluk özel hüküm
+  - Kusur: hekim standart bakım, CVMK doktrini
+  - Tazminat formülü: tedavi + manevi + kalıcı zarar
+  - Eksik belge: hasta dosyası, konsey raporu, SGK kayıtları
+  - Uyarılar: Yargıtay 13. HD içtihatları
+- Not: Mimari tasarım sonraki oturumda. Şimdilik sadece iskelet madde.
+
+### 5. SBM (Sigorta Bilgi Merkezi) Entegrasyonu — YENİ
+- Şu an: yok. Panel'de SGK/UYAP var, SBM yok.
+- İstenen: Lead oluşturulurken veya dosyaya girildiğinde SBM'den:
+  - Kaza tutanağı çek (plaka + tarih ile)
+  - Aracın ZMSS poliçesi, sigorta şirketi, poliçe no
+  - Önceki hasar/tazminat kayıtları (mükerrerlik kontrolü)
+  - Sürücü trafik sicil bilgisi
+- Mimari konumu: architecture/ACTORS.md'de SBM "Provider" aktörü —
+  Tedbirge veri tüketicisi.
+- Kritik nokta: SBM'ye erişim TOBB/SBM üyeliği ile sınırlı. Üyelik
+  yoksa başlangıçta mock + manuel giriş, sonra gerçek entegrasyon.
+- Önerilen dizin: src/integrations/sbm/sbm.adapter.js
+- Öncelik: YÜKSEK. Trafik kazası omurga verisi. UYAP'tan ÖNCE gelmeli
+  çünkü UYAP dava sonrası, SBM dava öncesi veri kaynağı.
+- Not: Mimari tasarım sonraki oturumda. Şimdilik sadece iskelet madde.
