@@ -121,3 +121,56 @@ Commit mesajı: `feat: lead controller additions (GDPR delete, UYAP, SGK, emsal,
 Dosyalar: .gitignore, CLAUDE.md, package.json, package-lock.json, tedbirge-os/CURRENT_STATE.md
 Test edildi mi: N/A
 Commit mesajı: `chore: update gitignore, deps, and project metadata`
+
+## Karar Destek Motoru Olgunlaştırma (sonraki fazda)
+
+- estimateTazminat() — ölü kod (export edilmiş, hiçbir endpoint çağırmıyor).
+  Karar: compensation.engine.js ile entegre et veya sil. compensation.engine.js
+  mevcut (src/services/compensation.engine.js), bağlantı kurulmamış.
+- il-uyumu "enYakinIl: Konya" hardcoded — gerçek mesafe/bölge hesabı yok.
+  Karar: 81 il listesi + bölge eşleşmesi ekle (TASK_QUEUE #7 il/bölge kararından sonra).
+
+### compensation.engine.js analizi (2026-04-20)
+
+**1. Export'lar ve imzalar**
+- `safeTest()` → `{ status, version }` — health check, parametresiz
+- `calculateCompensationEngine(input)` → tam tazminat raporu
+  - Input: `{ lead: { age, monthlyIncome, gender }, text: string }`
+  - Output: `{ documentType, caseType, extractedEntities, faultAssessment, maluliyetEstimate, actuarial, compensation, missingDocuments, legalRisk, professionalSummary }`
+
+**2. Formül mantığı**
+- Belge tipi tespiti: regex (trafik/iş kazası/tıbbi)
+- Yaş, gelir, maluliyet: OCR text'ten regex + lead verisine fallback
+- Kusur oranı: KTK m.51 (trafik), TBK m.52 (iş kazası — işçi/işveren ayrımı)
+- Aktüeryal: aktif dönem 60 yaşa, pasif dönem 72 yaşa kadar, %10 sabit iskonto
+- Brüt = aktüeryal + tedavi + araç + değer kaybı + destekten yoksun kalma
+- Net = brüt × (1 − kusur oranı)
+- Manevi tazminat: kaza tipine göre base (ölüm 250K, yaralanma 120K, diğer 75K) + ağırlık çarpanları
+- Tazminat aralığı: min ×0.85, max ×1.20
+
+**3. estimateTazminat() entegrasyon planı — ~10 satır değişiklik**
+```
+// decision-support.service.js'e ekle:
+const { calculateCompensationEngine } = require("./compensation.engine");
+
+function estimateTazminat(leadData, documentText = "") {
+  const result = calculateCompensationEngine({ lead: leadData, text: documentText });
+  return {
+    min: result.compensation.estimatedCompensationRange.min,
+    max: result.compensation.estimatedCompensationRange.max,
+    guven: result.legalRisk.fileStrengthLevel,  // LOW | MEDIUM | HIGH
+    not: result.professionalSummary,
+    detail: result.compensation,
+  };
+}
+```
+3 adım: (1) import ekle, (2) fonksiyon gövdesini değiştir, (3) endpoint'e documentText parametresi ilet.
+
+**4. Türk hukuku açısından eksikler**
+- ZMSS limiti yok — 2026 limitleri uygulanmıyor (yaralanma 924K TL, ölüm 1.540M TL)
+- PMF sabit %10 iskonto — Yargıtay değişken PMF metodolojisi değil
+- SGK rücu kesintisi yok — maluliyet tazminatından SGK ödediği düşülmeli
+- Destekten yoksun kalmada eş/çocuk/anne-baba pay ayrımı yok (tek %70 sabit)
+- Geçici iş göremezlik (istirahat günlüğü) hesabı yok
+- TBK m.76 denkleştirme (sigorta ödemesi mahsubu) yok
+- Tüm bu eksikler için gerçek dava verileriyle kalibrasyon + avukat onayı gerekli
