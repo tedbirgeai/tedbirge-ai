@@ -4,7 +4,24 @@ const prisma = require("../config/db");
 const ApiError = require("../utils/ApiError");
 const fs = require("fs");
 const path = require("path");
+const crypto = require("crypto");
 const { assertLeadAccess } = require("../utils/leadAccess");
+const temsilciTemplate = require("../templates/contracts/temsilci-contract.template");
+
+exports.getTemsilciContract = asyncHandler(async (req, res) => {
+  const content = temsilciTemplate.render();
+  const hash = crypto.createHash("sha256").update(content, "utf8").digest("hex");
+  res.json({
+    success: true,
+    data: {
+      version: temsilciTemplate.version,
+      publishedAt: temsilciTemplate.publishedAt,
+      title: temsilciTemplate.title,
+      content,
+      hash,
+    }
+  });
+});
 
 /** Lead'i çek ve kullanıcı erişimini doğrula */
 async function requireLeadAccessById(leadId, user) {

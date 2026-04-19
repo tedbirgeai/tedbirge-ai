@@ -5,6 +5,9 @@ const role = require("../middlewares/roleMiddleware");
 
 const router = express.Router();
 
+// Public — auth gerekmez, kayıt öncesi okunacak
+router.get("/temsilci/current", controller.getTemsilciContract);
+
 // By lead ID
 router.get("/:leadId", auth, role("ADMIN", "SALES", "REPRESENTATIVE", "LAWYER", "CUSTOMER"), controller.listByLead);
 router.post("/:leadId/generate", auth, role("ADMIN", "SALES", "REPRESENTATIVE", "LAWYER"), controller.generate);
