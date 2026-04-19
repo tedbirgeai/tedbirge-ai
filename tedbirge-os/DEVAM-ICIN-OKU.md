@@ -15,25 +15,20 @@
 - Çalıştığı platform: Windows 10, PowerShell
 - Mehmet'in terminal preferansı: PowerShell komutları (Remove-Item -Recurse -Force), cmd komutları değil (rmdir /s /q)
 
-## 3. EN SON KALDIĞIMIZ YER — 2026-04-19 akşam
+## 3. EN SON KALDIĞIMIZ YER — 2026-04-20 akşam
 
-Bitenler (bugün):
-- Temsilci wizard uçtan uca çalışıyor, canlı test edildi
-- Karar destek servisi + 3 endpoint
-- İlk gerçek lead kaydı başarılı (Ahmet Yılmaz test)
-- SVG icon kuralı uygulandı, strict catch fix
-- Tahmini hakediş formülü (%10 üst sınır) doğru
+Bitenler (bugün — 2026-04-20):
+- REPRESENTATIVE rol PII maskeleme: sanitizeLawyerForRepresentative() helper (commit: 3100a6a)
+  → lead.assignments[].lawyer → { id, fullName } only — email/phone/baroSicilNo gizli
+- Prisma global omit: passwordHash, resetToken, resetTokenExpires, twoFactorSecret (commit: 8681608)
+  → src/config/db.js'e PrismaClient constructor'a global omit eklendi
+  → auth.service.js login() + 3 adet 2FA handler'a omit:false override eklendi
+- Mimari iskelet: tedbirge-os/architecture/ altında VISION, ACTORS, INTEGRATION_PLAN dosyaları (commit: 66387fd)
 
-Test durumu:
-- curl endpoint testleri: 5/5 PASS
-- Browser uçtan uca: PASS (ekran görüntüsüyle doğrulandı)
-- TypeScript compile: temiz
-
-Ertesi gün için acil iş:
-Avukat bilgisi maskeleme. Temsilci şu an lead detayına girse
-assignments[].lawyer tam alanlarla geliyor. Kod yazmadan önce
-backend/src/services/lead.service.js ve lead.controller.js'te
-REPRESENTATIVE rolü için response sanitization katmanı eklenmeli.
+Yarın nereden devam edilecek:
+TÜRKAN DİNÇ kaydında bolge='Konya' güncellemesi (5. öncelik listesindeki 3. madde).
+Admin paneli → Kullanıcılar → TÜRKAN DİNÇ → bolge alanını Konya olarak güncelle.
+DB'de direkt: `UPDATE "User" SET "bolge" = 'Konya' WHERE email = 'turkandinc1@gmail.com'`
 
 ## 3b. PROD GÜVENLİK NOTU
 
@@ -63,9 +58,9 @@ Uzun vade:
 
 ## 5. YARINKİ ÖNCELİK SIRASI
 
-1. ~~Avukat bilgisi maskeleme~~ — TAMAMLANDI (2026-04-20)
-2. passwordHash sızıntısı — global select filter (Prisma User modeline global omit ekle: passwordHash, resetToken, twoFactorSecret — tek merkezden tüm endpoint'leri etkiler)
-3. TÜRKAN DİNÇ bolge='Konya' güncellemesi
+1. ~~Avukat bilgisi maskeleme~~ — TAMAMLANDI (2026-04-20, commit 3100a6a)
+2. ~~passwordHash global omit~~ — TAMAMLANDI (2026-04-20, commit 8681608)
+3. TÜRKAN DİNÇ bolge='Konya' güncellemesi  ← YARIN İLK İŞ
 4. Müvekkil SMS onay akışı
 5. Admin manuel avukat atama UI
 6. Wizard UX: "Devam Et disabled" sebep tooltip'i
