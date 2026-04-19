@@ -203,6 +203,12 @@ async function sendStatuteLimitWarningSms(lead, daysRemaining, overrideMessage) 
   return sendSms(lead.customerPhone, msg);
 }
 
+async function sendOnayBildirim(phone, type) {
+  // type: 'temsilci' | 'avukat' (ileride genisleyebilir)
+  const mesaj = "Tedbirge temsilci basvurunuz onaylandi. Artik panele giris yapabilirsiniz: https://tedbirge.ai";
+  return sendSms(phone, mesaj);
+}
+
 module.exports = {
   sendSms,
   sendOtpSms,
@@ -213,4 +219,5 @@ module.exports = {
   sendLawyerAssignedSms,
   sendContractCreatedSms,
   sendStatuteLimitWarningSms,
+  sendOnayBildirim,
 };

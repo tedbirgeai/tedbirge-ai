@@ -1,5 +1,6 @@
 const asyncHandler = require("../utils/asyncHandler");
 const prisma = require("../config/db");
+const { sendOnayBildirim } = require("../services/sms.service");
 
 // ─── Hukukçu Onay Listesi ─────────────────────────────────────────────────────
 
@@ -69,8 +70,17 @@ exports.onaylaTemsilci = asyncHandler(async (req, res) => {
   const user = await prisma.user.update({
     where: { id },
     data: { temsilciOnayDurumu: "ONAYLANDI" },
-    select: { id: true, fullName: true, temsilciOnayDurumu: true },
+    select: { id: true, fullName: true, phone: true, temsilciOnayDurumu: true },
   });
+  // SMS bildirim — başarısız olsa bile onay akışını bozma (fail-silent)
+  if (user.phone) {
+    try {
+      await sendOnayBildirim(user.phone, "temsilci");
+    } catch (smsError) {
+      console.error("[SMS] Onay bildirimi gonderilemedi:", smsError?.message);
+      // Akışa devam, onay geçerli
+    }
+  }
   await prisma.activityLog.create({
     data: { action: "TEMSILCI_ONAYLANDI", detail: `${user.fullName} (${id}) yönetici tarafından onaylandı.` },
   });
