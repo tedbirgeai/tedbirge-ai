@@ -21,6 +21,7 @@ const maluliyetRoutes  = require("./maluliyet.routes");
 const paymentRoutes    = require("./payment.routes");
 const onayRoutes       = require("./onay.routes");
 const testRoutes       = require("./test.routes");
+const decisionSupportRoutes = require("./decision-support.routes");
 
 const router = express.Router();
 
@@ -44,8 +45,9 @@ router.use("/whatsapp",  whatsappRoutes);
 router.use("/lexscan",    lexscanRoutes);
 router.use("/maluliyet",  maluliyetRoutes);
 router.use("/payments",   paymentRoutes);
-router.use("/onay",       onayRoutes);
-router.use("/test",       testRoutes);
+router.use("/onay",             onayRoutes);
+router.use("/test",             testRoutes);
+router.use("/decision-support", decisionSupportRoutes);
 router.use('/', publicRoutes);
 
 module.exports = router;
