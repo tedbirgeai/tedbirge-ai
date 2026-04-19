@@ -67,7 +67,7 @@ Uzun vade:
 
 1. ~~Avukat bilgisi maskeleme~~ — TAMAMLANDI (2026-04-20, commit 3100a6a)
 2. ~~passwordHash global omit~~ — TAMAMLANDI (2026-04-20, commit 8681608)
-3. TÜRKAN DİNÇ bolge='Konya' güncellemesi  ← YARIN İLK İŞ
+3. ~~TÜRKAN DİNÇ bolge='Konya' güncellemesi~~ — TAMAMLANDI (commit: sonraki)
 4. Müvekkil SMS onay akışı
 5. Admin manuel avukat atama UI
 6. Wizard UX: "Devam Et disabled" sebep tooltip'i
