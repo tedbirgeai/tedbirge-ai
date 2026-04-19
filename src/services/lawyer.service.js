@@ -23,8 +23,7 @@ async function createLawyer({ fullName, email, password, phone }) {
     data: { fullName, email, phone: phone || null, passwordHash, role: "LAWYER" }
   });
 
-  const { passwordHash: _, ...safe } = user;
-  return safe;
+  return user;
 }
 
 module.exports = { listLawyers, createLawyer };

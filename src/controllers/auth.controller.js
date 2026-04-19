@@ -89,6 +89,8 @@ exports.listUsers = asyncHandler(async (_req, res) => {
       role: true,
       phone: true,
       isActive: true,
+      temsilciOnayDurumu: true,
+      baroOnayDurumu: true,
       createdAt: true,
     },
     orderBy: { createdAt: "desc" },
@@ -219,11 +221,20 @@ exports.registerHukukcu = asyncHandler(async (req, res) => {
 // ─── Temsilci Kaydı ───────────────────────────────────────────────────────────
 
 exports.registerTemsilci = asyncHandler(async (req, res) => {
-  const { fullName, email, password, phone, primOrani, bolge, otpKod } = req.body;
+  const { fullName, email, password, phone, bolge, otpKod, sozlesmeVersiyonu, sozlesmeMetniHash } = req.body;
 
   if (!fullName || !email || !password || !phone || !otpKod) {
     return res.status(400).json({ success: false, message: "Tüm zorunlu alanları doldurun." });
   }
+
+  if (!sozlesmeVersiyonu || !sozlesmeMetniHash) {
+    return res.status(400).json({
+      success: false,
+      message: "Sözleşme bilgisi eksik. Lütfen sayfayı yenileyip tekrar deneyin."
+    });
+  }
+
+  const sozlesmeKabulIp = req.ip || req.headers["x-forwarded-for"] || req.socket?.remoteAddress || null;
 
   // OTP doğrula
   const otp = await prisma.phoneOtp.findFirst({ where: { phone, code: String(otpKod), purpose: "kayit" } });
@@ -233,7 +244,11 @@ exports.registerTemsilci = asyncHandler(async (req, res) => {
 
   const { user, token } = await authService.register({
     fullName, email, password, phone, role: "REPRESENTATIVE",
-    primOrani: Number(primOrani) || 5, bolge: bolge || null,
+    primOrani: 50,
+    bolge: bolge || null,
+    sozlesmeVersiyonu,
+    sozlesmeMetniHash,
+    sozlesmeKabulIp,
   });
 
   res.status(201).json({ success: true, data: { user, token }, message: "Temsilci kaydı oluşturuldu. Yönetici onayı bekleniyor." });
@@ -271,7 +286,7 @@ exports.verify2fa = asyncHandler(async (req, res) => {
   if (!token) return res.status(400).json({ success: false, message: "OTP token zorunludur." });
 
   const speakeasy = require("speakeasy");
-  const user = await prisma.user.findUnique({ where: { id: userId } });
+  const user = await prisma.user.findUnique({ where: { id: userId }, omit: { twoFactorSecret: false } });
   if (!user?.twoFactorSecret) {
     return res.status(400).json({ success: false, message: "Önce /setup-2fa çağrısı yapın." });
   }
@@ -297,7 +312,7 @@ exports.disable2fa = asyncHandler(async (req, res) => {
   if (!userId) return res.status(401).json({ success: false, message: "Kimlik doğrulama gerekli." });
 
   const speakeasy = require("speakeasy");
-  const user = await prisma.user.findUnique({ where: { id: userId } });
+  const user = await prisma.user.findUnique({ where: { id: userId }, omit: { twoFactorSecret: false } });
 
   if (user?.twoFactorEnabled) {
     if (!token) return res.status(400).json({ success: false, message: "OTP token zorunludur." });
@@ -331,7 +346,7 @@ exports.loginVerify2fa = asyncHandler(async (req, res) => {
   }
 
   const speakeasy = require("speakeasy");
-  const user = await prisma.user.findUnique({ where: { id: payload.id } });
+  const user = await prisma.user.findUnique({ where: { id: payload.id }, omit: { twoFactorSecret: false } });
   if (!user) return res.status(404).json({ success: false, message: "Kullanıcı bulunamadı." });
 
   const ok = speakeasy.totp.verify({ secret: user.twoFactorSecret, encoding: "base32", token: String(otpToken), window: 1 });

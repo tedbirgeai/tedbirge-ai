@@ -9,6 +9,7 @@ async function register(data) {
     fullName, email, password, role = "CUSTOMER", phone,
     baroSicilNo, uzmanlik, hukukcuKomisyon,
     primOrani, bolge,
+    sozlesmeVersiyonu, sozlesmeMetniHash, sozlesmeKabulIp,
   } = data;
 
   if (!fullName || !email || !password) {
@@ -34,6 +35,9 @@ async function register(data) {
       ...(hukukcuKomisyon != null && { hukukcuKomisyon: Number(hukukcuKomisyon) }),
       ...(primOrani     != null && { primOrani: Number(primOrani) }),
       ...(bolge         && { bolge }),
+      ...(sozlesmeVersiyonu && { sozlesmeVersiyonu }),
+      ...(sozlesmeMetniHash && { sozlesmeMetniHash }),
+      ...(sozlesmeKabulIp   && { sozlesmeKabulIp }),
       // Onay durumları — kayıt anında BEKLEMEDE
       ...(role === "LAWYER"         && { baroOnayDurumu: "BEKLEMEDE" }),
       ...(role === "REPRESENTATIVE" && { temsilciOnayDurumu: "BEKLEMEDE" }),
@@ -46,12 +50,11 @@ async function register(data) {
     { expiresIn: env.jwtExpiresIn }
   );
 
-  const { passwordHash: _pw, ...safeUser } = user;
-  return { user: safeUser, token };
+  return { user, token };
 }
 
 async function login(email, password) {
-  const user = await prisma.user.findUnique({ where: { email } });
+  const user = await prisma.user.findUnique({ where: { email }, omit: { passwordHash: false } });
   if (!user) throw new ApiError(401, "Gecersiz kullanici bilgileri");
 
   const valid = await bcrypt.compare(password, user.passwordHash);

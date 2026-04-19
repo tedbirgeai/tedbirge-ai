@@ -35,6 +35,19 @@ assignments[].lawyer tam alanlarla geliyor. Kod yazmadan önce
 backend/src/services/lead.service.js ve lead.controller.js'te
 REPRESENTATIVE rolü için response sanitization katmanı eklenmeli.
 
+## 3b. PROD GÜVENLİK NOTU
+
+Prisma log (src/config/db.js): Şu an ["warn","error"] — güvenli.
+"query" seviyesi AÇILMAMALI: SQL sorgularında passwordHash dahil tüm
+parametreler plaintext loglanır. Debug gerekirse sadece local/dev ortamında,
+kısa süreliğine aç, prod'a kesinlikle taşıma.
+
+## 3c. 2FA OVERRIDE DOĞRULAMASI EKSİK
+
+verify2fa, disable2fa, loginVerify2fa handler'larına omit: { twoFactorSecret: false }
+eklendi ancak runtime'da doğrulanmadı — 2FA aktif test hesabı yoktu.
+Sonraki oturumda test hesabına 2FA aktif edilip end-to-end doğrulanacak.
+
 ## 4. BİLİNEN KIRIK / EKSİK NOKTALAR
 
 Acil:
