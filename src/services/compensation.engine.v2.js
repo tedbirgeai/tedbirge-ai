@@ -1,20 +1,20 @@
 /**
- * Tazminat Motoru v2 — İskelet (Skeleton)
+ * Tazminat Motoru v2.1 — Gerçek Aktüer Formüller
  *
- * Bu dosya, mevcut compensation.engine.js'i değiştirmez. Yeni bir dosya olarak gelir,
+ * Bu dosya, mevcut compensation.engine.js'i değiştirmez. Paralel çalışır,
  * zaman içinde migration ile eskisinin yerini alır.
  *
- * BAĞIMLILIKLAR (hazır):
- * - src/data/zmss-limits.js              ✓ Yazıldı
- * - src/services/maluliyet.yonetmelik.selector.js  ✓ Yazıldı
- * - src/services/zamanasimi.service.js   ✓ Yazıldı
- * - src/constants/disclaimers.js         ✓ Yazıldı
+ * BAĞIMLILIKLAR (tamamı hazır):
+ * - src/data/zmss-limits.js                        ✓
+ * - src/services/maluliyet.yonetmelik.selector.js  ✓
+ * - src/services/zamanasimi.service.js              ✓
+ * - src/constants/disclaimers.js                   ✓
+ * - src/data/yasam-tablolari.js                    ✓
+ * - src/services/aktif-pasif-donem.js              ✓
+ * - src/services/kalem-hesaplari.js                ✓ (104 test PASS)
  *
- * EKSİKLER (Claude Code'un yarın tamamlayacağı):
- * - src/data/yasam-tablolari.js (PMF 1931 + TRH 2010)  ⏳
- * - src/services/aktif-pasif-donem.js                  ⏳
- * - src/services/kalem-hesaplari.js (6 tazminat kalemi) ⏳
- * - src/services/senaryo-uretici.js (iyimser/gerçekçi/kötümser) ⏳
+ * TODO Faz 2: Senaryolar için ayrı input varyantları ile 3 hesap çalıştır
+ * (şu an basit çarpan yaklaşımı: ×1.25 / ×1.00 / ×0.70)
  */
 
 const { getZMSSLimitsByDate, checkZMSSAsimi } = require("../data/zmss-limits");
@@ -30,18 +30,20 @@ const {
   MULUYET_AI_TAHMIN_UYARISI,
   KUSUR_AI_TAHMIN_UYARISI,
 } = require("../constants/disclaimers");
+const { hesaplaTumKalemler } = require("./kalem-hesaplari");
 
 /**
  * Ana tazminat hesaplama fonksiyonu.
  *
  * @param {Object} input
- * @param {Object} input.kaza - { tarihi, yeri, tipi: "trafik"|"is"|"malpraktis" }
- * @param {Object} input.magdur - { dogumTarihi, cinsiyet: "K"|"E", medeniHal, meslek, gelir: {tutar, belgeli}, bakmaklaYukumluler: [] }
- * @param {Object} input.sonuc - { durum: "yaralanma"|"olum"|"maluliyet", maluliyetOrani: {deger, mod: "A"|"B"}, tedaviSuresiGun, sagGideri }
- * @param {Object} input.kusur - { magdurKusuru: 0-100, karsiTarafKusuru: 0-100, kaynak: "tutanak"|"bilirkisi"|"ai_oneri" }
+ * @param {Object} input.kaza    - { tarihi, yeri, tipi: "trafik"|"is"|"malpraktis" }
+ * @param {Object} input.magdur  - { dogumTarihi, cinsiyet: "K"|"E", gelir: {tutar, belgeli} }
+ * @param {Object} input.sonuc   - { durum: "yaralanma"|"olum"|"maluliyet", maluliyetOrani: {deger, mod}, tedaviSuresiGun, sagGideri, atkBakicaMuhtac }
+ * @param {Object} input.kusur   - { magdurKusuru: 0-100, karsiTarafKusuru: 0-100, kaynak }
  * @param {Object} input.sigorta - { mevcutOdeme }
+ * @param {Object} [input.aile]  - { es, cocuklar, anneVarMi, babaVarMi } (ölümlü davalar)
  *
- * @returns {Object} Tam hesap sonucu + uyarılar + disclaimer
+ * @returns {Object} Tam hesap sonucu + kalem döküm + uyarılar + disclaimer
  */
 function calculateCompensationV2(input) {
   validateInput(input);
@@ -56,7 +58,6 @@ function calculateCompensationV2(input) {
   const yonetmelik = selectYonetmelik(input.kaza.tarihi);
 
   // 3. ZAMANAŞIMI
-  // NOT: "maluliyet" durumu zamanaşımı açısından "yaralanma" gibi işler (TCK m.89)
   const zamanasimiDurum =
     input.sonuc.durum === "maluliyet" ? "yaralanma" : input.sonuc.durum;
   const zamanasimi = hesaplaZamanasimi(
@@ -71,41 +72,34 @@ function calculateCompensationV2(input) {
   if (zamanasimi.uyari) {
     uyarilar.push({ tip: "ZAMANASIMI", seviye: zamanasimi.uyariSeviyesi, mesaj: zamanasimi.uyari });
   }
-
   if (input.sonuc.maluliyetOrani?.mod === "B") {
     uyarilar.push({ tip: "MALULIYET_AI", seviye: "KRITIK", mesaj: MULUYET_AI_TAHMIN_UYARISI });
   }
-
   if (input.kusur?.kaynak === "ai_oneri") {
     uyarilar.push({ tip: "KUSUR_AI", seviye: "DIKKAT", mesaj: KUSUR_AI_TAHMIN_UYARISI });
   }
 
-  // 5. KALEM HESAPLARI (iskelet — tam implementasyon yarın)
-  const kalemler = hesaplaKalemler(input, yas, cinsiyet);
+  // 5. KALEM HESAPLARI — gerçek aktüer formüller (kalem-hesaplari.js)
+  const kalemSonuc = hesaplaKalemlerAdapter(input, yas, cinsiyet);
+  const kalemler   = kalemSonuc.kalemler;
+  const brutToplam = kalemSonuc.toplam;
 
   // 6. MÜTERAFİK KUSUR İNDİRİMİ (TBK m.52)
-  const brutToplam =
-    kalemler.tedaviGideri +
-    kalemler.geciciIsGoremezlik +
-    kalemler.surekliMaluliyetTazminati +
-    kalemler.destektenYoksunKalma +
-    kalemler.manevi +
-    kalemler.bakiciGideri;
-
-  const muterafikOran = input.kusur?.magdurKusuru || 0;
+  const muterafikOran   = input.kusur?.magdurKusuru || 0;
   const muterafikIndirim = brutToplam * (muterafikOran / 100);
-  const netToplam = brutToplam - muterafikIndirim;
+  const netToplam        = brutToplam - muterafikIndirim;
 
   // 7. MEVCUT ÖDEME DÜŞÜMÜ
   const finalToplam = Math.max(0, netToplam - (input.sigorta?.mevcutOdeme || 0));
 
-  // 8. ZMSS ASIM KONTROLÜ
+  // 8. ZMSS AŞIM KONTROLÜ
   const zmssKontrol = checkZMSSAsimi(finalToplam, input.kaza.tarihi);
   if (zmssKontrol.asar) {
     uyarilar.push({ tip: "ZMSS_ASIM", seviye: "DIKKAT", mesaj: zmssKontrol.uyari });
   }
 
-  // 9. SENARYOLAR (iskelet — tam implementasyon yarın)
+  // 9. SENARYOLAR — basit çarpan (Faz 1)
+  // TODO Faz 2: Her senaryo için ayrı input varyantı ile 3 bağımsız hesap çalıştır
   const senaryolar = {
     iyimser: {
       toplam: Math.round(finalToplam * 1.25),
@@ -118,21 +112,19 @@ function calculateCompensationV2(input) {
       olasılık: "%50-60",
     },
     kotumser: {
-      toplam: Math.round(finalToplam * 0.7),
-      varsayimlar: ["Müterafik kusur artabilir", "Maluliyet tartışılır", "Manevi düşük takdir"],
+      toplam: Math.round(finalToplam * 0.70),
+      varsayimlar: ["Müterafik kusur %20-30", "Maluliyet tartışılır", "Manevi düşük takdir"],
       olasılık: "%15-25",
     },
   };
 
   return {
-    // Girdi özeti
     input: {
       yas,
       cinsiyet,
       kazaTarihi: input.kaza.tarihi,
     },
 
-    // Mevzuat tespitleri
     mevzuat: {
       zmssLimitYili: zmss.yil,
       zmssBedeniKisi: zmss.bedeni_kisi,
@@ -140,10 +132,9 @@ function calculateCompensationV2(input) {
       zamanasimi,
     },
 
-    // Kalem bazlı döküm
+    // Nesne bazlı kalem döküm — formül + kaynak atıfı dahil
     kalemler,
 
-    // Toplam hesap zinciri
     hesap: {
       brutToplam,
       muterafikKusurOrani: muterafikOran,
@@ -154,23 +145,46 @@ function calculateCompensationV2(input) {
       formul: `${brutToplam} - (${brutToplam} × ${muterafikOran}/100) - ${input.sigorta?.mevcutOdeme || 0} = ${finalToplam}`,
     },
 
-    // Senaryolar
     senaryolar,
-
-    // Kontroller
     zmssKontrol,
-
-    // Uyarılar
     uyarilar,
-
-    // Zorunlu disclaimer
     disclaimer: TAZMINAT_DISCLAIMER,
     bilirkisiYerineGecmez: BILIRKISI_YERINE_GECMEZ,
-
-    // Meta
     hesaplanmaTarihi: new Date().toISOString(),
-    motorVersiyonu: "v2-skeleton",
+    motorVersiyonu: "v2.1",
   };
+}
+
+// ═══════════════════════════════════════════════════════════════
+// ADAPTER — v2 input şemasını kalem-hesaplari.js formatına çevirir
+// ═══════════════════════════════════════════════════════════════
+
+function hesaplaKalemlerAdapter(input, yas, cinsiyet) {
+  // dogumTarihi'yi yas'tan türet — v2 de aynı yöntemi kullanıyor, tutarlı
+  const dogumTarihi = new Date(input.kaza.tarihi);
+  dogumTarihi.setFullYear(dogumTarihi.getFullYear() - yas);
+
+  const adaptedInput = {
+    kaza: {
+      tarihi: input.kaza.tarihi,
+      tipi:   input.kaza.tipi,
+    },
+    magdur: {
+      dogumTarihi: dogumTarihi.toISOString(),
+      cinsiyet,
+      gelir: input.magdur.gelir,
+    },
+    sonuc: {
+      durum:           input.sonuc.durum,
+      maluliyetOrani:  input.sonuc.maluliyetOrani,
+      tedaviSuresiGun: input.sonuc.tedaviSuresiGun,
+      sagGideri:       input.sonuc.sagGideri,
+      atkBakicaMuhtac: input.sonuc.atkBakicaMuhtac,
+    },
+    aile: input.aile || {},
+  };
+
+  return hesaplaTumKalemler(adaptedInput);
 }
 
 // ═══════════════════════════════════════════════════════════════
@@ -178,8 +192,8 @@ function calculateCompensationV2(input) {
 // ═══════════════════════════════════════════════════════════════
 
 function validateInput(input) {
-  if (!input.kaza?.tarihi) throw new Error("kaza.tarihi zorunlu");
-  if (!input.magdur?.dogumTarihi) throw new Error("magdur.dogumTarihi zorunlu");
+  if (!input.kaza?.tarihi)          throw new Error("kaza.tarihi zorunlu");
+  if (!input.magdur?.dogumTarihi)   throw new Error("magdur.dogumTarihi zorunlu");
   if (!["K", "E"].includes(input.magdur.cinsiyet))
     throw new Error("magdur.cinsiyet 'K' veya 'E' olmalı");
   if (!["yaralanma", "olum", "maluliyet", "maddi"].includes(input.sonuc?.durum))
@@ -193,53 +207,6 @@ function hesaplaYas(dogumTarihi, referansTarihi) {
   const m = r.getMonth() - d.getMonth();
   if (m < 0 || (m === 0 && r.getDate() < d.getDate())) yas--;
   return yas;
-}
-
-/**
- * Kalem hesapları — İSKELET
- *
- * TODO(Claude Code yarın): Aşağıdaki 6 kalemi tam aktüer formülleriyle yaz.
- * Şu an sadece yer tutucu değerler dönüyor.
- */
-function hesaplaKalemler(input, yas, cinsiyet) {
-  const aylikGelir = input.magdur.gelir?.tutar || 26_005; // 2026 asgari ücret net
-  const maluliyet = (input.sonuc.maluliyetOrani?.deger || 0) / 100;
-  const tedaviGun = input.sonuc.tedaviSuresiGun || 0;
-
-  return {
-    // TBK m.54 - Tedavi giderleri (belgeli)
-    tedaviGideri: input.sonuc.sagGideri || 0,
-
-    // Geçici iş göremezlik (tedavi süresi × günlük gelir)
-    geciciIsGoremezlik: Math.round(tedaviGun * (aylikGelir / 30)),
-
-    // Sürekli maluliyet tazminatı — TAM FORMÜL YARIN
-    // Basit iskelet: maluliyet × yıllık gelir × kalan çalışma yılı (30 yıl kabulü)
-    // GERÇEK: Aktif/pasif dönem + yaşam tablosu + diskonto gerekli
-    surekliMaluliyetTazminati:
-      input.sonuc.durum === "maluliyet" || input.sonuc.durum === "yaralanma"
-        ? Math.round(maluliyet * aylikGelir * 12 * Math.max(0, 65 - yas))
-        : 0,
-
-    // Destekten yoksun kalma (ölümlü) — TAM FORMÜL YARIN
-    // Basit iskelet: eş %50, çocuk %15, anne/baba %10 dağılımı
-    destektenYoksunKalma:
-      input.sonuc.durum === "olum"
-        ? Math.round(aylikGelir * 12 * Math.max(0, 65 - yas) * 0.8) // %80 toplam destek payı
-        : 0,
-
-    // Manevi tazminat (TBK m.56) — hakim takdiri
-    // Basit iskelet: yaralanma ~50K, maluliyet %×500K, ölüm 300K-500K
-    manevi:
-      input.sonuc.durum === "olum"
-        ? 400_000
-        : input.sonuc.durum === "maluliyet"
-        ? Math.round(maluliyet * 500_000)
-        : 50_000,
-
-    // Bakıcı gideri (ağır maluliyette — %60+)
-    bakiciGideri: maluliyet >= 0.6 ? Math.round(20_000 * 12 * 10) : 0,
-  };
 }
 
 module.exports = {
