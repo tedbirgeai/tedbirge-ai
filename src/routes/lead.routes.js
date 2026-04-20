@@ -1,6 +1,7 @@
 ﻿const express = require("express");
 const controller = require("../controllers/lead.controller");
-const compCtrl   = require("../controllers/lead.compensation.controller");
+const compCtrl      = require("../controllers/lead.compensation.controller");
+const caseDataCtrl  = require("../controllers/lead.caseData.controller");
 const auth = require("../middlewares/authMiddleware");
 const role = require("../middlewares/roleMiddleware");
 
@@ -12,6 +13,7 @@ router.get("/", auth, controller.listLeads);
 router.get("/:id", auth, controller.getLead);
 router.patch("/:id/status",       auth, role("ADMIN","SALES","REPRESENTATIVE","LAWYER"), controller.updateStatus);
 router.patch("/:id/compensation", auth, role("ADMIN","SALES","REPRESENTATIVE","LAWYER"), compCtrl.updateEstimatedCompensation);
+router.patch("/:id/case-data",    auth, role("ADMIN","SALES","LAWYER","REPRESENTATIVE"), caseDataCtrl.updateCaseData);
 router.patch("/:id/owner",        auth, role("ADMIN","SALES","REPRESENTATIVE"), controller.assignOwner);
 router.get("/:id/whatsapp-redirect", auth, controller.getWhatsappRedirect);
 
