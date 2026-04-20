@@ -382,3 +382,178 @@ exports.listLawyers = asyncHandler(async (_req, res) => {
   res.json({ success: true, data: lawyers });
 });
 
+// ─── Admin: Bekleyen Onaylari Listele ─────────────────────────────────────────
+
+exports.listPendingApprovals = asyncHandler(async (req, res) => {
+  const { role } = req.query; // "LAWYER" | "REPRESENTATIVE"
+
+  if (!role || !["LAWYER", "REPRESENTATIVE"].includes(role)) {
+    return res.status(400).json({ success: false, message: "role parametresi gerekli (LAWYER veya REPRESENTATIVE)" });
+  }
+
+  const whereClause = role === "LAWYER"
+    ? { role: "LAWYER", baroOnayDurumu: "BEKLEMEDE" }
+    : { role: "REPRESENTATIVE", temsilciOnayDurumu: "BEKLEMEDE" };
+
+  const users = await prisma.user.findMany({
+    where: whereClause,
+    select: {
+      id: true,
+      fullName: true,
+      email: true,
+      phone: true,
+      role: true,
+      baroSicilNo: true,
+      uzmanlik: true,
+      bolge: true,
+      hukukcuKomisyon: true,
+      primOrani: true,
+      baroOnayDurumu: true,
+      temsilciOnayDurumu: true,
+      sozlesmeKabulTarihi: true,
+      createdAt: true,
+    },
+    orderBy: { createdAt: "desc" },
+  });
+
+  res.json({ success: true, data: users });
+});
+
+// ─── Admin: Kullaniciyi Onayla ────────────────────────────────────────────────
+
+exports.approveUser = asyncHandler(async (req, res) => {
+  const { userId } = req.params;
+  if (!userId) {
+    return res.status(400).json({ success: false, message: "userId gerekli" });
+  }
+
+  const user = await prisma.user.findUnique({ where: { id: userId } });
+  if (!user) {
+    return res.status(404).json({ success: false, message: "Kullanici bulunamadi" });
+  }
+
+  if (!["LAWYER", "REPRESENTATIVE"].includes(user.role)) {
+    return res.status(400).json({ success: false, message: "Sadece LAWYER veya REPRESENTATIVE onaylanabilir" });
+  }
+
+  const updateData = user.role === "LAWYER"
+    ? { baroOnayDurumu: "ONAYLANDI", isActive: true }
+    : { temsilciOnayDurumu: "ONAYLANDI", isActive: true };
+
+  const updated = await prisma.user.update({
+    where: { id: userId },
+    data: updateData,
+    select: { id: true, email: true, fullName: true, phone: true, role: true },
+  });
+
+  await prisma.activityLog.create({
+    data: {
+      action: "USER_APPROVED",
+      detail: `${updated.role} onaylandi: ${updated.email} (admin: ${req.user.email})`,
+    },
+  }).catch(() => {});
+
+  try {
+    const { sendEmail } = require("../services/email.service");
+    await sendEmail({
+      to: updated.email,
+      subject: "Tedbirge -- Hesabiniz Onaylandi",
+      html: `<p>Sayin ${updated.fullName},</p>
+             <p>Tedbirge hesabiniz yonetici tarafindan onaylanmistir. Artik panele giris yapabilirsiniz.</p>
+             <p><a href="${process.env.PANEL_URL || "https://www.tedbirge.ai"}/login">Panele Giris</a></p>`,
+    });
+  } catch (e) { console.error("[approveUser email]", e.message); }
+
+  if (updated.phone) {
+    try {
+      const { sendSms } = require("../services/sms.service");
+      await sendSms(updated.phone, `Tedbirge hesabiniz onaylandi. Giris: tedbirge.ai/login`);
+    } catch (e) { console.error("[approveUser sms]", e.message); }
+  }
+
+  res.json({ success: true, message: "Kullanici onaylandi", data: updated });
+});
+
+// ─── Admin: Kullaniciyi Reddet ────────────────────────────────────────────────
+
+exports.rejectUser = asyncHandler(async (req, res) => {
+  const { userId } = req.params;
+  const { reason } = req.body;
+
+  if (!userId) {
+    return res.status(400).json({ success: false, message: "userId gerekli" });
+  }
+
+  const user = await prisma.user.findUnique({ where: { id: userId } });
+  if (!user) {
+    return res.status(404).json({ success: false, message: "Kullanici bulunamadi" });
+  }
+
+  if (!["LAWYER", "REPRESENTATIVE"].includes(user.role)) {
+    return res.status(400).json({ success: false, message: "Sadece LAWYER veya REPRESENTATIVE reddedilebilir" });
+  }
+
+  const updateData = user.role === "LAWYER"
+    ? { baroOnayDurumu: "REDDEDILDI", isActive: false }
+    : { temsilciOnayDurumu: "REDDEDILDI", isActive: false };
+
+  const updated = await prisma.user.update({
+    where: { id: userId },
+    data: updateData,
+    select: { id: true, email: true, fullName: true, role: true },
+  });
+
+  await prisma.activityLog.create({
+    data: {
+      action: "USER_REJECTED",
+      detail: `${updated.role} reddedildi: ${updated.email} (admin: ${req.user.email}) reason: ${reason || "-"}`,
+    },
+  }).catch(() => {});
+
+  res.json({ success: true, message: "Kullanici reddedildi", data: updated });
+});
+
+// ─── Admin: Manuel Hukukcu/Temsilci Ekleme ────────────────────────────────────
+
+exports.adminCreateUser = asyncHandler(async (req, res) => {
+  const { fullName, email, password, phone, role, baroSicilNo, uzmanlik, hukukcuKomisyon, primOrani, bolge } = req.body;
+
+  if (!fullName || !email || !password || !role) {
+    return res.status(400).json({ success: false, message: "fullName, email, password, role zorunludur" });
+  }
+
+  if (!["LAWYER", "REPRESENTATIVE", "CUSTOMER", "SALES"].includes(role)) {
+    return res.status(400).json({ success: false, message: "Gecersiz rol" });
+  }
+
+  if (role === "LAWYER" && !baroSicilNo) {
+    return res.status(400).json({ success: false, message: "Hukukcu icin baroSicilNo zorunlu" });
+  }
+
+  const extraData = {};
+  if (role === "LAWYER") {
+    extraData.baroSicilNo = baroSicilNo;
+    extraData.uzmanlik = uzmanlik || null;
+    extraData.hukukcuKomisyon = Number(hukukcuKomisyon) || 20;
+    extraData.baroOnayDurumu = "ONAYLANDI";
+  }
+  if (role === "REPRESENTATIVE") {
+    extraData.bolge = bolge || null;
+    extraData.primOrani = Number(primOrani) || 50;
+    extraData.temsilciOnayDurumu = "ONAYLANDI";
+  }
+
+  const { user } = await authService.register({
+    fullName, email, password, phone: phone || null, role, ...extraData,
+  });
+
+  await prisma.activityLog.create({
+    data: {
+      action: "ADMIN_USER_CREATED",
+      detail: `Admin tarafindan ${role} olusturuldu: ${email} (admin: ${req.user.email})`,
+    },
+  }).catch(() => {});
+
+  res.status(201).json({ success: true, data: user, message: "Kullanici olusturuldu ve onaylandi" });
+});
+

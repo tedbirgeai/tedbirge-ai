@@ -24,6 +24,12 @@ router.post("/verify-2fa",   auth, controller.verify2fa);
 router.post("/disable-2fa",  auth, controller.disable2fa);
 router.post("/login-2fa",    controller.loginVerify2fa);
 
+// Admin Onay Yonetimi
+router.get ("/pending-approvals",      auth, role("ADMIN"), controller.listPendingApprovals);
+router.post("/approve/:userId",        auth, role("ADMIN"), controller.approveUser);
+router.post("/reject/:userId",         auth, role("ADMIN"), controller.rejectUser);
+router.post("/admin-create-user",      auth, role("ADMIN"), controller.adminCreateUser);
+
 module.exports = router;
 
 
