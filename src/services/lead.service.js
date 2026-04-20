@@ -66,11 +66,15 @@ async function createLead(data, ownerId = null, createdById = null) {
   return lead;
 }
 
-// REPRESENTATIVE için avukat kişisel bilgilerini kırp; sadece ad kalır
+// REPRESENTATIVE hukukcu bilgilerini hic gormemeli — explicit whitelist
 function sanitizeLawyerForRepresentative(assignments) {
   return (assignments || []).map((a) => ({
-    ...a,
-    lawyer: a.lawyer ? { id: a.lawyer.id, fullName: a.lawyer.fullName } : null,
+    id: a.id,
+    leadId: a.leadId,
+    status: a.status,
+    createdAt: a.createdAt,
+    // note ve lawyerId intentionally omitted
+    lawyer: null,
   }));
 }
 
@@ -343,4 +347,6 @@ async function generateDocumentDraft(leadId) {
     powerOfAttorneyText: result.powerOfAttorneyText
   };
 }
+
+module.exports.__test = { sanitizeLawyerForRepresentative };
 
