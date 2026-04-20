@@ -150,6 +150,42 @@ BUGUN YAPILANLAR (kronolojik):
    geciscirilecek, chat'e yazilmayacak.
 
 ═══════════════════════════════════════════════════════════════
+  21 NISAN 2026 — GECE OTURUMU (00:00–02:00) — TAMAMLANDI
+═══════════════════════════════════════════════════════════════
+
+Yapilanlar:
+- Fizibilite raporu + 9 eksik tespit
+- authMiddleware JWT payload bug fix (userId tutarli hale geldi)
+- Admin onay endpoint'leri: /auth/pending-approvals, /approve/:id, /reject/:id
+- Admin manuel kullanici ekleme: /auth/admin-create-user
+- Email dogrulama akisi: /auth/send-email-verification, /verify-email
+- Muvekkil web kayit: /auth/register/customer (OTP + email verify)
+- Rate limiting: login, register, forgot-password endpoint'lerine
+- Test altyapisi onarim: jest.config.js + npm test script (142/142 PASS)
+- GitHub PAT sizintisi tespit + eski token iptal + yeni token kurulum
+- 9 commit master'a merge + push (commit df0dc81)
+- Render deploy otomatik tamamlandi, yeni endpoint'ler canli
+
+Canli durumu (21 Nisan 02:00):
+- Admin: admin@tedbirge.ai (aktif)
+- Avukatlar: Ramazan DURAN + Muzaffer TUMSA (onayli, aktif, panel'de gorunuyor)
+- Hukukcu Onay sayfasi: canliya bagli, bekleyen yok
+- Temsilci Onay sayfasi: canliya bagli, bekleyen yok
+
+Aciklar (sonraki paket icin):
+- 2FA zorunlulugu (ADMIN + LAWYER) — su an opsiyonel
+- Audit log genisletme (login/logout/2fa events)
+- SMS ile sifre sifirlama
+- Session yonetimi / aktif cihazlar listesi
+- Panel repo'nun GitHub token guncellemesi (yeni token ile)
+- Supabase free tier heartbeat cron (7 gun hareketsizlik koruma)
+
+Git:
+- master: df0dc81 (merge: auth tamamlama paketi)
+- origin/master: df0dc81 (senkronize)
+- auth-tamamlama-2026-04-21: silinebilir (merge edildi)
+
+═══════════════════════════════════════════════════════════════
   MEVCUT REPO / CANLI DURUMU (20 Nisan gece 23:00)
 ═══════════════════════════════════════════════════════════════
 
