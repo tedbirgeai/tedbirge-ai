@@ -48,3 +48,127 @@ Son Güncelleme: 16.04.2026 19:05:02
 - Kor patch yasak.
 - Tüm değişiklikler doğrulanmış dosya içeriğine dayanır.
 - Mümkün olan her durumda tek split / tek parça komut verilir.
+
+---
+
+═══════════════════════════════════════════════════════════════
+  20 NISAN 2026 — GECE OTURUMU (18:30–23:00)
+═══════════════════════════════════════════════════════════════
+
+KRITIK KESIF: Canli sistem 3 haftadir aslinda calismiyordu.
+Supabase projesi (dlkctvyjbuulmkgpqcvm) 7 gun hareketsizlik
+sonrasi otomatik duraklatilip silinmis. Render'daki DATABASE_URL
+olu bir DB'yi gosteriyordu. Tum "ilk lead" tanilari aslinda
+LOKAL DB'de, canli DB bombosdu.
+
+Ramazan Duran ve Muzaffer TUMSA gercek avukatlar sisteme
+girmeye calistilar, giremediler. "Failed to fetch" hatasi
+hep CORS degil, backend DB baglantisizligindan geliyordu.
+
+BUGUN YAPILANLAR (kronolojik):
+
+1. TANI: Render env DATABASE_URL'de eski Supabase projesi
+   (dlkctvyjbuulmkgpqcvm) referansi, aktif proje ise
+   iikpmzomblocdrxeisxh (ayni hesap, farkli proje, bos).
+
+2. YENI SUPABASE BAGLANTISI:
+   - Eski proje silindi (Supabase free tier 90 gun kurali).
+   - Aktif proje: iikpmzomblocdrxeisxh.supabase.co
+   - Bolge: Sydney AWS ap-southeast-2 (IPv6-only direct,
+     IPv4 icin Session Pooler kullaniliyor).
+   - Connection: aws-1-ap-southeast-2.pooler.supabase.com:5432
+   - User: postgres.iikpmzomblocdrxeisxh
+   - DB sifresi iki kez sifirlandi. Bu sefer sifre
+     pgpass.tmp dosyasi ile guvenli transfer edildi.
+
+3. RENDER GUNCELLEMELER:
+   - DATABASE_URL → yeni pooler URL (sifre guvenli).
+   - CORS_ORIGIN → http://localhost:3000 (yetersiz)
+     YENI: https://www.tedbirge.ai,https://tedbirge.ai,
+           https://tedbirge-panel.vercel.app,http://localhost:3000
+   - Redeploy otomatik, 2 kez oldu.
+
+4. PRISMA DB PUSH (CANLI):
+   - 17 tablo olusturuldu canli DB'de (User, Lead, PhoneOtp,
+     Document, ActivityLog, Contract, Petition, Assignment,
+     Durusma, Bilirkisi, Masraf, DavaSurec, IhtarnameTakip,
+     ChatSession, ChatMessage, VerificationToken,
+     PushSubscription).
+   - Komut: npx prisma db push --skip-generate
+   - Migration history tam degil, db push kullanildi
+     (prisma/migrations/ son 20260415, sonrasi db push).
+
+5. ADMIN SEED (CANLI):
+   - Lokaldeki ADMIN hesabi canliya tasindi, hash aynen.
+   - E-posta: admin@tedbirge.ai
+   - Sifre: Tedbirge2026! (ayni hash, lokal=canli)
+   - ID: ec158ea2-c22c-42eb-9ea7-f1de6515bdaf
+   - Rol: ADMIN, isActive: true
+
+6. TEST: curl ile /api/auth/login → success:true, JWT token
+   dondu. Tarayici "Failed to fetch" aliyordu → CORS sorunu
+   → CORS_ORIGIN guncellendi → admin paneli canlida acildi.
+
+7. IKI KULLANICI SADECE LOKALDE (canliya tasinmadi):
+   - Ramazan Duran (LAWYER, ONAYLANDI, lokal sifre TedbirgeGecici2026!)
+   - Muzaffer TUMSA (LAWYER, ONAYLANDI, lokal sifre 654321)
+
+═══════════════════════════════════════════════════════════════
+  21 NISAN 2026 — ACIL ISLER (oncelik sirasiyla)
+═══════════════════════════════════════════════════════════════
+
+1. RAMAZAN VE MUZAFFER CANLIYA EKLEME (en acil)
+   Iki avukat da sahada bekliyor.
+   Yontem: Admin panel → Kullanicilar → Avukat Ekle.
+   Ya da lokaldeki gibi JSON export + canli import script.
+   Muzaffer: muzaffertumsa@hotmail.com / 654321
+   Ramazan: ramazanduran111@gmail.com / TedbirgeGecici2026!
+   Her ikisini de "Hukukcu Onay" sayfasindan ONAYLA.
+   Kendi tarayicinda test et → sonra avukatlara bildir.
+
+2. CORS WHITELIST GENISLETME (KUCUK)
+   Gerekirse tedbirge-ai.onrender.com da whitelist'e ekle
+   (backend kendi kendine istek atarsa diye).
+
+3. GOREV.MD DOSYASI BUYUK (76.6k char, performansi etkiliyor)
+   gorev.md → kisa anayasa (degismez kurallar)
+   CURRENT_STATE.md → anlik durum
+   CHANGELOG.md → oturum gecmisi
+   Bolmek lazim, bugunku Claude Code uyarisi.
+
+4. SUPABASE FREE TIER OTOMATIK DURAKLATMA
+   7 gun hareketsizlik → duraklatilir
+   90 gun duraklali → arsiv, veri kaybi
+   Cozum: GitHub Actions cron job heartbeat ping
+   Ya da: Supabase Pro tier upgrade
+   Acil degil ama yarin karar verilmeli.
+
+5. SIFRE GUVENLIGI
+   Bu oturumda bir sifre (7IdAz1dWWiIzNxic) chat'e sizdi.
+   O sifre zaten sifirlandi, sorun yok. Ama ileride
+   sifreler MUTLAKA pgpass.tmp dosyasi yontemi ile
+   geciscirilecek, chat'e yazilmayacak.
+
+═══════════════════════════════════════════════════════════════
+  MEVCUT REPO / CANLI DURUMU (20 Nisan gece 23:00)
+═══════════════════════════════════════════════════════════════
+
+Ana repo:    temiz, son commit caseData feat (78f7e2a)
+Panel repo:  3 uncommitted dosya (dunden kalma)
+Test:        142 PASS (lokal)
+Motor:       compensation.engine.v2.js - hic dokunulmadi
+
+CANLI:
+  Domain:     www.tedbirge.ai (Render)
+  Backend:    tedbirge-ai.onrender.com (Render Free tier, uyku modu var)
+  DB:         iikpmzomblocdrxeisxh.supabase.co (Sydney, Supabase Free)
+  Admin:      admin@tedbirge.ai / Tedbirge2026! (canlida aktif)
+  Kullanici:  Sadece 1 (admin). Ramazan + Muzaffer lokalde,
+              canliya tasinacak.
+
+LOKAL:
+  Admin:      admin@tedbirge.ai / Tedbirge2026! (ayni sifre)
+  Ramazan:    ramazanduran111@gmail.com / TedbirgeGecici2026!
+  Muzaffer:   muzaffertumsa@hotmail.com / 654321
+
+═══════════════════════════════════════════════════════════════
