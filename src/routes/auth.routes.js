@@ -8,6 +8,7 @@ const router = express.Router();
 router.post("/register", auth, role("ADMIN"), controller.register);
 router.post("/register/hukukcu", controller.registerHukukcu);
 router.post("/register/temsilci", controller.registerTemsilci);
+router.post("/register/customer", controller.registerCustomer);
 router.post("/register/send-otp", controller.sendRegistrationOtp);
 router.post("/create-customer", auth, role("ADMIN", "SALES", "REPRESENTATIVE"), controller.createCustomer);
 router.post("/login", controller.login);

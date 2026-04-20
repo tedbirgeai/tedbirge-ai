@@ -259,6 +259,64 @@ exports.sendRegistrationOtp = asyncHandler(async (req, res) => {
   res.json({ success: true, message: "OTP gönderildi." });
 });
 
+// ─── Muvekkil (CUSTOMER) Web Kaydi — OTP dogrulamali ──────────────────────────
+
+exports.registerCustomer = asyncHandler(async (req, res) => {
+  const { fullName, email, password, phone, otpKod, leadId } = req.body;
+
+  if (!fullName || !email || !password || !phone || !otpKod) {
+    return res.status(400).json({ success: false, message: "Tum zorunlu alanlari doldurun." });
+  }
+
+  // OTP dogrula
+  const otp = await prisma.phoneOtp.findFirst({ where: { phone, code: String(otpKod), purpose: "kayit" } });
+  if (!otp) return res.status(400).json({ success: false, message: "OTP kodu hatali." });
+  if (new Date(otp.expiresAt) < new Date()) return res.status(400).json({ success: false, message: "OTP suresi dolmus." });
+  await prisma.phoneOtp.delete({ where: { id: otp.id } });
+
+  // Varolan lead bagla (opsiyonel)
+  if (leadId) {
+    const existingLead = await prisma.lead.findUnique({ where: { id: leadId } });
+    if (!existingLead) {
+      return res.status(404).json({ success: false, message: "Lead bulunamadi" });
+    }
+  }
+
+  const { user, token } = await authService.register({
+    fullName, email, password, phone, role: "CUSTOMER",
+  });
+
+  if (leadId) {
+    await prisma.lead.update({ where: { id: leadId }, data: { ownerId: user.id } });
+    await prisma.activityLog.create({
+      data: {
+        leadId,
+        action: "LEAD_OWNER_ASSIGNED",
+        detail: `Muvekkil kendi kayit oldu ve lead'e baglandi: ${user.email}`,
+      },
+    }).catch(() => {});
+  }
+
+  // Kayit sonrasi email dogrulama maili tetikle (best-effort)
+  try {
+    const verifyToken = crypto.randomBytes(32).toString("hex");
+    const expiresAt = new Date(Date.now() + 24 * 60 * 60 * 1000);
+    await prisma.verificationToken.create({
+      data: { email, token: verifyToken, expiresAt },
+    });
+    const verifyUrl = `${process.env.PANEL_URL || "https://www.tedbirge.ai"}/verify-email?token=${verifyToken}`;
+    await sendEmail({
+      to: email,
+      subject: "Tedbirge -- Hos geldiniz, e-postanizi dogrulayin",
+      html: `<p>Sayin ${fullName},</p>
+             <p>Tedbirge'ye hos geldiniz. E-posta adresinizi dogrulamak icin tiklayin (24 saat):</p>
+             <p><a href="${verifyUrl}">${verifyUrl}</a></p>`,
+    });
+  } catch (e) { console.error("[registerCustomer verify mail]", e.message); }
+
+  res.status(201).json({ success: true, data: { user, token }, message: "Kayit basarili. E-postanizi dogrulayin." });
+});
+
 // ─── Hukukçu Kaydı ────────────────────────────────────────────────────────────
 
 exports.registerHukukcu = asyncHandler(async (req, res) => {
