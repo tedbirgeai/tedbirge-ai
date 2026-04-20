@@ -353,7 +353,7 @@ exports.loginVerify2fa = asyncHandler(async (req, res) => {
   if (!ok) return res.status(400).json({ success: false, message: "Geçersiz OTP kodu." });
 
   const finalToken = jwt.sign(
-    { id: user.id, email: user.email, role: user.role, fullName: user.fullName },
+    { userId: user.id, role: user.role },
     process.env.JWT_SECRET,
     { expiresIn: "24h" }
   );
