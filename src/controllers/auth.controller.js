@@ -163,6 +163,70 @@ exports.resetPassword = asyncHandler(async (req, res) => {
   res.json({ success: true, message: "Şifre başarıyla güncellendi." });
 });
 
+// ─── Email Dogrulama — Link Gonder ────────────────────────────────────────────
+
+exports.sendEmailVerification = asyncHandler(async (req, res) => {
+  const userId = req.user?.id;
+  if (!userId) return res.status(401).json({ success: false, message: "Kimlik dogrulama gerekli." });
+
+  const user = await prisma.user.findUnique({ where: { id: userId } });
+  if (!user) return res.status(404).json({ success: false, message: "Kullanici bulunamadi." });
+
+  // Eski token'lari temizle
+  await prisma.verificationToken.deleteMany({ where: { email: user.email } }).catch(() => {});
+
+  const token = crypto.randomBytes(32).toString("hex");
+  const expiresAt = new Date(Date.now() + 24 * 60 * 60 * 1000); // 24 saat
+
+  await prisma.verificationToken.create({
+    data: { email: user.email, token, expiresAt },
+  });
+
+  const verifyUrl = `${process.env.PANEL_URL || "https://www.tedbirge.ai"}/verify-email?token=${token}`;
+
+  await sendEmail({
+    to: user.email,
+    subject: "Tedbirge -- E-posta Dogrulama",
+    html: `
+      <p>Merhaba ${user.fullName},</p>
+      <p>E-posta adresinizi dogrulamak icin asagidaki baglantiya tiklayin (24 saat gecerli):</p>
+      <p><a href="${verifyUrl}">${verifyUrl}</a></p>
+      <p>Bu istegi siz yapmadiysaniz bu e-postayi dikkate almayin.</p>
+    `,
+  });
+
+  res.json({ success: true, message: "Dogrulama e-postasi gonderildi." });
+});
+
+// ─── Email Dogrulama — Link Tiklama ───────────────────────────────────────────
+
+exports.verifyEmail = asyncHandler(async (req, res) => {
+  const { token } = req.body;
+  if (!token) return res.status(400).json({ success: false, message: "Token zorunlu." });
+
+  const vt = await prisma.verificationToken.findFirst({
+    where: { token, expiresAt: { gt: new Date() } },
+  });
+
+  if (!vt) return res.status(400).json({ success: false, message: "Gecersiz veya suresi dolmus token." });
+
+  const user = await prisma.user.findUnique({ where: { email: vt.email } });
+  if (!user) return res.status(404).json({ success: false, message: "Kullanici bulunamadi." });
+
+  // Token'i sil (tek kullanimlik)
+  await prisma.verificationToken.delete({ where: { token } }).catch(() => {});
+
+  // Audit log
+  await prisma.activityLog.create({
+    data: {
+      action: "EMAIL_VERIFIED",
+      detail: `E-posta dogrulandi: ${user.email}`,
+    },
+  }).catch(() => {});
+
+  res.json({ success: true, message: "E-posta dogrulandi." });
+});
+
 exports.acceptTerms = asyncHandler(async (req, res) => {
   const userId = req.user?.id;
   if (!userId) {
@@ -193,6 +257,64 @@ exports.sendRegistrationOtp = asyncHandler(async (req, res) => {
   await sendOtpSms(phone, code, "kayit");
 
   res.json({ success: true, message: "OTP gönderildi." });
+});
+
+// ─── Muvekkil (CUSTOMER) Web Kaydi — OTP dogrulamali ──────────────────────────
+
+exports.registerCustomer = asyncHandler(async (req, res) => {
+  const { fullName, email, password, phone, otpKod, leadId } = req.body;
+
+  if (!fullName || !email || !password || !phone || !otpKod) {
+    return res.status(400).json({ success: false, message: "Tum zorunlu alanlari doldurun." });
+  }
+
+  // OTP dogrula
+  const otp = await prisma.phoneOtp.findFirst({ where: { phone, code: String(otpKod), purpose: "kayit" } });
+  if (!otp) return res.status(400).json({ success: false, message: "OTP kodu hatali." });
+  if (new Date(otp.expiresAt) < new Date()) return res.status(400).json({ success: false, message: "OTP suresi dolmus." });
+  await prisma.phoneOtp.delete({ where: { id: otp.id } });
+
+  // Varolan lead bagla (opsiyonel)
+  if (leadId) {
+    const existingLead = await prisma.lead.findUnique({ where: { id: leadId } });
+    if (!existingLead) {
+      return res.status(404).json({ success: false, message: "Lead bulunamadi" });
+    }
+  }
+
+  const { user, token } = await authService.register({
+    fullName, email, password, phone, role: "CUSTOMER",
+  });
+
+  if (leadId) {
+    await prisma.lead.update({ where: { id: leadId }, data: { ownerId: user.id } });
+    await prisma.activityLog.create({
+      data: {
+        leadId,
+        action: "LEAD_OWNER_ASSIGNED",
+        detail: `Muvekkil kendi kayit oldu ve lead'e baglandi: ${user.email}`,
+      },
+    }).catch(() => {});
+  }
+
+  // Kayit sonrasi email dogrulama maili tetikle (best-effort)
+  try {
+    const verifyToken = crypto.randomBytes(32).toString("hex");
+    const expiresAt = new Date(Date.now() + 24 * 60 * 60 * 1000);
+    await prisma.verificationToken.create({
+      data: { email, token: verifyToken, expiresAt },
+    });
+    const verifyUrl = `${process.env.PANEL_URL || "https://www.tedbirge.ai"}/verify-email?token=${verifyToken}`;
+    await sendEmail({
+      to: email,
+      subject: "Tedbirge -- Hos geldiniz, e-postanizi dogrulayin",
+      html: `<p>Sayin ${fullName},</p>
+             <p>Tedbirge'ye hos geldiniz. E-posta adresinizi dogrulamak icin tiklayin (24 saat):</p>
+             <p><a href="${verifyUrl}">${verifyUrl}</a></p>`,
+    });
+  } catch (e) { console.error("[registerCustomer verify mail]", e.message); }
+
+  res.status(201).json({ success: true, data: { user, token }, message: "Kayit basarili. E-postanizi dogrulayin." });
 });
 
 // ─── Hukukçu Kaydı ────────────────────────────────────────────────────────────
@@ -353,7 +475,7 @@ exports.loginVerify2fa = asyncHandler(async (req, res) => {
   if (!ok) return res.status(400).json({ success: false, message: "Geçersiz OTP kodu." });
 
   const finalToken = jwt.sign(
-    { id: user.id, email: user.email, role: user.role, fullName: user.fullName },
+    { userId: user.id, role: user.role },
     process.env.JWT_SECRET,
     { expiresIn: "24h" }
   );
@@ -380,5 +502,180 @@ exports.listLawyers = asyncHandler(async (_req, res) => {
   });
 
   res.json({ success: true, data: lawyers });
+});
+
+// ─── Admin: Bekleyen Onaylari Listele ─────────────────────────────────────────
+
+exports.listPendingApprovals = asyncHandler(async (req, res) => {
+  const { role } = req.query; // "LAWYER" | "REPRESENTATIVE"
+
+  if (!role || !["LAWYER", "REPRESENTATIVE"].includes(role)) {
+    return res.status(400).json({ success: false, message: "role parametresi gerekli (LAWYER veya REPRESENTATIVE)" });
+  }
+
+  const whereClause = role === "LAWYER"
+    ? { role: "LAWYER", baroOnayDurumu: "BEKLEMEDE" }
+    : { role: "REPRESENTATIVE", temsilciOnayDurumu: "BEKLEMEDE" };
+
+  const users = await prisma.user.findMany({
+    where: whereClause,
+    select: {
+      id: true,
+      fullName: true,
+      email: true,
+      phone: true,
+      role: true,
+      baroSicilNo: true,
+      uzmanlik: true,
+      bolge: true,
+      hukukcuKomisyon: true,
+      primOrani: true,
+      baroOnayDurumu: true,
+      temsilciOnayDurumu: true,
+      sozlesmeKabulTarihi: true,
+      createdAt: true,
+    },
+    orderBy: { createdAt: "desc" },
+  });
+
+  res.json({ success: true, data: users });
+});
+
+// ─── Admin: Kullaniciyi Onayla ────────────────────────────────────────────────
+
+exports.approveUser = asyncHandler(async (req, res) => {
+  const { userId } = req.params;
+  if (!userId) {
+    return res.status(400).json({ success: false, message: "userId gerekli" });
+  }
+
+  const user = await prisma.user.findUnique({ where: { id: userId } });
+  if (!user) {
+    return res.status(404).json({ success: false, message: "Kullanici bulunamadi" });
+  }
+
+  if (!["LAWYER", "REPRESENTATIVE"].includes(user.role)) {
+    return res.status(400).json({ success: false, message: "Sadece LAWYER veya REPRESENTATIVE onaylanabilir" });
+  }
+
+  const updateData = user.role === "LAWYER"
+    ? { baroOnayDurumu: "ONAYLANDI", isActive: true }
+    : { temsilciOnayDurumu: "ONAYLANDI", isActive: true };
+
+  const updated = await prisma.user.update({
+    where: { id: userId },
+    data: updateData,
+    select: { id: true, email: true, fullName: true, phone: true, role: true },
+  });
+
+  await prisma.activityLog.create({
+    data: {
+      action: "USER_APPROVED",
+      detail: `${updated.role} onaylandi: ${updated.email} (admin: ${req.user.email})`,
+    },
+  }).catch(() => {});
+
+  try {
+    const { sendEmail } = require("../services/email.service");
+    await sendEmail({
+      to: updated.email,
+      subject: "Tedbirge -- Hesabiniz Onaylandi",
+      html: `<p>Sayin ${updated.fullName},</p>
+             <p>Tedbirge hesabiniz yonetici tarafindan onaylanmistir. Artik panele giris yapabilirsiniz.</p>
+             <p><a href="${process.env.PANEL_URL || "https://www.tedbirge.ai"}/login">Panele Giris</a></p>`,
+    });
+  } catch (e) { console.error("[approveUser email]", e.message); }
+
+  if (updated.phone) {
+    try {
+      const { sendSms } = require("../services/sms.service");
+      await sendSms(updated.phone, `Tedbirge hesabiniz onaylandi. Giris: tedbirge.ai/login`);
+    } catch (e) { console.error("[approveUser sms]", e.message); }
+  }
+
+  res.json({ success: true, message: "Kullanici onaylandi", data: updated });
+});
+
+// ─── Admin: Kullaniciyi Reddet ────────────────────────────────────────────────
+
+exports.rejectUser = asyncHandler(async (req, res) => {
+  const { userId } = req.params;
+  const { reason } = req.body;
+
+  if (!userId) {
+    return res.status(400).json({ success: false, message: "userId gerekli" });
+  }
+
+  const user = await prisma.user.findUnique({ where: { id: userId } });
+  if (!user) {
+    return res.status(404).json({ success: false, message: "Kullanici bulunamadi" });
+  }
+
+  if (!["LAWYER", "REPRESENTATIVE"].includes(user.role)) {
+    return res.status(400).json({ success: false, message: "Sadece LAWYER veya REPRESENTATIVE reddedilebilir" });
+  }
+
+  const updateData = user.role === "LAWYER"
+    ? { baroOnayDurumu: "REDDEDILDI", isActive: false }
+    : { temsilciOnayDurumu: "REDDEDILDI", isActive: false };
+
+  const updated = await prisma.user.update({
+    where: { id: userId },
+    data: updateData,
+    select: { id: true, email: true, fullName: true, role: true },
+  });
+
+  await prisma.activityLog.create({
+    data: {
+      action: "USER_REJECTED",
+      detail: `${updated.role} reddedildi: ${updated.email} (admin: ${req.user.email}) reason: ${reason || "-"}`,
+    },
+  }).catch(() => {});
+
+  res.json({ success: true, message: "Kullanici reddedildi", data: updated });
+});
+
+// ─── Admin: Manuel Hukukcu/Temsilci Ekleme ────────────────────────────────────
+
+exports.adminCreateUser = asyncHandler(async (req, res) => {
+  const { fullName, email, password, phone, role, baroSicilNo, uzmanlik, hukukcuKomisyon, primOrani, bolge } = req.body;
+
+  if (!fullName || !email || !password || !role) {
+    return res.status(400).json({ success: false, message: "fullName, email, password, role zorunludur" });
+  }
+
+  if (!["LAWYER", "REPRESENTATIVE", "CUSTOMER", "SALES"].includes(role)) {
+    return res.status(400).json({ success: false, message: "Gecersiz rol" });
+  }
+
+  if (role === "LAWYER" && !baroSicilNo) {
+    return res.status(400).json({ success: false, message: "Hukukcu icin baroSicilNo zorunlu" });
+  }
+
+  const extraData = {};
+  if (role === "LAWYER") {
+    extraData.baroSicilNo = baroSicilNo;
+    extraData.uzmanlik = uzmanlik || null;
+    extraData.hukukcuKomisyon = Number(hukukcuKomisyon) || 20;
+    extraData.baroOnayDurumu = "ONAYLANDI";
+  }
+  if (role === "REPRESENTATIVE") {
+    extraData.bolge = bolge || null;
+    extraData.primOrani = Number(primOrani) || 50;
+    extraData.temsilciOnayDurumu = "ONAYLANDI";
+  }
+
+  const { user } = await authService.register({
+    fullName, email, password, phone: phone || null, role, ...extraData,
+  });
+
+  await prisma.activityLog.create({
+    data: {
+      action: "ADMIN_USER_CREATED",
+      detail: `Admin tarafindan ${role} olusturuldu: ${email} (admin: ${req.user.email})`,
+    },
+  }).catch(() => {});
+
+  res.status(201).json({ success: true, data: user, message: "Kullanici olusturuldu ve onaylandi" });
 });
 

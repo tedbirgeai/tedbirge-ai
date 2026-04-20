@@ -52,6 +52,12 @@ desktop.ini
 # ─── Temp files ──────────────────────────────────────────────────────────────
 *.tmp
 *.temp
+MIMAR_TANI*.txt
+MIMAR_PAKET*.md
+lawyers-export.json
+pgpass.tmp
+scripts/export-lawyers.js
+scripts/import-lawyers.js
 *.tsbuildinfo
 tedbirge-panel/next-env.d.ts
 
