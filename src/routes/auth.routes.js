@@ -30,6 +30,10 @@ router.post("/approve/:userId",        auth, role("ADMIN"), controller.approveUs
 router.post("/reject/:userId",         auth, role("ADMIN"), controller.rejectUser);
 router.post("/admin-create-user",      auth, role("ADMIN"), controller.adminCreateUser);
 
+// Email Dogrulama
+router.post("/send-email-verification", auth, controller.sendEmailVerification);
+router.post("/verify-email",            controller.verifyEmail);
+
 module.exports = router;
 
 

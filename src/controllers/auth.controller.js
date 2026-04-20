@@ -163,6 +163,70 @@ exports.resetPassword = asyncHandler(async (req, res) => {
   res.json({ success: true, message: "Şifre başarıyla güncellendi." });
 });
 
+// ─── Email Dogrulama — Link Gonder ────────────────────────────────────────────
+
+exports.sendEmailVerification = asyncHandler(async (req, res) => {
+  const userId = req.user?.id;
+  if (!userId) return res.status(401).json({ success: false, message: "Kimlik dogrulama gerekli." });
+
+  const user = await prisma.user.findUnique({ where: { id: userId } });
+  if (!user) return res.status(404).json({ success: false, message: "Kullanici bulunamadi." });
+
+  // Eski token'lari temizle
+  await prisma.verificationToken.deleteMany({ where: { email: user.email } }).catch(() => {});
+
+  const token = crypto.randomBytes(32).toString("hex");
+  const expiresAt = new Date(Date.now() + 24 * 60 * 60 * 1000); // 24 saat
+
+  await prisma.verificationToken.create({
+    data: { email: user.email, token, expiresAt },
+  });
+
+  const verifyUrl = `${process.env.PANEL_URL || "https://www.tedbirge.ai"}/verify-email?token=${token}`;
+
+  await sendEmail({
+    to: user.email,
+    subject: "Tedbirge -- E-posta Dogrulama",
+    html: `
+      <p>Merhaba ${user.fullName},</p>
+      <p>E-posta adresinizi dogrulamak icin asagidaki baglantiya tiklayin (24 saat gecerli):</p>
+      <p><a href="${verifyUrl}">${verifyUrl}</a></p>
+      <p>Bu istegi siz yapmadiysaniz bu e-postayi dikkate almayin.</p>
+    `,
+  });
+
+  res.json({ success: true, message: "Dogrulama e-postasi gonderildi." });
+});
+
+// ─── Email Dogrulama — Link Tiklama ───────────────────────────────────────────
+
+exports.verifyEmail = asyncHandler(async (req, res) => {
+  const { token } = req.body;
+  if (!token) return res.status(400).json({ success: false, message: "Token zorunlu." });
+
+  const vt = await prisma.verificationToken.findFirst({
+    where: { token, expiresAt: { gt: new Date() } },
+  });
+
+  if (!vt) return res.status(400).json({ success: false, message: "Gecersiz veya suresi dolmus token." });
+
+  const user = await prisma.user.findUnique({ where: { email: vt.email } });
+  if (!user) return res.status(404).json({ success: false, message: "Kullanici bulunamadi." });
+
+  // Token'i sil (tek kullanimlik)
+  await prisma.verificationToken.delete({ where: { token } }).catch(() => {});
+
+  // Audit log
+  await prisma.activityLog.create({
+    data: {
+      action: "EMAIL_VERIFIED",
+      detail: `E-posta dogrulandi: ${user.email}`,
+    },
+  }).catch(() => {});
+
+  res.json({ success: true, message: "E-posta dogrulandi." });
+});
+
 exports.acceptTerms = asyncHandler(async (req, res) => {
   const userId = req.user?.id;
   if (!userId) {
