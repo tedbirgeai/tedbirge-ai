@@ -17,19 +17,19 @@ birlestiren tek referans.
 
 SIRAYLA YAPILACAK:
 
-[ ] 1. Backend /api/health endpoint ekle (15 dk)
+[✓] 1. Backend /api/health endpoint ekle (49b2e53 - health endpoint canlı)
       - src/routes/health.routes.js olustur
       - GET /api/health → status + timestamp
       - GET /api/health/db → Prisma SELECT 1
       - src/routes/index.js'e mount
       - Detay: MASTER_YAPILACAKLAR.md bolum 1.1
 
-[ ] 2. UptimeRobot backend monitor guncelle (5 dk)
+[✓] 2. UptimeRobot backend monitor guncelle (UptimeRobot aktif, 5dk interval)
       - URL: /api/health'a cevir
       - Unpause et
       - Detay: MASTER_YAPILACAKLAR.md bolum 1.2
 
-[ ] 3. KVKK healthDataApproved DB kaydi (45 dk)
+[✓] 3. KVKK healthDataApproved DB kaydi (83bc975 - healthDataConsentAt canlı, L-20260421-OMC1HW testi geçti)
       - Prisma schema: Lead modeline healthDataApprovedAt
       - Migration + controller guncelle
       - Detay: MASTER_YAPILACAKLAR.md bolum 1.3
@@ -37,6 +37,25 @@ SIRAYLA YAPILACAK:
 [ ] 4. /kvkk sayfasi ile modal icerigi senkron (20 dk)
       - Iki yerde farkli aydinlatma metni var, tekilletmek lazim
       - Detay: MASTER_YAPILACAKLAR.md bolum 1.4
+
+## 1.5 ACİL-SONRASI PAKET (Bu hafta, ~9 saat)
+
+- [ ] Sentry entegrasyonu (backend + panel, 2 saat)
+- [ ] Winston structured logging (backend, 1.5 saat)
+- [ ] GitHub Actions CI — test + lint + build (1 saat)
+- [ ] Jest ilk testler — auth + health + KVKK flow (2 saat)
+- [ ] Render build script'ine "prisma migrate deploy" ekle (30 dk)
+- [ ] Migration history drift temizleme (2 saat)
+
+## 1.6 TECH DEBT — Sabah İlk İşler
+
+- [ ] .env düzelt — Render'dan aktif DATABASE_URL kopyala (10 dk)
+- [ ] prisma migrate resolve aktif DB'de tekrar çalıştır (5 dk)
+- [ ] prisma generate çalıştır (2 dk)
+- [ ] Canlı test kayıtlarını sil — DELETE FROM "Lead" WHERE "customerName" LIKE 'Test Mimar HD%' (2 dk)
+- [ ] TECH_STACK_ENVANTER.md ve PROGRAMLAMA_DILLERI_ANALIZ.md için ayrı commit (5 dk)
+- [ ] PANEL_TANI_2.txt muammasını çöz (ne dosyası? sil/taşı/ignore) (5 dk)
+- [ ] CLAUDE.md temizliği — 76k → 40k altına (/memory komutu, 15 dk)
 
 ═══════════════════════════════════════════════════════════════
   22 NISAN 2026 — OGLEDEN SONRA: UX BUGLARI (2-3 saat)
@@ -88,6 +107,74 @@ SIRAYLA YAPILACAK:
 [ ] 33. PWA offline-first
 [ ] 34. E-imza entegrasyonu
 [ ] 35. Gelismis analitik
+
+═══════════════════════════════════════════════════════════════
+  STRATEJİK ÖNCELİK — MOBİL UYGULAMA ENTEGRASYONU
+═══════════════════════════════════════════════════════════════
+
+**MEHMET BEY'İN DİREKT TALEBİ (22 Nisan 2026, 01:40):**
+> "Artık dijital çağda yaşıyoruz. Bizim güçlü mıknatıslarımız mobil uygulamalardır."
+
+Mobil uygulama entegrasyonu Tedbirge.ai'nin **stratejik büyüme kaldıracıdır**.
+Avukatlar adliyede hareket halinde, müvekkiller telefonlarından her zaman
+erişim bekliyor. Mobil olmadan büyüme tavan yapar.
+
+### AŞAMALI UYGULAMA PLANI
+
+- [ ] **AŞAMA 1 — PWA DÖNÜŞÜMÜ (30 gün içinde, 3 gün iş)**
+    - Mevcut Next.js paneli mobil uygulama gibi davranacak
+    - Yeni dil/framework gerekmez, mevcut TypeScript/React yeterli
+    - service-worker.js + manifest.json
+    - "Ana ekrana ekle" özelliği (iOS + Android)
+    - Offline belge cache (adliye koridorunda çalışma)
+    - Push notification altyapısı
+    - SONUÇ: Avukat telefonunda "Tedbirge" ikonu, uygulama gibi açılır
+    - REFERANS: MASTER_YAPILACAKLAR Bölüm 13.1
+
+- [ ] **AŞAMA 2 — REACT NATIVE UYGULAMASI (90 gün hedefi)**
+    - App Store + Google Play'de gerçek uygulama
+    - React Native (Expo ile başla, bare'e geç gerekirse)
+    - Backend API aynen kullanılır — yeni backend yok
+    - iOS + Android tek kod tabanı
+    - Panel kodunun %50'si ortak paylaşılır (API, business logic)
+    - Tahmini: 6-8 hafta iş
+    - Ön koşul: 10+ aktif avukat (şu an 3, hedef 30 gün içinde)
+    - MEHMET BEY SEÇİMİ: React Native vs Flutter vs Native (sabah karar)
+
+- [ ] **AŞAMA 3 — MOBİL ÖZEL ÖZELLİKLER (150+ gün)**
+    - Kamera entegrasyonu (belge tarama, OCR)
+    - Biyometrik giriş (FaceID, parmak izi)
+    - Konum bazlı özellikler (hangi adliyedesiniz?)
+    - E-imza mobil entegrasyonu
+    - Tebligat push notification
+
+### FİZİBİLİTE RAPORU — v7 MOBİL STRATEJİ
+
+Yazılacak: Mayıs başı
+Kapsam:
+- PWA vs React Native vs Flutter vs Native karşılaştırması
+- Maliyet analizi (dev süresi, App Store fees, altyapı)
+- UYAP mobil entegrasyonu (v4 raporu ile birlikte değerlendirilecek)
+- Müvekkil portalı mobil özel tasarım
+- Timeline: 30/90/180 gün planlaması
+
+### TEKNİK NOTLAR (Mimar Notu)
+
+**NE KULLANILACAK (kesin):**
+- PWA: Mevcut Next.js (dil eklemeyeceğiz)
+- Native app: React Native (mevcut React bilgimizle %80 uyumlu)
+
+**NE KULLANILMAYACAK (kesin):**
+- ❌ C++ — Tedbirge.ai bir oyun motoru değil, gereksiz
+- ❌ Oracle — PostgreSQL yeterli, Oracle yıllık $50K+ lisans
+- ❌ Java backend — Node.js çalışıyor, 3 ay kaybı olur
+- ❌ Kubernetes — 10K kullanıcıya kadar gereksiz
+
+**NEDEN BU KARAR:**
+Dil çeşitliliği güç değil, yüktür. Her yeni dil = yeni bug kaynağı,
+yeni dependency, yeni ekip öğrenme süresi. Tedbirge.ai'yi güçlü kılan
+AVUKATLARA DEĞER KATAN ÖZELLİKLER (dilekçe süresi, UYAP, hukuki AI),
+stack sayısı değil.
 
 ═══════════════════════════════════════════════════════════════
   HUKUKI (MEHMET BEY + AVUKATLAR)
