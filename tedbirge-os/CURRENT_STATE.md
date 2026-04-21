@@ -265,3 +265,45 @@ GIT DURUMU (21 Nisan 05:10):
 - Uncommitted: yok
 
 ═══════════════════════════════════════════════════════════════
+
+═══════════════════════════════════════════════════════════════
+  21 NISAN 2026 — SABAH OTURUMU (05:10–08:00) — TAMAMLANDI
+═══════════════════════════════════════════════════════════════
+
+YAPILANLAR:
+- Vercel build hatasi (Suspense boundary) duzeldi — commit 26ed40c
+- Middleware public path listesine forgot-password + reset-password 
+  eklendi — commit eb8221b
+- Reset-password uctan uca test edildi: mail → link → yeni sifre → 
+  giris → KVKK → dashboard CALISIYOR
+- LexScan env var key uyumsuzlugu tespit edildi:
+  AiChatWidget.tsx NEXT_PUBLIC_API_URL okuyordu ama Vercel'de 
+  NEXT_PUBLIC_API_BASE_URL tanimliydi
+- AiChatWidget.tsx standardize edildi — commit 801d4d7
+- LexScan canlida dogrulandi: cevap veriyor
+- tedbirge-os/docs/ olusturuldu, AUTOMATION_AND_IMPROVEMENT_PLAN_v1.md 
+  + diger Downloads dosyalari tasindi
+- Otomasyon katmani baslatildi:
+  - Dependabot kuruldu (.github/dependabot.yml) — 27 Nisan Pazartesi 
+    ilk PR'lar acilacak
+  - UptimeRobot kuruldu, panel monitor aktif (www.tedbirge.ai)
+    5 dakikada bir ping, mail: tedbirge42@gmail.com
+  - Backend monitor (onrender.com) UptimeRobot UI bug'i nedeniyle 
+    eklenemedi, sabah denenecek
+
+V2 FIZIBILITE ICIN OKUNAN DOSYALAR (degisiklik yapilmadi):
+- dashboard/page.tsx (932 satir, dual dashboard)
+- leads/page.tsx (697 satir, kanban + tablo)
+- leads/[id]/page.tsx (3-kolon, 5 sekme)
+- auth.routes.js (2FA endpoint'leri mevcut)
+- musteri.routes.js (5 endpoint)
+- lexscan.routes.js + controller (mock mod fallback var)
+- middlewares/ (7 dosya, rate limiter + RBAC + auth aktif)
+
+KRITIK NOTLAR:
+- Vercel eski env var NEXT_PUBLIC_API_URL hala duruyor, silinmeli
+- LexScan mock mod fallback'i test edilmeli (key silinirse ne olur?)
+- Musteri portal endpoint'leri dar, belge yukleme/odeme kontrol edilmeli
+- 2FA altyapisi hazir ama zorunlu degil
+
+═══════════════════════════════════════════════════════════════

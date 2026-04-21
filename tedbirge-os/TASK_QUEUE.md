@@ -1,18 +1,31 @@
 # TASK_QUEUE
 
 ═══════════════════════════════════════════════════════════════
-  ACIL — YENI OTURUM ILK IS (22 NISAN SABAH)
+  22 NISAN GUNDUZ — YENI GOREVLER
 ═══════════════════════════════════════════════════════════════
 
-[ ] 1. Vercel panel build hatasini coz (cfda987 deploy FAIL)
-      - Dosya: app/(public)/reset-password/page.tsx
-      - Muhtemel fix: useSearchParams'i Suspense icine al
-      - Test: Sifremi Unuttum → mail → link → form → yeni sifre
+[ ] 1. UptimeRobot backend monitor'u ekle (2 dk)
+      URL: https://tedbirge-ai.onrender.com
       
-[ ] 2. Ramazan DURAN + Muzaffer TUMSA'ya bildirim mesaji gonder
-      (sifre + giris linki zaten hazir)
+[ ] 2. Vercel'den eski NEXT_PUBLIC_API_URL env var sil (1 dk)
 
-Detay: CURRENT_STATE.md "21 Nisan Gece Oturumu 2" bolumunde.
+[ ] 3. Mimar v2 fizibilite raporunu hazirlayacak — bekle, okuyup 
+      oncelik sirasini birlikte belirle
+
+[ ] 4. Ramazan DURAN + Muzaffer TUMSA bildirim (kullanici halledecek)
+
+[ ] 5. Mimarla taze kafa baslangic: Otomasyon plani + LexScan 
+      akillandirma tasarimi
+
+Detay: tedbirge-os/docs/AUTOMATION_AND_IMPROVEMENT_PLAN_v1.md
+
+═══════════════════════════════════════════════════════════════
+
+[x] TAMAMLANDI — 21 NISAN SABAH
+[ ] Vercel build hatasi (Suspense boundary) — COZULDU (commit 26ed40c)
+[ ] Middleware public path fix — COZULDU (commit eb8221b)
+[ ] AiChatWidget env var fix — COZULDU (commit 801d4d7)
+[ ] Reset-password uctan uca test — GECTI
 
 ═══════════════════════════════════════════════════════════════
 
