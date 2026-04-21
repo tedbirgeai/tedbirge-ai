@@ -1,5 +1,6 @@
 ﻿const publicRoutes = require("./public.route");
 const express = require("express");
+const healthRoutes = require("./health.routes");
 const authRoutes = require("./auth.routes");
 const leadRoutes = require("./lead.routes");
 const chatRoutes = require("./chat.routes");
@@ -25,6 +26,7 @@ const decisionSupportRoutes = require("./decision-support.routes");
 
 const router = express.Router();
 
+router.use("/health", healthRoutes);
 router.use("/auth", authRoutes);
 router.use("/leads", leadRoutes);
 router.use("/chat", chatRoutes);
