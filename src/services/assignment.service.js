@@ -26,7 +26,16 @@ async function assignLeadToLawyer({ leadId, lawyerId, note, caller = null }) {
       status: "ACTIVE"
     },
     include: {
-      lawyer: true,
+      lawyer: {
+        select: {
+          id: true,
+          fullName: true,
+          email: true,
+          phone: true,
+          baroSicilNo: true,
+          uzmanlik: true
+        }
+      },
       lead: true
     }
   });

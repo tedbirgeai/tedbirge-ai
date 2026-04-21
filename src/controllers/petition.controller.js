@@ -27,7 +27,7 @@ exports.createPetition = asyncHandler(async (req, res) => {
     where: { id: leadId },
     include: {
       documents: { where: { status: { in: ["PARSED", "ANALYZED"] } } },
-      assignments: { include: { lawyer: true } },
+      assignments: { include: { lawyer: { select: { id: true, fullName: true, email: true } } } },
     },
   });
 
