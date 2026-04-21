@@ -307,3 +307,113 @@ KRITIK NOTLAR:
 - 2FA altyapisi hazir ama zorunlu degil
 
 ═══════════════════════════════════════════════════════════════
+  21 NISAN 2026 — OGLEDEN SONRA + AKSAM OTURUMU (15:00–22:30)
+  TAMAMLANDI — CANLI KULLANICI GERI BILDIRIMI ODAKLI GUN
+═══════════════════════════════════════════════════════════════
+
+CANLI DURUM (21 Nisan 22:30):
+- Ramazan DURAN: sisteme girdi, begendi, kullaniyor
+- Zeliha ERSOY: kayitli, aktif kullanim bilinmiyor
+- Muzaffer TUMSA: girecek ("bilgisayar basina gecince")
+- UYAP entegrasyonu talebi geldi (Ramazan Abi)
+
+BUGUN YAPILAN GUVENLIK + BUG FIXLERI (6 commit):
+
+1. Avukat bilgisi sizintisi (sabah) — commit b774a11
+   - assignment.service.js + petition.controller.js
+   - passwordHash + 2FA secret cevaplardan temizlendi
+
+2. Kalan lawyer:true sizintilari (3 dosya) — commit b47553d
+   - lead.service.js (2 yer), durusma.service.js, deadlineChecker.job.js
+   - musteri.controller.js isActive bugfix (dogru: status ACTIVE)
+
+3. Middleware public path eksik — commit 99bda25
+   - KRITIK: ziyaretciler /basvuru, /basvuru-sorgula, /tazminat-hesapla
+     sayfalarina giremiyordu, hepsi /login'e yonlendiriliyordu
+   - 11 public path eklendi (basvuru, kvkk, haberler, hakkimizda vs.)
+
+4. Basvuru success ekrani yanlis yonlendirme — commit fe2e8ae
+   - "Panele Git" butonu /leads'e gidiyordu (admin-only, misafir icin yanlis)
+   - Duzeltme: "Basvurumu Takip Et" → /basvuru-sorgula
+
+5. Basvuru sorgula endpoint uyumsuzlugu — commit 205d51c
+   - Frontend /api/public/query-lead cagiriyordu
+   - Backend /api/query-lead dinliyordu (publicRoutes root'a mount)
+   - Duzeltme: frontend path /query-lead olarak standardize
+
+6. KVKK UI iyilestirmesi — commit 3824da4
+   - KVKK linki yerine modal ac butonu (iframe icinde gosterim)
+   - Saglik verisi icin ikinci checkbox eklendi (amber renkli, acik riza)
+   - Form icinde FormData'ya healthDataApproved eklendi
+   - UYARI: Backend henuz healthDataApproved alanini KAYDETMIYOR,
+     sadece gormezden geliyor. DB'ye kaydetme yarinki is.
+
+RAPORLAR YAZILDI:
+- docs/HUKUKCU_CRM_FIZIBILITE_v2.md (10 bolum, 4 oncelik seviyesi)
+  * Mevcut durum (guclu yanlar + eksikler)
+  * Avukatlarin tipik is akisi (varsayim)
+  * 8 soruluk anket avukatlara sorulmasi icin hazir
+  * Bu hafta / bu ay / bu ceyrek yol haritasi
+  * UYAP icin 3 seviyeli yaklasim tasarimi (detay v4 raporunda)
+
+OTOMASYON KATMANI KURULDU:
+- Dependabot: .github/dependabot.yml (27 Nisan Pazartesi ilk PR'lar)
+- UptimeRobot: www.tedbirge.ai paneli monitor aktif
+  * backend monitor (onrender.com) PAUSE durumunda
+    - Sebep: kok URL 404 donuyor (beklenen), health endpoint eksik
+    - Yarinki is: /api/health endpoint ekle, monitor URL guncelle, unpause
+
+CANLI MUVEKKIL TESTI YAPILDI (Mehmet Bey, gizli sekme):
+- Basvuru: halis ak, 05541652542, konya, kaza geçirdim, PDF yuklendi
+- leadCode: L-20260421-5297BU uretildi ✓
+- Success ekrani dogru gorundu ✓
+- "Basvurumu Takip Et" → /basvuru-sorgula dogru yonlendirdi ✓
+- Sorgulama ilk denemede 404 (yukarida 5. fix ile cozuldu)
+- Tekrar sorgulama: "Basvuru Alindi + 21 Nisan 2026" dondu ✓
+
+═══════════════════════════════════════════════════════════════
+YARIN (22 NISAN) BASLANACAK KRITIK ACIK ISLER:
+═══════════════════════════════════════════════════════════════
+
+A) ACIL (1-2 saat):
+1. Backend /api/health endpoint ekle + UptimeRobot backend monitor unpause
+2. Vercel eski NEXT_PUBLIC_API_URL env var sil
+3. KVKK healthDataApproved alanini DB'ye kaydet (backend + schema migration)
+
+B) UX BUGLARI (1-2 saat):
+4. FOTOGRAF 4 MUAMMASI — "Tedbirge — sigorta ve surec teknolojisi"
+   baslikli ikinci tasarim var. Mehmet Bey bulamadi ama ekran goruntusu var.
+   Hangi route oldugu teshis edilmeli, buluntuya gore karar.
+5. "Basvuru Sorgula" butonu giris sayfasina yonlendiriyor (navbar linki)
+   - Direkt /basvuru-sorgula'ya gitmesi lazim, araya login sokmamali
+6. Gorsel kimlik tutarsizligi — iki farkli tasarim dili birlestirmeli
+   (buyuk is, tasarim karari gerek, acele degil)
+
+C) AVUKAT GERI BILDIRIMLERI:
+7. Ramazan DURAN + Zeliha ERSOY + Muzaffer TUMSA ile birebir gorusme
+   - 8 soruluk anket: docs/HUKUKCU_CRM_FIZIBILITE_v2.md bolum 3
+   - UYAP entegrasyonu tam olarak ne istiyorlar (3 seviyeden hangisi)
+
+D) GELECEK RAPORLAR (sirayla):
+8. v3 Muvekkil Girisi Fizibilitesi
+9. v4 UYAP Entegrasyonu Raporu (Ramazan Abi talebi, onceliklendirilmis)
+10. v5 Otomasyon + LexScan Akillandirma (Mehmet Bey icin eskalasyon)
+11. v6 Guvenlik + KVKK Bosluk Kapatma (VERBIS kayit, acik riza akisi)
+
+E) URUN IYILESTIRME TALEPLERI (Mehmet Bey'den):
+12. SBM entegrasyonu (Sigorta Bilgi Merkezi)
+13. Malpraktis (tibbi kotu uygulama) dava turu eklenmeli
+14. Kaza Rekreasyon keşfedilebilirlik sorunu (UI'da bulunamiyor)
+
+F) HUKUKI ISLER (Mehmet Bey + avukatlar):
+15. VERBIS kayit durumu netlestir
+16. KVKK aydinlatma metni /kvkk sayfasi avukat onayi
+17. Veri isleyen sozlesmeleri (Supabase, Vercel, Render, Anthropic)
+
+═══════════════════════════════════════════════════════════════
+IMZA: 21 Nisan 2026, 22:30
+Toplam bugun: 6 commit, 1 yeni rapor, 2 otomasyon araci kuruldu,
+             1 canli muvekkil testi basarili, 4 UX bug tespit (3 cozuldu)
+═══════════════════════════════════════════════════════════════
+
+═══════════════════════════════════════════════════════════════

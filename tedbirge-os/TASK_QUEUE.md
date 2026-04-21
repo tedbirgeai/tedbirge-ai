@@ -1,23 +1,39 @@
 # TASK_QUEUE
 
 ═══════════════════════════════════════════════════════════════
-  22 NISAN GUNDUZ — YENI GOREVLER
+  22 NISAN 2026 — YENI OTURUM ILK IS LISTESI
 ═══════════════════════════════════════════════════════════════
 
-[ ] 1. UptimeRobot backend monitor'u ekle (2 dk)
-      URL: https://tedbirge-ai.onrender.com
-      
-[ ] 2. Vercel'den eski NEXT_PUBLIC_API_URL env var sil (1 dk)
+[ ] 1. Backend /api/health endpoint ekle
+      - Basit: prisma SELECT 1 + JSON dondur
+      - UptimeRobot backend monitor URL guncelle, unpause et
 
-[ ] 3. Mimar v2 fizibilite raporunu hazirlayacak — bekle, okuyup 
-      oncelik sirasini birlikte belirle
+[ ] 2. KVKK healthDataApproved DB kaydi
+      - Prisma schema: Lead modeline healthDataApprovedAt DateTime? ekle
+      - Migration calistir
+      - public-lead endpoint request'ten al, DB'ye kaydet
 
-[ ] 4. Ramazan DURAN + Muzaffer TUMSA bildirim (kullanici halledecek)
+[ ] 3. Vercel eski env var NEXT_PUBLIC_API_URL sil (1 dk)
 
-[ ] 5. Mimarla taze kafa baslangic: Otomasyon plani + LexScan 
-      akillandirma tasarimi
+[ ] 4. FOTOGRAF 4 muammasi — ikinci tasarim dili teshis et
+      - Mehmet Bey'den hangi URL oldugunu sor
+      - Bulununca: silinecek mi, birlestirilecek mi karar
 
-Detay: tedbirge-os/docs/AUTOMATION_AND_IMPROVEMENT_PLAN_v1.md
+[ ] 5. "Basvuru Sorgula" navbar butonu - direkt yonlendirme
+      - Su an: /basvuru-sorgula → login → rol sec → "Muvekkil misiniz?" → /basvuru-sorgula
+      - Olmasi gereken: direkt /basvuru-sorgula acilsin
+
+[ ] 6. Mimar v3 raporu yazmaya baslayacak (Muvekkil Girisi Fizibilitesi)
+      - Avukat anketi cevaplari gelince hibrit rapor
+
+═══════════════════════════════════════════════════════════════
+KULLANICININ KENDI HALLEDECEGI:
+═══════════════════════════════════════════════════════════════
+
+[ ] 7. Ramazan DURAN ile 30 dk gorusme (8 soruluk anket)
+[ ] 8. Zeliha ERSOY ile 30 dk gorusme (8 soruluk anket)
+[ ] 9. Muzaffer TUMSA girisi sonrasi geri bildirim toplama
+[ ] 10. VERBIS kayit durumu netlestir
 
 ═══════════════════════════════════════════════════════════════
 
@@ -26,6 +42,16 @@ Detay: tedbirge-os/docs/AUTOMATION_AND_IMPROVEMENT_PLAN_v1.md
 [ ] Middleware public path fix — COZULDU (commit eb8221b)
 [ ] AiChatWidget env var fix — COZULDU (commit 801d4d7)
 [ ] Reset-password uctan uca test — GECTI
+
+[x] TAMAMLANDI — 21 NISAN OGLEDEN SONRA + AKSAM
+[x] Avukat sizintisi guvenlik fix (2 commit, sabah + ogleden sonra)
+[x] Middleware public path bug kapat (11 yeni path)
+[x] Basvuru success ekrani yonlendirme duzelt
+[x] Basvuru sorgula endpoint uyumsuzlugu duzelt
+[x] KVKK UI iyilestirmesi (modal + ikinci checkbox)
+[x] UptimeRobot panel monitor kuruldu
+[x] Dependabot config dosyasi eklendi
+[x] Hukukcu CRM Fizibilite v2 yazildi ve kaydedildi
 
 ═══════════════════════════════════════════════════════════════
 
