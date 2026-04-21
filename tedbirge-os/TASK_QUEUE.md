@@ -1,5 +1,21 @@
 # TASK_QUEUE
 
+═══════════════════════════════════════════════════════════════
+  ACIL — YENI OTURUM ILK IS (22 NISAN SABAH)
+═══════════════════════════════════════════════════════════════
+
+[ ] 1. Vercel panel build hatasini coz (cfda987 deploy FAIL)
+      - Dosya: app/(public)/reset-password/page.tsx
+      - Muhtemel fix: useSearchParams'i Suspense icine al
+      - Test: Sifremi Unuttum → mail → link → form → yeni sifre
+      
+[ ] 2. Ramazan DURAN + Muzaffer TUMSA'ya bildirim mesaji gonder
+      (sifre + giris linki zaten hazir)
+
+Detay: CURRENT_STATE.md "21 Nisan Gece Oturumu 2" bolumunde.
+
+═══════════════════════════════════════════════════════════════
+
 ## OS KURALLARI
 - Sadece ACTIVE görev yürütülür
 - TASK_QUEUE dışına çıkılamaz

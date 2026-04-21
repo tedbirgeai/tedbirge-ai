@@ -208,3 +208,60 @@ LOKAL:
   Muzaffer:   muzaffertumsa@hotmail.com / 654321
 
 ═══════════════════════════════════════════════════════════════
+  21 NISAN 2026 — GECE OTURUMU 2 (02:00–05:10) — DEVAM EDILECEK
+═══════════════════════════════════════════════════════════════
+
+Oturum 1 devamiydi. Backend tamamen canliya alindi, panel
+reset-password sayfasi eklendi ama Vercel build FAIL.
+
+YAPILANLAR (bu oturum):
+- Render deploy sorunu tani: prisma generate eksik
+- Fix: Procfile'a prisma generate eklendi (commit 02ec4e0)
+- Fix: package.json postinstall hook eklendi (commit 24a0764)
+- Render deploy basarili, backend canli
+- Render env'e PANEL_URL=https://www.tedbirge.ai eklendi
+- SMTP test edildi: tedbirge34@gmail.com test hesabi, mail geldi, link canli URL
+- Link tiklaninca /reset-password sayfasi 404 (eksik)
+- Panel repo'da yeni GitHub token kuruldu
+- Panel'de app/(public)/reset-password/page.tsx olusturuldu (commit cfda987)
+- Panel push edildi (10 birikmis commit + 2 yeni)
+- Vercel deploy BASARISIZ (cfda987 icin Hata)
+- tedbirge-ai.onrender.com'da Chrome "Tehlikeli site" uyarisi — yanlis pozitif, www.tedbirge.ai temiz
+
+BACKEND DURUMU (tam calisiyor):
+- www.tedbirge.ai: Calisiyor
+- tedbirge-ai.onrender.com: Canli (commit 24a0764)
+- Admin giris: Calisiyor
+- Avukat listesi: Ramazan DURAN + Muzaffer TUMSA gorunuyor
+- Sifre sifirlama mail gonderimi: Calisiyor
+- Mail linki: Canli URL (www.tedbirge.ai/reset-password?token=...)
+
+PANEL DURUMU (1 FAIL):
+- Ana sayfa, login, dashboard, avukat yonetimi: Calisiyor
+- /reset-password sayfasi: Kod yazildi ama Vercel build HATA
+- Build hata muhtemel sebep: Next.js 16'da useSearchParams
+  Suspense boundary icinde olmali. Sayfa bunu eksik.
+
+SONRAKI OTURUM ILK IS (onemlilik sirasi):
+
+1. Vercel build hatasini coz (10 dk)
+   - Vercel dashboard → tedbirge-panel → en son deploy (cfda987)
+   - Build log'una bak, hata mesajini kopyala, mimara ilet
+   - Muhtemel fix: Suspense ile sarmala
+
+2. Reset-password uctan uca test (5 dk)
+
+3. Ramazan + Muzaffer'e bildirim (5 dk)
+
+4. Supabase 7 gun heartbeat cron (30 dk, hafta sonu)
+
+5. 2FA zorunluluk admin + lawyer icin (1 saat)
+
+GIT DURUMU (21 Nisan 05:10):
+- Backend master: 326cfb9 → sonrasi Procfile + postinstall fixleri
+  origin/master: senkronize
+- Panel master: cfda987 (reset-password + pending ui updates)
+  origin/master: senkronize
+- Uncommitted: yok
+
+═══════════════════════════════════════════════════════════════
