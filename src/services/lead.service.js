@@ -102,7 +102,7 @@ async function listLeads(filters = {}, user = null) {
     orderBy: { createdAt: "desc" },
     include: {
       owner: true,
-      assignments: { include: { lawyer: true } },
+      assignments: { include: { lawyer: { select: { id: true, fullName: true, email: true, phone: true, baroSicilNo: true, uzmanlik: true } } } },
       documents: true
     }
   });
@@ -122,7 +122,7 @@ async function getLeadById(id, user = null) {
       owner: true,
       messages: { orderBy: { createdAt: "asc" } },
       documents: { orderBy: { createdAt: "desc" } },
-      assignments: { include: { lawyer: true } },
+      assignments: { include: { lawyer: { select: { id: true, fullName: true, email: true, phone: true, baroSicilNo: true, uzmanlik: true } } } },
       contracts: true,
       activities: { orderBy: { createdAt: "desc" } }
     }

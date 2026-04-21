@@ -37,7 +37,7 @@ async function getUpcomingDurusmalar(withinDays = 3) {
       lead: {
         include: {
           assignments: {
-            include: { lawyer: true },
+            include: { lawyer: { select: { id: true, fullName: true, email: true, phone: true } } },
             where: { status: "ACTIVE" },
             take: 1,
           },

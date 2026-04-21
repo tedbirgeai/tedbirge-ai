@@ -26,7 +26,7 @@ exports.getDashboard = asyncHandler(async (req, res) => {
         },
       },
       assignments: {
-        where: { isActive: true },
+        where: { status: "ACTIVE" },
         include: {
           lawyer: {
             select: { id: true, fullName: true, email: true, phone: true },

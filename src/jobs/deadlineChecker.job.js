@@ -58,7 +58,7 @@ async function runDeadlineCheck() {
       },
       include: {
         assignments: {
-          include: { lawyer: true },
+          include: { lawyer: { select: { id: true, fullName: true, email: true, phone: true } } },
           orderBy: { assignedAt: "desc" },
           take: 1,
         },
