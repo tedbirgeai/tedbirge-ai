@@ -10,6 +10,7 @@
     "start": "node src/server.js",
     "prisma:generate": "prisma generate",
     "prisma:migrate": "prisma migrate dev",
+    "postinstall": "prisma generate",
     "seed": "node src/seed/seed.js",
     "test": "jest",
     "test:smoke": "node -e \"console.log('ok')\"",
