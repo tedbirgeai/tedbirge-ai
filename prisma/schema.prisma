@@ -126,6 +126,7 @@ model Lead {
   aiSummary             String?
   whatsappRedirected    Boolean       @default(false)
   kvkkConsentAt         DateTime?
+  healthDataConsentAt   DateTime?  // KVKK m.6/3 - health data consent (special category)
   accidentType          String?
   age                   Int?
   monthlyIncome         Float?

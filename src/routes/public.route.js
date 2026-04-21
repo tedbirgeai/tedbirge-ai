@@ -18,7 +18,7 @@ const generateLeadCode =
 
 router.post("/public-lead", upload.single("file"), async (req, res) => {
   try {
-    const { fullName, phone, email, city, summary, kvkkApproved } = req.body;
+    const { fullName, phone, email, city, summary, kvkkApproved, healthDataApproved } = req.body;
 
     if (!fullName || !phone) {
       return res.status(400).json({
@@ -49,6 +49,13 @@ router.post("/public-lead", upload.single("file"), async (req, res) => {
         ? new Date()
         : null;
 
+    const healthDataConsent =
+      healthDataApproved === true ||
+      healthDataApproved === "true" ||
+      healthDataApproved === "1"
+        ? new Date()
+        : null;
+
     const lead = await prisma.lead.create({
       data: {
         leadCode: generateLeadCode(),
@@ -58,6 +65,7 @@ router.post("/public-lead", upload.single("file"), async (req, res) => {
         city: city ? String(city).trim() : null,
         accidentSummary: summary ? String(summary).trim() : null,
         kvkkConsentAt: kvkkConsent,
+        healthDataConsentAt: healthDataConsent,
         status: "NEW",
         qualificationScore: 0
       }
