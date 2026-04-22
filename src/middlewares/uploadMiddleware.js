@@ -34,9 +34,19 @@ if (!SUPABASE_BUCKET) {
 }
 
 function toAsciiSafeFilename(input) {
-  const tr = { ğ:"g", Ğ:"G", ş:"s", Ş:"S", ç:"c", Ç:"C", ö:"o", Ö:"O", ü:"u", Ü:"U", ı:"i", İ:"I" };
-  return String(input || "")
-    .replace(/[ğĞşŞçÇöÖüÜıİ]/g, (c) => tr[c] || c)
+  // Multer HTTP multipart'tan dosya adını latin1 okur, browser UTF-8 gönderir → normalize
+  let name = String(input || "");
+  try { name = Buffer.from(name, "latin1").toString("utf8"); } catch (_) {}
+  const tr = {
+    "\u00E7": "c", "\u00C7": "C",
+    "\u011F": "g", "\u011E": "G",
+    "\u0131": "i", "\u0130": "I",
+    "\u00F6": "o", "\u00D6": "O",
+    "\u015F": "s", "\u015E": "S",
+    "\u00FC": "u", "\u00DC": "U",
+  };
+  return name
+    .replace(/[\u00E7\u00C7\u011F\u011E\u0131\u0130\u00F6\u00D6\u015F\u015E\u00FC\u00DC]/g, (c) => tr[c] || c)
     .normalize("NFKD")
     .replace(/[\u0300-\u036f]/g, "")
     .replace(/[^a-zA-Z0-9._-]+/g, "-")
@@ -68,18 +78,26 @@ const allowedMimeTypes = [
   "image/jpeg",
   "image/jpg",
   "image/png",
+  "image/webp",
+  "application/msword",
+  "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+  "application/vnd.ms-excel",
+  "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
 ];
 
 const fileFilter = (req, file, cb) => {
   if (!allowedMimeTypes.includes(file.mimetype)) {
-    return cb(new Error("Sadece PDF ve görsel dosyalar kabul edilir (PDF, JPEG, PNG)."));
+    return cb(new Error(`Desteklenmeyen dosya tipi: ${file.mimetype}. PDF, JPG, PNG, WEBP, DOC, DOCX, XLS, XLSX kabul edilir.`));
   }
   cb(null, true);
 };
 
 const upload = multer({
   storage: SUPABASE_BUCKET ? memoryStorage : localStorage,
-  limits: { fileSize: env.maxFileSizeMb * 1024 * 1024 },
+  limits: {
+    fileSize: 10 * 1024 * 1024,
+    files: 10,
+  },
   fileFilter,
 });
 
@@ -88,20 +106,21 @@ const upload = multer({
 // Supabase modu aktifse req.file.path'i Supabase URL'siyle günceller.
 
 async function supabaseUploadMiddleware(req, res, next) {
-  if (!SUPABASE_BUCKET || !req.file) return next();
+  if (!SUPABASE_BUCKET) return next();
   try {
-    const ext = path.extname(req.file.originalname) || "";
-    const rawBase = path.basename(req.file.originalname, ext);
-    const safeBase = toAsciiSafeFilename(rawBase) || "file";
-    const filename = `${Date.now()}-${safeBase}${ext.toLowerCase()}`;
-    const storagePath = await uploadToSupabase(
-      req.file.buffer,
-      filename,
-      req.file.mimetype
-    );
-    req.file.filename = filename;
-    req.file.path = storagePath;
-    req.file.storageProvider = "supabase";
+    // array modu (upload.array)
+    const files = req.files && req.files.length > 0 ? req.files : (req.file ? [req.file] : []);
+    if (files.length === 0) return next();
+    for (const f of files) {
+      const ext = path.extname(f.originalname) || "";
+      const rawBase = path.basename(f.originalname, ext);
+      const safeBase = toAsciiSafeFilename(rawBase) || "file";
+      const filename = `${Date.now()}-${safeBase}${ext.toLowerCase()}`;
+      const storagePath = await uploadToSupabase(f.buffer, filename, f.mimetype);
+      f.filename = filename;
+      f.path = storagePath;
+      f.storageProvider = "supabase";
+    }
     next();
   } catch (err) {
     next(err);

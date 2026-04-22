@@ -6,6 +6,6 @@ const { uploadRateLimit } = require("../middlewares/rateLimiter");
 
 const router = express.Router();
 
-router.post("/:leadId", auth, uploadRateLimit, upload.single("file"), controller.uploadLeadDocument);
+router.post("/:leadId", auth, uploadRateLimit, upload.array("files", 10), controller.uploadLeadDocument);
 
 module.exports = router;

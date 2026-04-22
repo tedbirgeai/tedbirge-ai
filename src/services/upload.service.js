@@ -103,11 +103,11 @@ async function uploadDocument({ leadId, file, uploadedById = null }) {
       where: { id: document.id },
       data: {
         parsedText,
-        status: "FAILED"
+        status: "FAILED",
+        aiAnalysis: JSON.stringify({ error: error.message || "Analiz hatası", failedAt: new Date().toISOString() })
       }
     });
-
-    throw error;
+    // throw error; KALDIRILDI — belge storage'da, DB'de kaldı, HTTP 201 dönsün
   }
 
   return prisma.document.findUnique({ where: { id: document.id } });
