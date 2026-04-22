@@ -1,0 +1,73 @@
+{
+  "TRAFIK_SIGORTASI": {
+    "status": "active",
+    "ad": "Trafik Sigortası (ZMSS)",
+    "kanunMaddesi": "TBK m.72, KTK m.91-99",
+    "cevapSuresiGun": 15,
+    "zamanasimi": "2 yıl (TBK m.72)",
+    "ihtarname": {
+      "baslik": "Trafik Sigortası Tazminat Talebi İhtarnamesi",
+      "govde": "Sayın {{muhatapAdi}},\n\nMüvekkilim {{musteri.ad}} (T.C. {{musteri.tcKimlik}}), {{olay.tarihi}} tarihinde {{olay.yeri}} adresinde meydana gelen trafik kazası nedeniyle maddi ve manevi zarar görmüştür.\n\nKaza 2918 sayılı Karayolları Trafik Kanunu ve 6098 sayılı Türk Borçlar Kanunu hükümleri çerçevesinde {{muhatap.policeNo}} numaralı poliçeniz kapsamında bulunmaktadır.\n\nİşbu ihtarname ile, müvekkilimin uğradığı maddi zarar (tedavi giderleri, iş göremezlik kaybı, araç hasar bedeli) ve manevi zararların TBK m.72 uyarınca 15 (onbeş) gün içinde tarafımıza ödenmesini talep ederim.\n\nBelirtilen süre içinde ödeme yapılmadığı takdirde yasal yollara başvurulacağı ihtar olunur.\n\nSaygılarımla,\n\nAv. {{avukat.ad}}\nBaro Sicil No: {{avukat.baroSicili}}\nTarih: {{tarih.bugun}}",
+      "ekler": [
+        "Kaza tespit tutanağı",
+        "Doktor raporu / Tedavi evrakları",
+        "Maluliyet oranı raporu (varsa)",
+        "Gelir belgesi (iş göremezlik için)",
+        "Araç hasar tespiti / Ekspertiz raporu (varsa)",
+        "Avukatlık vekaletnamesi"
+      ]
+    }
+  },
+
+  "SGK": {
+    "status": "active",
+    "ad": "Sosyal Güvenlik Kurumu",
+    "kanunMaddesi": "5510 sayılı SGK Kanunu m.13-22",
+    "cevapSuresiGun": 30,
+    "zamanasimi": "10 yıl (SGK m.97)",
+    "ihtarname": {
+      "baslik": "SGK İş Kazası — Geçici/Sürekli İş Göremezlik Tazminatı Başvurusu",
+      "govde": "Sayın Sosyal Güvenlik Kurumu Başkanlığı,\n\nMüvekkilim {{musteri.ad}} (T.C. {{musteri.tcKimlik}}, SGK Sicil No: {{musteri.sgkSicil}}), {{olay.tarihi}} tarihinde {{olay.yeri}} adresinde iş kazası geçirmiştir.\n\nKaza, 5510 sayılı Sosyal Sigortalar ve Genel Sağlık Sigortası Kanunu'nun 13. maddesi kapsamında iş kazası sayılmaktadır.\n\nMüvekkilimin aşağıdaki haklarının 5510 m.16 ve m.19 uyarınca değerlendirilmesini ve 30 (otuz) gün içinde tarafımıza bildirimde bulunulmasını talep ederim:\n\n1. Geçici iş göremezlik ödeneği\n2. Sürekli iş göremezlik geliri (maluliyet oranı: %{{musteri.maluliyetOrani}})\n3. Tedavi ve ilaç giderlerinin karşılanması\n4. Protez ve ortez giderleri (varsa)\n\nSaygılarımla,\n\nAv. {{avukat.ad}}\nBaro Sicil No: {{avukat.baroSicili}}\nTarih: {{tarih.bugun}}",
+      "ekler": [
+        "İş kazası bildirim belgesi (SGK e-bildirge)",
+        "Hastane raporları ve epikriz",
+        "Maluliyet tespit raporu",
+        "Sigortalı çalışma dökümü (son 12 ay)",
+        "İş sözleşmesi sureti",
+        "Avukatlık vekaletnamesi"
+      ]
+    }
+  },
+
+  "ISVEREN": {
+    "status": "active",
+    "ad": "İşveren",
+    "kanunMaddesi": "6098 TBK m.417, 6331 İSG Kanunu m.4, TBK m.49",
+    "cevapSuresiGun": 15,
+    "zamanasimi": "10 yıl (TBK m.146)",
+    "ihtarname": {
+      "baslik": "İş Kazası Tazminat Talebi İhtarnamesi",
+      "govde": "Sayın {{muhatapAdi}} Yetkilisi,\n\nMüvekkilim {{musteri.ad}} (T.C. {{musteri.tcKimlik}}), şirketinizde {{musteri.isBaslamaTarihi}} tarihinden itibaren {{musteri.gorev}} olarak çalışmakta iken, {{olay.tarihi}} tarihinde {{olay.yeri}} adresinde iş kazası geçirmiştir.\n\n6331 sayılı İş Sağlığı ve Güvenliği Kanunu'nun 4. maddesi uyarınca işveren, çalışanların sağlık ve güvenliğini sağlamakla yükümlüdür. 6098 sayılı Türk Borçlar Kanunu'nun 417. maddesi kapsamında işverenin işçiyi gözetme borcu bulunmaktadır.\n\nMüvekkilimin %{{musteri.maluliyetOrani}} oranında maluliyet geliştirdiği tespit edilmiş olup, kazadan kaynaklanan;\n1. Tedavi giderleri\n2. İş göremezlik tazminatı\n3. Sürekli maluliyet tazminatı\n4. Manevi tazminat\n\nhaklarının 15 (onbeş) gün içinde tarafımıza ödenmesini talep ederiz.\n\nÖdeme yapılmaması halinde SGK'ya bildirim yapılacak ve yasal yollara başvurulacaktır.\n\nSaygılarımla,\n\nAv. {{avukat.ad}}\nBaro Sicil No: {{avukat.baroSicili}}\nTarih: {{tarih.bugun}}",
+      "ekler": [
+        "İş sözleşmesi sureti",
+        "İş kazası tutanağı",
+        "SGK iş kazası bildirim belgesi",
+        "Hastane raporları ve epikriz",
+        "Maluliyet raporu",
+        "Son 6 aylık maaş bordrosu",
+        "Avukatlık vekaletnamesi"
+      ]
+    }
+  },
+
+  "KASKO":               { "status": "placeholder", "todo": "Sprint 2 — İhtiyari Kasko poliçe kapsamı, ek teminatlar, rücu hakkı şablonu" },
+  "FERDI_KAZA_KOLTUK":   { "status": "placeholder", "todo": "Sprint 2 — Koltuk ferdi kaza sigortası talep ve ihtarname şablonu" },
+  "TMTB":                { "status": "placeholder", "todo": "Sprint 2 — Türkiye Motorlu Taşıt Bürosu, Nice Anlaşması, yabancı plakalı araç süreci" },
+  "GUVENCE_HESABI":      { "status": "placeholder", "todo": "Sprint 2 — Güvence Hesabı başvuru süreci (sigortasız/kaçak araç)" },
+  "HASTANE":             { "status": "placeholder", "todo": "Sprint 2 — Malpraktis ihtarname, CİMER başvurusu, TTB bildirimi" },
+  "TARSIM":              { "status": "placeholder", "todo": "Sprint 2 — 5363 sayılı Tarım Sigortaları Kanunu çerçevesinde şablon" },
+  "DASK":                { "status": "placeholder", "todo": "Sprint 2 — 6305 sayılı Afet Sigortaları Kanunu, DASK başvuru süreci" },
+  "SORUMLU_UCUNCU_KISI": { "status": "placeholder", "todo": "Sprint 2 — Haksız fiil tazminat (TBK m.49), 3. kişi aleyhine ihtarname" },
+  "KAMU_KURUMU":         { "status": "placeholder", "todo": "Sprint 2 — İdari başvuru ve tam yargı davası (IYUK m.13), yol kusuru (Karayolları)" },
+  "DIGER":               { "status": "generic",     "todo": "Genel ihtarname şablonu — muhatap tipine göre özelleştir" }
+}

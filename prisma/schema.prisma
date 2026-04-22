@@ -61,6 +61,32 @@ enum ContractStatus {
   CANCELLED
 }
 
+enum MuhatapTipi {
+  // Trafik / Araç
+  TRAFIK_SIGORTASI
+  KASKO
+  FERDI_KAZA_KOLTUK
+  TMTB
+  GUVENCE_HESABI
+
+  // İş / SGK
+  ISVEREN
+  SGK
+
+  // Sağlık
+  HASTANE
+
+  // Tarım ve Afet
+  TARSIM
+  DASK
+
+  // Genel
+  SORUMLU_UCUNCU_KISI
+  KAMU_KURUMU
+
+  DIGER
+}
+
 // Kayıt sırasında telefon OTP doğrulaması için geçici kayıt
 model PhoneOtp {
   id        String   @id @default(cuid())
@@ -143,6 +169,12 @@ model Lead {
   uyapSonGuncelleme     DateTime?
   // Ödeme
   odemeDetay            String?       // JSON: { merchantOid, paymentAmount, status, paidAt }
+  // W1-M3: Muhatap
+  muhatapTipi           MuhatapTipi?
+  muhatapAdi            String?       // serbest metin: "Allianz Sigorta A.Ş."
+  muhatapTespitKaynagi  String?       // "MANUEL" | "KURAL" | "AI"
+  muhatapGuvenSkoru     Float?        // 0-1 arası, AI güven skoru (Perşembe)
+  muhatapGerekce        String?       // AI seçim gerekçesi (Perşembe)
   createdAt             DateTime      @default(now())
   updatedAt             DateTime      @updatedAt
 

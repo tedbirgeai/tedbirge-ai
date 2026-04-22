@@ -5,10 +5,12 @@ const asyncHandler = require("../utils/asyncHandler");
 const { assertLeadAccess } = require("../utils/leadAccess");
 
 // Rol bazli izinli alanlar
+const MUHATAP_FIELDS = ["muhatapTipi","muhatapAdi","muhatapTespitKaynagi","muhatapGuvenSkoru","muhatapGerekce"];
+
 const FIELDS_BY_ROLE = {
-  ADMIN:          ["accidentDate","age","monthlyIncome","maluliyetRate","faultRate","maluliyetOrani","kusurOrani","gercekTazminat","yaralanmaTuru"],
-  SALES:          ["accidentDate","age","monthlyIncome","maluliyetRate","faultRate","maluliyetOrani","kusurOrani","gercekTazminat","yaralanmaTuru"],
-  LAWYER:         ["accidentDate","age","monthlyIncome","maluliyetRate","faultRate","maluliyetOrani","kusurOrani","gercekTazminat","yaralanmaTuru"],
+  ADMIN:          ["accidentDate","age","monthlyIncome","maluliyetRate","faultRate","maluliyetOrani","kusurOrani","gercekTazminat","yaralanmaTuru",...MUHATAP_FIELDS],
+  SALES:          ["accidentDate","age","monthlyIncome","maluliyetRate","faultRate","maluliyetOrani","kusurOrani","gercekTazminat","yaralanmaTuru",...MUHATAP_FIELDS],
+  LAWYER:         ["accidentDate","age","monthlyIncome","maluliyetRate","faultRate","maluliyetOrani","kusurOrani","gercekTazminat","yaralanmaTuru",...MUHATAP_FIELDS],
   REPRESENTATIVE: ["accidentDate"],
 };
 
@@ -26,9 +28,19 @@ function validateValue(field, value) {
     if (!Number.isInteger(n) || n < 0 || n > 120) return { ok: false, reason: "invalid age" };
     return { ok: true, value: n };
   }
-  if (field === "yaralanmaTuru") {
+  if (field === "yaralanmaTuru" || field === "muhatapAdi" || field === "muhatapTespitKaynagi" || field === "muhatapGerekce") {
     if (typeof value !== "string") return { ok: false, reason: "must be string" };
     return { ok: true, value: value };
+  }
+  if (field === "muhatapTipi") {
+    const valid = ["TRAFIK_SIGORTASI","KASKO","FERDI_KAZA_KOLTUK","TMTB","GUVENCE_HESABI","ISVEREN","SGK","HASTANE","TARSIM","DASK","SORUMLU_UCUNCU_KISI","KAMU_KURUMU","DIGER"];
+    if (!valid.includes(value)) return { ok: false, reason: "invalid MuhatapTipi" };
+    return { ok: true, value: value };
+  }
+  if (field === "muhatapGuvenSkoru") {
+    const n = Number(value);
+    if (!Number.isFinite(n) || n < 0 || n > 1) return { ok: false, reason: "must be 0-1" };
+    return { ok: true, value: n };
   }
   // monthlyIncome, maluliyet*, faultRate, kusurOrani, gercekTazminat -> Float
   const n = Number(value);
