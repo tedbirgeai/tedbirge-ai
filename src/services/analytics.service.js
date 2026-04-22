@@ -1,4 +1,5 @@
 const prisma = require("../config/db");
+const { hesaplaSureler } = require("./sureMotoru.service");
 
 async function getLeadFunnel() {
   const statuses = [
@@ -389,4 +390,72 @@ async function getIletisimOzet(userId, userRole) {
   }));
 }
 
-module.exports = { getLeadFunnel, getConversionRate, getRevenueEstimate, getLeadsBySource, getLawyerPerformance, getMonthlyTrend, getCalendarData, getKomisyonSummary, getBilirkisiSummary, getIletisimOzet };
+/**
+ * Kritik sureleri olan lead'leri role-aware olarak listeler.
+ * LAWYER: sadece atandigi lead'ler. ADMIN/diger: tum aktif lead'ler.
+ * Donus: [{ lead, sure }] — GECTI > KIRMIZI > SARI, kalan gun artan.
+ */
+async function getKritikSureler(user) {
+  const where = {
+    status: { notIn: ["WON", "LOST"] },
+  };
+
+  if (user && user.role === "LAWYER") {
+    const assignments = await prisma.assignment.findMany({
+      where: { lawyerId: user.id, isActive: true },
+      select: { leadId: true },
+    });
+    where.id = { in: assignments.map((a) => a.leadId) };
+  }
+
+  const leadler = await prisma.lead.findMany({
+    where,
+    select: {
+      id: true,
+      leadCode: true,
+      customerName: true,
+      accidentDate: true,
+      injurySeverity: true,
+      muhatapTipi: true,
+      muhatapAdi: true,
+      status: true,
+      ihtarnameler: {
+        select: { gonderimTarihi: true },
+        orderBy: { gonderimTarihi: "asc" },
+        take: 1,
+      },
+    },
+    orderBy: { createdAt: "desc" },
+  });
+
+  const kritikler = [];
+  for (const lead of leadler) {
+    const sureler = hesaplaSureler(lead);
+    const kritikSureler = sureler.filter(
+      (s) => s.durum === "SARI" || s.durum === "KIRMIZI" || s.durum === "GECTI"
+    );
+    for (const sure of kritikSureler) {
+      kritikler.push({
+        lead: {
+          id: lead.id,
+          leadCode: lead.leadCode,
+          musterAdi: lead.customerName || "",
+          muhatapTipi: lead.muhatapTipi,
+          muhatapAdi: lead.muhatapAdi,
+        },
+        sure,
+      });
+    }
+  }
+
+  const oncelik = { GECTI: 0, KIRMIZI: 1, SARI: 2 };
+  kritikler.sort((a, b) => {
+    const fark = oncelik[a.sure.durum] - oncelik[b.sure.durum];
+    if (fark !== 0) return fark;
+    return a.sure.kalanGun - b.sure.kalanGun;
+  });
+
+  return kritikler;
+}
+
+module.exports = { getLeadFunnel, getConversionRate, getRevenueEstimate, getLeadsBySource, getLawyerPerformance, getMonthlyTrend, getCalendarData, getKomisyonSummary, getBilirkisiSummary, getIletisimOzet, getKritikSureler };

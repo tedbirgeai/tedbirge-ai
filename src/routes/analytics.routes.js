@@ -15,5 +15,6 @@ router.get("/calendar",           auth, controller.getCalendarData);
 router.get("/komisyon",           auth, role("ADMIN", "SALES", "REPRESENTATIVE"), controller.getKomisyonSummary);
 router.get("/bilirkisi-summary",  auth, controller.getBilirkisiSummary);
 router.get("/iletisim-ozet",      auth, controller.getIletisimOzet);
+router.get("/kritik-sureler",     auth, controller.getKritikSureler);
 
 module.exports = router;

@@ -10,6 +10,7 @@ const {
   getKomisyonSummary,
   getBilirkisiSummary,
   getIletisimOzet,
+  getKritikSureler,
 } = require("../services/analytics.service");
 
 exports.getFunnel = asyncHandler(async (req, res) => {
@@ -63,5 +64,10 @@ exports.getBilirkisiSummary = asyncHandler(async (req, res) => {
 
 exports.getIletisimOzet = asyncHandler(async (req, res) => {
   const data = await getIletisimOzet(req.user.id, req.user.role);
+  res.json({ success: true, data });
+});
+
+exports.getKritikSureler = asyncHandler(async (req, res) => {
+  const data = await getKritikSureler(req.user);
   res.json({ success: true, data });
 });
