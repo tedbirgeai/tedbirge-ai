@@ -5,6 +5,7 @@ const env = require("../config/env");
 
 const prisma = new PrismaClient();
 const upload = require("../middlewares/uploadMiddleware");
+const { supabaseUploadMiddleware } = require("../middlewares/uploadMiddleware");
 const generateCodeModule = require("../utils/generateCode");
 
 const generateLeadCode =
@@ -16,7 +17,7 @@ const generateLeadCode =
         ? generateCodeModule.default
         : null;
 
-router.post("/public-lead", upload.single("file"), async (req, res) => {
+router.post("/public-lead", upload.single("file"), supabaseUploadMiddleware, async (req, res) => {
   try {
     const { fullName, phone, email, city, summary, kvkkApproved, healthDataApproved } = req.body;
 
@@ -81,10 +82,10 @@ router.post("/public-lead", upload.single("file"), async (req, res) => {
           type: "OTHER",
           status: "UPLOADED",
           originalName: req.file.originalname,
-          storedName: req.file.filename,
+          storedName: req.file.filename || req.file.originalname,
           mimeType: req.file.mimetype || "application/octet-stream",
           sizeBytes: Number(req.file.size || 0),
-          path: req.file.path
+          path: req.file.path || req.file.filename || req.file.originalname
         }
       });
 
