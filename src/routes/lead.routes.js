@@ -2,6 +2,7 @@
 const controller = require("../controllers/lead.controller");
 const compCtrl      = require("../controllers/lead.compensation.controller");
 const caseDataCtrl  = require("../controllers/lead.caseData.controller");
+const timelineCtrl  = require("../controllers/timeline.controller");
 const auth = require("../middlewares/authMiddleware");
 const role = require("../middlewares/roleMiddleware");
 
@@ -34,6 +35,7 @@ router.get("/:id/kaza-raporu", auth, role("ADMIN","SALES","LAWYER"), controller.
 router.get("/:id/generate-petition", auth, role("ADMIN","SALES","LAWYER"), controller.generateLeadPetition);
 router.get("/:id/activity", auth, controller.getActivityLogs);
 router.post("/:id/activity", auth, role("ADMIN","SALES","LAWYER"), controller.addActivityNote);
+router.get("/:id/timeline", auth, timelineCtrl.getTimeline);
 
 module.exports = router;
 
