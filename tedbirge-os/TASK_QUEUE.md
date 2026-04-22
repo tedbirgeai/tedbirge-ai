@@ -119,7 +119,8 @@ Vizyon: Tedbirge → Türkiye'nin Otonom Hukuk Ajanı (12 aylık plan)
 - [✓] W1-M1: Hukukçu Dashboard — CANLI (8dc027a + 2189c2f)
 - [✓] W1-M2: Lead Timeline Sekmesi — CANLI (4dccc8e + 5ac00d6 + e32911f hotfix)
 - [✓] W1-M3: Muhatap Enum + Şablonlar — CANLI (4d32b0f backend + 90bd2ba panel)
-- [ ] W1-M3.5: AI Muhatap Analizi — BEKLİYOR (4-6 saat, Perşembe önerilir)
+- [✓] W1-M3.5: AI Muhatap Analizi — CANLI (7af5834 backend + eee54d0 panel)
+- [✓] Upload Fix: Türkçe dosya adı + çoklu yükleme + 10MB limit + FAILED ayrımı — CANLI (e363f28 backend + ad483dd panel)
 - [✓] W1-M4: Süre Motoru Temeli — CANLI (384dacb C1 + 75f63df C2 backend | 85db4a9 C3 panel)
 - [✓] W1-M5: Sigorta Başvuru Wizard — CANLI (92d438e backend + 319f4c1 panel) [IhtarnameTakip üzerinden, schema değişikliği yok]
 
