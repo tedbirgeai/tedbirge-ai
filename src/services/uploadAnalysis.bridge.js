@@ -1,6 +1,8 @@
 ﻿const prisma = require("../config/db");
 const fs = require("fs");
+const os = require("os");
 const path = require("path");
+const crypto = require("crypto");
 const { extractTextWithOcr } = require("./ocr.service");
 const { analyzeExtractedText } = require("./analyzer.service");
 async function saveAiSummary(leadId, analysisResult, parsedText) {
@@ -45,42 +47,49 @@ async function resolveDocumentText(file) {
   const ext = path.extname(file.originalname || "").toLowerCase();
   const mimeType = (file.mimetype || "").toLowerCase();
 
-  if (mimeType === "text/plain" || ext === ".txt") {
-    const text = fs.readFileSync(file.path, "utf8");
+  // Supabase/memoryStorage modunda file.buffer var ama file.path lokal disk'te yok.
+  // buffer'ı geçici diske yaz; OCR/readFileSync için localPath kullan.
+  let localPath = file.path;
+  let tempCreated = false;
 
-    return {
-      text,
-      extractionMethod: "text-file"
-    };
+  if (file.buffer && (!localPath || !fs.existsSync(localPath))) {
+    const tempDir = path.join(os.tmpdir(), "tedbirge-uploads");
+    if (!fs.existsSync(tempDir)) fs.mkdirSync(tempDir, { recursive: true });
+    const tempName = `${Date.now()}-${crypto.randomBytes(4).toString("hex")}${ext || ".bin"}`;
+    localPath = path.join(tempDir, tempName);
+    fs.writeFileSync(localPath, file.buffer);
+    tempCreated = true;
   }
 
-  if (mimeType === "application/pdf" || ext === ".pdf") {
-    const parsed = await extractTextWithOcr(file.path);
-    const parsedText = parsed?.text || "";
+  const workFile = { ...file, path: localPath };
 
-    if (hasMeaningfulText(parsedText)) {
-      return {
-        text: parsedText,
-        extractionMethod: "pdf-parse"
-      };
+  try {
+    if (mimeType === "text/plain" || ext === ".txt") {
+      const text = fs.readFileSync(localPath, "utf8");
+      return { text, extractionMethod: "text-file" };
     }
 
-    const ocrResult = await extractTextWithOcr(file);
+    if (mimeType === "application/pdf" || ext === ".pdf") {
+      const parsed = await extractTextWithOcr(localPath);
+      const parsedText = parsed?.text || "";
+
+      if (hasMeaningfulText(parsedText)) {
+        return { text: parsedText, extractionMethod: "pdf-parse" };
+      }
+
+      const ocrResult = await extractTextWithOcr(workFile);
+      const ocrText = unwrapOcrResult(ocrResult);
+      return { text: ocrText, extractionMethod: "ocr-fallback-multipage-pdf" };
+    }
+
+    const ocrResult = await extractTextWithOcr(workFile);
     const ocrText = unwrapOcrResult(ocrResult);
-
-    return {
-      text: ocrText,
-      extractionMethod: "ocr-fallback-multipage-pdf"
-    };
+    return { text: ocrText, extractionMethod: "ocr-image" };
+  } finally {
+    if (tempCreated && fs.existsSync(localPath)) {
+      try { fs.unlinkSync(localPath); } catch (_) {}
+    }
   }
-
-  const ocrResult = await extractTextWithOcr(file);
-  const ocrText = unwrapOcrResult(ocrResult);
-
-  return {
-    text: ocrText,
-    extractionMethod: "ocr-image"
-  };
 }
 
 async function analyzeUploadedDocument({ lead, file }) {

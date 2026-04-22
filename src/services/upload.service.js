@@ -31,10 +31,10 @@ async function uploadDocument({ leadId, file, uploadedById = null }) {
       uploadedById,
       type: inferDocumentType(file.originalname),
       originalName: file.originalname,
-      storedName: path.basename(file.path),
+      storedName: file.filename || path.basename(file.path || file.originalname),
       mimeType: file.mimetype,
       sizeBytes: file.size,
-      path: file.path,
+      path: file.path || file.filename || file.originalname,
       status: "UPLOADED"
     }
   });

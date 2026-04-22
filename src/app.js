@@ -11,6 +11,9 @@ const errorHandler = require("./middlewares/errorHandler");
 
 const app = express();
 
+// Render / reverse proxy arkasında gerçek IP için
+app.set("trust proxy", 1);
+
 const loginLimiter = rateLimit({
   windowMs: 15 * 60 * 1000,
   max: 5,
