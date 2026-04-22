@@ -107,4 +107,38 @@ async function deleteFile(storagePath) {
   if (error) throw new Error("Supabase Storage silme hatası: " + error.message);
 }
 
-module.exports = { uploadFile, downloadFile, getPublicUrl, deleteFile, isSupabaseMode: () => Boolean(SUPABASE_BUCKET) };
+async function createSignedUploadUrl(leadId, fileName) {
+  const { createClient } = require("@supabase/supabase-js");
+  const supabase = createClient(
+    process.env.SUPABASE_URL,
+    process.env.SUPABASE_SERVICE_ROLE_KEY
+  );
+  const bucket = process.env.SUPABASE_STORAGE_BUCKET || "tedbirge-documents";
+  const safeName = fileName.replace(/[^a-zA-Z0-9._-]/g, "_");
+  const storagePath = `leads/${leadId}/${Date.now()}-${safeName}`;
+  const { data, error } = await supabase.storage
+    .from(bucket)
+    .createSignedUploadUrl(storagePath);
+  if (error) throw new Error(`Signed URL uretilemedi: ${error.message}`);
+  return { signedUrl: data.signedUrl, token: data.token, path: storagePath };
+}
+
+async function verifyUpload(filePath) {
+  const { createClient } = require("@supabase/supabase-js");
+  const supabase = createClient(
+    process.env.SUPABASE_URL,
+    process.env.SUPABASE_SERVICE_ROLE_KEY
+  );
+  const bucket = process.env.SUPABASE_STORAGE_BUCKET || "tedbirge-documents";
+  const folder = filePath.substring(0, filePath.lastIndexOf("/"));
+  const fileName = filePath.substring(filePath.lastIndexOf("/") + 1);
+  const { data, error } = await supabase.storage
+    .from(bucket)
+    .list(folder, { search: fileName });
+  if (error) throw new Error(`Dogrulanamadi: ${error.message}`);
+  const found = data.find(f => f.name === fileName);
+  if (!found) throw new Error("Dosya bulunamadi");
+  return { size: found.metadata?.size || 0, mimeType: found.metadata?.mimetype };
+}
+
+module.exports = { uploadFile, downloadFile, getPublicUrl, deleteFile, isSupabaseMode: () => Boolean(SUPABASE_BUCKET), createSignedUploadUrl, verifyUpload };
