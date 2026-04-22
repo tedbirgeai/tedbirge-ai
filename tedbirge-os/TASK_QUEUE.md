@@ -34,9 +34,9 @@ SIRAYLA YAPILACAK:
       - Migration + controller guncelle
       - Detay: MASTER_YAPILACAKLAR.md bolum 1.3
 
-[ ] 4. /kvkk sayfasi ile modal icerigi senkron (20 dk)
-      - Iki yerde farkli aydinlatma metni var, tekilletmek lazim
-      - Detay: MASTER_YAPILACAKLAR.md bolum 1.4
+[✓] 4. /kvkk sayfasi ile modal icerigi senkron (22 Nisan 2026 sabah oturumunda tamamlandi)
+      - Supabase, Vercel, Render, Anthropic veri isleyicileri eklendi
+      - Yurt disi aktarim bilgisi + KVKK m.6/3 notu eklendi
 
 ## 1.5 ACİL-SONRASI PAKET (Bu hafta, ~9 saat)
 
@@ -44,7 +44,7 @@ SIRAYLA YAPILACAK:
 - [ ] Winston structured logging (backend, 1.5 saat)
 - [ ] GitHub Actions CI — test + lint + build (1 saat)
 - [ ] Jest ilk testler — auth + health + KVKK flow (2 saat)
-- [ ] Render build script'ine "prisma migrate deploy" ekle (30 dk)
+- [✓] Render build script'ine "prisma migrate deploy" ekle — render.yaml eklendi (46f3c70)
 - [ ] Migration history drift temizleme (2 saat)
 
 ## 1.6 TECH DEBT — Sabah İlk İşler
@@ -116,11 +116,12 @@ Kaynak: tedbirge-os/docs/HUKUKCU_OPERASYON_FIZIBILITE_v4.md
 Vizyon: Tedbirge → Türkiye'nin Otonom Hukuk Ajanı (12 aylık plan)
 
 ### Bu hafta (Sprint 1) — 18 saat
-- [ ] W1-M1: Hukukçu Dashboard (4 saat)
-- [ ] W1-M2: Lead Timeline Sekmesi (5 saat)
-- [ ] W1-M3: Muhatap Enum + Şablonlar (3 saat)
-- [ ] W1-M4: Süre Motoru Temeli (4 saat)
-- [ ] W1-M5: Sigorta Başvuru Wizard (2 saat)
+- [✓] W1-M1: Hukukçu Dashboard — CANLI (8dc027a + 2189c2f)
+- [✓] W1-M2: Lead Timeline Sekmesi — CANLI (4dccc8e + 5ac00d6 + e32911f hotfix)
+- [✓] W1-M3: Muhatap Enum + Şablonlar — CANLI (4d32b0f backend + 90bd2ba panel)
+- [ ] W1-M3.5: AI Muhatap Analizi — BEKLİYOR (4-6 saat, Perşembe önerilir)
+- [ ] W1-M4: Süre Motoru Temeli — BEKLİYOR (3-4 saat, kritik)
+- [ ] W1-M5: Sigorta Başvuru Wizard — BEKLİYOR (2 saat)
 
 ### Bu ay (Sprint 2-4) — Detay v4 Bölüm 6
 - [ ] Sprint 2: Süre motoru + wizard tamamlama
@@ -223,6 +224,26 @@ stack sayısı değil.
 [ ] 42. v4 UYAP Entegrasyonu Raporu
 [ ] 43. v5 Otomasyon + LexScan Akillandirma
 [ ] 44. v6 Guvenlik + KVKK Bosluk Kapatma
+
+═══════════════════════════════════════════════════════════════
+  TAMAMLANANLAR — 22 NISAN 2026 SABAH (05:00-09:00)
+═══════════════════════════════════════════════════════════════
+
+[x] KVKK modal senkron (Supabase/Vercel/Render/Anthropic eklendi)
+[x] Test lead temizleme scripti (scripts/cleanup-test-leads.js)
+[x] W1-M1 Hukukçu Dashboard — cilalanmış, canlı (8dc027a + 2189c2f)
+[x] Arkaplan gradient temizliği — 6 panel sayfası (ea79870)
+[x] W1-M2 Lead Timeline — 10 tablodan birleşik, canlı (4dccc8e + 5ac00d6)
+[x] Regresyon fix: timeline duplicate events (e32911f)
+[x] Regresyon fix: dashboard response key .leads → .data (e0c2cba)
+[x] Regresyon fix: CORS/API URL config mismatch — same-origin proxy (43b96ba)
+[x] Regresyon fix: analytics pool exhaustion — groupBy (067396c)
+[x] W1-M3 Muhatap Enum + Şablonlar — 13 enum, 3 aktif, canlı (4d32b0f + 90bd2ba)
+[x] KASIM lead backfill — Supabase SQL Editor ile manuel
+[x] render.yaml eklendi — prisma migrate deploy kalıcı (46f3c70)
+[x] vercel.json Railway → Render URL (5a20c57)
+
+Detay: tedbirge-os/docs/OTURUM_22_04_2026_SABAH.md
 
 ═══════════════════════════════════════════════════════════════
   TAMAMLANANLAR — 21 NISAN 2026
