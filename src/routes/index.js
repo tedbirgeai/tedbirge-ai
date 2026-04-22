@@ -23,6 +23,7 @@ const paymentRoutes    = require("./payment.routes");
 const onayRoutes       = require("./onay.routes");
 const testRoutes       = require("./test.routes");
 const decisionSupportRoutes = require("./decision-support.routes");
+const sigortaBasvuruRoutes = require("./sigortaBasvuru.routes");
 
 const router = express.Router();
 
@@ -50,6 +51,7 @@ router.use("/payments",   paymentRoutes);
 router.use("/onay",             onayRoutes);
 router.use("/test",             testRoutes);
 router.use("/decision-support", decisionSupportRoutes);
+router.use("/sigorta-basvuru", sigortaBasvuruRoutes);
 router.use('/', publicRoutes);
 
 module.exports = router;
