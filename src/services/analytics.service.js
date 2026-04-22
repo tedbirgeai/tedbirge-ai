@@ -2,54 +2,46 @@ const prisma = require("../config/db");
 
 async function getLeadFunnel() {
   const statuses = [
-    "NEW",
-    "CONTACTED",
-    "DOCS_PENDING",
-    "DOCS_RECEIVED",
-    "ANALYZED",
-    "OFFER_SENT",
-    "CONTRACT_PENDING",
-    "ASSIGNED_TO_LAWYER",
-    "WON",
-    "LOST"
+    "NEW","CONTACTED","DOCS_PENDING","DOCS_RECEIVED","ANALYZED",
+    "OFFER_SENT","CONTRACT_PENDING","ASSIGNED_TO_LAWYER","WON","LOST"
   ];
 
-  const counts = await Promise.all(
-    statuses.map((status) => prisma.lead.count({ where: { status } }))
-  );
+  // Tek sorgu — 10 paralel count yerine 1 GROUP BY
+  const grouped = await prisma.lead.groupBy({
+    by: ["status"],
+    _count: { id: true },
+  });
 
-  return statuses.map((status, index) => ({ status, count: counts[index] }));
+  const countMap = Object.fromEntries(grouped.map((r) => [r.status, r._count.id]));
+  return statuses.map((status) => ({ status, count: countMap[status] ?? 0 }));
 }
 
 /**
  * Toplam lead → WON dönüşüm oranını ve aşama bazlı düşüş oranlarını döner.
  */
 async function getConversionRate() {
-  const [total, won, lost, analyzed, offerSent] = await Promise.all([
-    prisma.lead.count(),
-    prisma.lead.count({ where: { status: "WON" } }),
-    prisma.lead.count({ where: { status: "LOST" } }),
-    prisma.lead.count({ where: { status: "ANALYZED" } }),
-    prisma.lead.count({ where: { status: "OFFER_SENT" } })
-  ]);
+  // Tek GROUP BY sorgusu — 5 paralel count yerine 1 sorgu
+  const grouped = await prisma.lead.groupBy({
+    by: ["status"],
+    _count: { id: true },
+  });
 
-  const active = total - won - lost;
-  const wonRate = total > 0 ? parseFloat(((won / total) * 100).toFixed(2)) : 0;
-  const lostRate = total > 0 ? parseFloat(((lost / total) * 100).toFixed(2)) : 0;
-  const analyzedRate = total > 0 ? parseFloat(((analyzed / total) * 100).toFixed(2)) : 0;
-  const offerRate = total > 0 ? parseFloat(((offerSent / total) * 100).toFixed(2)) : 0;
+  const countMap = Object.fromEntries(grouped.map((r) => [r.status, r._count.id]));
+  const total    = grouped.reduce((s, r) => s + r._count.id, 0);
+  const won      = countMap["WON"]       ?? 0;
+  const lost     = countMap["LOST"]      ?? 0;
+  const analyzed = countMap["ANALYZED"]  ?? 0;
+  const offerSent = countMap["OFFER_SENT"] ?? 0;
+  const active   = total - won - lost;
+
+  const pct = (n) => total > 0 ? parseFloat(((n / total) * 100).toFixed(2)) : 0;
 
   return {
-    total,
-    won,
-    lost,
-    active,
-    analyzed,
-    offerSent,
-    wonRatePct: wonRate,
-    lostRatePct: lostRate,
-    analyzedRatePct: analyzedRate,
-    offerSentRatePct: offerRate
+    total, won, lost, active, analyzed, offerSent,
+    wonRatePct:      pct(won),
+    lostRatePct:     pct(lost),
+    analyzedRatePct: pct(analyzed),
+    offerSentRatePct: pct(offerSent),
   };
 }
 
@@ -198,10 +190,9 @@ async function getMonthlyTrend(months = 6) {
     const start = new Date(now.getFullYear(), now.getMonth() - i, 1);
     const end   = new Date(now.getFullYear(), now.getMonth() - i + 1, 1);
 
-    const [total, won] = await Promise.all([
-      prisma.lead.count({ where: { createdAt: { gte: start, lt: end } } }),
-      prisma.lead.count({ where: { createdAt: { gte: start, lt: end }, status: "WON" } }),
-    ]);
+    // Sequential — paralel count yerine sıralı 2 sorgu (pool güvenli)
+    const total = await prisma.lead.count({ where: { createdAt: { gte: start, lt: end } } });
+    const won   = await prisma.lead.count({ where: { createdAt: { gte: start, lt: end }, status: "WON" } });
 
     results.push({
       month: start.toLocaleDateString("tr-TR", { month: "short", year: "2-digit" }),
