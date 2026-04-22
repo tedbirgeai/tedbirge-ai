@@ -10,6 +10,7 @@ const { generateKazaRaporu } = require("../services/kazaRapor.service");
 const { generatePetition } = require("../services/ai.service");
 const prisma = require("../config/db");
 const PDFDocument = require("pdfkit");
+const { hesaplaSureler } = require("../services/sureMotoru.service");
 const path = require("path");
 const fs = require("fs");
 
@@ -30,6 +31,7 @@ exports.listLeads = asyncHandler(async (req, res) => {
 
 exports.getLead = asyncHandler(async (req, res) => {
   const lead = await leadService.getLeadById(req.params.id, req.user);
+  lead.sureler = hesaplaSureler(lead);
   res.json({ success: true, data: lead });
 });
 
