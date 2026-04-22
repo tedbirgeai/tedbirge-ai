@@ -8,7 +8,7 @@ TUM YAPILACAK ISLERIN KAPSAMLI LISTESI:
 → docs/MASTER_YAPILACAKLAR.md
 
 Bu dosya iki fizibilite raporunu (AUTOMATION_PLAN_v1 + 
-HUKUKCU_CRM_FIZIBILITE_v2) ve 21 Nisan'daki tum tespitleri 
+HUKUKCU_OPERASYON_FIZIBILITE_v4) ve 21 Nisan'daki tum tespitleri 
 birlestiren tek referans.
 
 ═══════════════════════════════════════════════════════════════
@@ -107,6 +107,35 @@ SIRAYLA YAPILACAK:
 [ ] 33. PWA offline-first
 [ ] 34. E-imza entegrasyonu
 [ ] 35. Gelismis analitik
+
+═══════════════════════════════════════════════════════════════
+  🎯 HUKUKÇU PANEL OTONOM AJAN DÖNÜŞÜMÜ (v4 Fizibilite)
+═══════════════════════════════════════════════════════════════
+
+Kaynak: tedbirge-os/docs/HUKUKCU_OPERASYON_FIZIBILITE_v4.md
+Vizyon: Tedbirge → Türkiye'nin Otonom Hukuk Ajanı (12 aylık plan)
+
+### Bu hafta (Sprint 1) — 18 saat
+- [ ] W1-M1: Hukukçu Dashboard (4 saat)
+- [ ] W1-M2: Lead Timeline Sekmesi (5 saat)
+- [ ] W1-M3: Muhatap Enum + Şablonlar (3 saat)
+- [ ] W1-M4: Süre Motoru Temeli (4 saat)
+- [ ] W1-M5: Sigorta Başvuru Wizard (2 saat)
+
+### Bu ay (Sprint 2-4) — Detay v4 Bölüm 6
+- [ ] Sprint 2: Süre motoru + wizard tamamlama
+- [ ] Sprint 3: pgvector + agent altyapı
+- [ ] Sprint 4: Ajan 1 + Ajan 7 aktif
+
+### 3 ayda — 8 Ajan Aktif
+- [ ] Ajan 1: Dosya Alım Ajanı
+- [ ] Ajan 2: Emsal Karar Ajanı (Yargıtay RAG)
+- [ ] Ajan 3: Dilekçe Yazıcı
+- [ ] Ajan 4: Sigorta Başvuru (KEP)
+- [ ] Ajan 5: Süre/Tebligat Ajanı
+- [ ] Ajan 6: Karşı Taraf Analizci
+- [ ] Ajan 7: Müvekkil İletişim
+- [ ] Ajan 8: Finansal Ajan
 
 ═══════════════════════════════════════════════════════════════
   STRATEJİK ÖNCELİK — MOBİL UYGULAMA ENTEGRASYONU
@@ -215,7 +244,7 @@ stack sayısı değil.
     - Basvuru sorgula endpoint prefix (205d51c)
     - KVKK modal + saglik acik riza (3824da4)
     - KVKK iframe → inline icerik (e82c0eb)
-    - HUKUKCU_CRM_FIZIBILITE_v2 yazildi
+    - HUKUKCU_CRM_FIZIBILITE_v2 yazildi (geçersiz — v4 yerine geçti)
     - Canli muvekkil testi basarili
     - MASTER_YAPILACAKLAR master plani yazildi
 
