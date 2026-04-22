@@ -121,7 +121,7 @@ Vizyon: Tedbirge → Türkiye'nin Otonom Hukuk Ajanı (12 aylık plan)
 - [✓] W1-M3: Muhatap Enum + Şablonlar — CANLI (4d32b0f backend + 90bd2ba panel)
 - [ ] W1-M3.5: AI Muhatap Analizi — BEKLİYOR (4-6 saat, Perşembe önerilir)
 - [✓] W1-M4: Süre Motoru Temeli — CANLI (384dacb C1 + 75f63df C2 backend | 85db4a9 C3 panel)
-- [ ] W1-M5: Sigorta Başvuru Wizard — BEKLİYOR (2 saat)
+- [✓] W1-M5: Sigorta Başvuru Wizard — CANLI (92d438e backend + 319f4c1 panel) [IhtarnameTakip üzerinden, schema değişikliği yok]
 
 ### Bu ay (Sprint 2-4) — Detay v4 Bölüm 6
 - [ ] Sprint 2: Süre motoru + wizard tamamlama
