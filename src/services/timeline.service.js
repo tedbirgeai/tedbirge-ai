@@ -81,15 +81,22 @@ async function getLeadTimeline(leadId) {
       `${lead.customerName} adlı müvekkil başvurusu sisteme eklendi.`));
   }
 
-  // Atamalar
-  for (const a of assignments) {
-    events.push(makeEvent("LEAD_ASSIGNED", a.createdAt, "Avukat atandı",
-      a.lawyer?.fullName ? `Av. ${a.lawyer.fullName} dosyayı üstlendi.` : "Avukat atandı."));
+  // Atamalar — ActivityLog LAWYER_ASSIGNED önceliklidir; Assignment tablosu event üretmez (Option A)
+
+  // Belgeler — ActivityLog PUBLIC_DOCUMENT_UPLOADED ile çakışmayı önle
+  const actLogDocNames = new Set();
+  for (const a of activities) {
+    if (a.action === "PUBLIC_DOCUMENT_UPLOADED" && a.detail) {
+      const colon = a.detail.lastIndexOf(":");
+      const name = colon >= 0 ? a.detail.slice(colon + 1).trim() : a.detail.trim();
+      actLogDocNames.add(name);
+    }
   }
 
-  // Belgeler
   for (const d of documents) {
-    events.push(makeEvent("DOCUMENT_UPLOADED", d.createdAt, "Belge yüklendi", d.originalName));
+    if (!actLogDocNames.has(d.originalName)) {
+      events.push(makeEvent("DOCUMENT_UPLOADED", d.createdAt, "Belge yüklendi", d.originalName));
+    }
     if (d.status === "ANALYZED" && d.updatedAt && d.updatedAt.getTime() !== d.createdAt.getTime()) {
       events.push(makeEvent("DOCUMENT_ANALYZED", d.updatedAt, "Belge analiz edildi", d.originalName));
     }
