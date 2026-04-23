@@ -53,6 +53,7 @@ desktop.ini
 *.tmp
 *.temp
 MIMAR_TANI*.txt
+PANEL_TANI*.txt
 MIMAR_PAKET*.md
 lawyers-export.json
 pgpass.tmp
