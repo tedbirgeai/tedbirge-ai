@@ -4,6 +4,7 @@ const os = require("os");
 const path = require("path");
 const crypto = require("crypto");
 const { extractTextWithOcr, extractTextWithVision } = require("./ocr.service");
+const mammoth = require("mammoth");
 const { analyzeExtractedText } = require("./analyzer.service");
 async function saveAiSummary(leadId, analysisResult, parsedText) {
   const result = analysisResult || {};
@@ -64,26 +65,52 @@ async function resolveDocumentText(file) {
   const workFile = { ...file, path: localPath };
 
   try {
+    // TXT dosyalari
     if (mimeType === "text/plain" || ext === ".txt") {
       const text = fs.readFileSync(localPath, "utf8");
       return { text, extractionMethod: "text-file" };
     }
 
+    // DOCX — mammoth ile text extraction (pure Node.js, binary yok)
+    if (
+      mimeType === "application/vnd.openxmlformats-officedocument.wordprocessingml.document" ||
+      ext === ".docx"
+    ) {
+      if (!file.buffer) {
+        throw new Error("DOCX analiz icin buffer gerekli");
+      }
+      const result = await mammoth.extractRawText({ buffer: file.buffer });
+      return { text: result.value || "", extractionMethod: "mammoth-docx" };
+    }
+
+    // PDF — Claude Vision (20 MB limit)
     if (mimeType === "application/pdf" || ext === ".pdf") {
-      // Claude Vision direkt PDF okuma — Render'da binary yok, pdf-parse de kullanilmiyor
       if (!file.buffer) {
         throw new Error("PDF analiz icin buffer gerekli");
+      }
+      if (file.buffer.length > 20 * 1024 * 1024) {
+        throw new Error(
+          `PDF boyutu ${(file.buffer.length / 1024 / 1024).toFixed(1)} MB — Vision limiti 20 MB. Dosya sikisturilmeli.`
+        );
       }
       const visionText = await extractTextWithVision(file.buffer, "application/pdf");
       return { text: visionText, extractionMethod: "claude-vision-pdf" };
     }
 
-    // Gorsel (JPG/PNG/WEBP) — direkt Claude Vision
-    if (!file.buffer) {
-      throw new Error("Gorsel analiz icin buffer gerekli");
+    // Gorseller — Claude Vision (whitelist)
+    const IMAGE_TYPES = ["image/jpeg", "image/png", "image/gif", "image/webp"];
+    if (IMAGE_TYPES.includes(mimeType)) {
+      if (!file.buffer) {
+        throw new Error("Gorsel analiz icin buffer gerekli");
+      }
+      const visionText = await extractTextWithVision(file.buffer, mimeType);
+      return { text: visionText, extractionMethod: "claude-vision-image" };
     }
-    const visionText = await extractTextWithVision(file.buffer, mimeType);
-    return { text: visionText, extractionMethod: "claude-vision-image" };
+
+    // Desteklenmeyen tipler — anlasilir hata
+    throw new Error(
+      `Bu dosya turu henuz otomatik analiz edilemiyor: ${mimeType || ext || "bilinmeyen"}. Manuel inceleme gerekli.`
+    );
   } finally {
     if (tempCreated && fs.existsSync(localPath)) {
       try { fs.unlinkSync(localPath); } catch (_) {}
