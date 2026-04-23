@@ -1,3 +1,26 @@
+/**
+ * ═══════════════════════════════════════════════════════════════
+ *  MİMAR UYARISI — DIRECT-TO-SUPABASE MİMARİ
+ * ═══════════════════════════════════════════════════════════════
+ *
+ * Bu controller Supabase Storage signed URL redirect modeli kullanır.
+ * Dosya Render RAM'inden GEÇMEZ — doğrudan Supabase'den kullanıcıya akar.
+ *
+ * YASAKLANANLAR:
+ *   - fs / path / mime-types import etmek
+ *   - fs.createReadStream, fs.existsSync kullanmak
+ *   - res.download() veya res.sendFile() kullanmak
+ *   - Dosya buffer'ını res.send() ile döndürmek
+ *
+ * ZORUNLULAR:
+ *   - doc.path → createSignedDownloadUrl() → res.redirect() akışı
+ *   - assertLeadAccess() ile yetki kontrolü
+ *
+ * Bu mimari 27 Nisan 2026'da kuruldu (commit 44832b9).
+ * Değişiklik için: tedbirge-os/docs/OTURUM_24_04_2026_HANDOFF.md Madde 15
+ *
+ * ═══════════════════════════════════════════════════════════════
+ */
 const asyncHandler = require("../utils/asyncHandler");
 const prisma = require("../config/db");
 const { assertLeadAccess } = require("../utils/leadAccess");
