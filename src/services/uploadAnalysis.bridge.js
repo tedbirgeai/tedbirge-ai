@@ -70,16 +70,9 @@ async function resolveDocumentText(file) {
     }
 
     if (mimeType === "application/pdf" || ext === ".pdf") {
-      const parsed = await extractTextWithOcr(localPath);
-      const parsedText = parsed?.text || "";
-
-      if (hasMeaningfulText(parsedText)) {
-        return { text: parsedText, extractionMethod: "pdf-parse" };
-      }
-
-      // pdf-parse metin bulamadi (taranmis PDF) — Claude Vision fallback
+      // Claude Vision direkt PDF okuma — Render'da binary yok, pdf-parse de kullanilmiyor
       if (!file.buffer) {
-        throw new Error("Taranmis PDF icin buffer gerekli (Vision fallback)");
+        throw new Error("PDF analiz icin buffer gerekli");
       }
       const visionText = await extractTextWithVision(file.buffer, "application/pdf");
       return { text: visionText, extractionMethod: "claude-vision-pdf" };
