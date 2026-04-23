@@ -184,9 +184,61 @@ async function extractTextWithOcr(input) {
   return { text };
 }
 
+/**
+ * Claude Vision ile belgeden metin cikarma.
+ * PDF ve image (JPG/PNG/WEBP) destekler.
+ * Binary gerektirmez — Render'da calisir.
+ */
+async function extractTextWithVision(buffer, mimeType) {
+  const Anthropic = require("@anthropic-ai/sdk");
+
+  if (!process.env.ANTHROPIC_API_KEY) {
+    throw new Error("Vision icin ANTHROPIC_API_KEY gerekli");
+  }
+
+  const client = new Anthropic.default({
+    apiKey: process.env.ANTHROPIC_API_KEY
+  });
+
+  const base64 = buffer.toString("base64");
+
+  const sourceType = mimeType === "application/pdf" ? "document" : "image";
+  const contentBlock = sourceType === "document"
+    ? {
+        type: "document",
+        source: { type: "base64", media_type: "application/pdf", data: base64 }
+      }
+    : {
+        type: "image",
+        source: { type: "base64", media_type: mimeType, data: base64 }
+      };
+
+  const response = await client.messages.create({
+    model: "claude-sonnet-4-6",
+    max_tokens: 8192,
+    messages: [{
+      role: "user",
+      content: [
+        contentBlock,
+        {
+          type: "text",
+          text: "Sen bir Turk hukuk uzmanisin. Yuklenmis belgeyi SATIR SATIR oku ve TAM METNI cikar.\n\nKURALLAR:\n- Belgede gorunen TUM metni dahil et (baslik, altyazi, dipnot, damga, imza satiri)\n- Tablolari | ile ayirarak koru\n- Sayi, tarih, isim, TC kimlik, plaka gibi detaylari DEGISTIRMEDEN aktar\n- El yazisi varsa [El yazisi: ...] ile isaretle\n- Okunamayan kisimlari [Okunmuyor] ile isaretle\n- Kendi yorumunu EKLEME — sadece belgede yazan\n- Ciktiyi markdown formatinda ver\n\nSadece belge metnini dondur. Baslangicta veya sonunda aciklama yazma."
+        }
+      ]
+    }]
+  });
+
+  const textBlocks = response.content
+    .filter(block => block.type === "text")
+    .map(block => block.text);
+
+  return textBlocks.join("\n").trim();
+}
+
 module.exports = {
   runOcr,
   extractTextWithOcr,
+  extractTextWithVision,
   performOcr: runOcr,
   extractTextFromImageOrPdf: extractTextWithOcr,
   ocrFile: runOcr,

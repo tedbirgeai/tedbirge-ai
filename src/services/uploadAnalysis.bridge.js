@@ -3,7 +3,7 @@ const fs = require("fs");
 const os = require("os");
 const path = require("path");
 const crypto = require("crypto");
-const { extractTextWithOcr } = require("./ocr.service");
+const { extractTextWithOcr, extractTextWithVision } = require("./ocr.service");
 const { analyzeExtractedText } = require("./analyzer.service");
 async function saveAiSummary(leadId, analysisResult, parsedText) {
   const result = analysisResult || {};
@@ -77,14 +77,20 @@ async function resolveDocumentText(file) {
         return { text: parsedText, extractionMethod: "pdf-parse" };
       }
 
-      const ocrResult = await extractTextWithOcr(workFile);
-      const ocrText = unwrapOcrResult(ocrResult);
-      return { text: ocrText, extractionMethod: "ocr-fallback-multipage-pdf" };
+      // pdf-parse metin bulamadi (taranmis PDF) — Claude Vision fallback
+      if (!file.buffer) {
+        throw new Error("Taranmis PDF icin buffer gerekli (Vision fallback)");
+      }
+      const visionText = await extractTextWithVision(file.buffer, "application/pdf");
+      return { text: visionText, extractionMethod: "claude-vision-pdf" };
     }
 
-    const ocrResult = await extractTextWithOcr(workFile);
-    const ocrText = unwrapOcrResult(ocrResult);
-    return { text: ocrText, extractionMethod: "ocr-image" };
+    // Gorsel (JPG/PNG/WEBP) — direkt Claude Vision
+    if (!file.buffer) {
+      throw new Error("Gorsel analiz icin buffer gerekli");
+    }
+    const visionText = await extractTextWithVision(file.buffer, mimeType);
+    return { text: visionText, extractionMethod: "claude-vision-image" };
   } finally {
     if (tempCreated && fs.existsSync(localPath)) {
       try { fs.unlinkSync(localPath); } catch (_) {}
