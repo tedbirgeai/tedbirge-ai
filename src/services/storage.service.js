@@ -141,4 +141,18 @@ async function verifyUpload(filePath) {
   return { size: found.metadata?.size || 0, mimeType: found.metadata?.mimetype };
 }
 
-module.exports = { uploadFile, downloadFile, getPublicUrl, deleteFile, isSupabaseMode: () => Boolean(SUPABASE_BUCKET), createSignedUploadUrl, verifyUpload };
+async function createSignedDownloadUrl(filePath, expiresIn = 3600) {
+  const { createClient } = require("@supabase/supabase-js");
+  const supabase = createClient(
+    process.env.SUPABASE_URL,
+    process.env.SUPABASE_SERVICE_ROLE_KEY
+  );
+  const bucket = process.env.SUPABASE_STORAGE_BUCKET || "tedbirge-documents";
+  const { data, error } = await supabase.storage
+    .from(bucket)
+    .createSignedUrl(filePath, expiresIn);
+  if (error) throw new Error(`Signed download URL uretilemedi: ${error.message}`);
+  return data.signedUrl;
+}
+
+module.exports = { uploadFile, downloadFile, getPublicUrl, deleteFile, isSupabaseMode: () => Boolean(SUPABASE_BUCKET), createSignedUploadUrl, verifyUpload, createSignedDownloadUrl };
