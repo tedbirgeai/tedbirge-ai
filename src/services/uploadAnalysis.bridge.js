@@ -124,10 +124,42 @@ try {
   };
 }
 
-module.exports = {
-  resolveDocumentText,
-  analyzeUploadedDocument
-};
+/**
+ * Direct-to-Supabase akışı için yeni giriş kapısı.
+ * Document ID üzerinden çalışır — dosyayı Supabase'den indirir,
+ * mevcut analyzeUploadedDocument pipeline'ına yönlendirir.
+ *
+ * Bu fonksiyon completeUpload controller'ında fire-and-forget olarak çağrılır.
+ */
+async function analyzeDocumentById(documentId) {
+  const prisma = require("../config/db");
+  const { downloadFile } = require("./storage.service");
+
+  const doc = await prisma.document.findUnique({ where: { id: documentId } });
+  if (!doc) {
+    throw new Error(`Document bulunamadi: ${documentId}`);
+  }
+
+  const lead = await prisma.lead.findUnique({ where: { id: doc.leadId } });
+  if (!lead) {
+    throw new Error(`Lead bulunamadi: ${doc.leadId}`);
+  }
+
+  // Supabase'den buffer indir
+  const { buffer, contentType } = await downloadFile(doc.path);
+
+  // file objesi simüle et — mevcut bridge pipeline'ı ile uyumlu
+  const fileProxy = {
+    buffer,
+    originalname: doc.originalName,
+    mimetype: contentType || doc.mimeType,
+    size: doc.sizeBytes,
+  };
+
+  return await analyzeUploadedDocument({ lead, file: fileProxy });
+}
+
+module.exports = { resolveDocumentText, analyzeUploadedDocument, analyzeDocumentById };
 
 
 
