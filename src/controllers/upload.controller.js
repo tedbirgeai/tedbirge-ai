@@ -1,5 +1,7 @@
 const asyncHandler = require("../utils/asyncHandler");
 const { uploadDocument } = require("../services/upload.service");
+const prisma = require("../config/db");
+const { analyzeDocumentById } = require("../services/uploadAnalysis.bridge");
 
 exports.uploadLeadDocument = asyncHandler(async (req, res) => {
   const files = req.files;
@@ -101,6 +103,38 @@ async function completeUpload(req, res) {
         status: "UPLOADED",
       },
     });
+
+    // AI Analyzer fire-and-forget — kullanıcı yanıtı beklemez, analiz arka planda çalışır
+    setImmediate(async () => {
+      try {
+        const result = await analyzeDocumentById(document.id);
+        await prisma.document.update({
+          where: { id: document.id },
+          data: {
+            status: "ANALYZED",
+            aiAnalysis: JSON.stringify(result.analysis || {}),
+          },
+        });
+        console.log(`[AI Analyzer] ${document.id} — ANALYZED (${document.originalName})`);
+      } catch (err) {
+        console.error(`[AI Analyzer] ${document.id} hatasi:`, err.message);
+        try {
+          await prisma.document.update({
+            where: { id: document.id },
+            data: {
+              status: "FAILED",
+              aiAnalysis: JSON.stringify({
+                error: err.message,
+                failedAt: new Date().toISOString(),
+              }),
+            },
+          });
+        } catch (updateErr) {
+          console.error(`[AI Analyzer] status update de basarisiz: ${updateErr.message}`);
+        }
+      }
+    });
+
     return res.status(201).json({ document });
   } catch (err) {
     console.error("[completeUpload]", err.message);
