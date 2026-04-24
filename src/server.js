@@ -6,6 +6,7 @@ const env = require("./config/env");
 const logger = require("./config/logger");
 const { startDeadlineChecker } = require("./jobs/deadlineChecker.job");
 const { verifyConnection: verifySmtp } = require("./services/email.service");
+const tedbirgeOS = require("./os");
 
 let workerProcess = null;
 
@@ -40,6 +41,13 @@ const server = app.listen(env.port, () => {
   startOcrWorker();
   startDeadlineChecker();
   // SMTP bağlantı kontrolü — mock modda sessizce atlanır
+  if (process.env.OS_ENABLED !== "false") {
+    tedbirgeOS.runBoot().then(r => {
+      if (r.ok) { logger.info(`[OS] Boot OK (${r.steps.length} step, ${r.totalMs}ms)`); tedbirgeOS.startReconciler(); logger.info("[OS] Reconciler started"); }
+      else { logger.error(`[OS] Boot failed: ${r.steps.filter(s=>!s.ok).map(s=>s.name).join(", ")}`); }
+    }).catch(err => logger.error(`[OS] Boot threw: ${err.message}`));
+  }
+
   verifySmtp().then((ok) => {
     if (ok) logger.info("[SMTP] Bağlantı doğrulandı");
     else     logger.warn("[SMTP] Mock mod aktif (SMTP_PASS eksik veya bağlantı başarısız)");
@@ -53,6 +61,8 @@ function shutdown(signal) {
   // Stop accepting new connections
   server.close((err) => {
     if (err) logger.error(`[SERVER] Error during close: ${err.message}`);
+
+    try { tedbirgeOS.stopReconciler(); logger.info("[OS] Reconciler stopped"); } catch(e) { logger.error(`[OS] Shutdown: ${e.message}`); }
 
     // Kill OCR worker child process
     if (workerProcess) {

@@ -7,12 +7,416 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-enum Role {
-  ADMIN
-  SALES
-  REPRESENTATIVE
-  LAWYER
-  CUSTOMER
+model AccidentCase {
+  id           String             @id
+  leadId       String
+  status       AccidentCaseStatus @default(DRAFT)
+  summary      String?
+  analysisData Json?
+  reportData   Json?
+  createdAt    DateTime           @default(now())
+  updatedAt    DateTime
+  analyzedAt   DateTime?
+  Lead         Lead               @relation(fields: [leadId], references: [id], onDelete: Cascade)
+  Evidence     Evidence[]
+
+  @@index([leadId])
+  @@index([status])
+}
+
+model ActivityLog {
+  id        String   @id
+  leadId    String?
+  action    String
+  detail    String?
+  createdAt DateTime @default(now())
+  Lead      Lead?    @relation(fields: [leadId], references: [id])
+}
+
+model Assignment {
+  id        String           @id
+  leadId    String
+  lawyerId  String
+  note      String?
+  status    AssignmentStatus @default(ACTIVE)
+  createdAt DateTime         @default(now())
+  updatedAt DateTime
+  User      User             @relation(fields: [lawyerId], references: [id])
+  Lead      Lead             @relation(fields: [leadId], references: [id])
+}
+
+model Bilirkisi {
+  id            String    @id
+  leadId        String
+  atamaTarihi   DateTime?
+  teslimTarihi  DateTime?
+  raporGeldiMi  Boolean   @default(false)
+  raporTarihi   DateTime?
+  raporIcerigi  String?
+  aiAnalizi     String?
+  itirazEdildi  Boolean   @default(false)
+  itirazTarihi  DateTime?
+  itirazIcerigi String?
+  createdAt     DateTime  @default(now())
+  Lead          Lead      @relation(fields: [leadId], references: [id])
+}
+
+model ChatMessage {
+  id           String       @id
+  sessionId    String?
+  leadId       String?
+  sender       String
+  message      String
+  metadataJson String?
+  createdAt    DateTime     @default(now())
+  Lead         Lead?        @relation(fields: [leadId], references: [id])
+  ChatSession  ChatSession? @relation(fields: [sessionId], references: [id])
+}
+
+model ChatSession {
+  id          String        @id
+  sessionKey  String        @unique
+  leadId      String?
+  userId      String?
+  createdAt   DateTime      @default(now())
+  updatedAt   DateTime
+  ChatMessage ChatMessage[]
+  Lead        Lead?         @relation(fields: [leadId], references: [id])
+  User        User?         @relation(fields: [userId], references: [id])
+}
+
+model Contract {
+  id                String         @id
+  leadId            String
+  createdById       String?
+  type              ContractType
+  status            ContractStatus @default(DRAFT)
+  title             String
+  content           String
+  createdAt         DateTime       @default(now())
+  updatedAt         DateTime
+  musteriOnayTarihi DateTime?
+  musteriOnayladi   Boolean        @default(false)
+  onayKodu          String?
+  onayKoduExpires   DateTime?
+  User              User?          @relation(fields: [createdById], references: [id])
+  Lead              Lead           @relation(fields: [leadId], references: [id])
+}
+
+model DavaSurec {
+  id              String    @id
+  leadId          String    @unique
+  asama           String    @default("HAZIRLIK")
+  mahkeme         String?
+  dosyaNo         String?
+  davaTarihi      DateTime?
+  davaTuru        String?
+  karsiTaraf      String?
+  bilirkisiVar    Boolean   @default(false)
+  bilirkisiRapor  String?
+  uzlasmaDenemesi Int       @default(0)
+  uzlasmaTeklif   Float?
+  karar           String?
+  kararTarihi     DateTime?
+  istinafVar      Boolean   @default(false)
+  yargitayVar     Boolean   @default(false)
+  icraTakibi      Boolean   @default(false)
+  tahsilatTutar   Float?
+  masraflar       Float     @default(0)
+  notlar          String?
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime
+  Lead            Lead      @relation(fields: [leadId], references: [id])
+}
+
+model Document {
+  id                 String         @id
+  leadId             String
+  uploadedById       String?
+  type               DocumentType   @default(OTHER)
+  status             DocumentStatus @default(UPLOADED)
+  originalName       String
+  storedName         String
+  mimeType           String
+  sizeBytes          Int
+  path               String
+  parsedText         String?
+  aiAnalysis         String?
+  extractedJson      String?
+  storageKey         String?
+  compensationResult String?
+  pageCount          Int?
+  createdAt          DateTime       @default(now())
+  updatedAt          DateTime
+  Lead               Lead           @relation(fields: [leadId], references: [id])
+}
+
+model Durusma {
+  id           String   @id
+  leadId       String
+  tarih        DateTime
+  mahkeme      String?
+  saat         String?
+  tur          String   @default("DURUSMA")
+  aciklama     String?
+  hatirlatildi Boolean  @default(false)
+  createdAt    DateTime @default(now())
+  Lead         Lead     @relation(fields: [leadId], references: [id])
+}
+
+model Evidence {
+  id             String       @id
+  accidentCaseId String
+  type           EvidenceType
+  fileUrl        String?
+  fileName       String?
+  fileMimeType   String?
+  fileSize       Int?
+  metadata       Json?
+  notes          String?
+  uploadedAt     DateTime     @default(now())
+  AccidentCase   AccidentCase @relation(fields: [accidentCaseId], references: [id], onDelete: Cascade)
+
+  @@index([accidentCaseId])
+  @@index([type])
+}
+
+model IhtarnameTakip {
+  id             String    @id
+  leadId         String
+  gonderimTarihi DateTime?
+  karsiTaraf     String?
+  tur            String    @default("SIGORTA")
+  durum          String    @default("HAZIRLANIYOR")
+  cevapTarihi    DateTime?
+  cevapIcerigi   String?
+  sonrakiAdim    String?
+  notlar         String?
+  createdAt      DateTime  @default(now())
+  updatedAt      DateTime
+  teklifTarihi   DateTime?
+  teklifTutari   Float?
+  Lead           Lead      @relation(fields: [leadId], references: [id])
+}
+
+model Lead {
+  id                          String           @id
+  leadCode                    String           @unique
+  customerName                String
+  customerPhone               String
+  customerEmail               String?
+  accidentDate                DateTime?
+  city                        String?
+  injurySeverity              String?
+  accidentSummary             String?
+  status                      LeadStatus       @default(NEW)
+  estimatedCompensation       Float?
+  qualificationScore          Int              @default(0)
+  salesNote                   String?
+  aiSummary                   String?
+  whatsappRedirected          Boolean          @default(false)
+  accidentType                String?
+  age                         Int?
+  monthlyIncome               Float?
+  maluliyetRate               Float?
+  faultRate                   Float?
+  createdAt                   DateTime         @default(now())
+  updatedAt                   DateTime
+  ownerId                     String?
+  kvkkConsentAt               DateTime?
+  uyapDosyaNo                 String?
+  uyapDurum                   String?
+  uyapMahkeme                 String?
+  uyapSonGuncelleme           DateTime?
+  komisyonOrani               Float?           @default(20)
+  gercekTazminat              Float?
+  kusurOrani                  Float?
+  maluliyetOrani              Float?
+  yaralanmaTuru               String?
+  createdById                 String?
+  odemeDetay                  String?
+  hakEdisNotu                 String?
+  hakEdisStatus               String?          @default("BEKLEMEDE")
+  hakEdisTarihi               DateTime?
+  hakEdisTetikleyenId         String?
+  kdvTutari                   Float?           @default(0)
+  masrafTutari                Float?           @default(0)
+  muhatapTipi                 MuhatapTipi?
+  muhatapAdi                  String?
+  muhatapTespitKaynagi        String?
+  muhatapGuvenSkoru           Float?
+  muhatapGerekce              String?          @db.Text
+  healthDataConsentAt         DateTime?
+  AccidentCase                AccidentCase[]
+  ActivityLog                 ActivityLog[]
+  Assignment                  Assignment[]
+  Bilirkisi                   Bilirkisi[]
+  ChatMessage                 ChatMessage[]
+  ChatSession                 ChatSession[]
+  Contract                    Contract[]
+  DavaSurec                   DavaSurec?
+  Document                    Document[]
+  Durusma                     Durusma[]
+  IhtarnameTakip              IhtarnameTakip[]
+  User_Lead_createdByIdToUser User?            @relation("Lead_createdByIdToUser", fields: [createdById], references: [id])
+  User_Lead_ownerIdToUser     User?            @relation("Lead_ownerIdToUser", fields: [ownerId], references: [id])
+  Masraf                      Masraf[]
+  Petition                    Petition[]
+  uyapDosyaSyncs              UYAPDosyaSync[]  @relation("UYAPDosyaSyncs")
+}
+
+model Masraf {
+  id        String   @id
+  leadId    String
+  tur       String
+  tutar     Float
+  tarih     DateTime @default(now())
+  aciklama  String?
+  odendi    Boolean  @default(false)
+  createdAt DateTime @default(now())
+  Lead      Lead     @relation(fields: [leadId], references: [id])
+}
+
+model Petition {
+  id             String    @id
+  leadId         String
+  avukatId       String?
+  createdById    String?
+  tur            String
+  icerik         String
+  pdfUrl         String?
+  durum          String    @default("TASLAK")
+  gonderildi     Boolean   @default(false)
+  gonderimTarihi DateTime?
+  muhatap        String?
+  notlar         String?
+  createdAt      DateTime  @default(now())
+  updatedAt      DateTime
+  User           User?     @relation(fields: [createdById], references: [id])
+  Lead           Lead      @relation(fields: [leadId], references: [id])
+}
+
+model PhoneOtp {
+  id        String   @id
+  phone     String
+  code      String
+  purpose   String   @default("kayit")
+  expiresAt DateTime
+  createdAt DateTime @default(now())
+}
+
+model PushSubscription {
+  id        String   @id
+  userId    String
+  endpoint  String   @unique
+  p256dh    String
+  auth      String
+  createdAt DateTime @default(now())
+  User      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model User {
+  id                          String               @id
+  fullName                    String
+  email                       String               @unique
+  phone                       String?
+  passwordHash                String
+  role                        Role                 @default(CUSTOMER)
+  isActive                    Boolean              @default(true)
+  createdAt                   DateTime             @default(now())
+  updatedAt                   DateTime
+  resetToken                  String?
+  resetTokenExpires           DateTime?
+  sonGirisTarihi              DateTime?
+  sozlesmeKabulTarihi         DateTime?
+  baroSicilNo                 String?
+  bolge                       String?
+  hukukcuKomisyon             Float?               @default(20)
+  primOrani                   Float?               @default(50)
+  uzmanlik                    String?
+  baroOnayDurumu              String?              @default("BEKLEMEDE")
+  temsilciOnayDurumu          String?              @default("BEKLEMEDE")
+  twoFactorEnabled            Boolean              @default(false)
+  twoFactorSecret             String?
+  sozlesmeKabulIp             String?
+  sozlesmeMetniHash           String?
+  sozlesmeVersiyonu           String?              @default("v1.0-temsilci")
+  Assignment                  Assignment[]
+  ChatSession                 ChatSession[]
+  Contract                    Contract[]
+  Lead_Lead_createdByIdToUser Lead[]               @relation("Lead_createdByIdToUser")
+  Lead_Lead_ownerIdToUser     Lead[]               @relation("Lead_ownerIdToUser")
+  Petition                    Petition[]
+  PushSubscription            PushSubscription[]
+  uyapSessions                UYAPSession[]        @relation("UYAPSessions")
+  uyapTebligatlar             UYAPTebligat[]       @relation("UYAPTebligatlar")
+  sbmSorgular                 SBMSorgu[]           @relation("SBMSorgular")
+  aiUsageLogs                 AIUsageLog[]         @relation("AIUsageLogs")
+  dataSubjectRequestsHandled  DataSubjectRequest[] @relation("DataSubjectRequestsHandled")
+}
+
+model VerificationToken {
+  id        String    @id
+  token     String    @unique
+  email     String
+  type      String    @default("EMAIL_VERIFY")
+  expiresAt DateTime
+  usedAt    DateTime?
+  createdAt DateTime  @default(now())
+
+  @@index([email])
+}
+
+enum AccidentCaseStatus {
+  DRAFT
+  EVIDENCE_READY
+  ANALYZING
+  COMPLETED
+  FAILED
+}
+
+enum AssignmentStatus {
+  ACTIVE
+  COMPLETED
+  CANCELLED
+}
+
+enum ContractStatus {
+  DRAFT
+  SENT
+  SIGNED
+  CANCELLED
+}
+
+enum ContractType {
+  SERVICE_AGREEMENT
+  POWER_OF_ATTORNEY
+}
+
+enum DocumentStatus {
+  UPLOADED
+  PARSED
+  ANALYZED
+  FAILED
+}
+
+enum DocumentType {
+  ACCIDENT_REPORT
+  HOSPITAL_REPORT
+  IDENTITY
+  INSURANCE
+  OTHER
+}
+
+enum EvidenceType {
+  SCENE_PHOTO
+  VEHICLE_PHOTO
+  POLICE_REPORT
+  SATELLITE_IMAGE
+  COORDINATES
+  VEHICLE_INFO
+  VIDEO
+  OTHER
 }
 
 enum LeadStatus {
@@ -26,39 +430,6 @@ enum LeadStatus {
   ASSIGNED_TO_LAWYER
   WON
   LOST
-}
-
-enum AssignmentStatus {
-  ACTIVE
-  COMPLETED
-  CANCELLED
-}
-
-enum DocumentType {
-  ACCIDENT_REPORT
-  HOSPITAL_REPORT
-  IDENTITY
-  INSURANCE
-  OTHER
-}
-
-enum DocumentStatus {
-  UPLOADED
-  PARSED
-  ANALYZED
-  FAILED
-}
-
-enum ContractType {
-  SERVICE_AGREEMENT
-  POWER_OF_ATTORNEY
-}
-
-enum ContractStatus {
-  DRAFT
-  SENT
-  SIGNED
-  CANCELLED
 }
 
 enum MuhatapTipi {
@@ -87,331 +458,210 @@ enum MuhatapTipi {
   DIGER
 }
 
-// Kayıt sırasında telefon OTP doğrulaması için geçici kayıt
-model PhoneOtp {
+enum Role {
+  ADMIN
+  SALES
+  LAWYER
+  CUSTOMER
+  REPRESENTATIVE
+}
+
+// ─── Tedbirge OS v3 Models ──────────────────────────────────────────────────
+
+// Policy storage — desired state deklaratif konfigürasyonu
+model OSPolicy {
   id        String   @id @default(cuid())
-  phone     String
-  code      String
-  purpose   String   @default("kayit")
+  module    String
+  key       String
+  value     Json
+  updatedBy String?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@unique([module, key])
+  @@index([module])
+}
+
+// Idempotency cache — çift tıklama / retry güvenliği
+model IdempotencyKey {
+  key       String   @id
+  response  Json
   expiresAt DateTime
   createdAt DateTime @default(now())
+
+  @@index([expiresAt])
 }
 
-model User {
-  id             String       @id @default(cuid())
-  fullName       String
-  email          String       @unique
-  phone          String?
-  passwordHash   String
-  role           Role         @default(CUSTOMER)
-  isActive           Boolean      @default(true)
-  resetToken         String?
-  resetTokenExpires  DateTime?
-  sozlesmeKabulTarihi DateTime?
-  sonGirisTarihi     DateTime?
-  // Hukukçu kayıt alanları
-  baroSicilNo        String?
-  uzmanlik           String?
-  hukukcuKomisyon    Float?       @default(20)
-  // Temsilci kayıt alanları
-  primOrani          Float?       @default(5)
-  bolge              String?
-  // 2FA
-  twoFactorSecret    String?
-  twoFactorEnabled   Boolean      @default(false)
-  // Onay durumları
-  baroOnayDurumu     String?      @default("BEKLEMEDE")  // BEKLEMEDE / ONAYLANDI / REDDEDILDI
-  temsilciOnayDurumu String?      @default("BEKLEMEDE")  // BEKLEMEDE / ONAYLANDI / REDDEDILDI
-  createdAt          DateTime     @default(now())
-  updatedAt          DateTime     @updatedAt
-
-  ownedLeads         Lead[]             @relation("LeadOwner")
-  createdLeads       Lead[]             @relation("LeadCreatedBy")
-  assignedLeads      Assignment[]       @relation("AssignedLawyer")
-  chatSessions       ChatSession[]
-  contracts          Contract[]         @relation("ContractCreatedBy")
-  petitions          Petition[]         @relation("PetitionCreatedBy")
-  pushSubscriptions  PushSubscription[]
-}
-
-model Lead {
-  id                    String        @id @default(cuid())
-  leadCode              String        @unique
-  customerName          String
-  customerPhone         String
-  customerEmail         String?
-  accidentDate          DateTime?
-  city                  String?
-  injurySeverity        String?
-  accidentSummary       String?
-  status                LeadStatus    @default(NEW)
-  estimatedCompensation Float?
-  komisyonOrani         Float?        @default(20)
-  qualificationScore    Int           @default(0)
-  salesNote             String?
-  aiSummary             String?
-  whatsappRedirected    Boolean       @default(false)
-  kvkkConsentAt         DateTime?
-  healthDataConsentAt   DateTime?  // KVKK m.6/3 - health data consent (special category)
-  accidentType          String?
-  age                   Int?
-  monthlyIncome         Float?
-  maluliyetRate         Float?
-  faultRate             Float?
-  // GÖREV 5 — Kullanıcı girişli kesin değerler
-  maluliyetOrani        Float?       // Kullanıcı/avukat onaylı maluliyet oranı (0–1)
-  kusurOrani            Float?       // Kullanıcı/avukat onaylı kusur oranı (0–1)
-  gercekTazminat        Float?       // Kesinleşen tazminat miktarı (TL)
-  yaralanmaTuru         String?      // AMA kılavuzu yaralanma türü
-  uyapDosyaNo           String?
-  uyapMahkeme           String?
-  uyapDurum             String?
-  uyapSonGuncelleme     DateTime?
-  // Ödeme
-  odemeDetay            String?       // JSON: { merchantOid, paymentAmount, status, paidAt }
-  // W1-M3: Muhatap
-  muhatapTipi           MuhatapTipi?
-  muhatapAdi            String?       // serbest metin: "Allianz Sigorta A.Ş."
-  muhatapTespitKaynagi  String?       // "MANUEL" | "KURAL" | "AI"
-  muhatapGuvenSkoru     Float?        // 0-1 arası, AI güven skoru (Perşembe)
-  muhatapGerekce        String?       // AI seçim gerekçesi (Perşembe)
-  createdAt             DateTime      @default(now())
-  updatedAt             DateTime      @updatedAt
-
-  ownerId               String?
-  owner                 User?         @relation("LeadOwner", fields: [ownerId], references: [id])
-  createdById           String?
-  createdByUser         User?         @relation("LeadCreatedBy", fields: [createdById], references: [id])
-
-  chatSessions          ChatSession[]
-  messages              ChatMessage[]
-  documents             Document[]
-  assignments           Assignment[]
-  contracts             Contract[]
-  activities            ActivityLog[]
-  ihtarnameler          IhtarnameTakip[]
-  davaSurec             DavaSurec?
-  durusmalar            Durusma[]
-  bilirkisiIslemleri    Bilirkisi[]
-  masraflar             Masraf[]
-  petitions             Petition[]
-}
-
-model IhtarnameTakip {
-  id              String    @id @default(cuid())
-  leadId          String
-  lead            Lead      @relation(fields: [leadId], references: [id])
-  gonderimTarihi  DateTime?
-  karsiTaraf      String?
-  tur             String    @default("SIGORTA")
-  durum           String    @default("HAZIRLANIYOR")
-  cevapTarihi     DateTime?
-  cevapIcerigi    String?
-  teklifTutari    Float?
-  teklifTarihi    DateTime?
-  sonrakiAdim     String?
-  notlar          String?
-  createdAt       DateTime  @default(now())
-  updatedAt       DateTime  @updatedAt
-}
-
-model DavaSurec {
-  id                String    @id @default(cuid())
-  leadId            String    @unique
-  lead              Lead      @relation(fields: [leadId], references: [id])
-  asama             String    @default("HAZIRLIK")
-  mahkeme           String?
-  dosyaNo           String?
-  davaTarihi        DateTime?
-  davaTuru          String?
-  karsiTaraf        String?
-  bilirkisiVar      Boolean   @default(false)
-  bilirkisiRapor    String?
-  uzlasmaDenemesi   Int       @default(0)
-  uzlasmaTeklif     Float?
-  karar             String?
-  kararTarihi       DateTime?
-  istinafVar        Boolean   @default(false)
-  yargitayVar       Boolean   @default(false)
-  icraTakibi        Boolean   @default(false)
-  tahsilatTutar     Float?
-  masraflar         Float     @default(0)
-  notlar            String?
-  createdAt         DateTime  @default(now())
-  updatedAt         DateTime  @updatedAt
-}
-
-model Durusma {
-  id           String    @id @default(cuid())
-  leadId       String
-  lead         Lead      @relation(fields: [leadId], references: [id])
-  tarih        DateTime
-  mahkeme      String?
-  saat         String?
-  tur          String    @default("DURUSMA")
-  aciklama     String?
-  hatirlatildi Boolean   @default(false)
-  createdAt    DateTime  @default(now())
-}
-
-model Bilirkisi {
-  id             String    @id @default(cuid())
-  leadId         String
-  lead           Lead      @relation(fields: [leadId], references: [id])
-  atamaTarihi    DateTime?
-  teslimTarihi   DateTime?
-  raporGeldiMi   Boolean   @default(false)
-  raporTarihi    DateTime?
-  raporIcerigi   String?
-  aiAnalizi      String?
-  itirazEdildi   Boolean   @default(false)
-  itirazTarihi   DateTime?
-  itirazIcerigi  String?
-  createdAt      DateTime  @default(now())
-}
-
-model Masraf {
-  id        String    @id @default(cuid())
-  leadId    String
-  lead      Lead      @relation(fields: [leadId], references: [id])
-  tur       String
-  tutar     Float
-  tarih     DateTime  @default(now())
-  aciklama  String?
-  odendi    Boolean   @default(false)
-  createdAt DateTime  @default(now())
-}
-
-model ChatSession {
-  id          String        @id @default(cuid())
-  sessionKey  String        @unique
-  leadId      String?
-  userId      String?
-  createdAt   DateTime      @default(now())
-  updatedAt   DateTime      @updatedAt
-
-  lead        Lead?         @relation(fields: [leadId], references: [id])
-  user        User?         @relation(fields: [userId], references: [id])
-  messages    ChatMessage[]
-}
-
-model ChatMessage {
-  id            String       @id @default(cuid())
-  sessionId     String?
-  leadId        String?
-  sender        String
-  message       String
-  metadataJson  String?
-  createdAt     DateTime     @default(now())
-
-  session       ChatSession? @relation(fields: [sessionId], references: [id])
-  lead          Lead?        @relation(fields: [leadId], references: [id])
-}
-
-model Document {
-  id            String         @id @default(cuid())
-  leadId        String
-  uploadedById  String?
-  type          DocumentType   @default(OTHER)
-  status        DocumentStatus @default(UPLOADED)
-  originalName  String
-  storedName    String
-  mimeType      String
-  sizeBytes     Int
-  path          String
-  parsedText          String?
-  aiAnalysis          String?
-  extractedJson       String?
-  storageKey          String?
-  compensationResult  String?
-  pageCount           Int?
-  createdAt           DateTime       @default(now())
-  updatedAt           DateTime       @updatedAt
-
-  lead          Lead           @relation(fields: [leadId], references: [id])
-}
-
-model Assignment {
-  id         String           @id @default(cuid())
-  leadId     String
-  lawyerId   String
-  note       String?
-  status     AssignmentStatus @default(ACTIVE)
-  createdAt  DateTime         @default(now())
-  updatedAt  DateTime         @updatedAt
-
-  lead       Lead             @relation(fields: [leadId], references: [id])
-  lawyer     User             @relation("AssignedLawyer", fields: [lawyerId], references: [id])
-}
-
-model Contract {
-  id          String         @id @default(cuid())
-  leadId      String
-  createdById String?
-  type        ContractType
-  status      ContractStatus @default(DRAFT)
-  title       String
-  content     String
-  createdAt   DateTime       @default(now())
-  updatedAt   DateTime       @updatedAt
-
-  musteriOnayladi   Boolean   @default(false)
-  musteriOnayTarihi DateTime?
-  onayKodu          String?
-  onayKoduExpires   DateTime?
-
-  lead        Lead           @relation(fields: [leadId], references: [id])
-  createdBy   User?          @relation("ContractCreatedBy", fields: [createdById], references: [id])
-}
-
-model Petition {
-  id             String    @id @default(cuid())
-  leadId         String
-  lead           Lead      @relation(fields: [leadId], references: [id])
-  avukatId       String?
-  createdById    String?
-  createdBy      User?     @relation("PetitionCreatedBy", fields: [createdById], references: [id])
-  tur            String
-  icerik         String
-  pdfUrl         String?
-  durum          String    @default("TASLAK")
-  gonderildi     Boolean   @default(false)
-  gonderimTarihi DateTime?
-  muhatap        String?
-  notlar         String?
-  createdAt      DateTime  @default(now())
-  updatedAt      DateTime  @updatedAt
-}
-
-model ActivityLog {
-  id         String    @id @default(cuid())
-  leadId     String?
-  action     String
-  detail     String?
-  createdAt  DateTime  @default(now())
-
-  lead       Lead?     @relation(fields: [leadId], references: [id])
-}
-
-model VerificationToken {
-  id         String    @id @default(cuid())
-  token      String    @unique
-  email      String
-  type       String    @default("EMAIL_VERIFY")
-  expiresAt  DateTime
-  usedAt     DateTime?
-  createdAt  DateTime  @default(now())
-
-  @@index([email])
-}
-
-model PushSubscription {
+// System events — tüm OS aksiyonlarının olay kaydı (KVKK audit)
+model SystemEvent {
   id        String   @id @default(cuid())
-  userId    String
-  endpoint  String   @unique
-  p256dh    String
-  auth      String
+  type      String
+  severity  String
+  module    String?
+  payload   Json
+  actorId   String?
   createdAt DateTime @default(now())
 
-  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  @@index([createdAt])
+  @@index([type, createdAt])
+  @@index([severity, createdAt])
+  @@index([actorId, createdAt])
+}
+
+// Metrics time-series — 4 Golden Signals
+model SystemMetric {
+  id        String   @id @default(cuid())
+  name      String
+  value     Float
+  tags      Json?
+  timestamp DateTime
+
+  @@index([name, timestamp])
+  @@index([timestamp])
+}
+
+// Distributed traces — OpenTelemetry uyumlu
+model Trace {
+  traceId    String   @id
+  rootSpan   Json
+  spans      Json
+  durationMs Int
+  status     String
+  service    String?
+  createdAt  DateTime @default(now())
+
+  @@index([createdAt])
+  @@index([status, createdAt])
+}
+
+// Boot records — her server restart sonucu
+model BootRecord {
+  id        String   @id @default(cuid())
+  steps     Json
+  totalMs   Int
+  ok        Boolean
+  version   String?
+  createdAt DateTime @default(now())
+
+  @@index([createdAt])
+  @@index([ok])
+}
+
+// ─── UYAP Models ────────────────────────────────────────────────────────────
+
+model UYAPSession {
+  id            String   @id @default(cuid())
+  lawyerId      String
+  lawyer        User     @relation("UYAPSessions", fields: [lawyerId], references: [id])
+  sessionToken  String   @unique
+  expiresAt     DateTime
+  lastRefreshAt DateTime @default(now())
+  active        Boolean  @default(true)
+  createdAt     DateTime @default(now())
+
+  @@index([lawyerId, active])
+  @@index([expiresAt])
+}
+
+model UYAPDosyaSync {
+  id            String   @id @default(cuid())
+  leadId        String
+  lead          Lead     @relation("UYAPDosyaSyncs", fields: [leadId], references: [id])
+  dosyaNo       String   @unique
+  mahkeme       String
+  durum         String
+  sonGuncelleme DateTime
+  fullPayload   Json
+  syncedAt      DateTime @default(now())
+
+  @@index([leadId])
+  @@index([syncedAt])
+}
+
+model UYAPTebligat {
+  id           String   @id @default(cuid())
+  lawyerId     String
+  lawyer       User     @relation("UYAPTebligatlar", fields: [lawyerId], references: [id])
+  dosyaNo      String
+  tebligatTipi String
+  icerik       String   @db.Text
+  receivedAt   DateTime @default(now())
+  readByLawyer Boolean  @default(false)
+  linkedLeadId String?
+
+  @@index([lawyerId, readByLawyer])
+  @@index([dosyaNo])
+}
+
+// ─── SBM Models ─────────────────────────────────────────────────────────────
+
+model SBMSorgu {
+  id           String   @id @default(cuid())
+  sorguTipi    String
+  sorguAnahtar String
+  sonuc        Json
+  sorguMode    String
+  sorgulayanId String
+  sorgulayan   User     @relation("SBMSorgular", fields: [sorgulayanId], references: [id])
+  createdAt    DateTime @default(now())
+
+  @@unique([sorguTipi, sorguAnahtar])
+  @@index([sorgulayanId])
+  @@index([createdAt])
+}
+
+// ─── KVKK Models ────────────────────────────────────────────────────────────
+
+// KVKK Standart Sözleşme (SCC) takibi — yurt dışı aktarım uyumu
+model KVKKSCC {
+  id              String    @id @default(cuid())
+  dataProcessor   String
+  country         String
+  sccSignedAt     DateTime
+  kurulBildirimAt DateTime?
+  bildirimBelge   String?
+  expiresAt       DateTime?
+  status          String
+  notlar          String?   @db.Text
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @updatedAt
+
+  @@index([status, expiresAt])
+  @@index([dataProcessor])
+}
+
+// KVKK AI kullanım logu — algoritmik şeffaflık, denetim izi
+model AIUsageLog {
+  id         String   @id @default(cuid())
+  leadId     String?
+  userId     String
+  user       User     @relation("AIUsageLogs", fields: [userId], references: [id])
+  aiService  String
+  purpose    String
+  inputSize  Int
+  outputSize Int
+  dataSent   String   @db.Text
+  latencyMs  Int?
+  createdAt  DateTime @default(now())
+
+  @@index([userId, createdAt])
+  @@index([leadId])
+  @@index([purpose, createdAt])
+}
+
+// Data Subject Request — KVKK ilgili kişi hakları
+model DataSubjectRequest {
+  id           String    @id @default(cuid())
+  requesterTC  String
+  requestType  String
+  description  String    @db.Text
+  receivedAt   DateTime  @default(now())
+  respondedAt  DateTime?
+  status       String
+  handlerId    String?
+  handler      User?     @relation("DataSubjectRequestsHandled", fields: [handlerId], references: [id])
+  responseNote String?   @db.Text
+
+  @@index([status, receivedAt])
+  @@index([requesterTC])
 }
