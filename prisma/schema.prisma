@@ -259,7 +259,7 @@ model Lead {
   durusmalar                  Durusma[]
   ihtarnameler                IhtarnameTakip[]
   createdBy                   User?            @relation("Lead_createdByIdToUser", fields: [createdById], references: [id])
-  User_Lead_ownerIdToUser     User?            @relation("Lead_ownerIdToUser", fields: [ownerId], references: [id])
+  owner                       User?            @relation("Lead_ownerIdToUser", fields: [ownerId], references: [id])
   Masraf                      Masraf[]
   Petition                    Petition[]
   uyapDosyaSyncs              UYAPDosyaSync[]  @relation("UYAPDosyaSyncs")
