@@ -79,3 +79,8 @@ gorev.md
 # Vercel'e ayrı repo olarak deploy edilir.
 # Yerel geliştirmede bu dizini buradan yönetme; cd tedbirge-panel && git ... kullan.
 tedbirge-panel/
+
+# CLAUDE.md kesim gecici dosyalari
+CLAUDE.md.bak
+tmp-claude-kes.ps1
+
