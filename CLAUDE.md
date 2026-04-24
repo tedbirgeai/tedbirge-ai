@@ -192,3 +192,12 @@ NEXT_PUBLIC_YOUTUBE_URL=https://youtube.com/@tedbirge
 ```
 CLAUDE.md oku, Tedbirge.ai projesine kaldığın yerden devam et, eksik ve yarım kalanları listele
 ```
+
+## 26 Nisan 2026 — Tedbirge OS v3 Sprint 2 KAPANDI
+
+- 33/33 dosya: Core 6 + HAL 9 + Modul 16 + Observability 3
+- Tag: v3-sprint2 (ee7b481)
+- Branch: feature/tedbirge-os-v3 (GitHub push edildi)
+- Sprint 3'e gecis: canli entegrasyon (boot+server.js bag, DB persist, real adapter)
+- TASK_QUEUE.md Sprint 3 yol haritasi guncellendi
+
