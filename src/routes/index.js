@@ -25,6 +25,7 @@ const testRoutes       = require("./test.routes");
 const decisionSupportRoutes = require("./decision-support.routes");
 const sigortaBasvuruRoutes = require("./sigortaBasvuru.routes");
 const muhatapAIRoutes = require("./muhatapAI.routes");
+const adminOsRoutes = require("./admin.os.routes");
 
 const router = express.Router();
 
@@ -54,6 +55,7 @@ router.use("/test",             testRoutes);
 router.use("/decision-support", decisionSupportRoutes);
 router.use("/sigorta-basvuru", sigortaBasvuruRoutes);
 router.use("/leads", muhatapAIRoutes);
+router.use("/os", adminOsRoutes);
 router.use('/', publicRoutes);
 
 module.exports = router;
