@@ -41,8 +41,8 @@ model Assignment {
   status    AssignmentStatus @default(ACTIVE)
   createdAt DateTime         @default(now())
   updatedAt DateTime
-  User      User             @relation(fields: [lawyerId], references: [id])
-  Lead      Lead             @relation(fields: [leadId], references: [id])
+  lawyer    User             @relation(fields: [lawyerId], references: [id])
+  lead      Lead             @relation(fields: [leadId], references: [id])
 }
 
 model Bilirkisi {
@@ -80,7 +80,7 @@ model ChatSession {
   userId      String?
   createdAt   DateTime      @default(now())
   updatedAt   DateTime
-  ChatMessage ChatMessage[]
+  messages                    ChatMessage[]
   Lead        Lead?         @relation(fields: [leadId], references: [id])
   User        User?         @relation(fields: [userId], references: [id])
 }
@@ -248,17 +248,17 @@ model Lead {
   muhatapGerekce              String?          @db.Text
   healthDataConsentAt         DateTime?
   AccidentCase                AccidentCase[]
-  ActivityLog                 ActivityLog[]
-  Assignment                  Assignment[]
+  activities                  ActivityLog[]
+  assignments                 Assignment[]
   Bilirkisi                   Bilirkisi[]
-  ChatMessage                 ChatMessage[]
+  messages                    ChatMessage[]
   ChatSession                 ChatSession[]
-  Contract                    Contract[]
-  DavaSurec                   DavaSurec?
-  Document                    Document[]
-  Durusma                     Durusma[]
-  IhtarnameTakip              IhtarnameTakip[]
-  User_Lead_createdByIdToUser User?            @relation("Lead_createdByIdToUser", fields: [createdById], references: [id])
+  contracts                   Contract[]
+  davaSurec                   DavaSurec?
+  documents                   Document[]
+  durusmalar                  Durusma[]
+  ihtarnameler                IhtarnameTakip[]
+  createdBy                   User?            @relation("Lead_createdByIdToUser", fields: [createdById], references: [id])
   User_Lead_ownerIdToUser     User?            @relation("Lead_ownerIdToUser", fields: [ownerId], references: [id])
   Masraf                      Masraf[]
   Petition                    Petition[]
@@ -341,10 +341,10 @@ model User {
   sozlesmeKabulIp             String?
   sozlesmeMetniHash           String?
   sozlesmeVersiyonu           String?              @default("v1.0-temsilci")
-  Assignment                  Assignment[]
+  assignments                 Assignment[]
   ChatSession                 ChatSession[]
   Contract                    Contract[]
-  Lead_Lead_createdByIdToUser Lead[]               @relation("Lead_createdByIdToUser")
+  createdLeads                Lead[]               @relation("Lead_createdByIdToUser")
   Lead_Lead_ownerIdToUser     Lead[]               @relation("Lead_ownerIdToUser")
   Petition                    Petition[]
   PushSubscription            PushSubscription[]
