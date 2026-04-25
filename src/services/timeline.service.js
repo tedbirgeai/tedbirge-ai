@@ -1,5 +1,4 @@
-const { PrismaClient } = require("@prisma/client");
-const prisma = new PrismaClient();
+const prisma = require("../config/db");
 
 const EVENT_META = {
   LEAD_CREATED:       { icon: "📋", color: "#3b82f6", colorBg: "#dbeafe" },
