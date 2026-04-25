@@ -51,3 +51,56 @@ Yok.
 - Siradaki: Push + Render deploy + health check
 
 — Claude Code, Tur #1
+
+---
+
+# OTONOM TUR #2 — 25 Nisan 2026
+
+## ✅ TAMAMLANAN GÖREVLER (G2-1 → G2-22)
+
+### FAZ A — Auditor (2 commit)
+- G2-1: Auditor iskelet — tüm 6 scan case dahil (commit 3adb9ab)
+- G2-8: src/os/index.js mount (commit e08fd84)
+- NOT: G2-2'den G2-7'ye scan case'leri G2-1 içinde tamamlandı (atom değişiklik)
+
+### FAZ B — Healer (2 commit)
+- G2-9: Healer iskelet + runAutoFix + writeSuggestion + getSuggestedAction (commit 0136660)
+- G2-10: runAutoFix dolu yazıldı — G2-9 içinde atom (ayrı commit yapılmadı)
+- G2-11: ATLANDI — G2-9'da yazılmıştı
+- G2-12: src/os/index.js mount (commit 68f61aa)
+
+### FAZ C — Reporter + SSE (4 commit)
+- G2-13: Reporter modülü (commit 03312b2)
+- G2-14: SSE endpoint src/routes/os.events.routes.js (commit 76c53e6)
+- G2-15: SSE route mount src/routes/index.js (commit 8929e19)
+- G2-16: Reporter src/os/index.js mount (commit faa8219)
+
+### FAZ D — Panel + Klasör (2 commit)
+- G2-17: Canlı Feed sayfası (tedbirge-panel commit 5802c3b)
+- G2-18: Tespit Edilen Sorunlar sayfası (tedbirge-panel commit 5802c3b)
+- G2-19: Mimar Onayı placeholder (tedbirge-panel commit 5802c3b)
+- G2-20: AUDIT_FINDINGS klasör yapısı (commit c0ddac2)
+
+## 📊 ÖZET TUR #2
+
+- Tamamlanan: 21 (G2-11 atlandı, G2-9'da içerildi)
+- Toplam yeni dosya: 7 (auditor.js, healer.js, reporter.js, os.events.routes.js, 3 panel sayfası)
+- Toplam commit (backend): 8
+- Toplam commit (panel): 1
+- Schema değişikliği: 0
+- Migration: 0
+- npm install: 0
+- Build hatası: 0
+- Production hatası: 0
+- Not: panel tedbirge-panel ayrı repo'suna commit edildi (.gitignore)
+
+## 🚀 SİSTEM DURUMU TUR #2 SONU
+
+- Toplam OS modül sayısı: 19 (16 mevcut + auditor + healer + reporter)
+- SSE endpoint: GET /api/os/events/stream (ADMIN auth)
+- Auditor: 6 kategori tarama aktif (schema_drift, env_inconsistency, prisma_violation, performance_drift, security_anomaly, cost_spike)
+- Healer: suggest mode + auto-fix, auditor:finding event dinliyor
+- Reporter: SSE bridge, 8 event türü yayınlıyor
+- AUDIT_FINDINGS klasörü: OPEN/RESOLVED/REJECTED dizinleri hazır
+
+— Claude Code, Tur #2
