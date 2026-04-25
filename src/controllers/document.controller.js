@@ -41,6 +41,14 @@ exports.downloadDocument = asyncHandler(async (req, res) => {
 
   await assertLeadAccess(req.user, lead);
 
+  // KVKK log — belge indirme kaniti
+  try {
+    const tedbirgeOS = require("../os");
+    if (tedbirgeOS.modules?.kvkk?.logDataExport) {
+      await tedbirgeOS.modules.kvkk.logDataExport(req.user?.id, "document", 1);
+    }
+  } catch (_) {}
+
   const signedUrl = await createSignedDownloadUrl(doc.path, 3600);
   return res.redirect(signedUrl);
 });

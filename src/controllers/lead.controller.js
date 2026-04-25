@@ -32,6 +32,15 @@ exports.listLeads = asyncHandler(async (req, res) => {
 exports.getLead = asyncHandler(async (req, res) => {
   const lead = await leadService.getLeadById(req.params.id, req.user);
   lead.sureler = hesaplaSureler(lead);
+
+  // KVKK log — muvekkil verisi goruntulenme kaniti
+  try {
+    const tedbirgeOS = require("../os");
+    if (tedbirgeOS.modules?.kvkk?.logDataAccess) {
+      await tedbirgeOS.modules.kvkk.logDataAccess(req.user?.id, "lead", "view");
+    }
+  } catch (_) {}
+
   res.json({ success: true, data: lead });
 });
 
