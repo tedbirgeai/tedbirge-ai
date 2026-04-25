@@ -92,6 +92,7 @@ const modules = {
   auditor:       safeRequire('./modules/auditor', 'auditor'),
   healer:        safeRequire('./modules/healer', 'healer'),
   reporter:      safeRequire('./modules/reporter', 'reporter'),
+  kvkk:          safeRequire('./adapters/kvkk', 'kvkk'),
 };
 
 // ─── BARREL EXPORT ──────────────────────────────────────────────────────────
