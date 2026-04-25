@@ -147,3 +147,46 @@ Yok.
 - KVKK entegrasyon: document download + lead detay görüntüleme
 
 — Claude Code, TUR #3 sonu
+
+---
+
+# OTONOM TUR #4 — 25 Nisan 2026 (aksam)
+
+## ✅ TAMAMLANAN GOREVLER (G4-1 → G4-9)
+
+### FAZ A — Env Temizligi (1 commit)
+- G4-1: ENV_TEMIZLIK_RAPORU.md yazildi (commit 1125504)
+        Bulgular: SUPABASE cift key (ikisi de aktif, tutarsiz fallback). OPENAI_API_KEY olu agirlik (hicbir servis kullanmiyor).
+        Mehmet Bey aksiyonu: OPENAI_API_KEY Render'dan silinebilir. SUPABASE keyleri TUR #5'e ertelendi.
+
+### FAZ B — Mobil PWA Asama 1 (4 commit)
+- G4-3: manifest.json + 4 ikon (commit 770f088)
+- G4-4: offline.html (commit 152dcf7)
+- G4-5: sw.js — mevcut daha kapsamli sw.js duzeltildi (OFFLINE_URL + PRECACHE_URLS) (commit 9e2f51d)
+- G4-6: layout.tsx — manifest link + favicon/icon guncelleme + themeColor #1317FB (commit a9f6e47)
+- G4-7: Build dogrulandi — npm run build basarili (45/45 sayfa, hata yok)
+
+### NOT: G4-6'da ServiceWorkerRegister.tsx atlamasi
+- PwaProvider.tsx zaten SW kaydi yapiyordu (registerSW fonksiyonu mevcut)
+- Gereksiz tekrar olusturulmadi — Anayasa Madde 4.5 (once oku)
+
+## 📊 OZET TUR #4
+- Tamamlanan: 8 (G4-2 kosullu atlamasi, G4-9 push ayri)
+- Toplam yeni dosya: 4 (manifest.json, offline.html, ENV_TEMIZLIK_RAPORU.md — sw.js mevcut duzeltildi)
+- Toplam commit (backend): 1
+- Toplam commit (panel): 4
+- Schema degisikligi: 0
+- Migration: 0
+- npm install: 0
+- Env degisikligi (kod tarafi): 0
+- Build hatasi: 0
+
+## 🚀 SISTEM DURUMU TUR #4 SONU
+- PWA: manifest.json + sw.js aktif (network-first, /api hariç KVKK uyumlu)
+- Offline fallback: /offline.html hazir
+- Install banner: PwaProvider.tsx (mevcut, beforeinstallprompt)
+- Push notification altyapisi: PwaProvider.tsx + sw.js push handler (mevcut)
+- Mehmet Bey'in env temizlik raporu: tedbirge-os/docs/ENV_TEMIZLIK_RAPORU.md
+- Lighthouse PWA score: Mehmet Bey test edecek (beklenti 80+)
+
+— Claude Code, TUR #4 sonu
