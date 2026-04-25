@@ -10,8 +10,7 @@ const router = express.Router();
 const auth  = require("../middlewares/authMiddleware");
 const role  = require("../middlewares/roleMiddleware");
 const env   = require("../config/env");
-const { PrismaClient } = require("@prisma/client");
-const prisma = new PrismaClient();
+const prisma = require("../config/db");
 
 // Sadece development'ta çalışır
 function devOnly(req, res, next) {
