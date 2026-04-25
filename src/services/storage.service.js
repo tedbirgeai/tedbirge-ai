@@ -111,7 +111,7 @@ async function createSignedUploadUrl(leadId, fileName) {
   const { createClient } = require("@supabase/supabase-js");
   const supabase = createClient(
     process.env.SUPABASE_URL,
-    process.env.SUPABASE_SERVICE_ROLE_KEY
+    process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.SUPABASE_SERVICE_KEY
   );
   const bucket = process.env.SUPABASE_STORAGE_BUCKET || "tedbirge-documents";
   const safeName = fileName.replace(/[^a-zA-Z0-9._-]/g, "_");
@@ -127,7 +127,7 @@ async function verifyUpload(filePath) {
   const { createClient } = require("@supabase/supabase-js");
   const supabase = createClient(
     process.env.SUPABASE_URL,
-    process.env.SUPABASE_SERVICE_ROLE_KEY
+    process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.SUPABASE_SERVICE_KEY
   );
   const bucket = process.env.SUPABASE_STORAGE_BUCKET || "tedbirge-documents";
   const folder = filePath.substring(0, filePath.lastIndexOf("/"));
@@ -145,7 +145,7 @@ async function createSignedDownloadUrl(filePath, expiresIn = 3600) {
   const { createClient } = require("@supabase/supabase-js");
   const supabase = createClient(
     process.env.SUPABASE_URL,
-    process.env.SUPABASE_SERVICE_ROLE_KEY
+    process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.SUPABASE_SERVICE_KEY
   );
   const bucket = process.env.SUPABASE_STORAGE_BUCKET || "tedbirge-documents";
   const { data, error } = await supabase.storage
