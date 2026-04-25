@@ -43,9 +43,11 @@ exports.getStatus = asyncHandler(async (req, res) => {
         modules[name] = { error: mod.error };
         continue;
       }
-      // status() fonksiyonu varsa çağır, yoksa hazır say
-      modules[name] = typeof mod.status === "function"
-        ? await mod.status()
+      // status() veya getStatus() fonksiyonu varsa cagir, yoksa hazir say
+      // 16 modul getStatus export ediyor (kod kaniti: 25 Nisan tarama)
+      const statusFn = mod.status || mod.getStatus;
+      modules[name] = typeof statusFn === "function"
+        ? await statusFn()
         : { ready: true };
     } catch (err) {
       modules[name] = { error: err.message };
