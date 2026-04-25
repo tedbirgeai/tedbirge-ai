@@ -56,6 +56,7 @@ router.use("/decision-support", decisionSupportRoutes);
 router.use("/sigorta-basvuru", sigortaBasvuruRoutes);
 router.use("/leads", muhatapAIRoutes);
 router.use("/os", adminOsRoutes);
+router.use("/os", require("./os.events.routes"));
 router.use('/', publicRoutes);
 
 module.exports = router;
