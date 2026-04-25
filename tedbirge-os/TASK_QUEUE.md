@@ -324,3 +324,22 @@ ONCELIK 4 — Panel tarafi:
 [ ] analyzer -> upload pipeline bag
 [ ] notifications -> NetGSM + Nodemailer + Slack gercek
 
+
+## 25 NISAN 2026 — OGLE OTURUMU SONU (sizinti + drift gunu)
+
+[X] Schema fix: 19 modele @default(cuid()) eklendi (commit + push)
+[X] Sistem rontgeni cikarildi: K1-K2-K3-K4-K5 bes katman
+[X] DATABASE_URL sifresi degistirildi (sizinti onlemine karsi)
+[X] ANTHROPIC_API_KEY yenilendi (sizinti onlemine karsi)
+[X] Login canli dogrulandi
+
+[ ] Migration drift cozumu (manuel migration yazilacak)
+[ ] Render env DIRECT_URL ekleme (drift cozumu sirasinda)
+[ ] schema.prisma datasource'a directUrl satiri (drift cozumu sirasinda)
+[ ] 8 dosyada new PrismaClient() singleton'a indirgeme
+[ ] Atama bug'i (Assignment.id) — drift cozulunce kalkar
+[ ] 14 OS modulune runOnce() ekleme (Calistir butonu gercek emit uretsin)
+[ ] AI Analyzer completeUpload entegrasyonu
+[ ] Belge indirme bug'i
+[ ] LAWYER/TEMSILCI upload testi
+
