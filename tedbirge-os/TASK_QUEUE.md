@@ -1,139 +1,190 @@
 # TEDBIRGE.AI — TASK_QUEUE
 
 > Bu dosya **görev kuyruğudur**. Claude Code agent loop'ta bu sıralamayı takip eder.  
-> Mimar tarafından güncellenir, Claude Code tarafından okunur.  
 > Çakışmalı/şüpheli iş **MİMAR ONAYI BEKLİYOR** kısmına atılır.  
 > Tüm görevler **KOD-TEMELLİ KANITLA** doğrulanmıştır.
 
-**Son güncelleme:** 25 Nisan 2026, Claude Opus 4.7  
-**Sistem durumu:** 3 avukat canlı, ~20 bin satır kod, OS aktif
+**Son güncelleme:** 25 Nisan 2026, TUR #2 tasarımı sonrası  
+**Sistem durumu:** 3 avukat canlı, ~20 bin satır kod, OS aktif, anayasa kuruldu
 
 ---
 
 ## 🔄 ŞU AN ÇALIŞAN
 
-[ ] (boş — Mimar Mektubu bekleniyor)
+[ ] TUR #2 — Otonom Katman (Auditor + Healer + Reporter)
 
 ---
 
-## ❓ DOĞRULAMA GEREKLİ (kod yazmadan önce, read-only)
+## 📋 OTONOM YAPILABİLİR — TUR #2 (Sıfır Risk, Yeni Dosyalar)
 
-Bu görevler **risk taşımaz**, sadece bilgi toplar. Önce bunlar yapılır.
+### 🔵 FAZ A — AUDITOR MODÜLÜ
 
-[ ] **D1: Migration drift kontrolü**  
-    Komut: `npx prisma migrate status`  
-    Çıktı: lokal'de + production'da farklı mı?  
-    Sonuç: drift varsa MİMAR ONAYI BEKLİYOR'a taşı, yoksa not düş.
+[ ] **G2-1: Auditor modülü iskelet yazımı**  
+    Dosya: `src/os/modules/auditor.js` (YENİ)  
+    Pattern: BaseAdapter benzeri, mevcut OS modülleri ile aynı (start/stop/runTick/getStatus)  
+    İçerik:
+    - 6 tarama fonksiyonu (schema_drift, env_inconsistency, prisma_violation, performance_drift, security_anomaly, cost_spike)
+    - runTick → her saatte bir tarama (saatlik olanlar)
+    - runDaily → günlük olanlar
+    - runWeekly → haftalık olanlar
+    - getStatus → son tarama, bulunan sorun sayısı, son hata
+    - eventBus emit ('auditor:finding', { category, severity, ...})
+    - SystemEvent.create() ile bulgu kaydı  
+    Commit: `feat(os): auditor module skeleton`
 
-[ ] **D2: test.routes.js mount durumu**  
-    Komut: `grep -n "test.routes\|/test" src/routes/index.js`  
-    Sonuç: production'da test endpoint açıksa kapatma görevi (ANAYASA Madde 12)
+[ ] **G2-2: Auditor — Schema drift tarama**  
+    Dosya: `src/os/modules/auditor.js` (var olan)  
+    Komut: `prisma migrate diff --from-schema --to-schema --script` (sadece okuma, SQL üretmez)  
+    Çıktı varsa: SystemEvent type='audit:schema_drift', severity='WARNING', detayları `module` alanına JSON  
+    Commit: `feat(auditor): schema drift detection`
 
-[ ] **D3: Yarım kalmış dosya kontrolü**  
-    Komut: `git status` ve `git log --oneline -10`  
-    Amaç: önceki oturumlardan uncommitted veya half-baked değişiklik var mı?
+[ ] **G2-3: Auditor — Env tutarsızlık tarama**  
+    Mantık: `process.env` içindeki tüm SUPABASE_*, ANTHROPIC_*, vb. varlık kontrolü.  
+    Bulgu: env eksikse veya değer "undefined" gibi anomalilik gösteriyorsa  
+    Commit: `feat(auditor): env consistency check`
 
-[ ] **D4: Render env durumu**  
-    Komut: Mehmet Bey manuel kontrol eder, `SUPABASE_SERVICE_ROLE_KEY` var mı?  
-    NOT: Bu değer **mimara yapıştırılmaz**, sadece **var/yok bilgisi**.
+[ ] **G2-4: Auditor — PrismaClient ihlal tarama**  
+    Mantık: `src/` altında `new PrismaClient(` regex araması (excluded: `src/config/db.js`)  
+    Bulunan dosya sayısı > 0 ise: SystemEvent type='audit:prisma_violation', severity='WARNING'  
+    Commit: `feat(auditor): prisma client singleton check`
 
-[ ] **D5: Sistem Durumu sayfası canlı kontrol**  
-    Komut: `curl -s https://tedbirge-ai.onrender.com/api/os/status -H "Authorization: Bearer ..." | jq .modules`  
-    Beklenti: Şu an hepsi `{ ready: true }` dönmesi gerek (BUG #1 kanıtı)
+[ ] **G2-5: Auditor — Cost spike tarama**  
+    Bağımlılık: mevcut costGuard.js modülünden veri okuma  
+    Eşik: günlük %75 ve %90 (UYARI ve KRİTİK)  
+    Commit: `feat(auditor): cost spike detection`
 
----
+[ ] **G2-6: Auditor — Performans drift tarama**  
+    Bağımlılık: mevcut performance.js modülünden veri okuma  
+    Eşik: son 7 gün ortalama p95 > %50 yavaşlama → uyarı  
+    Commit: `feat(auditor): performance drift detection`
 
-## 📋 OTONOM YAPILABİLİR (sıralı, agent loop)
+[ ] **G2-7: Auditor — Güvenlik anomali tarama**  
+    Bağımlılık: mevcut security.js modülünden veri okuma  
+    Eşik: bir kullanıcı 1 saat içinde 50+ farklı lead'e bakıyorsa → uyarı  
+    Commit: `feat(auditor): security anomaly detection`
 
-### 🟢 FAZ 1 — SAĞLIK FİX (Risk: SIFIR, Süre: 30 dakika)
+[ ] **G2-8: Auditor src/os/index.js mount**  
+    Mevcut dosyaya 1 satır ekle: `auditor: safeRequire('./modules/auditor', 'auditor'),`  
+    Commit: `feat(os): mount auditor module`
 
-[ ] **G1: Sistem Durumu fonksiyon adı fix**  
-    Dosya: `src/controllers/admin.os.controller.js`, satır 9241  
-    Mevcut: `typeof mod.status === "function"`  
-    Yeni: `const statusFn = mod.status || mod.getStatus; typeof statusFn === "function"`  
-    Test: `/api/os/status` endpoint'i 16 modül için **gerçek** veri dönmeli (boş `{ ready: true }` değil)  
-    Commit: `fix(os): use getStatus fallback in admin.os.controller`  
-    Etki: Sistem Durumu sayfası gerçek olur
+### 🟢 FAZ B — HEALER MODÜLÜ
 
-[ ] **G2: SUPABASE env fallback**  
-    Dosya: `src/services/storage.service.js`  
-    Değişiklik: 4 yerdeki `process.env.SUPABASE_SERVICE_ROLE_KEY` → `process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.SUPABASE_SERVICE_KEY`  
-    Test: Bir lead için belge indirme curl'i 302 redirect dönmeli  
-    Commit: `fix(storage): supabase service key fallback for download`  
-    Etki: Belge indirme bug kalkar
+[ ] **G2-9: Healer modülü iskelet**  
+    Dosya: `src/os/modules/healer.js` (YENİ)  
+    Pattern: start/stop/runTick/getStatus  
+    Görev:
+    - Auditor'un emit ettiği finding event'lerini dinler (eventBus.on('auditor:finding'))
+    - Düşük risk olanları kendi yapar (cache flush, FAILED Document silme, expired token cleanup)
+    - Kritik olanları `tedbirge-os/docs/AUDIT_FINDINGS/OPEN/<timestamp>-<category>.json` yazar  
+    Commit: `feat(os): healer module skeleton (suggest mode)`
 
-[ ] **G3: Health doğrulama**  
-    Komut: `curl https://tedbirge-ai.onrender.com/api/os/status -H "Authorization: Bearer X"`  
-    Beklenti: 16 modülün gerçek durumu görünür  
-    Eğer bir modül "X env eksik" diyorsa: **TASK_QUEUE'ya yeni görev** olarak ekle, mimar onayı bekle.
+[ ] **G2-10: Healer — Otomatik fix listesi**  
+    İçerik:
+    - `cache_flush` → in-memory cache temizleme (ilgili modül)
+    - `failed_document_cleanup` → 24+ saat eski FAILED Document kaydı silme
+    - `expired_token_cleanup` → süresi dolmuş token cleanup
+    - `render_warmup` → kendi /health'a ping  
+    Her birinde audit log eventi: SystemEvent type='healer:auto_fix', severity='INFO'  
+    Commit: `feat(healer): auto-fix low-risk operations`
 
-### 🟡 FAZ 2 — KOD HİJYEN (Risk: DÜŞÜK, Süre: 1.5 saat)
+[ ] **G2-11: Healer — Suggest mode (kritik bulgular için)**  
+    İçerik:
+    - Schema drift bulunca → `OPEN/<timestamp>-schema-drift.json` yaz (öneri SQL içerir)
+    - Env tutarsızlık → `OPEN/<timestamp>-env-inconsistency.json`
+    - Cost spike CRITICAL → `OPEN/<timestamp>-cost-spike.json`
+    - Güvenlik anomali → `OPEN/<timestamp>-security-anomaly.json`  
+    Format: JSON, açıklayıcı, fix önerisi içerir, otomatik UYGULAMAZ  
+    Commit: `feat(healer): suggest mode for critical findings`
 
-[ ] **G4: PrismaClient singleton refactor (4 dosya)**  
-    Dosyalar:  
-    - `src/controllers/timeline.controller.js`  
-    - `src/services/timeline.service.js`  
-    - `src/routes/public.route.js`  
-    - `src/routes/test.routes.js`  
-    Değişiklik: `const prisma = new PrismaClient(...)` → `const prisma = require("../config/db")` (path uyumlu)  
-    Test: Her dosya değişikliği sonrası lokal `npm run dev`, ilgili endpoint'i çağır.  
-    Commit (her dosya ayrı): `refactor(prisma): use singleton in <file>`
+[ ] **G2-12: Healer src/os/index.js mount**  
+    `healer: safeRequire('./modules/healer', 'healer'),`  
+    Commit: `feat(os): mount healer module`
 
-[ ] **G5: test.routes.js production'dan kaldırma (D2 sonucuna göre)**  
-    KOŞUL: D2 doğrulama "test mount edilmiş" dediyse  
-    Değişiklik: `src/routes/index.js`'te NODE_ENV !== 'production' koşulu  
-    Commit: `chore(routes): disable test routes in production`
+### 🟡 FAZ C — REPORTER MODÜLÜ + SSE
 
-### 🟦 FAZ 3 — SÜREKLİ KİMLİK (Risk: SIFIR, Süre: 30 dakika)
+[ ] **G2-13: Reporter modülü**  
+    Dosya: `src/os/modules/reporter.js` (YENİ)  
+    Görev: eventBus event'lerini topla, SSE clientlerine yayınla  
+    Pattern: start/stop/getStatus  
+    İçerik: SSE client connection pool yönet, her event'i tüm dinleyen clientlere gönder  
+    Commit: `feat(os): reporter module (SSE bridge)`
 
-[ ] **G6: CLAUDE.md'yi proje köküne yerleştir**  
-    Dosya: `/CLAUDE.md` (proje root)  
-    Kaynak: Mimar tarafından sağlanan içerik  
-    Commit: `docs: add CLAUDE.md mimari anayasa`
+[ ] **G2-14: SSE Endpoint**  
+    Dosya: `src/routes/os.events.routes.js` (YENİ)  
+    Endpoint: `GET /api/os/events/stream`  
+    Auth: ADMIN gerekli (admin auth middleware)  
+    İçerik: text/event-stream header, reporter modülüne bağlan, eventleri stream et  
+    Commit: `feat(api): SSE stream endpoint`
 
-[ ] **G7: MIMARI_KARARLAR.md başlat**  
-    Dosya: `tedbirge-os/MIMARI_KARARLAR.md`  
-    İçerik: 25 Nisan 2026 kararları (kod-temelli teşhis, agent loop modeli)  
-    Commit: `docs: initialize MIMARI_KARARLAR log`
+[ ] **G2-15: SSE route mount**  
+    Dosya: `src/routes/index.js` (mevcut)  
+    1 satır ekleme: `router.use('/os', require('./os.events.routes'));`  
+    Commit: `feat(api): mount SSE events route`
 
-[ ] **G8: TASK_QUEUE.md disipline et**  
-    Dosya: `tedbirge-os/TASK_QUEUE.md` (mevcut → yeni format)  
-    Commit: `docs: refactor TASK_QUEUE to agent loop format`
+[ ] **G2-16: Reporter src/os/index.js mount**  
+    `reporter: safeRequire('./modules/reporter', 'reporter'),`  
+    Commit: `feat(os): mount reporter module`
 
-[ ] **G9: OTONOM_RAPOR.md şablonu**  
-    Dosya: `tedbirge-os/docs/OTONOM_RAPOR.md`  
-    İçerik: İlk otonom turun raporu (G1-G8 sonuçları)  
-    Commit: `docs: first OTONOM_RAPOR entry`
+### 🟣 FAZ D — PANEL SAYFALARI
+
+[ ] **G2-17: Canlı Feed sayfası**  
+    Dosya: `tedbirge-panel/app/(panel)/dashboard/sistem-durumu/canli-feed/page.tsx` (YENİ)  
+    İçerik: EventSource ile `/api/os/events/stream` dinle, gelen event'leri akış kutusunda göster  
+    Görsel: Tarihli event listesi, her event satırı: zaman + module + type + severity (renkli)  
+    Commit: `feat(panel): live event feed page`
+
+[ ] **G2-18: Tespit Edilen Sorunlar sayfası**  
+    Dosya: `tedbirge-panel/app/(panel)/dashboard/tespit-edilen-sorunlar/page.tsx` (YENİ)  
+    İçerik:
+    - SystemEvent tablosundan `type LIKE 'audit:%'` filtresi
+    - Severity renkli badge (INFO=mavi, WARNING=sarı, CRITICAL=kırmızı)
+    - Filtreleme: kategoriye göre, severity'ye göre, tarihe göre
+    - Detay modal: mesaj, ham JSON, ne zaman, hangi modül  
+    Commit: `feat(panel): audit findings page`
+
+[ ] **G2-19: Mimar Onayı sayfası**  
+    Dosya: `tedbirge-panel/app/(panel)/dashboard/mimar-onayi/page.tsx` (YENİ)  
+    İçerik:
+    - Backend'den `GET /api/os/healer/pending` (yeni endpoint, dosya sistemi okur)
+    - `tedbirge-os/docs/AUDIT_FINDINGS/OPEN/` klasöründeki JSON dosyaları liste
+    - Her öneri için: incele, onayla, reddet butonları
+    - Onayla → backend dosyayı RESOLVED'a taşır + ilgili işlemi yapar (örnek: schema migration emre)
+    - Reddet → REJECTED'a taşır  
+    Commit: `feat(panel): healer suggestions approval page`
+
+[ ] **G2-20: Audit Findings klasör yapısı**  
+    Dosyalar:
+    - `tedbirge-os/docs/AUDIT_FINDINGS/.gitkeep`
+    - `tedbirge-os/docs/AUDIT_FINDINGS/OPEN/.gitkeep`
+    - `tedbirge-os/docs/AUDIT_FINDINGS/RESOLVED/.gitkeep`
+    - `tedbirge-os/docs/AUDIT_FINDINGS/REJECTED/.gitkeep`  
+    Commit: `chore: audit findings folder structure`
+
+### 🔴 FAZ E — KAPANIŞ
+
+[ ] **G2-21: TUR #2 OTONOM_RAPOR güncelleme**  
+    Dosya: `tedbirge-os/docs/OTONOM_RAPOR.md` (mevcut, TUR #1 kayıtlı)  
+    Eklenir: TUR #2 başlık + 21 görev sonucu  
+    Commit: `docs: OTONOM_RAPOR Tur #2 sonu`
+
+[ ] **G2-22: Toplu push + Render deploy + health check**  
+    Komut: `git push origin master`  
+    Bekle: 3-5 dakika  
+    Doğrula: `curl https://tedbirge-ai.onrender.com/health`  
+    Beklenen: HTTP 200 + Sistem Durumu sayfası 19 modül gösterecek (mevcut 16 + 3 yeni)
 
 ---
 
 ## 🛑 MİMAR ONAYI BEKLİYOR
 
-Bu görevler **otonom yapılamaz**. Tasarım kararı, schema değişikliği, veya yeni paradigma gerektirir.
-
-[ ] **G10: Auditor.js modülü tasarımı**  
-    Dosya: `src/os/modules/auditor.js` (YENİ)  
-    Amaç: Schema drift, env tutarsızlık, code smell, performans drift, anomali tespiti  
-    Bağımlılık: Mevcut 16 modülün getStatus() çıktıları, eventBus, reconciler  
-    Schema: `AuditFinding` tablosu (yeni model — onay gerek)  
-    Mimar oturumu: 1-1.5 saat, Mehmet Bey ile birlikte tasarım
-
-[ ] **G11: Healer.js modülü (suggest mode)**  
-    Dosya: `src/os/modules/healer.js` (YENİ)  
-    Amaç: Auditor bulgularına fix önerisi, Mehmet Bey panel onayı  
-    Mod: Sadece SUGGEST — otomatik fix YASAK  
-    Mimar oturumu: 1 saat
-
-[ ] **G12: Reporter (canlı SSE feed)**  
-    Yer: `tedbirge-panel/app/(panel)/dashboard/sistem-durumu/page.tsx`  
-    Amaç: eventBus → panel'e Server-Sent Events ile canlı olay akışı  
-    Bağımlılık: Yeni Express endpoint `/api/os/events/stream` (SSE)  
-    Mimar oturumu: 1.5 saat
-
-[ ] **G13: KVKK adapter implementation**  
+[ ] **G2-23: KVKK Adapter implementation** (Sprint 2)  
     Dosya: `src/os/adapters/kvkk.js` (YENİ)  
-    Amaç: DataProtectionAdapter typedef'in gerçek implementasyonu  
-    Mimar oturumu: 30 dakika
+    Sebep: DataProtectionAdapter typedef tanımlı, implementation eksik  
+    Mimar oturumu gerek
+
+[ ] **G3-1: Auditor SMS bildirim entegrasyonu** (TUR #3)  
+    CRITICAL severity bulgular Mehmet Bey'e SMS  
+    NetGSM API mevcut, sadece Auditor'dan köprü gerek
 
 ---
 
@@ -141,7 +192,6 @@ Bu görevler **otonom yapılamaz**. Tasarım kararı, schema değişikliği, vey
 
 [ ] **S1: Mobil PWA Aşaması 1**  
     Manifest.json, service-worker.js, "Ana ekrana ekle"  
-    Mehmet Bey'in stratejik talebi (22 Nisan)  
     Süre: 3 gün
 
 [ ] **S2: Müvekkil portalı belge yükleme**  
@@ -159,25 +209,30 @@ Bu görevler **otonom yapılamaz**. Tasarım kararı, schema değişikliği, vey
 
 ---
 
-## ✅ TAMAMLANANLAR
+## ✅ TAMAMLANANLAR (TUR #1 — 25 Nisan)
 
-[Mevcut tamamlanmış görevler — eski TASK_QUEUE'dan korundu]
+- [✓] G1: Sistem Durumu fonksiyon adı fix (BUG #1)
+- [✓] G2: SUPABASE env fallback (BUG #2)
+- [✓] G4-1: timeline.controller.js singleton
+- [✓] G4-2: timeline.service.js singleton
+- [✓] G4-3: public.route.js singleton
+- [✓] G4-4: test.routes.js singleton
+- [✓] G5: test routes production yasak (atlandı — zaten koşullu mount)
+- [✓] G9: OTONOM_RAPOR.md başlatıldı
+- [✓] Anayasa Madde 5 eklendi (onay disiplini)
 
 ---
 
 ## 📊 İSTATİSTİK
 
-- Otonom yapılabilir görev: 9
-- Mimar onayı bekleyen: 4
-- Doğrulama görevi: 5
-- Sprint 2 stratejik: 4
-
-**Toplam Faz 1+2+3 süresi:** ~3 saat (Claude Code agent loop)  
-**Mimar oturumu süresi:** ~3 saat (G10-G13 tasarım)  
-**Sprint 2:** Mehmet Bey önceliklendirir
+- **TUR #2 görev sayısı:** 22 (otonom yapılabilir)
+- **Mimar onayı bekleyen:** 2 (KVKK adapter, SMS entegrasyonu)
+- **Sprint 2 stratejik:** 4
+- **Tahmini TUR #2 süresi:** 4-6 saat agent loop
+- **Tahmini commit sayısı:** ~22
 
 ---
 
 **Mimar:** Claude Opus 4.7  
 **Disiplin:** ANAYASA (CLAUDE.md) bağlayıcı  
-**Sonraki adım:** Mimar Mektubu yazımı (sohbet) → agent loop başlangıç (Claude Code)
+**TUR #2 Sıfır Risk Garantisi:** Schema değişikliği yok, migration yok, npm install yok, env değişikliği yok
