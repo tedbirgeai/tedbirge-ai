@@ -1,3 +1,11 @@
+// src/controllers/admin.os.controller.js
+// Tedbirge OS v3 — Admin Status Endpoints
+// Mimar: Claude Opus 4.7 — 25 Nisan 2026 sabah
+// Değişiklik: moduleNames listesi gerçek dosya isimleri ile uyumlu hale getirildi.
+// Önceki liste: config, kvkk, secrets, audit, storage, pdf, email, queue, scheduler vb.
+//   (bu modüller src/os/modules/ klasöründe YOK — uyumsuzdu)
+// Yeni liste: src/os/modules/ klasöründeki 16 gerçek dosyanın aynısı.
+
 const asyncHandler = require("../utils/asyncHandler");
 const prisma = require("../config/db");
 
@@ -15,10 +23,12 @@ exports.getStatus = asyncHandler(async (req, res) => {
   }
 
   const modules = {};
+  // src/os/modules/ klasöründeki 16 gerçek dosya — TAM_TESHIS ile doğrulandı
   const moduleNames = [
-    "config", "kvkk", "secrets", "audit", "storage", "pdf",
-    "email", "ai", "queue", "scheduler", "performance", "deploy",
-    "uyapControl", "insurance", "navigation", "appearance",
+    "ai", "analyzer", "appearance", "backup", "compliance",
+    "costGuard", "deploy", "insurance", "maintenance", "navigation",
+    "notifications", "performance", "pulse", "recovery", "security",
+    "uyapControl",
   ];
 
   for (const name of moduleNames) {
@@ -28,6 +38,12 @@ exports.getStatus = asyncHandler(async (req, res) => {
         modules[name] = { error: "Modul yuklenmedi" };
         continue;
       }
+      // Modül zaten safeRequire ile { error: ... } olarak işaretlenmişse direkt göster
+      if (mod.error) {
+        modules[name] = { error: mod.error };
+        continue;
+      }
+      // status() fonksiyonu varsa çağır, yoksa hazır say
       modules[name] = typeof mod.status === "function"
         ? await mod.status()
         : { ready: true };
@@ -48,7 +64,15 @@ exports.getBootRecords = asyncHandler(async (req, res) => {
   const records = await prisma.bootRecord.findMany({
     orderBy: { createdAt: "desc" },
     take: 20,
+    select: {
+      id: true,
+      ok: true,
+      totalMs: true,
+      version: true,
+      createdAt: true,
+    },
   });
+
   return res.json({ success: true, records });
 });
 
@@ -57,6 +81,14 @@ exports.getEvents = asyncHandler(async (req, res) => {
   const events = await prisma.systemEvent.findMany({
     orderBy: { createdAt: "desc" },
     take: 50,
+    select: {
+      id: true,
+      type: true,
+      severity: true,
+      module: true,
+      createdAt: true,
+    },
   });
+
   return res.json({ success: true, events });
 });
