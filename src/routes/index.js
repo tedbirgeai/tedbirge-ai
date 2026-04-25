@@ -57,6 +57,7 @@ router.use("/sigorta-basvuru", sigortaBasvuruRoutes);
 router.use("/leads", muhatapAIRoutes);
 router.use("/os", adminOsRoutes);
 router.use("/os", require("./os.events.routes"));
+router.use("/os/healer", require("./os.healer.routes"));
 router.use('/', publicRoutes);
 
 module.exports = router;
