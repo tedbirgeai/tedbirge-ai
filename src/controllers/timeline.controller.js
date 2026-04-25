@@ -1,9 +1,7 @@
 const { getLeadTimeline } = require("../services/timeline.service");
 const { assertLeadAccess } = require("../utils/leadAccess");
-const { PrismaClient } = require("@prisma/client");
 const asyncHandler = require("../utils/asyncHandler");
-
-const prisma = new PrismaClient();
+const prisma = require("../config/db");
 
 const getTimeline = asyncHandler(async (req, res) => {
   const { id } = req.params;
