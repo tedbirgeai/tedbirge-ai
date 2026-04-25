@@ -1,9 +1,7 @@
 ﻿const express = require("express");
 const router = express.Router();
-const { PrismaClient } = require("@prisma/client");
 const env = require("../config/env");
-
-const prisma = new PrismaClient();
+const prisma = require("../config/db");
 const upload = require("../middlewares/uploadMiddleware");
 const { supabaseUploadMiddleware } = require("../middlewares/uploadMiddleware");
 const generateCodeModule = require("../utils/generateCode");
