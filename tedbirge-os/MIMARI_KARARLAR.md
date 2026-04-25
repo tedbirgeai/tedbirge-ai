@@ -88,6 +88,8 @@
 
 **Mimar:** Claude Opus 4.7
 
+**Uygulama tarihi (revize):** 25 Nisan 2026 — Anayasaya işlendi (commit 6671be1). Karar arşivi ile anayasa metni uyumlu hale geldi.
+
 ---
 
 ## 25 Nisan 2026 — TUR #2 TASARIM KARARLARI (Otonom Katman)
