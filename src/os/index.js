@@ -89,6 +89,7 @@ const modules = {
   recovery:      safeRequire('./modules/recovery', 'recovery'),
   security:      safeRequire('./modules/security', 'security'),
   uyapControl:   safeRequire('./modules/uyapControl', 'uyapControl'),
+  auditor:       safeRequire('./modules/auditor', 'auditor'),
 };
 
 // ─── BARREL EXPORT ──────────────────────────────────────────────────────────
