@@ -109,7 +109,85 @@ Her commit'i **revert edilebilir** kıl. Push öncesi düşün: bu commit yanlı
 
 ---
 
-## 5. DURMA ŞARTLARI (Otomatik DUR + Sohbete Dön)
+## 5. ONAY DİSİPLİNİ — READ-ONLY VS YAZMA OPERASYONLARI
+
+### 5.1 Otomatik onay verilebilir (Read-only komutlar)
+
+Claude Code'da "Yes, and don't ask again" ile **işaretlenebilir**:
+
+✅ **Git okuma:**
+- `git diff *`
+- `git status *`
+- `git log *`
+- `git show *`
+- `git branch *` (listeleme)
+
+✅ **Dosya okuma:**
+- `view *` (Claude Code kendi tool'u)
+- `Get-Content *` (PowerShell)
+- `Get-Item *`
+- `Get-ChildItem *`
+- `Select-String *` (grep)
+- `Test-Path *`
+
+✅ **Sistem bilgisi:**
+- `Measure-Object *`
+- `Format-Table *`
+- `Select-Object *`
+- `wc *`, `head *`, `tail *`, `cat *` (read-only Linux)
+
+✅ **Network sağlık kontrolü (sadece bilinen production endpoint):**
+- `Invoke-RestMethod -Uri 'https://tedbirge-ai.onrender.com/health'`
+- `curl https://tedbirge-ai.onrender.com/health`
+
+**Mantık:** Bu komutlar **sapma üretemez** — dosya değiştirmez, veri silmez, network'e zarar vermez. Mimar denetimi gerekmez.
+
+### 5.2 İnsan onayı HER ZAMAN gerekir (Yazma operasyonları)
+
+Claude Code asla "don't ask again" işaretlemez:
+
+🔒 **Git yazma:**
+- `git commit *`
+- `git push *` (production'a etkisi var)
+- `git revert *`
+- `git reset *`
+- `git checkout *` (branch değişimi)
+- `git merge *`
+- `git rebase *`
+
+🔒 **Dosya değiştirme:**
+- `str_replace *`
+- `create_file *`
+- `Move-Item *`
+- `Copy-Item *`
+- `Remove-Item *`
+- `New-Item *` (file/directory oluşturma)
+- `Out-File *`
+- `Set-Content *`
+
+🔒 **Sistem değişikliği:**
+- `npx prisma migrate *`
+- `npx prisma db *`
+- `npm install/uninstall/update *`
+- `cd *` ile birlikte zincirleme komutlar (compound)
+
+🔒 **Network yazma:**
+- `Invoke-RestMethod -Method POST/PUT/DELETE *`
+- `curl -X POST/PUT/DELETE *`
+
+**Mantık:** Bu komutlar **gerçek dünya etkisi** yapar. Sapma → zarar. Mimar denetimi şart.
+
+### 5.3 Belirsiz pattern → onay iste
+
+Komut yukarıdaki kategorilerden hiçbirine net girmiyorsa: **default onay iste**. Kuşku otomatik onaydan iyidir.
+
+### 5.4 Onay disiplini ihlali → DUR
+
+Eğer Claude Code yanlışlıkla yazma operasyonunu otomatik onayla yaparsa → **DUR + sohbete dön**. Ne kadar küçük olursa olsun.
+
+---
+
+## 6. DURMA ŞARTLARI (Otomatik DUR + Sohbete Dön)
 
 Aşağıdakilerden **biri** gerçekleşince **otomatik DUR**:
 
@@ -126,7 +204,7 @@ Aşağıdakilerden **biri** gerçekleşince **otomatik DUR**:
 
 ---
 
-## 6. RAPORLAMA DİSİPLİNİ — OTONOM_RAPOR.md
+## 7. RAPORLAMA DİSİPLİNİ — OTONOM_RAPOR.md
 
 Çalıştığın her oturumda `tedbirge-os/docs/OTONOM_RAPOR.md` dosyasına yazarsın.  
 Format:
@@ -162,7 +240,7 @@ Kısa, net, doğru olsun. Süslü cümle yok. Mühendislik raporu.
 
 ---
 
-## 7. TASK_QUEUE DİSİPLİNİ
+## 8. TASK_QUEUE DİSİPLİNİ
 
 `tedbirge-os/TASK_QUEUE.md` dosyası **görev kuyruğu**.  
 Sen bu dosyadan görevleri sırayla alırsın. Aşağıdaki yapı:
@@ -193,7 +271,7 @@ Sen bu dosyadan görevleri sırayla alırsın. Aşağıdaki yapı:
 
 ---
 
-## 8. MİMARİ KARARLAR — MIMARI_KARARLAR.md
+## 9. MİMARİ KARARLAR — MIMARI_KARARLAR.md
 
 `tedbirge-os/MIMARI_KARARLAR.md` — kararların log'u.  
 Mimar oturumlarında verilen kararlar buraya yazılır.  
@@ -212,7 +290,7 @@ Format:
 
 ---
 
-## 9. KOD STİLİ VE DİSİPLİN
+## 10. KOD STİLİ VE DİSİPLİN
 
 ### 9.1 Türkçe yorumlar
 Mevcut kod tabanında Türkçe yorumlar var. Devamlılığı koru.
@@ -244,7 +322,7 @@ await assertLeadAccess(req.user, lead);
 
 ---
 
-## 10. ROLLER VE YETKİLER (Sistemi Tanı)
+## 11. ROLLER VE YETKİLER (Sistemi Tanı)
 
 ### Backend roller:
 - **ADMIN** — Tedbirge sahibi (Mehmet Bey), tam yetki
@@ -264,7 +342,7 @@ await assertLeadAccess(req.user, lead);
 
 ---
 
-## 11. KRİTİK YOL VE ENDPOINT'LER
+## 12. KRİTİK YOL VE ENDPOINT'LER
 
 ```
 Production URLs:
@@ -280,7 +358,7 @@ Local:
 
 ---
 
-## 12. ÜRETİM ORTAMINDA YASAK İŞLER
+## 13. ÜRETİM ORTAMINDA YASAK İŞLER
 
 Production'a push edilmiş kodda:
 - ❌ console.log debug satırları (production'da gürültü)
@@ -292,7 +370,7 @@ Production'a push edilmiş kodda:
 
 ---
 
-## 13. AGENT LOOP'U BAŞLATMA SIRASI
+## 14. AGENT LOOP'U BAŞLATMA SIRASI
 
 Mehmet Bey sana **Mimar Mektubu** verince:
 
@@ -305,7 +383,7 @@ Mehmet Bey sana **Mimar Mektubu** verince:
 
 ---
 
-## 14. ÖZEL DURUMLAR
+## 15. ÖZEL DURUMLAR
 
 ### 14.1 Çakışma (merge conflict)
 Otomatik çözümleme **yasak**. **DUR**, mimara dön.
@@ -323,7 +401,7 @@ Sen yorulursan (bağlam dolarsa): **DUR**, OTONOM_RAPOR.md'ye yazıp sohbete dö
 
 ---
 
-## 15. KAPANIŞ — NİYE BU ANAYASA VAR
+## 16. KAPANIŞ — NİYE BU ANAYASA VAR
 
 Tedbirge.ai 20 bin satır iş kalitesi backend kodu olan, **Türkiye'de rakipsiz mimariye** sahip bir LegalTech projesi.  
 3 avukat canlıda kullanıyor.  
