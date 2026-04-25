@@ -151,8 +151,73 @@ async function writeSuggestion(finding) {
     if (state.history.length > 100) state.history.length = 100;
 
     bus.emit("healer:suggestion", { filename, category: finding.category });
+
+    // SMS koprusu — sadece CRITICAL + debounce'lu
+    await maybeSendSms(finding);
   } catch (err) {
     console.error("[healer] writeSuggestion failed:", err.message);
+  }
+}
+
+// SMS koprusu — CRITICAL + 1 saatte 1 kez kategori basina
+const SMS_DEBOUNCE_MS = 60 * 60 * 1000;
+const smsDebounce = new Map();
+
+const CATEGORY_TR = {
+  schema_drift: "Schema Sapmasi",
+  env_inconsistency: "Env Tutarsizligi",
+  prisma_violation: "Prisma Singleton Ihlali",
+  performance_drift: "Performans Sapmasi",
+  security_anomaly: "Guvenlik Anomalisi",
+  cost_spike: "Maliyet Sicramasi",
+};
+
+function formatSmsMessage(finding) {
+  const tr = CATEGORY_TR[finding.category] || finding.category;
+  const msg = (finding.message || "").substring(0, 80);
+  return `[TEDBIRGE] CRITICAL: ${tr}\n${msg}\nPanel: tedbirge.ai/dashboard/mimar-onayi`;
+}
+
+async function maybeSendSms(finding) {
+  if (finding.severity !== "CRITICAL") return;
+
+  const adminPhone = process.env.ADMIN_PHONE;
+  if (!adminPhone) return;
+
+  const lastSent = smsDebounce.get(finding.category) || 0;
+  if (Date.now() - lastSent < SMS_DEBOUNCE_MS) return;
+
+  try {
+    const { sendSms } = require("../../services/sms.service");
+    const message = formatSmsMessage(finding);
+    await sendSms(adminPhone, message);
+
+    smsDebounce.set(finding.category, Date.now());
+
+    const prisma = require("../../config/db");
+    try {
+      await prisma.systemEvent.create({
+        data: {
+          type: "healer:sms_sent",
+          severity: "INFO",
+          module: MODULE_NAME,
+          payload: { category: finding.category, to: adminPhone.slice(-4) },
+        },
+      });
+    } catch (_) {}
+  } catch (err) {
+    console.error("[healer] SMS gonderilemedi:", err.message);
+    try {
+      const prisma = require("../../config/db");
+      await prisma.systemEvent.create({
+        data: {
+          type: "healer:sms_failed",
+          severity: "WARNING",
+          module: MODULE_NAME,
+          payload: { error: err.message },
+        },
+      });
+    } catch (_) {}
   }
 }
 
