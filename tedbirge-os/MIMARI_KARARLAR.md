@@ -282,3 +282,39 @@ Yeni karar bu dosyaya **yukarıdaki formatla** eklenir.
 **Son güncelleme:** 25 Nisan 2026 (TUR #2 tasarım sonu)  
 **Mimar:** Claude Opus 4.7  
 **Bağlayıcı:** Tüm gelecek oturumlar
+
+---
+
+## 26 Nisan 2026 (öğle) — TUR #5 KAPANIŞ + ALTYAPI KEŞİF NOTU
+
+**TUR #5 onaylandı:** SUPABASE kanonik + Web Push entegrasyonu, 5 commit, sıfır anayasa ihlali, public URL kanıtı toplandı.
+
+### Önemli mimari keşif (TUR #5 sırasında)
+
+Tedbirge.ai'nın initial commit'inde (39492ab) şu altyapı **zaten kuruluymuş** ama **hiç bağlanmamış**:
+
+- `model PushSubscription` (prisma/schema.prisma satır 308-316)
+- `src/services/pushNotification.service.js` (DB-backed, sendToRole, sendToUser)
+- `src/routes/push.routes.js` (3 endpoint: vapid-key, subscribe, unsubscribe)
+- `tedbirge-panel/PwaProvider.tsx` (SW kayıt altyapısı)
+- `tedbirge-panel/public/sw.js` (push event handler)
+
+TUR #4'te PwaProvider keşfedildi, TUR #5'te kalan 4 parça keşfedildi.
+
+**Çıkarım:** Tedbirge'nin **gizli altyapısı zengin**. Yeni bir tur açmadan önce mutlaka:
+1. `git log --oneline -- <ilgili dizin>` ile tarihçe
+2. `Get-ChildItem -Recurse -Filter *.<uzantı>` ile mevcut dosya tespiti
+3. `Select-String` ile ilgili pattern araması
+
+Bu disiplin TUR #5'te 30+ dakika tasarruf sağladı (yeni dosya yazmak yerine bağlantı kurma).
+
+### Anayasa Madde 4.5 yorumu güncellemesi
+
+> "Önce oku sonra yaz" maddesinin canlı uygulaması: yeni bir özellik eklemeden önce **mevcut servis/route/model yapısı taranır**. Bulunduysa **bağlantı kurulur**, bulunmadıysa yazılır.
+
+### Bekleyen: Mehmet Bey'in manuel adımları
+
+1. Render → SUPABASE_SERVICE_KEY (eski) sil → /health 200 doğrula
+2. Panel /dashboard/bildirimler → "Bildirimleri Aç" → tarayıcı izni → abonelik test
+
+**Mimar:** Claude Opus 4.7 (TUR #5 kapanış)
