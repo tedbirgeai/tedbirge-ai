@@ -221,7 +221,7 @@ model Lead {
   maluliyetRate         Float?
   faultRate             Float?
   createdAt             DateTime         @default(now())
-  updatedAt             DateTime
+  updatedAt             DateTime         @updatedAt
   ownerId               String?
   kvkkConsentAt         DateTime?
   uyapDosyaNo           String?
