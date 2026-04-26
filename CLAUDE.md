@@ -401,7 +401,119 @@ Sen yorulursan (bağlam dolarsa): **DUR**, OTONOM_RAPOR.md'ye yazıp sohbete dö
 
 ---
 
-## 16. KAPANIŞ — NİYE BU ANAYASA VAR
+## 17. STRATEJİK KESİT DİSİPLİNİ — Yamalı Bohça Yasağının Pratik Uygulaması
+
+### 17.1 İlke
+
+Tedbirge.ai gibi 50+ controller, 30+ servis, 25+ Prisma model içeren bir sistemi **tek seferde "A'dan Z'ye yeniden tasarlamak"** mimari olarak imkansızdır. Tek mimar oturumu tüm sistemi anlamlı tutamaz, kararlar yüzeysel kalır, yamalı bohça riski katlanır.
+
+**Doğru yöntem:** Sistem **yatay kesitlere** bölünür. Her kesit kendi mimar oturumunda **uçtan uca** tasarlanır.
+
+### 17.2 Kesit Örnekleri
+
+- Müvekkil iletişim akışı (form, AI analiz, bildirim, portal, sözleşme onayı)
+- Avukat iş akışı (kayıt, profil, dava yönetimi, raporlama)
+- Sözleşme yönetimi (oluşturma, şablon, onay, imza, arşiv)
+- Finansal akış (PayTR, masraflar, komisyon, fatura)
+- Otonom katman (Auditor, Healer, Reporter olgunlaştırma)
+- KVKK uyum derinleştirme (anonimleştirme, bulk export, denetim)
+
+### 17.3 Her Kesit İçin Kural
+
+Bir kesit tasarımı **5 adımdan oluşur**:
+
+1. **Keşif turu** — sadece okuma, kod-temelli harita çıkarma (örn: MUVEKKIL_AKISI_HARITA.md)
+2. **Mimari karar dokümanı** — keşif girdisine göre tasarım, MIMARI_KARARLAR.md'ye eklenir
+3. **Sıralı tur planı** — atom turlar halinde uygulama yol haritası
+4. **Uygulama turları** — Madde 18 (Otonom Tur Zinciri) ile yürütülür
+5. **Kesit kapanış raporu** — bittiğinde MIMARI_KARARLAR.md'ye kapanış notu
+
+### 17.4 Yasaklı Davranış
+
+- ❌ "Tüm sistemi tek seferde yeniden tasarla" → mimar reddeder
+- ❌ Bir kesit yarım kalmışken başka kesite geçmek → mevcut kesit bitirilir
+- ❌ Aynı turda farklı kesitlerden iş karıştırmak → atom kapsam bozulur
+
+### 17.5 Kesit Sırası
+
+Mehmet Bey **iş önceliğine göre** sıradaki kesiti seçer. Mimar öneride bulunur, son söz Mehmet Bey'in. Aynı anda **en fazla bir kesit** aktif olabilir.
+
+---
+
+## 18. OTONOM TUR ZİNCİRİ — Mimar Bir Kesit İçin Tüm Mektupları Tek Seferde Yazar
+
+### 18.1 İlke
+
+Mehmet Bey saha programı nedeniyle her 45 dakikada bir sohbete dönerek "yeni mektup yaz" diyemez. Mimar **bir kesit için tüm tur mektuplarını** (örn: TUR #12, #13, #14, #15, #16) **tek mimar oturumunda** yazar. Mehmet Bey sırayla Claude Code'a verir, otomatik akar.
+
+### 18.2 Akış
+
+```
+Mimar oturumu (1 kez):
+  └─ Kesit keşif raporu okunur
+  └─ Mimari karar dokümanı yazılır
+  └─ TÜM TUR MEKTUPLARI TEK SEFERDE üretilir (5-10 mektup)
+  └─ Mehmet Bey'e teslim edilir
+  
+Mehmet Bey:
+  └─ Tur #1 mektubunu Claude Code'a yapıştırır
+  └─ Claude Code "TUR #X TAMAMLANDI" der
+  └─ Mehmet Bey Tur #2 mektubunu yapıştırır
+  └─ ... zincir sırayla akar ...
+  └─ Schema değişikliği gerektiren tur ÖNCESİ Mehmet Bey onayı şart
+  └─ Bütün zincir bittiğinde sohbete döner, kesit kapanış konuşulur
+```
+
+### 18.3 Kırmızı Nokta Turları (Mehmet Bey Onayı Şart)
+
+Aşağıdaki durumlardan biri varsa o tur **otomatik akamaz**, Mehmet Bey'in sözlü/yazılı onayı gerekir:
+
+- Schema migration (yeni alan, yeni tablo, alan değişimi)
+- npm install yeni paket
+- Env değişikliği (Render/Vercel)
+- Maliyet etkisi olan değişiklik (yeni 3. taraf API, paid plan)
+- Geri alınamaz iş (DELETE, hard reset, vb.)
+
+Mimar bu turları **mektup başlığında "🔴 KIRMIZI NOKTA — MEHMET BEY ONAYI ŞART"** olarak işaretler. Claude Code mektubu okuyunca bu uyarıyı görür, tur'a başlamadan önce Mehmet Bey'in onayını sohbette ister.
+
+### 18.4 Yeşil Nokta Turları (Otomatik Akar)
+
+Aşağıdaki turlar Mehmet Bey'in onayı olmadan ardışık çalıştırılabilir:
+
+- UI değişikliği (panel sayfa, komponent, layout)
+- Kod refactor (mevcut endpoint'i çağıran yer ekleme, yeni middleware kullanma)
+- Bildirim ekleme (mevcut sms/email/whatsapp servisleri ile)
+- Yeni route mount (mevcut endpoint'lere)
+- Dokümantasyon güncelleme
+
+Bu turların başlığı **"🟢 YEŞİL NOKTA — Otonom"** olur.
+
+### 18.5 Tur Mektubu Üretme Disiplini
+
+Mimar bir kesit için tur mektuplarını üretirken:
+
+- Her mektup **kendi başına çalışabilir** olmalı (Claude Code önceki mektup detayını hatırlamayabilir)
+- Her mektup **anayasa okuma adımıyla** başlar (Madde 4.5)
+- Her mektup **bittiğinde DUR** disiplini taşır
+- Her mektup **public URL kanıt** ile kapanır (TUR #4 dersi)
+- Her mektup **OTONOM_RAPOR.md** güncellemesi yapar
+- Mektuplar arası **bağımlılık net** olmalı (TUR #14, #13'in çıktısına bağlıysa belirtilir)
+
+### 18.6 Sohbete Dönüş Şartları
+
+Otonom zincir aşağıdaki durumlarda **otomatik DUR + sohbete dön**:
+
+- Bir tur'un içinde KIRMIZI çizgi ihlali (Madde 3) gerekmesi
+- Build/test başarısız (revert + rapor)
+- Production /health 5xx
+- Beklenmedik dosya değişikliği
+- 1 saat tek görevde sıkışma (Madde 6)
+- Mektubun beklediği önkoşul yerine getirilmemiş (önceki tur eksik)
+- Anayasa Madde 17 ihlali (kesit dışı işlere kayma)
+
+---
+
+## 19. KAPANIŞ — NİYE BU ANAYASA VAR
 
 Tedbirge.ai 20 bin satır iş kalitesi backend kodu olan, **Türkiye'de rakipsiz mimariye** sahip bir LegalTech projesi.  
 3 avukat canlıda kullanıyor.  
