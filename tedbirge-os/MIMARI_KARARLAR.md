@@ -239,6 +239,38 @@ Bu dürüst kayıt yarınki mimar için kıymetli. **Anayasa ihlali alışkanlı
 
 ---
 
+## 26 Nisan 2026 — TUR #5 TASARIM KARARLARI (SUPABASE Kanonik + Web Push)
+
+### Karar 1: SUPABASE kanonik key
+
+**Karar:** `SUPABASE_SERVICE_ROLE_KEY` master (kanonik). `SUPABASE_SERVICE_KEY` fallback olarak birakildi.
+
+**Sebep:** Supabase'in standart env adi `SUPABASE_SERVICE_ROLE_KEY`. Eski ad (`SUPABASE_SERVICE_KEY`) ilk commit'ten kalmis. OS adapter ve boot.js zaten yeni adi kullaniyor; storage.service.js ve uploadMiddleware.js sadece eski adi biliyordu.
+
+**Uygulama:** `storage.service.js:12` ve `uploadMiddleware.js:16` fallback pattern'e cevrildi: `SUPABASE_SERVICE_ROLE_KEY || SUPABASE_SERVICE_KEY`. (commit 688d779)
+
+**Sonraki adim:** Mehmet Bey Render'dan `SUPABASE_SERVICE_KEY` silebilir. Fallback hala koruyucu.
+
+### Karar 2: Web Push stratejisi — DB-backed, sendToRole
+
+**Karar:** Push bildirimleri `pushNotification.service.js` + `PushSubscription` DB modeli uzerinden. In-memory map kullanilmadi.
+
+**Sebep:** `pushNotification.service.js`, `PushSubscription` schema modeli, `push.routes.js` + `push.controller.js` initial commit'ten (39492ab) mevcut, tamamen DB-backed. Mektup'un in-memory tasarimi (global.pushSubscribers) gercek altyapiyi bilmeden yazilmisti. Anayasa Madde 4.4 (kod kaynaktir) uygulanarak DB-backed servis kullanildi.
+
+**Healer entegrasyonu:** `maybeSendPush(finding)` — `sendToRole("ADMIN", payload)` cagiriyor. (commit b0766c8)
+
+### Karar 3: Web Push Strateji — endpoint adi
+
+**Karar:** `/api/push/vapid-key` korundu (mevcut kod, Madde 4.4).
+
+**Risk:** Dusuk. VAPID keys mevcut, sw.js push handler mevcut. Sadece baglama eklendi.
+
+**Endpoint adi duzeltmesi (TUR #5 sirasinda tespit):** Mektupta `/api/push/vapid-public-key` yazilmis, ama mevcut kod (push.routes.js + PwaProvider.tsx) `/api/push/vapid-key` kullaniyor. Anayasa Madde 4.4 (kod kaynaktir) geregi mevcut endpoint korundi, mektup hatali kabul edildi. Dogru endpoint: `/api/push/vapid-key`.
+
+**Mimar:** Claude Code (TUR #5)
+
+---
+
 ## Format ve Disiplin Notu
 
 Yeni karar bu dosyaya **yukarıdaki formatla** eklenir.
