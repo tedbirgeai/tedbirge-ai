@@ -491,3 +491,53 @@ G10-0 teshisi YANLISTIR. Kod incelemesi:
 - KVKK Asama 2 (bulk export anonimlesme)
 
 — Claude Code, TUR #10 sonu
+
+---
+
+# OTONOM TUR #11 KESIF — 26 Nisan 2026
+
+## GOREV
+Muvekkil uctan uca akis kod taramasi (M1-M15). Read-only. Cikti: MUVEKKIL_AKISI_HARITA.md
+
+## TAMAMLANAN SORGULAR (15/15)
+
+- M1: public.route.js — Giris noktasi, alan listesi, BUG #1 (updatedAt eksik)
+- M2: lexscan.controller.js — Standalone AI asistan, Lead'e baglanmiyor
+- M3: UTM tracking — Schema'da yok (public form UTM kaydetmiyor)
+- M4: whatsapp.routes.js — Inbound webhook var, bilinmeyen no Lead olusturmuyor
+- M5: auth.controller.js registerCustomer — OTP + self-register (UI eksik)
+- M6: auth.controller.js createCustomer — Admin olusturma (UI eksik)
+- M7: lead.service.js createLead + upload.service.js — AI analiz zinciri
+- M8: lead.service.js bildirimler — SMS+Email+WhatsApp (public form kullanmiyor — BUG #6)
+- M9: assignment.service.js — Manuel atama, bildirim kurulu
+- M10: contract.service.js + sozlesme SMS onay — Tam kurulu
+- M11: musteri.controller.js — 5 endpoint, getDashboard/mesaj/onay
+- M12: document.controller.js — Supabase signed URL, CUSTOMER erisebiliyor
+- M13: 8 bug tespit — BUG #1 (KRITIK), BUG #6 (HIGH), diger 6
+- M14: Muvekkil aktivasyon koprusu analizi — leads/[id] panelinden API call
+- M15: Schema dogrulama — Lead/User/Document modelleri onaylandi
+
+## CIKTI
+- tedbirge-os/docs/MUVEKKIL_AKISI_HARITA.md (631 satir, commit 251e238)
+
+## BULUNAN KRITIK BUGLAR
+- BUG #1 KRITIK: public.route.js prisma.lead.create() — updatedAt field eksik
+- BUG #6 HIGH: Public form Submit → SMS/Email/WhatsApp bildirimi YOK
+  (3 avukat canli, muvekkiller "basvuru alindi" mesaji almiyor)
+- BUG #7: WhatsApp inbound unknown number → sessizce dususuyor
+- BUG #8: Muvekkil mesaj gonderdikten sonra avukata bildirim yok
+- BUG #2+3: Muvekkil aktivasyon UI'si eksik (backend hazir)
+
+## STRATEJIK PLAN (MUVEKKIL_AKISI_HARITA.md'den)
+- TUR #12: public.route.js fix — updatedAt + bildirim (30 dk, dusuk risk)
+- TUR #13: Muvekkil aktivasyon koprusu UI — leads/[id] sayfasina ekleme
+- TUR #14: Lead yonetim UI — MIMAR ONAYI GEREK (schema degisiklik)
+- TUR #15: Self-register UI — /register/musteri/page.tsx
+
+## OZET TUR #11 KESIF
+- Read-only sorgu: 15
+- Yeni dosya olusturulan: 1 (MUVEKKIL_AKISI_HARITA.md)
+- Kod degisikligi: 0
+- Schema/Migration/npm/Env: 0
+
+— Claude Code, TUR #11 Kesif sonu
