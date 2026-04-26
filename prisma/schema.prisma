@@ -247,6 +247,8 @@ model Lead {
   muhatapGuvenSkoru     Float?
   muhatapGerekce        String?          @db.Text
   healthDataConsentAt   DateTime?
+  archivedAt            DateTime?
+  deletedAt             DateTime?
   AccidentCase          AccidentCase[]
   activities            ActivityLog[]
   assignments           Assignment[]
