@@ -90,12 +90,14 @@ exports.sendMessage = asyncHandler(async (req, res) => {
     });
   }
 
+  const trimmedMessage = message.trim();
+
   const msg = await prisma.chatMessage.create({
     data: {
       sessionId: session.id,
       leadId: lead.id,
       sender: "user",
-      message: message.trim(),
+      message: trimmedMessage,
     },
   });
 
@@ -104,9 +106,48 @@ exports.sendMessage = asyncHandler(async (req, res) => {
     data: {
       leadId: lead.id,
       action: "MUVEKKIL_MESAJ",
-      detail: `Müvekkil mesaj gönderdi: ${message.trim().slice(0, 100)}`,
+      detail: `Müvekkil mesaj gönderdi: ${trimmedMessage.slice(0, 100)}`,
     },
   });
+
+  // BUG #8 FIX: Atanan avukat(lar)a push + SMS bildirim
+  const leadFull = await prisma.lead.findUnique({ where: { id: lead.id }, select: { customerName: true } });
+  const assignments = await prisma.assignment.findMany({
+    where: { leadId: lead.id, status: "ACTIVE" },
+    include: { lawyer: { select: { id: true, fullName: true, phone: true } } },
+  });
+
+  if (assignments.length > 0) {
+    const pushService = require("../services/pushNotification.service");
+    const smsService  = require("../services/sms.service");
+
+    for (const a of assignments) {
+      pushService.sendToUser(a.lawyer.id, {
+        title: "Muvekkil Mesaji",
+        body: `${leadFull?.customerName || "Muvekkil"}: ${trimmedMessage.substring(0, 80)}`,
+        url: `/dashboard/leads/${lead.id}`,
+      }).catch(() => null);
+
+      // SMS debounce: son 30 dk'da ayni avukata SMS atilmadiysa
+      const recentSms = await prisma.activityLog.findFirst({
+        where: {
+          leadId: lead.id,
+          action: "MUVEKKIL_MESAJ_SMS_SENT",
+          detail: { contains: a.lawyer.id },
+          createdAt: { gt: new Date(Date.now() - 30 * 60 * 1000) },
+        },
+      });
+      if (!recentSms && a.lawyer.phone) {
+        smsService.sendSms(
+          a.lawyer.phone,
+          `Tedbirge: ${leadFull?.customerName || "Muvekkil"} dosyaniza mesaj birakti. Panele bakin.`
+        ).catch(() => null);
+        await prisma.activityLog.create({
+          data: { leadId: lead.id, action: "MUVEKKIL_MESAJ_SMS_SENT", detail: a.lawyer.id },
+        });
+      }
+    }
+  }
 
   res.status(201).json({ success: true, data: msg });
 });
