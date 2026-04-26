@@ -442,3 +442,52 @@ G10-0 teshisi YANLISTIR. Kod incelemesi:
 - Onerim: Yol B/C — migration GEREK YOK, kucuk panel routing patch yeterli
 
 — Claude Code, TUR #10 Kesif sonu
+
+---
+
+# OTONOM TUR #10 ANA IS — 26 Nisan 2026 (ogleden sonra)
+
+## TAMAMLANAN GOREVLER
+
+### G10-1: Login Redirect (panel commit 692f44e)
+- Login sonrasi CUSTOMER → /musteri, diger roller → /dashboard
+- Atom degisiklik: 2 satir (login/page.tsx:74-75)
+- `user?.role === "CUSTOMER" ? "/musteri" : redirect || "/dashboard"`
+
+### G10-2: Layout — Senaryo A (degisiklik gerekmedi)
+- AppLayout.tsx satir 107-110: CUSTOMER zaten /musteri'ye redirect kurulu
+- AppLayout.tsx satir 134-146: CUSTOMER icin minimal layout (sidebar yok) zaten kurulu
+- Kesif raporu kanitladi, ekstra commit gerekmedi
+
+### G10-3: Build + Deploy
+- `npm run build`: basarili (TypeScript hata: 0, 46 sayfa)
+- Panel push: master → 692f44e
+- Vercel deploy baslatildi
+
+## OZET TUR #10 ANA
+- Tamamlanan: 4
+- Toplam yeni dosya: 0 (sadece duzeltme)
+- Toplam commit (panel): 1 (G10-2 Senaryo A, ekstra commit gerekmedi)
+- Schema/Migration/npm/Env: 0
+- KOD degisikligi: 2 satir toplam
+- Anayasa Madde 3 ihlali: 0
+
+## SISTEM DURUMU TUR #10 SONU
+- CUSTOMER login → /musteri yonlendirme aktif
+- /musteri portali CUSTOMER icin temiz gorunum (AppLayout zaten kuruluydu)
+- 5 tab muvekkil portali (Genel/Belgeler/Mesajlar/Odemeler/Onay) canli
+- Avukat muvekkil etkilesimi panel uzerinden mumkun
+
+## MEHMET BEY MANUEL TEST
+1. tedbirge.ai/login → CUSTOMER credentials ile giris
+2. Beklenen: /musteri sayfasina yonlendirilme (otomatik)
+3. Sayfa: 5 tab gorulur (Genel/Belgeler/Mesajlar/Odemeler/Onay)
+4. Avukat menusu gorulmemeli (sadece logo + cikis dugmesi)
+5. ADMIN/LAWYER ile giris → /dashboard (regression yok)
+
+## TUR #11 BEKLEYEN
+- Admin "Musteri Kaydet" UI (create-customer endpoint mevcut, form eksik)
+- WhatsApp Business API entegrasyonu
+- KVKK Asama 2 (bulk export anonimlesme)
+
+— Claude Code, TUR #10 sonu
