@@ -334,3 +334,52 @@ Bu disiplin TUR #5'te 30+ dakika tasarruf sağladı (yeni dosya yazmak yerine ba
 **Etki:** Mimar oturumu açma sıklığı azalır, sahada kalma süresi artar, disiplin korunur.
 
 **Mimar:** Claude Opus 4.7
+
+---
+
+## 26 Nisan 2026 (gece) — ANAYASA v1.3.0 + Madde 20+21+22 EKLENDİ
+
+**Karar:** Anayasaya 3 yeni madde eklendi:
+- **Madde 20:** Anayasa Evrim Disiplini (anayasa nasıl değişir)
+- **Madde 21:** Sağlık Taraması Disiplini (uçtan uca risk denetimi)
+- **Madde 22:** Versiyon Disiplini (4 katmanlı SemVer 2.0)
+
+Eski Madde 19 (Kapanış) → Madde 23 olarak kaydı.
+
+**Sebep:** Üç eksiklik kanıtlandı:
+1. Anayasanın evrim süreci tanımsız (Madde 5, Madde 17+18 doğaçlama eklendi)
+2. Uçtan uca sağlık taraması ihtiyacı vs Madde 17 (kesit disiplini) çelişkisi
+3. 4 katman (anayasa, backend, panel, schema) için versiyon standardı yok
+
+**Alternatif (seçilmedi):**
+- CalVer (Calendar Versioning) — Tedbirge için zaman bilgisi yetersiz, breaking change göstermiyor
+- Hybrid (CalVer + SemVer) — mental yük yüksek, araç desteği zayıf
+- Madde 22'yi ayrı turla yazmak — atom mantıksal iş bölünmüş olur
+
+**Etki:**
+- Anayasa v1.0.0 → v1.3.0 (resmi versiyon güncellemesi)
+- 21 madde + 1 kapanış = 22 numaralı madde + 1 kapanış (Madde 23)
+- Bundan sonra her anayasa değişikliği Madde 20.4 sürecinden geçer
+- Sağlık taraması Madde 21'e göre yapılır
+- 4 katman versiyonu Madde 22'ye göre yönetilir
+
+**Mimar:** Claude Opus 4.7  
+**Onay:** Mehmet Bey (yazılı, sohbet kaydı)
+
+---
+
+## ANAYASA VERSİYON TARİHÇESİ (geriye dönük kanıt — Madde 22.7)
+
+Anayasa şu ana kadar **3 büyük değişiklik** geçirdi ama versiyon güncellenmemişti. Madde 22 eklenirken bu **gizli ihlal** düzeltildi:
+
+| Versiyon | Tarih | Değişiklik | Madde Sayısı | Commit |
+|---|---|---|---|---|
+| v1.0.0 | 25 Nisan 2026 | Başlangıç (16 madde) | 16 | (initial CLAUDE.md commit) |
+| v1.1.0 | 25 Nisan 2026 | Madde 5 (Onay Disiplini) eklendi → Madde 5-15 kaydırıldı | 17 | (TUR #2 öncesi commit) |
+| v1.2.0 | 26 Nisan 2026 | Madde 17 (Kesit Disiplini) + Madde 18 (Otonom Tur Zinciri) eklendi → Madde 19 (Kapanış) | 19 | (anayasa genişletme v2 commit) |
+| **v1.3.0** | **26 Nisan 2026 (gece)** | **Madde 20 (Anayasa Evrim) + Madde 21 (Sağlık Taraması) + Madde 22 (Versiyon Disiplini) eklendi → Madde 23 (Kapanış)** | **22 + Kapanış** | **a4ec692** |
+
+**KVKK kanıt notu:** Bundan sonra anayasa değişikliklerinde tarih + commit hash + açıklama bu tablo formatına yazılacak (Madde 22.7).
+
+**Mimar:** Claude Opus 4.7  
+**Tarih:** 26 Nisan 2026 (gece)
