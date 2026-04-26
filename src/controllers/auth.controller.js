@@ -62,6 +62,78 @@ exports.createCustomer = asyncHandler(async (req, res) => {
     data: user
   });
 });
+// POST /auth/customer/send-setup-link
+// ADMIN/SALES/REPRESENTATIVE tarafindan cagrilir
+// Yeni CUSTOMER kullanicisina sifre belirleme linki SMS+Email gonderir
+exports.sendCustomerSetupLink = asyncHandler(async (req, res) => {
+  const { userId } = req.body;
+  if (!userId) return res.status(400).json({ success: false, error: "userId required" });
+
+  const user = await prisma.user.findUnique({ where: { id: userId } });
+  if (!user) return res.status(404).json({ success: false, error: "User not found" });
+
+  const token = crypto.randomBytes(32).toString("hex");
+  const expires = new Date(Date.now() + 24 * 60 * 60 * 1000); // 24 saat
+
+  await prisma.user.update({
+    where: { id: userId },
+    data: { resetToken: token, resetTokenExpires: expires },
+  });
+
+  const setupUrl = `${process.env.PANEL_URL || "https://www.tedbirge.ai"}/sifre-belirle?token=${token}`;
+  const { sendSms } = require("../services/sms.service");
+
+  Promise.allSettled([
+    user.phone ? sendSms(user.phone, `Tedbirge hesabiniz olusturuldu. Sifrenizi belirleyin: ${setupUrl}`).catch(() => null) : Promise.resolve(),
+    sendEmail({
+      to: user.email,
+      subject: "Tedbirge Hesap Aktivasyonu",
+      html: `<p>Sayin ${user.fullName},</p><p>Avukatiniz sizin icin Tedbirge hesabi olusturdu. Sifrenizi belirlemek icin asagidaki linke tiklayin (24 saat gecerli):</p><p><a href="${setupUrl}">${setupUrl}</a></p><p>Iyi calismalar.<br>Tedbirge</p>`,
+    }).catch(() => null),
+  ]);
+
+  return res.json({ success: true, sent: true });
+});
+
+// POST /auth/customer/setup-password
+// Token + yeni sifre, expires kontrol, sifre set + auto-login token
+exports.setupCustomerPassword = asyncHandler(async (req, res) => {
+  const { token, password } = req.body;
+  if (!token || !password) return res.status(400).json({ success: false, error: "token and password required" });
+  if (password.length < 6) return res.status(400).json({ success: false, error: "password too short" });
+
+  const user = await prisma.user.findFirst({
+    where: {
+      resetToken: token,
+      resetTokenExpires: { gt: new Date() },
+    },
+  });
+
+  if (!user) return res.status(400).json({ success: false, error: "invalid or expired token" });
+
+  const bcrypt = require("bcryptjs");
+  const passwordHash = await bcrypt.hash(password, 10);
+
+  await prisma.user.update({
+    where: { id: user.id },
+    data: { passwordHash, resetToken: null, resetTokenExpires: null },
+  });
+
+  const jwt = require("jsonwebtoken");
+  const env = require("../config/env");
+  const authToken = jwt.sign(
+    { userId: user.id, role: user.role },
+    env.jwtSecret,
+    { expiresIn: env.jwtExpiresIn }
+  );
+
+  return res.json({
+    success: true,
+    token: authToken,
+    user: { id: user.id, role: user.role, fullName: user.fullName, email: user.email },
+  });
+});
+
 exports.login = asyncHandler(async (req, res) => {
   const { email, password } = req.body;
   const result = await authService.login(email, password);
