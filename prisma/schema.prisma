@@ -15,7 +15,7 @@ model AccidentCase {
   analysisData Json?
   reportData   Json?
   createdAt    DateTime           @default(now())
-  updatedAt    DateTime
+  updatedAt    DateTime           @updatedAt
   analyzedAt   DateTime?
   Lead         Lead               @relation(fields: [leadId], references: [id], onDelete: Cascade)
   Evidence     Evidence[]
@@ -40,7 +40,7 @@ model Assignment {
   note      String?
   status    AssignmentStatus @default(ACTIVE)
   createdAt DateTime         @default(now())
-  updatedAt DateTime
+  updatedAt DateTime         @updatedAt
   lawyer    User             @relation(fields: [lawyerId], references: [id])
   lead      Lead             @relation(fields: [leadId], references: [id])
 }
@@ -79,7 +79,7 @@ model ChatSession {
   leadId     String?
   userId     String?
   createdAt  DateTime      @default(now())
-  updatedAt  DateTime
+  updatedAt  DateTime      @updatedAt
   messages   ChatMessage[]
   Lead       Lead?         @relation(fields: [leadId], references: [id])
   User       User?         @relation(fields: [userId], references: [id])
@@ -94,7 +94,7 @@ model Contract {
   title             String
   content           String
   createdAt         DateTime       @default(now())
-  updatedAt         DateTime
+  updatedAt         DateTime       @updatedAt
   musteriOnayTarihi DateTime?
   musteriOnayladi   Boolean        @default(false)
   onayKodu          String?
@@ -125,7 +125,7 @@ model DavaSurec {
   masraflar       Float     @default(0)
   notlar          String?
   createdAt       DateTime  @default(now())
-  updatedAt       DateTime
+  updatedAt       DateTime  @updatedAt
   Lead            Lead      @relation(fields: [leadId], references: [id])
 }
 
@@ -147,7 +147,7 @@ model Document {
   compensationResult String?
   pageCount          Int?
   createdAt          DateTime       @default(now())
-  updatedAt          DateTime
+  updatedAt          DateTime       @updatedAt
   Lead               Lead           @relation(fields: [leadId], references: [id])
 }
 
@@ -193,7 +193,7 @@ model IhtarnameTakip {
   sonrakiAdim    String?
   notlar         String?
   createdAt      DateTime  @default(now())
-  updatedAt      DateTime
+  updatedAt      DateTime  @updatedAt
   teklifTarihi   DateTime?
   teklifTutari   Float?
   Lead           Lead      @relation(fields: [leadId], references: [id])
@@ -297,7 +297,7 @@ model Petition {
   muhatap        String?
   notlar         String?
   createdAt      DateTime  @default(now())
-  updatedAt      DateTime
+  updatedAt      DateTime  @updatedAt
   User           User?     @relation(fields: [createdById], references: [id])
   Lead           Lead      @relation(fields: [leadId], references: [id])
 }
@@ -330,7 +330,7 @@ model User {
   role                       Role                 @default(CUSTOMER)
   isActive                   Boolean              @default(true)
   createdAt                  DateTime             @default(now())
-  updatedAt                  DateTime
+  updatedAt                  DateTime             @updatedAt
   resetToken                 String?
   resetTokenExpires          DateTime?
   sonGirisTarihi             DateTime?
