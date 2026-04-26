@@ -249,6 +249,10 @@ model Lead {
   healthDataConsentAt   DateTime?
   archivedAt            DateTime?
   deletedAt             DateTime?
+  source                String?
+  utmSource             String?
+  utmMedium             String?
+  utmCampaign           String?
   AccidentCase          AccidentCase[]
   activities            ActivityLog[]
   assignments           Assignment[]

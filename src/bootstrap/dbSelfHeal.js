@@ -17,6 +17,7 @@ const prisma = new PrismaClient();
 const HEAL_TASKS = [
   {
     id: "lead_archive_delete",
+    expectedColumnCount: 2,
     description: "Lead.archivedAt + Lead.deletedAt kolonlari (TUR #14)",
     migrationName: "20260426000001_add_lead_archive_delete",
     sql: `ALTER TABLE "Lead"
@@ -24,6 +25,19 @@ const HEAL_TASKS = [
           ADD COLUMN IF NOT EXISTS "deletedAt" TIMESTAMP(3);`,
     checkSql: `SELECT column_name FROM information_schema.columns
                WHERE table_name = 'Lead' AND column_name IN ('archivedAt', 'deletedAt');`,
+  },
+  {
+    id: "lead_source_utm",
+    expectedColumnCount: 4,
+    description: "Lead.source + UTM alanlari (TUR #16)",
+    migrationName: "20260426000002_add_lead_source_utm",
+    sql: `ALTER TABLE "Lead"
+          ADD COLUMN IF NOT EXISTS "source" TEXT,
+          ADD COLUMN IF NOT EXISTS "utmSource" TEXT,
+          ADD COLUMN IF NOT EXISTS "utmMedium" TEXT,
+          ADD COLUMN IF NOT EXISTS "utmCampaign" TEXT;`,
+    checkSql: `SELECT column_name FROM information_schema.columns
+               WHERE table_name = 'Lead' AND column_name IN ('source', 'utmSource', 'utmMedium', 'utmCampaign');`,
   },
 ];
 
@@ -34,7 +48,7 @@ async function applyHealTask(task) {
     const checkResult = await prisma.$queryRawUnsafe(task.checkSql);
     const existingColumns = Array.isArray(checkResult) ? checkResult.map(r => r.column_name) : [];
 
-    if (existingColumns.length >= 2) {
+    if (existingColumns.length >= (task.expectedColumnCount || 2)) {
       log("info", "kolonlar zaten mevcut, atla");
     } else {
       log("info", `kolonlar eksik (${existingColumns.length}/2), uyguluyor...`);
