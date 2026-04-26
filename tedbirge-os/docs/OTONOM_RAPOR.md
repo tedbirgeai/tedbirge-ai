@@ -631,3 +631,69 @@ Muvekkil uctan uca akis kod taramasi (M1-M15). Read-only. Cikti: MUVEKKIL_AKISI_
 7. 5 tab gorunmeli (Genel/Belgeler/Mesajlar/Odemeler/Onay)
 
 — Claude Code, TUR #13 sonu
+
+---
+
+# OTONOM TUR #14 — 26 Nisan 2026
+
+## ✅ TAMAMLANAN GOREVLER (G14-0 → G14-8)
+
+### G14-0 — Mehmet Bey onay (KIRMIZI NOKTA)
+- Schema degisiklik onaylandi: Lead.archivedAt + Lead.deletedAt eklendi
+- prisma/schema.prisma: 2 yeni optional DateTime alan
+
+### G14-1 — Migration
+- Commit: eea0f9b
+- Manual migration (lokal DB bayat): prisma/migrations/20260426000001_add_lead_archive_delete/migration.sql
+- ALTER TABLE Lead ADD COLUMN archivedAt + deletedAt
+
+### G14-2 — Service
+- Commit: 4292f5d
+- lead.service.js: archiveLead / unarchiveLead / softDeleteLead / restoreLead
+- listLeads: soft-delete + arsiv filtresi eklendi (varsayilan gizli)
+
+### G14-3 — Controller
+- Commit: 5c81fb7
+- lead.controller.js: 4 yeni export (archiveLead, unarchiveLead, softDeleteLead, restoreLead)
+- ActivityLog kaydı: LEAD_ARCHIVED / LEAD_UNARCHIVED / LEAD_SOFT_DELETED / LEAD_RESTORED
+
+### G14-4 — Routes
+- Commit: 5c81fb7
+- PATCH /:id/archive (ADMIN, SALES, REPRESENTATIVE)
+- PATCH /:id/unarchive (ADMIN, SALES, REPRESENTATIVE)
+- PATCH /:id/restore (ADMIN)
+- DELETE /:id (ADMIN)
+
+### G14-5 — Panel: LeadActionsMenu
+- Commit: 86ba76c
+- app/(panel)/leads/LeadActionsMenu.tsx: uc-nokta dropdown menu
+- leads/page.tsx: LeadRow'a menu entegre edildi (userRole + onRefetch prop)
+
+### G14-6 — Panel: Arsiv Sayfasi
+- Commit: 86ba76c
+- app/(panel)/dashboard/arsiv/page.tsx: arsivlenenler + silinenler sekme
+
+### G14-7 — Push + Health
+- Backend push: e8f6745..5c81fb7
+- Panel push: 3301ee3..86ba76c
+- Production: HTTP 200 {"success":true}
+
+## 📊 OZET TUR #14
+
+- Tamamlanan: 8 (G14-0 onay dahil)
+- Yeni dosya: 3 (migration.sql, LeadActionsMenu.tsx, arsiv/page.tsx)
+- Backend commit: 3 (eea0f9b + 4292f5d + 5c81fb7)
+- Panel commit: 1 (86ba76c)
+- Schema degisiklik: 1 (migration onaylandi, Mehmet Bey'in el ile production'a uygulamasi gerek)
+- Build hatasi: 0 (yeni koddan)
+- Production: HTTP 200
+
+## ⚠️ DIKKAT — MIGRATION PRODUCTION'DA
+
+Lokal DB bayat oldugu icin migration Render'a gonderildi ama production DB'ye henuz uygulanmadi.
+Mehmet Bey production migration icin: Render dashboard → tedbirge-ai → Shell:
+  `npx prisma migrate deploy`
+Ya da: Render'in "Run on deploy" ozelligini etkinlestir.
+Bu adim atlanirsa PATCH /archive endpoint'leri 500 donecek.
+
+— Claude Code, TUR #14 sonu
