@@ -371,3 +371,46 @@ Schema/Migration/npm/Env: 0
 KOD degisikligi: server.js +6 satir (mevcut satirlar degismedi)
 
 — Claude Code, TUR #8 Faz C sonu
+
+---
+
+# OTONOM TUR #9 — 26 Nisan 2026 (gece)
+
+## TAMAMLANAN GOREVLER
+
+### FAZ A — SSE 401 Duzeltme
+- G9-1: ATLANDI — authMiddleware.js satir 9'da zaten req.query?.token destegi var
+  (Madde 4.4: kod kaynaktir, sseAuth wrapper gereksiz duplikasyon)
+- G9-2: panel canli-feed page.tsx query token eklendi (panel commit e14ea3e)
+- G9-3: panel push tamam; backend degisikligi yoktu
+
+### FAZ B — End-to-End Kod Kaniti
+- G9-4: Auditor getStatus → started, totalFindings, lastTickAt, historySize, schedule
+- G9-5: Healer bus.on("auditor:finding") → handleFinding → writeSuggestion
+  → maybeSendSms (CRITICAL + 1sa debounce) → maybeSendPush (CRITICAL + 1sa debounce)
+- G9-6: Reporter RELAY_EVENTS 8 event:
+  auditor:finding, auditor:started, auditor:stopped,
+  healer:suggestion, healer:auto_fix, healer:started,
+  system:boot, system:health_change
+
+## OZET TUR #9
+- Tamamlanan: 6 (G9-1 atlandi, mevcut kod kapsadi)
+- Toplam yeni dosya: 0
+- Toplam commit: 1 panel
+- Schema/Migration/npm install/Env: 0
+- KOD degisikligi: 1 atom patch (panel, 3 satir)
+- Anayasa Madde 3 ihlali: 0
+
+## SISTEM DURUMU TUR #9 SONU
+- Panel Canli Feed: SSE 401 cozuldu, query token ile auth (authMiddleware mevcut destegi)
+- Auditor → Healer → Reporter → Push/SMS zinciri kod-kanitli dokumante
+- Mehmet Bey 1 saatlik audit:* event kontrolu beklenir
+- TUR #10 menusu: WhatsApp Business API, KVKK Asama 2, Muvekkil portal
+
+## MEHMET BEY MANUEL TEST ADIMLARI
+1. Panel: tedbirge.ai/dashboard/sistem-durumu/canli-feed
+2. "Baglantı yok" → "Bağlı" yeşil rozet olmalı
+3. 5 dk: reconciler-tick event akmali
+4. 1 saat: audit:* event'leri gorulmeli (Auditor ilk saatlik taramasi)
+
+— Claude Code, TUR #9 sonu
