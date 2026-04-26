@@ -112,3 +112,43 @@ Kanonik key secim plani:
 
 **Mimar:** Claude Code (TUR #4 FAZ A)
 **Tarih:** 25 Nisan 2026
+
+---
+
+## SUPABASE Tarama Sonucu (26 Nisan 2026)
+
+### Bulgular
+
+`SUPABASE_SERVICE_KEY` kullanan dosyalar (aktif):
+- `src/services/storage.service.js:12` — modul sabiti: `const SUPABASE_SERVICE_KEY = process.env.SUPABASE_SERVICE_KEY || ""`
+- `src/services/storage.service.js:16,17,19` — `getSupabaseClient()` fonksiyonu (uploadFile, deleteFile icin)
+- `src/services/storage.service.js:114,130,148` — fallback zaten var: `SUPABASE_SERVICE_ROLE_KEY || SUPABASE_SERVICE_KEY`
+- `src/middlewares/uploadMiddleware.js:16` — `process.env.SUPABASE_SERVICE_KEY` (direkt, fallback yok)
+- `src/os/modules/auditor.js:128` — sadece string referans (env kontrol listesi, deger okumaz)
+
+`SUPABASE_SERVICE_ROLE_KEY` kullanan dosyalar:
+- `src/os/boot.js:40` — sadece yeni ad
+- `src/os/adapters/supabase.js:73,112` — sadece yeni ad
+- `src/services/storage.service.js:114,130,148` — primary (fallback: SERVICE_KEY)
+
+### Tani
+
+KARMA — Her iki env aktif kullanımda.
+- `getSupabaseClient()` (sat. 12-19) ve `uploadMiddleware.js` (sat. 16) sadece eski adı (`SUPABASE_SERVICE_KEY`) biliyor.
+- `createSignedUploadUrl`, `verifyUpload`, `createSignedDownloadUrl` zaten fallback pattern kullaniyor.
+- `boot.js`, `supabase.js` adapter sadece yeni adı (`SUPABASE_SERVICE_ROLE_KEY`) biliyor.
+
+### Karar (Mimar)
+
+`SUPABASE_SERVICE_ROLE_KEY` kanonik (master), `SUPABASE_SERVICE_KEY` fallback.
+
+G5-2'de degistirilecek 2 yer:
+1. `storage.service.js:12` — modul sabiti fallback pattern'e cevirilecek
+2. `uploadMiddleware.js:16` — fallback pattern'e cevirilecek
+
+Degistirilmeyecek:
+- `storage.service.js:114,130,148` — zaten fallback pattern, dokunulmaz
+- `boot.js`, `supabase.js` — zaten yeni ad kullaniyor, dokunulmaz
+- `auditor.js:128` — string referans, anlam degismez
+
+Sonuc: G5-2 sonrasi `SUPABASE_SERVICE_KEY` Render'dan silinebilir (fallback her yerde aktif).
