@@ -344,3 +344,30 @@ Katman 2 (Modul start eksikligi, boot basarili olsa bile gecerli):
 - Siradaki: Faz B (sohbete donus, mimar oturumu)
 
 — Claude Code, TUR #8 Faz A sonu
+
+---
+
+# OTONOM TUR #8 FAZ C — 26 Nisan 2026 (gece)
+
+## TAMAMLANAN
+- Adim 1: AUDITOR_TESHIS.md (commit 5843462)
+- Adim 2: server.js atom patch — auditor/healer/reporter start (commit 27d9b45)
+
+## KOK NEDEN
+server.js'de boot basarili olunca yalnizca startReconciler() cagriliyordu.
+auditor/healer/reporter mount ediliyordu ama start() cagrisi eksikti,
+setInterval donguleri hic kurulmuyordu.
+
+## DUZELTME
+6 satir eklendi: forEach ile 3 modul start() cagrisi, her biri try/catch korumalı.
+
+## KANIT
+- /health: 200 (regression yok)
+- Render Logs: [OS] auditor/healer/reporter started satirlari beklenir
+- SystemEvent: auditor:started event'i + sonraki saatte audit:* event'leri
+
+## RISK SIFIR-DUSUK
+Schema/Migration/npm/Env: 0
+KOD degisikligi: server.js +6 satir (mevcut satirlar degismedi)
+
+— Claude Code, TUR #8 Faz C sonu
