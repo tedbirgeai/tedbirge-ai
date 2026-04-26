@@ -94,11 +94,45 @@ async function handleIncomingMessage(msg, metadata) {
   console.log(`[WhatsApp] Gelen (${type}) → ${from}: ${text.slice(0, 80)}`);
 
   // Müşteri numarasıyla lead bul
-  const lead = await prisma.lead.findFirst({
-    where: { customerPhone: { contains: from.slice(-10) } }, // son 10 hane eşleştir
+  let lead = await prisma.lead.findFirst({
+    where: { customerPhone: { contains: from.slice(-10) } },
     select: { id: true, ownerId: true },
   });
-  if (!lead) return; // Kayıtlı müşteri değil — şimdilik atla
+
+  // BUG #7 FIX: Bilinmeyen numara icin otomatik Lead olustur
+  if (!lead) {
+    // Spam koruma: ayni no son 1 saatte 5'ten fazla mesaj attiysa atla
+    const recentCount = await prisma.activityLog.count({
+      where: {
+        action: "WHATSAPP_INCOMING_NEW",
+        detail: { contains: from },
+        createdAt: { gt: new Date(Date.now() - 60 * 60 * 1000) },
+      },
+    });
+    if (recentCount >= 5) {
+      console.log(`[WhatsApp] Spam koruma tetiklendi: ${from} (${recentCount} mesaj/saat)`);
+      return;
+    }
+
+    const leadService = require("../services/lead.service");
+    lead = await leadService.createLead({
+      customerName: from,
+      customerPhone: from,
+      customerEmail: null,
+      accidentSummary: text ? `WhatsApp ilk mesaj: ${text.substring(0, 200)}` : "WhatsApp inbound",
+      kvkkConsentAt: null,
+      source: "whatsapp",
+    }, null, null);
+
+    await prisma.activityLog.create({
+      data: { leadId: lead.id, action: "WHATSAPP_INCOMING_NEW", detail: from },
+    });
+
+    const { sendWhatsAppMessage } = require("../services/whatsapp.service");
+    sendWhatsAppMessage(from,
+      "Mesajiniz alindi. Tedbirge avukatlari en kisa surede donus yapacak. Basvuru icin: tedbirge.ai/basvuru"
+    ).catch(() => null);
+  }
 
   // ChatSession bul veya oluştur
   const sessionKey = `wa-${lead.id}`;
