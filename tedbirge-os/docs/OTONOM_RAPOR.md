@@ -414,3 +414,31 @@ KOD degisikligi: server.js +6 satir (mevcut satirlar degismedi)
 4. 1 saat: audit:* event'leri gorulmeli (Auditor ilk saatlik taramasi)
 
 — Claude Code, TUR #9 sonu
+
+---
+
+# OTONOM TUR #10 KESIF — 26 Nisan 2026 (ogleden sonra)
+
+## TAMAMLANAN
+- K1-K8: 8 kanit sorgusu (sadece okuma, 11 dosya incelendi)
+- MUSTERI_KESIF_RAPORU.md olusturuldu
+
+## KRITIK DUZELTME
+G10-0 teshisi YANLISTIR. Kod incelemesi:
+- CUSTOMER rolu: 11 dosyada aktif kullanimda
+- Lead.ownerId = CUSTOMER User FK (musteri.controller.js kaniti)
+- Panel /musteri/page.tsx: 5 tab tam portal (belgeler, mesajlar, odemeler, onay)
+- 5 backend endpoint: /musteri/* aktif ve mount edilmis
+
+## OZET BULGU
+- CUSTOMER rolü: EVET — tam entegre (leadAccess, musteri.routes, auth)
+- Auth pattern: Sifre + JWT + OTP telefon dogrulama + 2FA opsiyonel
+- E-posta servisi: EVET — nodemailer v8 (Gmail SMTP, mock moda duser)
+- Muvekkil frontend: EVET — tam portal sayfasi hazir
+
+## SISTEM DURUMU
+- Sistem dokunulmadi (sadece okundu, kod degisikligi=0)
+- TUR #10 ana is karari bu rapora gore verilecek
+- Onerim: Yol B/C — migration GEREK YOK, kucuk panel routing patch yeterli
+
+— Claude Code, TUR #10 Kesif sonu
