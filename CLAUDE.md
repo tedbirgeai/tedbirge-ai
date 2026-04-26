@@ -513,7 +513,306 @@ Otonom zincir aşağıdaki durumlarda **otomatik DUR + sohbete dön**:
 
 ---
 
-## 19. KAPANIŞ — NİYE BU ANAYASA VAR
+## 20. ANAYASA EVRİM DİSİPLİNİ — Anayasa Kendi Kendini Nasıl Geliştirir
+
+### 20.1 İlke
+
+Anayasa **kod temelli yapı kurallarına göre** hareket eder. Buna göre versiyon yenilenir. Ancak versiyon yenilerken anayasanın **tüm maddelerine tam uyumla** hareket edilir.
+
+Bu üç temel ilke:
+
+1. **Kod temelli evrim:** Anayasa değişikliği yalnızca kod-kanıtı veya kanıtlı operasyonel ihtiyaçtan doğar (Madde 4.4'ün anayasa-üstü uygulaması). "Aklıma geldi" veya "iyi olur" yaklaşımı reddedilir.
+
+2. **Versiyon disiplini:** Her değişiklik versiyon güncellemesi gerektirir (Madde 22). Versiyon güncellenmeden anayasa metnine dokunmak yasaktır.
+
+3. **İç tutarlılık:** Yeni madde mevcut maddelerle çelişmemeli. Çelişki varsa → DUR (Madde 4.3), önce çelişki çözülür, sonra değişiklik yapılır (Madde 20.8).
+
+### 20.2 Anayasa Değişiklik Türleri
+
+- **A. Yeni madde ekleme** — yeni risk için yeni kural
+- **B. Mevcut madde genişletme** — alt madde ekleme, kapsam derinleştirme
+- **C. Mevcut madde daraltma** — kuralın artık geçerli olmadığı durumda
+- **D. Madde arşivleme** — silme yasak, "ARŞİV" işaretiyle korunur (tarihsel kayıt)
+- **E. Madde numarası kaydırma** — yeni madde araya sıkışacaksa otomatik kayma
+
+### 20.3 Değişiklik Önkoşulları
+
+Anayasa değişikliği **sadece şu durumlarda** yapılır:
+
+1. **Kanıta dayalı:** Bir kesit/turda somut bir risk yaşandı veya kanıtla tespit edildi
+2. **Sağlık taraması sonrası:** Madde 21 kapsamında yapılan tarama yeni risk gösterdi
+3. **Mehmet Bey direktifi:** Sahada gözlemlenen operasyonel ihtiyaç (yazılı onay)
+4. **Mimar önerisi + Mehmet Bey onayı:** İki taraf da hemfikir
+
+**Kanıtsız değişiklik yasak.** Mehmet Bey "şunu kaldır" derse mimar **gerekçe sormadan** uygulayamaz (Madde 4.3 yürürlükte).
+
+### 20.4 Değişiklik Süreci — 10 Atom Adım
+
+Her anayasa değişikliği şu sırayı izler:
+
+1. Gerekçe yazımı (kanıt zinciri)
+2. Taslak hazırlama (mimar)
+3. Mehmet Bey onayı (yazılı)
+4. MIMARI_KARARLAR.md kaydı (karar + alternatifler)
+5. Anayasa metni güncellenir (str_replace, atom)
+6. Numara kaymaları (varsa)
+7. İç referans kontrolü (cross-reference düzeltme)
+8. Versiyon güncellenir (Madde 22 disiplini)
+9. Diff doğrulama + atom commit + push
+10. Kapanış mesajı (özet, etki)
+
+### 20.5 Sağlık Taraması Sonrası Özel Süreç
+
+Madde 21 kapsamında yapılan sağlık taraması bittiğinde:
+
+1. Bulgu raporu önce okunur (mimar + Mehmet Bey)
+2. Kategorilenir: **anayasa eksikliği** mi, sadece **kod bug'ı** mı?
+3. Anayasa eksiklikleri için: Madde 20.4 sürecinden geçer
+4. Kod bug'ları için: kesit içinde turlara dönüşür (Madde 17 + 18)
+
+**Karışım yasak:** Bir bulgu hem anayasa hem kod gerektiriyorsa, **önce anayasa** güncellenir, sonra kod düzeltmesi onunla uyumlu yazılır.
+
+### 20.6 Versiyon Disiplini Bağlantısı
+
+Her anayasa değişikliği Madde 22'deki versiyon kurallarına uyarak yapılır:
+- Yeni madde eklendi → MINOR güncelleme (v1.X.0)
+- Alt madde değişti → PATCH güncelleme (v1.X.Y)
+- Anayasa felsefesi değişti → MAJOR güncelleme (vX.0.0)
+
+Detay: Madde 22.
+
+### 20.7 Yasaklı Davranış
+
+- ❌ Mimar tek başına anayasa değiştiremez (Mehmet Bey onayı şart)
+- ❌ Mehmet Bey "şunu kaldır" derse mimar gerekçe sormadan uygulayamaz
+- ❌ Anayasa metnine yorum yazılmaz (TODO, FIXME yasak)
+- ❌ Tartışma sırasında anayasa "geçici askıya alınamaz" (Madde 17.4 reddediyor)
+- ❌ Versiyon güncellenmeden metin değişikliği (Madde 20.1 #2 ihlali)
+- ❌ Anayasa metninde ham kod yer almaz (örnek dışında — minimal)
+
+### 20.8 Anayasa Çatışması
+
+İki madde birbiriyle çelişiyorsa:
+
+1. **DUR**, mimar oturumunda netleştir
+2. Daha sonra eklenen madde **daha kuvvetli** sayılır (sonraki = düzelten)
+3. Çatışma çözüldükten sonra eski madde revize edilir (Madde 20.2.B/C)
+4. MIMARI_KARARLAR.md'ye çatışma kaydı yazılır
+
+### 20.9 Anayasa Sürekliliği
+
+Mehmet Bey + mimar değişse bile (yeni Claude Opus oturumu, hatta yeni ortak) anayasa **bağlayıcı** kalır. Yeni mimar/ortak gelirse:
+
+1. Önce CLAUDE.md (anayasa) okunur
+2. Sonra MIMARI_KARARLAR.md (kararlar arşivi)
+3. Sonra OTONOM_RAPOR.md (son tur durumu)
+4. Sonra çalışmaya başlanır
+
+Devir teslim mektubu zorunlu.
+
+---
+
+## 21. SAĞLIK TARAMASI DİSİPLİNİ — Uçtan Uca Risk Denetimi
+
+### 21.1 İlke
+
+Tedbirge.ai bir LegalTech sistemi — Madde 23'te yazılı: bir tek hata = KVKK cezası, dava kaybı, müvekkil zararı. Bu nedenle zaman zaman **tüm sistemin sağlığı** taranmalı.
+
+Ama bu tarama Madde 17 (kesit disiplini) ile **çelişmemelidir**.
+
+**Çözüm:** Tarama = **denetim** (sadece okuma), tasarım = **kesit** (yapı kurma). İkisi farklı disiplinler.
+
+### 21.2 Sağlık Taraması Nedir, Ne Değildir
+
+**Sağlık taraması:**
+- ✅ Sadece okuma (sıfır kod değişikliği, sıfır SQL, sıfır migration)
+- ✅ Tüm akışları bir nefeste görmek
+- ✅ Risk noktalarını kanıt olarak işaretlemek
+- ✅ Kesit önceliklendirmesi için girdi
+- ✅ Çıktı: sınıflandırılmış risk haritası
+
+**Sağlık taraması değildir:**
+- ❌ Tedavi (tedavi her zaman kesit ile)
+- ❌ Tüm sistemin tek seferde yeniden tasarımı
+- ❌ Yamalı bohça gerekçesi
+- ❌ Tedaviye atlama bahanesi
+- ❌ Madde 17 ihlali (kesit disiplini) bahanesi
+
+### 21.3 Ne Zaman Yapılır
+
+- Mehmet Bey "uçtan uca emin olmak istiyorum" dediğinde
+- Kritik bir bug bulunduğunda (kapsam belirsizliği)
+- 3 ayda bir periyodik (yılda 4 kez maksimum)
+- Yeni avukat kullanıcı eklendiğinde (sistem yükü artışı)
+- KVKK denetim öncesi
+- Yeni kesit açılmadan önce (mevcut sistemin sağlığını anlamak için)
+
+### 21.4 Çıktı Formatı — Sınıflandırma Zorunlu
+
+```
+🔴 KRİTİK (hukuki risk, KVKK ihlali, müvekkil zararı, üretim çökmesi)
+🟡 ORTA (operasyonel sorun, kullanıcı deneyimi, mimari tutarsızlık)
+🟢 DÜŞÜK (iyileştirme, optimizasyon, geliştirici deneyimi)
+ℹ️ NOT (bilgi amaçlı, eylem gerektirmez)
+```
+
+Her bulgu kaydı:
+- Dosya:satır referansı
+- 5 satır kod alıntısı (maksimum)
+- 1 cümle risk açıklaması
+- Önerilen kesit (hangi mevcut/gelecek kesite girer)
+- Tahmini çözüm süresi
+
+### 21.5 Sağlık Taraması Sonrası Disiplin
+
+- 🔴 KRİTİK → acil kesite girer (gerekirse mevcut kesit askıya alınır)
+- 🟡 ORTA → ilgili kesite eklenir (Madde 17.5 sıralaması)
+- 🟢 DÜŞÜK + ℹ️ NOT → TASK_QUEUE.md'ye yazılır
+- **Tedavi mektubu sağlık taramasından doğmaz** — kesit mimar oturumu açılır
+
+### 21.6 Yasaklı Davranış
+
+- ❌ Sağlık taramasında "buradayım, bir tane düzelteyim" → DUR
+- ❌ Tarama raporunu **tedavi reçetesi** olarak kullanmak
+- ❌ "Tek raporda her şey çözülsün" beklentisi (Madde 17.4 reddediyor)
+- ❌ Şifre, API key, DATABASE_URL maskelenmeden rapor etmek
+- ❌ Müvekkil verisi (gerçek isim, TC, telefon) raporda yer alması (KVKK ihlali)
+
+### 21.7 Güvenlik Disiplini — KESİNLİKLE Rapor Edilmez
+
+**Kimlik bilgileri:**
+- Şifreler (kullanıcı, admin, DB)
+- API key'ler (Anthropic, NetGSM, Supabase, PayTR, vb.)
+- DATABASE_URL tam içeriği (sadece host/port/db adı **maskelenmiş**)
+- JWT secret
+- VAPID private key
+- OAuth client_secret
+
+**Müvekkil verisi (KVKK):**
+- Gerçek isim, soyisim
+- TC kimlik, telefon, e-posta
+- Adres bilgileri
+- Sağlık verileri
+- Dava içerikleri
+
+**Maskeleme zorunlu format:**
+```
+db: postgres-***.supabase.co
+key: sk_a***z (ilk + son karakter)
+phone: 5XX-***-**98 (sadece son 2 hane)
+email: te***@gmail.com (ilk 2 + domain)
+```
+
+### 21.8 Süre Limiti
+
+Bir sağlık taraması **maksimum 3 saat** Claude Code agent loop. Bu süreyi aşarsa:
+
+1. **DUR** (Madde 6 #5 — 1 saatten uzun süredir tek görev)
+2. Mimar oturumu açılır
+3. Tarama alt parçalara bölünür (önce backend, sonra panel, sonra schema)
+
+### 21.9 Madde 20 ile Bağ
+
+Sağlık taraması sırasında **anayasa eksikliği** tespit edilirse:
+- Madde 20.5 sürecine girer
+- Yeni madde teklifi mimar oturumunda hazırlanır
+- Mehmet Bey onayı + Madde 20.4 ile uygulanır
+
+Sağlık taraması **kendi başına** anayasa değiştirmez — sadece **işaret eder**.
+
+---
+
+## 22. VERSİYON DİSİPLİNİ — 4 Katmanlı Sistem İçin SemVer 2.0
+
+### 22.1 İlke
+
+Tedbirge.ai 4 katmanlı bir sistem — anayasa, backend, panel, schema. Her katman **kendi versiyonuna** sahiptir. Tek standart **Semantic Versioning (SemVer 2.0)** kullanılır (semver.org). Karışık şema yasaktır.
+
+**Versiyon formatı:** `MAJOR.MINOR.PATCH` (örn: 1.3.0)
+
+- **MAJOR** (X.0.0): Geriye uyumsuz değişiklik
+- **MINOR** (1.X.0): Geriye uyumlu yeni özellik
+- **PATCH** (1.X.Y): Geriye uyumlu bug fix
+
+### 22.2 Katman Bazlı Versiyon Kuralları
+
+**Anayasa (CLAUDE.md):**
+| Değişiklik | Versiyon |
+|---|---|
+| Anayasa felsefesi değişimi, KIRMIZI çizgi sayısı | MAJOR |
+| Yeni madde ekleme veya arşivleme | MINOR |
+| Alt madde ekleme/güncelleme | PATCH |
+| Yazım hatası, format düzeltme | PATCH |
+
+**Backend (Node.js + Express):**
+| Değişiklik | Versiyon |
+|---|---|
+| API contract bozma (endpoint silme, response format) | MAJOR |
+| Yeni endpoint, yeni alan (additive) | MINOR |
+| Bug fix, performance iyileştirme | PATCH |
+
+**Panel (Next.js):**
+| Değişiklik | Versiyon |
+|---|---|
+| Login akışı, auth değişimi, route yapısı yenilenmesi | MAJOR |
+| Yeni sayfa, yeni komponent, yeni rol | MINOR |
+| UI bug fix, stil düzeltme | PATCH |
+
+**Schema (Prisma):**
+| Değişiklik | Versiyon |
+|---|---|
+| Tablo silme, NOT NULL ekleme, alan tipi değiştirme | MAJOR |
+| Yeni tablo, yeni opsiyonel alan, yeni enum değer | MINOR |
+| Index ekleme, unique constraint | PATCH |
+
+### 22.3 Versiyon Bilgisi Nerede Tutulur
+
+- **Anayasa:** CLAUDE.md sonu (sadece mevcut versiyon)
+- **Backend:** `package.json` `version` field + `/health` endpoint response
+- **Panel:** `tedbirge-panel/package.json` `version` field + footer
+- **Schema:** `prisma/schema.prisma` üst yorumu
+
+### 22.4 Versiyon Tarihçesi Nereye Yazılır
+
+- **Anayasa:** `tedbirge-os/MIMARI_KARARLAR.md` (mevcut)
+- **Backend:** `CHANGELOG.md` (kök dizinde, ileride)
+- **Panel:** `tedbirge-panel/CHANGELOG.md` (panel kökünde, ileride)
+- **Schema:** `prisma/migrations/` klasörü (mevcut, otomatik)
+
+Anayasa **detay tarihçeyi MIMARI_KARARLAR'da** tutar — anayasa metni temiz kalır (Madde 4.7 — bağlam kıymetlidir).
+
+### 22.5 Bağımlılık Kuralı
+
+```
+Anayasa
+    └─→ Backend  →  Schema
+    └─→ Panel    →  Backend API
+```
+
+- Backend MAJOR değişikliği → Panel uyumlu MAJOR güncellenmeli
+- Schema MAJOR değişikliği → Backend uyumlu MAJOR güncellenmeli
+- Anayasa MAJOR değişikliği → Tüm katmanlar gözden geçirilmeli
+- Anayasa MINOR/PATCH değişiklikleri alt katmanları **etkilemez** (bağımsız)
+
+### 22.6 Yasaklı Davranış
+
+- ❌ Versiyon güncellenmeden metin değişikliği (Madde 20.1 #2 ihlali)
+- ❌ Karışık şema kullanımı (CalVer + SemVer karışık)
+- ❌ Build numarası ekleme (4-segment yasak: 1.3.0.5 olmaz)
+- ❌ Pre-release tag'leri (production'da yok: 1.3.0-beta yasak)
+- ❌ Versiyon atlatma (1.3.0 → 1.5.0 yasak, sırayla)
+
+### 22.7 Hukuki Boyut (KVKK)
+
+Anayasa versiyonu MIMARI_KARARLAR.md'ye yazılırken **tarih + commit hash + açıklama** ile birlikte kaydedilir. KVKK denetimi olduğunda "X tarihinde anayasa vY.Z.W yürürlükteydi" cevabı **kanıt** olarak verilebilir.
+
+### 22.8 Anayasa Çatışması Önleme
+
+Versiyon kuralları **Madde 20.6 ile uyumlu** olmalı. Çelişki olursa Madde 20.8 (anayasa çatışması) süreci uygulanır.
+
+---
+
+## 23. KAPANIŞ — NİYE BU ANAYASA VAR
 
 Tedbirge.ai 20 bin satır iş kalitesi backend kodu olan, **Türkiye'de rakipsiz mimariye** sahip bir LegalTech projesi.  
 3 avukat canlıda kullanıyor.  
@@ -528,6 +827,8 @@ Mehmet Bey sahaya çıkabilsin diye bu disiplin var.
 
 ---
 
-**— Tedbirge Mimari Anayasası v1.0**  
-**25 Nisan 2026, Claude Opus 4.7**  
-**Versiyon değişikliği için MIMARI_KARARLAR.md kaydı zorunlu**
+**— Tedbirge Mimari Anayasası v1.3.0**  
+**25 Nisan 2026 — başlangıç (Claude Opus 4.7)**  
+**26 Nisan 2026 — v1.3.0 son güncelleme (Madde 20+21+22 eklendi)**  
+**Versiyon geçmişi: tedbirge-os/MIMARI_KARARLAR.md**  
+**Her major/minor değişiklikte versiyon güncellemesi ZORUNLU (Madde 22)**
