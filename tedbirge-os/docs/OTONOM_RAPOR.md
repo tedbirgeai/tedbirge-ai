@@ -697,3 +697,56 @@ Ya da: Render'in "Run on deploy" ozelligini etkinlestir.
 Bu adim atlanirsa PATCH /archive endpoint'leri 500 donecek.
 
 — Claude Code, TUR #14 sonu
+
+---
+
+# OTONOM TUR #15 — 26 Nisan 2026 (gece)
+
+## Muvekkil Iletisim Kesiti — Mektup 4/5
+
+## ✅ TAMAMLANAN
+
+- G15-1: Endpoint imzalari dogrulandi
+  - POST /auth/register/send-otp → { phone } (purpose backend'de sabit "kayit")
+  - POST /auth/register/customer → { fullName, email, password, phone, otpKod, leadId? }
+  - Response: { success: true, data: { user, token } } — auto-login destekli
+
+- G15-2: /register/musteri sayfasi olusturuldu
+  - 3 adimli akis: telefon → OTP → bilgiler
+  - setToken + setStoredUser ile auto-login
+  - Basvuru kodu alani (opsiyonel, leadCode gonder — backend leadId kullanir)
+  - Commit: 2650837
+
+- G15-3: Login sayfasinda muvekkil kayit linki eklendi
+  - Commit: 2650837
+
+- G15-4: Push tamamlandi
+  - Panel: 86ba76c..2650837
+
+## 📊 OZET TUR #15
+
+- Tamamlanan: 4 (G15-1 → G15-4)
+- Yeni dosya: 1 (register/musteri/page.tsx)
+- Degistirilen: 1 (login/page.tsx)
+- Commit: 1 (panel)
+- Backend dokunulmadi
+- Schema/Migration/npm/Env: 0
+
+## ✅ COZULEN
+
+- BUG #2 (self-register UI yok) — kapatildi: /register/musteri canli
+
+## 🧪 MEHMET BEY MANUEL TEST
+
+1. tedbirge.ai/register/musteri ac (gizli sekme)
+2. Telefon gir → SMS OTP → OTP gir → ad/email/sifre → kayit
+3. /musteri portalina otomatik yonlenmeli
+4. Login sayfasinda altta "Muvekkil olarak hesap acmak icin tıklayın" linki gormeli
+
+## ⚠️ NOT — leadCode / leadId
+
+Self-register'da basvuru kodu girilirse frontend `leadCode` olarak gonderir.
+Backend sadece `leadId` (UUID) kabul ediyor, `leadCode` ignore edilir.
+Lead baglantisi bu adimda kurulmuyor — TUR #15.5 (backend leadCode→leadId) gerekirse ayri tur.
+
+— Claude Code, TUR #15 sonu
