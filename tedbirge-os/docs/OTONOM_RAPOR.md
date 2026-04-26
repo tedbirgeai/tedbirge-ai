@@ -304,3 +304,43 @@ Yok.
 - TUR #8 onceligi: Senaryo B — once boot-failed giderilmeli
 
 — Claude Code, TUR #7 sonu
+
+---
+
+# OTONOM TUR #8 FAZ A — 26 Nisan 2026 (gece)
+
+## TAMAMLANAN GOREVLER (G8A-1 → G8A-12)
+
+### Boot Teshis Fazi (1 yeni dosya, 2 commit toplam)
+- G8A-1 → G8A-4: Boot kod zinciri okuması (boot.js, os/index.js, eventBus.js, server.js)
+- G8A-5 → G8A-7: SystemEvent ham JSON kaniti (30 boot-failed event)
+- G8A-8 → G8A-10: Modul dosya sagligi + package.json kontrolu
+- G8A-11: BOOT_TESHIS_TUR8.md yazildi
+- G8A-12: OTONOM_RAPOR + push
+
+## OZET TUR #8 FAZ A
+- Tamamlanan: 12
+- Toplam yeni dosya: 1 (BOOT_TESHIS_TUR8.md)
+- Toplam commit: 2
+- KOD degisikligi: 0
+- Schema/Migration/npm install/Env: 0
+- Anayasa Madde 3 ihlali: 0
+
+## KOK NEDEN HIPOTEZI (2 katmanli)
+
+Katman 1 (Boot failed sebebi):
+  SUPABASE_SERVICE_ROLE_KEY Render env'de tanimsiz.
+  checkSupabaseStorage() critical adim fail → criticalFailure = true → boot-failed.
+  Cozum: Render dashboard env ekleme (2 dk, Mehmet Bey yapacak).
+
+Katman 2 (Modul start eksikligi, boot basarili olsa bile gecerli):
+  server.js'de r.ok=true durumunda modul start() cagirisi yok.
+  Auditor/Healer/Reporter hicbir zaman start() almayacak.
+  Cozum: server.js atom degisiklik (mimar onayi ile Faz C).
+
+## SISTEM DURUMU TUR #8 FAZ A SONU
+- Sistem degismedi (sadece kanit toplandı, hic dokunulmadi)
+- Tedavi Faz C'de mimar onayiyla yapilacak
+- Siradaki: Faz B (sohbete donus, mimar oturumu)
+
+— Claude Code, TUR #8 Faz A sonu
