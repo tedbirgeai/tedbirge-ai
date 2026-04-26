@@ -33,6 +33,10 @@ async function createLead(data, ownerId = null, createdById = null) {
       healthDataConsentAt: data.healthDataConsentAt || null,
       qualificationScore: data.qualificationScore ?? 0,
       status: data.status || "NEW",
+      source: data.source || null,
+      utmSource: data.utmSource || null,
+      utmMedium: data.utmMedium || null,
+      utmCampaign: data.utmCampaign || null,
       ownerId,
       createdById: createdById || ownerId   // Oluşturan kullanıcı (SALES/REP); yoksa ownerId fallback
     }
