@@ -29,6 +29,10 @@ async function createLead(data, ownerId = null, createdById = null) {
       accidentDate: data.accidentDate ? new Date(data.accidentDate) : null,
       accidentType: data.accidentType || null,
       estimatedCompensation: compensation.netEstimate,
+      kvkkConsentAt: data.kvkkConsentAt || null,
+      healthDataConsentAt: data.healthDataConsentAt || null,
+      qualificationScore: data.qualificationScore ?? 0,
+      status: data.status || "NEW",
       ownerId,
       createdById: createdById || ownerId   // Oluşturan kullanıcı (SALES/REP); yoksa ownerId fallback
     }

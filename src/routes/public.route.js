@@ -4,16 +4,7 @@ const env = require("../config/env");
 const prisma = require("../config/db");
 const upload = require("../middlewares/uploadMiddleware");
 const { supabaseUploadMiddleware } = require("../middlewares/uploadMiddleware");
-const generateCodeModule = require("../utils/generateCode");
-
-const generateLeadCode =
-  typeof generateCodeModule === "function"
-    ? generateCodeModule
-    : typeof generateCodeModule?.generateLeadCode === "function"
-      ? generateCodeModule.generateLeadCode
-      : typeof generateCodeModule?.default === "function"
-        ? generateCodeModule.default
-        : null;
+const leadService = require("../services/lead.service");
 
 router.post("/public-lead", upload.single("file"), supabaseUploadMiddleware, async (req, res) => {
   try {
@@ -37,10 +28,6 @@ router.post("/public-lead", upload.single("file"), supabaseUploadMiddleware, asy
       });
     }
 
-    if (!generateLeadCode) {
-      throw new Error("generateLeadCode bulunamadi.");
-    }
-
     const kvkkConsent =
       kvkkApproved === true ||
       kvkkApproved === "true" ||
@@ -55,20 +42,17 @@ router.post("/public-lead", upload.single("file"), supabaseUploadMiddleware, asy
         ? new Date()
         : null;
 
-    const lead = await prisma.lead.create({
-      data: {
-        leadCode: generateLeadCode(),
-        customerName: String(fullName).trim(),
-        customerPhone: String(phone).trim(),
-        customerEmail: email ? String(email).trim() : null,
-        city: city ? String(city).trim() : null,
-        accidentSummary: summary ? String(summary).trim() : null,
-        kvkkConsentAt: kvkkConsent,
-        healthDataConsentAt: healthDataConsent,
-        status: "NEW",
-        qualificationScore: 0
-      }
-    });
+    const lead = await leadService.createLead({
+      customerName: String(fullName).trim(),
+      customerPhone: String(phone).trim(),
+      customerEmail: email ? String(email).trim() : null,
+      city: city ? String(city).trim() : null,
+      accidentSummary: summary ? String(summary).trim() : null,
+      kvkkConsentAt: kvkkConsent,
+      healthDataConsentAt: healthDataConsent,
+      qualificationScore: 0,
+      source: "public_form",
+    }, null, null);
 
     let document = null;
 
