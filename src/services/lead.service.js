@@ -92,6 +92,10 @@ async function listLeads(filters = {}, user = null) {
     where.ownerId = filters.ownerId;
   }
 
+  // Soft delete / arsiv filtresi — varsayilan olarak gizli
+  if (!filters.includeDeleted) where.deletedAt = null;
+  if (!filters.includeArchived) where.archivedAt = null;
+
   if (filters.q) {
     where.OR = [
       { customerName: { contains: filters.q } },
@@ -303,6 +307,22 @@ async function bulkUpdateLeads({ ids, action, value, actorId, actorRole }) {
   return results;
 }
 
+async function archiveLead(leadId) {
+  return prisma.lead.update({ where: { id: leadId }, data: { archivedAt: new Date() } });
+}
+
+async function unarchiveLead(leadId) {
+  return prisma.lead.update({ where: { id: leadId }, data: { archivedAt: null } });
+}
+
+async function softDeleteLead(leadId) {
+  return prisma.lead.update({ where: { id: leadId }, data: { deletedAt: new Date() } });
+}
+
+async function restoreLead(leadId) {
+  return prisma.lead.update({ where: { id: leadId }, data: { deletedAt: null } });
+}
+
 module.exports = {
   createLead,
   listLeads,
@@ -312,6 +332,10 @@ module.exports = {
   operationApproveLead,
   generateDocumentDraft,
   bulkUpdateLeads,
+  archiveLead,
+  unarchiveLead,
+  softDeleteLead,
+  restoreLead,
 };
 
 
