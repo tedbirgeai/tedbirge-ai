@@ -154,6 +154,9 @@ async function writeSuggestion(finding) {
 
     // SMS koprusu — sadece CRITICAL + debounce'lu
     await maybeSendSms(finding);
+
+    // Web Push koprusu — sadece CRITICAL + debounce'lu (paralel iletisim)
+    await maybeSendPush(finding);
   } catch (err) {
     console.error("[healer] writeSuggestion failed:", err.message);
   }
@@ -212,6 +215,56 @@ async function maybeSendSms(finding) {
       await prisma.systemEvent.create({
         data: {
           type: "healer:sms_failed",
+          severity: "WARNING",
+          module: MODULE_NAME,
+          payload: { error: err.message },
+        },
+      });
+    } catch (_) {}
+  }
+}
+
+// Web Push debounce - kategori basina 1 saatte 1 push (SMS ile ayri map)
+const pushDebounce = new Map();
+const PUSH_DEBOUNCE_MS = 60 * 60 * 1000;
+
+async function maybeSendPush(finding) {
+  if (finding.severity !== "CRITICAL") return;
+
+  const lastSent = pushDebounce.get(finding.category) || 0;
+  if (Date.now() - lastSent < PUSH_DEBOUNCE_MS) return;
+
+  try {
+    const { sendToRole } = require("../../services/pushNotification.service");
+    const tr = CATEGORY_TR[finding.category] || finding.category;
+    const payload = {
+      title: "Tedbirge - CRITICAL",
+      body: `${tr}: ${(finding.message || "").substring(0, 100)}`,
+      url: "/dashboard/mimar-onayi",
+      tag: `audit-${finding.category}`,
+    };
+
+    await sendToRole("ADMIN", payload);
+    pushDebounce.set(finding.category, Date.now());
+
+    const prisma = require("../../config/db");
+    try {
+      await prisma.systemEvent.create({
+        data: {
+          type: `healer:push_sent:${finding.category}`,
+          severity: "INFO",
+          module: MODULE_NAME,
+          payload: { category: finding.category },
+        },
+      });
+    } catch (_) {}
+  } catch (err) {
+    console.error("[healer] maybeSendPush error:", err.message);
+    try {
+      const prisma = require("../../config/db");
+      await prisma.systemEvent.create({
+        data: {
+          type: "healer:push_failed",
           severity: "WARNING",
           module: MODULE_NAME,
           payload: { error: err.message },
