@@ -750,3 +750,89 @@ Backend sadece `leadId` (UUID) kabul ediyor, `leadCode` ignore edilir.
 Lead baglantisi bu adimda kurulmuyor — TUR #15.5 (backend leadCode→leadId) gerekirse ayri tur.
 
 — Claude Code, TUR #15 sonu
+
+---
+
+# OTONOM TUR #16 — 26 Nisan 2026 (gece) 🔴 KIRMIZI
+
+## ✅ MEHMET BEY ONAYI: EVET (G16-0)
+
+## ✅ TAMAMLANAN
+
+- G16-1: Schema 4 UTM alani eklendi + migration manuel (20260426000002)
+  dbSelfHeal.js guncellendi: lead_source_utm heal task eklendi
+  Commit: 4ad6de0
+
+- G16-2+G16-3: Public form UTM yakalama (backend + service)
+  public.route.js: req.query/body'den utm_source/medium/campaign
+  lead.service.js: DB'ye source/utm alanlari yaziliyor
+  Commit: d71292b
+
+- G16-4: Panel UTM URL yakalama
+  basvuru/page.tsx: window.location.search'ten UTM okunuyor, FormData'ya ekleniyor
+  Commit: 9f4456b (panel)
+
+- G16-5: WhatsApp bilinmeyen no — BUG #7 kapatildi
+  whatsapp.routes.js: if (!lead) return → otomatik Lead olustur
+  Spam koruma: 5 mesaj/saat limiti
+  Karsilama mesaji gonderiliyor
+  Commit: 6e84eb8
+
+- G16-6: Muvekkil mesaj → avukat bildirimi — BUG #8 kapatildi
+  musteri.controller.js: ChatMessage sonrasi assignment check
+  Push notification (anlık) + SMS (30 dk debounce)
+  Commit: b1d992f
+
+- G16-7: Backend push e322c31..b1d992f, Panel push 2650837..9f4456b
+  Production: HTTP 200
+
+## 📊 OZET TUR #16
+
+- Schema: +4 alan (source, utmSource, utmMedium, utmCampaign)
+- Migration: 1 (20260426000002_add_lead_source_utm) — selfHeal ile production'a uygulanacak
+- Yeni dosya: 1 (migration.sql)
+- Backend commit: 4 (4ad6de0, d71292b, 6e84eb8, b1d992f)
+- Panel commit: 1 (9f4456b)
+- npm install: 0
+
+## ✅ COZULEN
+
+- BUG #7 (WhatsApp bilinmeyen no sessizce dusuyordu) — kapatildi
+- BUG #8 (muvekkil mesaj sonrasi avukat bildirimi yok) — kapatildi
+- M3 (UTM tracking eksik) — kapatildi
+
+## 🚀 SISTEM DURUMU TUR #16 SONU
+
+- 5 giris kanalindan gelen Lead'ler source ile takip ediliyor
+- Pazarlama analitigi icin UTM verileri DB'de
+- WhatsApp ilk temasi Lead'e donusuyor (5/saat spam koruma)
+- Muvekkil mesaj atinca avukat anlık push + 30 dk debounce SMS aliyor
+
+— Claude Code, TUR #16 sonu
+
+---
+
+# 🎉 MUVEKKIL ILETISIM KESITI KAPANDI
+
+## TUR #11 → #16 Ozet
+
+| Tur | Konu | Bug | Risk |
+|---|---|---|---|
+| #11 | Kesif (haritalama) | — | Sifir |
+| #12 | Public form bug fix + bildirim | #1, #6 | Dusuk |
+| #13 | Musteri Hesabi Ac UI | #3 | Dusuk |
+| #14 | Lead Yonetimi (sil/arsiv/geri al) | #4 | Orta (schema) |
+| #14.5 | DB Drift Fix (bootstrap selfHeal) | drift | Dusuk |
+| #15 | Self-Register UI | #2 | Sifir |
+| #16 | UTM + akilli bildirim | #7, #8, M3 | Orta (schema) |
+
+Toplam: 7 tur, 8 bug cozuldu, 4 UI eksik tamamlandi, 2 schema migration (Mehmet Bey onayi ile).
+Anayasa Madde 3 ihlali: 0.
+
+Siradaki kesit (Mehmet Bey'in secimине gore):
+- Avukat is akisi kesiti
+- Sozlesme yonetimi kesiti
+- Finansal akis kesiti
+- Otonom katman olgunlastirma
+
+— Mimar Claude Opus 4.7, Muvekkil Iletisim Kesiti kapanis kaydi
