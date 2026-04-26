@@ -318,3 +318,19 @@ Bu disiplin TUR #5'te 30+ dakika tasarruf sağladı (yeni dosya yazmak yerine ba
 2. Panel /dashboard/bildirimler → "Bildirimleri Aç" → tarayıcı izni → abonelik test
 
 **Mimar:** Claude Opus 4.7 (TUR #5 kapanış)
+
+---
+
+## 26 Nisan 2026 — Anayasa Madde 17 + 18 Eklendi
+
+**Karar:** İki yeni anayasa maddesi yürürlüğe girdi.
+
+**Madde 17 (Stratejik Kesit Disiplini):** Sistemi yatay kesitlere böl, her kesiti uçtan uca tasarla. "Tüm sistem tek seferde" yasaklı.
+
+**Madde 18 (Otonom Tur Zinciri):** Mimar bir kesit için tüm tur mektuplarını tek oturumda yazar. KIRMIZI nokta turları onay şartlı, YEŞİL nokta turları otomatik akar.
+
+**Sebep:** Mehmet Bey saha programı + bilgi-fizik sınırı. Tek seferde tüm sistemi tasarlamak imkansız, ama bir kesit için tüm zinciri yazmak verimli.
+
+**Etki:** Mimar oturumu açma sıklığı azalır, sahada kalma süresi artar, disiplin korunur.
+
+**Mimar:** Claude Opus 4.7
