@@ -29,6 +29,38 @@ exports.listLeads = asyncHandler(async (req, res) => {
   res.json({ success: true, data: leads });
 });
 
+exports.archiveLead = asyncHandler(async (req, res) => {
+  const lead = await leadService.archiveLead(req.params.id);
+  await prisma.activityLog.create({
+    data: { leadId: req.params.id, action: "LEAD_ARCHIVED", detail: `Arsivlendi — ${req.user.id}` },
+  }).catch(() => {});
+  return res.json({ success: true, lead });
+});
+
+exports.unarchiveLead = asyncHandler(async (req, res) => {
+  const lead = await leadService.unarchiveLead(req.params.id);
+  await prisma.activityLog.create({
+    data: { leadId: req.params.id, action: "LEAD_UNARCHIVED", detail: `Arsivden cikartildi — ${req.user.id}` },
+  }).catch(() => {});
+  return res.json({ success: true, lead });
+});
+
+exports.softDeleteLead = asyncHandler(async (req, res) => {
+  const lead = await leadService.softDeleteLead(req.params.id);
+  await prisma.activityLog.create({
+    data: { leadId: req.params.id, action: "LEAD_DELETED", detail: `Soft-delete — ${req.user.id}` },
+  }).catch(() => {});
+  return res.json({ success: true, lead });
+});
+
+exports.restoreLead = asyncHandler(async (req, res) => {
+  const lead = await leadService.restoreLead(req.params.id);
+  await prisma.activityLog.create({
+    data: { leadId: req.params.id, action: "LEAD_RESTORED", detail: `Geri alindi — ${req.user.id}` },
+  }).catch(() => {});
+  return res.json({ success: true, lead });
+});
+
 exports.getLead = asyncHandler(async (req, res) => {
   const lead = await leadService.getLeadById(req.params.id, req.user);
   lead.sureler = hesaplaSureler(lead);
