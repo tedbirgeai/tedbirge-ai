@@ -1,0 +1,5 @@
+-- This is an empty migration.
+-- @updatedAt is a Prisma Client-side decorator only.
+-- It does not change the database schema.
+-- Affected models: AccidentCase, Assignment, ChatSession, Contract,
+-- DavaSurec, Document, IhtarnameTakip, Petition, User
