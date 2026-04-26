@@ -584,3 +584,50 @@ Muvekkil uctan uca akis kod taramasi (M1-M15). Read-only. Cikti: MUVEKKIL_AKISI_
 4. Avukat hesabiyla panel'e gir → yeni lead bildirimi push gelmeli
 
 — Claude Code, TUR #12 sonu
+
+---
+
+# OTONOM TUR #13 — 26 Nisan 2026 (gece)
+
+## Muvekkil Iletisim Kesiti — Mektup 2/5
+
+### TAMAMLANAN GOREVLER
+
+- G13-1: createCustomer incelendi — response: {data:user}, JWT yok. resetPassword JWT dondurmüyor.
+- G13-2: sendCustomerSetupLink endpoint eklendi (auth.controller.js + auth.routes.js)
+- G13-3: setupCustomerPassword endpoint eklendi (token + sifre + auto-login JWT)
+  Commit: 0457ad5
+- G13-4: MusteriHesabiAcButton.tsx olusturuldu (leads/[id] quick-actions bara eklendi)
+  - Sadece lead.ownerId yoksa gorulur
+  - 2 adim: create-customer → send-setup-link
+- G13-5: /sifre-belirle sayfa olusturuldu (public route)
+  - setToken + setStoredUser ile auto-login → /musteri
+  Commit: 3301ee3 (panel)
+- G13-6: Build basarili (TypeScript 0 hata, /sifre-belirle sayfasi listede)
+  /health: 200
+
+## OZET
+- Toplam yeni dosya: 2 (panel: MusteriHesabiAcButton.tsx + sifre-belirle/page.tsx)
+- Toplam commit: 2 (backend 0457ad5, panel 3301ee3)
+- Schema: 0 / Migration: 0 / npm install: 0
+
+## COZULEN BUG/EKSIK
+- BUG #3 (Admin/Avukat Musteri Kaydet UI yok) — kapandi
+- Muvekkil → CUSTOMER User koprusu kuruldu (Senaryo D uygulamasi)
+
+## SISTEM DURUMU
+- Avukat Lead detayinda "Musteri Hesabi Ac" butonu aktif (sadece ownerId olmayanlarda)
+- Hesap ac → SMS+Email link gonderme zinciri calisıyor
+- /sifre-belirle sayfasi token ile sifre set + auto-login
+- Muvekkil link tikladiginda → /musteri portali
+
+## MEHMET BEY MANUEL TEST
+1. Panel'de bir Lead ac (ownerId olmayan)
+2. Quick actions'da "Musteri Hesabi Ac" butonunu gormeli
+3. Form doldur (kendi email + telefon)
+4. SMS + email gelmeli (link iceriyor)
+5. Linki tikla → /sifre-belirle acilir
+6. Sifre belirle → otomatik /musteri'ye yonlenir
+7. 5 tab gorunmeli (Genel/Belgeler/Mesajlar/Odemeler/Onay)
+
+— Claude Code, TUR #13 sonu
