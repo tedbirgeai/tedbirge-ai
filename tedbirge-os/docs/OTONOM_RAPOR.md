@@ -190,3 +190,49 @@ Yok.
 - Lighthouse PWA score: Mehmet Bey test edecek (beklenti 80+)
 
 — Claude Code, TUR #4 sonu
+
+---
+
+# OTONOM TUR #5 — 26 Nisan 2026
+
+## ✅ TAMAMLANAN GOREVLER (G5-1 → G5-6)
+
+### FAZ A — SUPABASE Kanonik (2 commit)
+- G5-1: ENV_TEMIZLIK_RAPORU.md guncellendi — SUPABASE tarama sonucu eklendi (commit 56a680f)
+        Bulgular: storage.service.js + uploadMiddleware.js sadece eski key kullaniyordu
+- G5-2: Fallback pattern — storage.service.js:12 + uploadMiddleware.js:16 (commit 688d779)
+        Degisen: 2 dosya, 3 satir. Syntax OK.
+
+### FAZ B — Web Push (3 commit)
+- G5-3: ATLANDI — push.routes.js + push.controller.js + pushNotification.service.js + PushSubscription
+        schema modeli initial commit'ten (39492ab) mevcut, DB-backed, tamamen hazir
+- G5-4: healer.js — maybeSendPush() eklendi, sendToRole("ADMIN") kullaniyor (commit b0766c8)
+        NOT: Mektup'un in-memory tasarimi yerine DB-backed servis kullanildi (Madde 4.4)
+- G5-5: bildirimler/page.tsx — opsiyonel toggle, KVKK notu dahil (panel commit b39ba86)
+
+### FAZ C — Kapanis (2 commit)
+- MIMARI_KARARLAR.md — TUR #5 3 karar + endpoint adi duzeltmesi (commit e490f60)
+- OTONOM_RAPOR (bu commit)
+
+## 🔍 PUBLIC URL KANIT (TUR #4 dersi uygulamasi)
+- /health: 200 ✓
+- /api/push/vapid-key: 200 ✓
+- NOT: Endpoint adi /vapid-key (mektup /vapid-public-key yazmisti — Madde 4.4, kod kaynaktir)
+
+## 📊 OZET TUR #5
+- Tamamlanan: 6 (G5-3 mevcut, atlandi)
+- Toplam yeni dosya: 1 (bildirimler/page.tsx)
+- Toplam degisen dosya: 4 (storage.service.js, uploadMiddleware.js, healer.js, MIMARI_KARARLAR.md)
+- Schema degisikligi: 0
+- Migration: 0
+- npm install: 0
+- Build hatasi: 0
+- Production hatasi: 0
+
+## 🚀 SISTEM DURUMU TUR #5 SONU
+- SUPABASE: SUPABASE_SERVICE_ROLE_KEY kanonik, fallback aktif her yerde
+- Web Push: backend (DB-backed) + panel bildirimler sayfasi hazir
+- Healer: CRITICAL bulgu icin SMS + Push paralel iletisim
+- Mehmet Bey: Render'dan SUPABASE_SERVICE_KEY silebilir (fallback koruyor)
+
+— Claude Code, TUR #5 sonu
