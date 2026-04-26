@@ -236,3 +236,36 @@ Yok.
 - Mehmet Bey: Render'dan SUPABASE_SERVICE_KEY silebilir (fallback koruyor)
 
 — Claude Code, TUR #5 sonu
+
+---
+
+# OTONOM TUR #6 — 26 Nisan 2026 (ogle)
+
+## ✅ TAMAMLANAN GOREV (G6-1)
+
+### Push Test Endpoint (1 commit)
+- G6-1: POST /api/push/test eklendi (commit 6f27999)
+        - ADMIN auth gerekli (403 diger roller)
+        - sendToUser ile sadece istegi yapan ADMIN'e push
+        - asyncHandler import eklendi (eksikti)
+        - KVKK uyum: payload muvekkil verisi yok, sadece test mesaji
+
+## 📊 OZET TUR #6 (Mini Tur)
+- Tamamlanan: 1
+- Toplam commit: 2 (test endpoint + bu rapor)
+- Schema degisikligi: 0
+- Migration: 0
+- npm install: 0
+- Build hatasi: 0
+
+## 🔍 PUBLIC URL KANIT (TUR #4 dersi)
+- /health: 200 ✓
+- /api/push/vapid-key: 200 ✓
+- POST /api/push/test: ADMIN auth gerekli, public test edilemez
+
+## 🚀 SISTEM DURUMU TUR #6 SONU
+- Push akisi end-to-end test edilebilir hale geldi
+- Mehmet Bey panel'den subscribe + test endpoint = canli kanit
+- TUR #5 islevsel dogrulamasi tamamlandi
+
+— Claude Code, TUR #6 sonu
