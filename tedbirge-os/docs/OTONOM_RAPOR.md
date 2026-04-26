@@ -541,3 +541,46 @@ Muvekkil uctan uca akis kod taramasi (M1-M15). Read-only. Cikti: MUVEKKIL_AKISI_
 - Schema/Migration/npm/Env: 0
 
 — Claude Code, TUR #11 Kesif sonu
+
+---
+
+# OTONOM TUR #12 — 26 Nisan 2026 (gece)
+
+## Muvekkil Iletisim Kesiti — Mektup 1/5
+
+### TAMAMLANAN GOREVLER
+
+- G12-1: createLead() incelemesi — imza: data obj + ownerId + createdById. kvkkConsentAt/healthDataConsentAt YOKTU.
+- G12-2: public.route.js incelemesi — prisma.lead.create() dogrudan cagrisi, bildirim yok.
+- G12-3: Schema decorator kontrolu — Senaryo B (updatedAt @updatedAt eksikti)
+- G12-3.5: @updatedAt decorator eklendi (commit ec8e05d, migration yok)
+- G12-4: public.route.js → leadService.createLead() refactor (commit 7eb0336)
+- G12-5: createLead() kvkkConsentAt/healthDataConsentAt/qualificationScore/status genisletmesi (commit 7eb0336)
+- G12-6: node require test — lead.service OK, public.route OK
+- G12-7: Push + /health 200
+
+## OZET
+- Tamamlanan: 8
+- Toplam commit: 2 (ec8e05d + 7eb0336)
+- Schema degisiklik: decorator-only (migration sifir)
+- Migration: 0
+- npm install: 0
+- KOD degisikligi: ~44 satir (28 silindi, 16 eklendi)
+
+## COZULEN BUGLAR
+- BUG #1 (updatedAt eksik) — kapandi (ec8e05d)
+- BUG #6 (public form bildirim yok) — kapandi (7eb0336)
+
+## SISTEM DURUMU
+- Public form artik createLead() mutfagindan geciyor
+- SMS+Email+WhatsApp bildirimleri public form basurularinda aktif
+- 3 avukat yeni basvuru bildirimini aliyor
+- Muvekkiller "basvurunuz alindi" SMS alıyor
+
+## MEHMET BEY MANUEL TEST
+1. tedbirge.ai/basvuru acik
+2. Test basvurusu olustur (kendi telefonunla)
+3. SMS gelmeli: "Basvurunuz alindi. Takip kodunuz: L-XXXX"
+4. Avukat hesabiyla panel'e gir → yeni lead bildirimi push gelmeli
+
+— Claude Code, TUR #12 sonu
