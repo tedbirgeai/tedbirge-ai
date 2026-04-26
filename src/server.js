@@ -43,7 +43,18 @@ const server = app.listen(env.port, () => {
   // SMTP bağlantı kontrolü — mock modda sessizce atlanır
   if (process.env.OS_ENABLED !== "false") {
     tedbirgeOS.runBoot().then(r => {
-      if (r.ok) { logger.info(`[OS] Boot OK (${r.steps.length} step, ${r.totalMs}ms)`); tedbirgeOS.startReconciler(); logger.info("[OS] Reconciler started"); }
+      if (r.ok) {
+        logger.info(`[OS] Boot OK (${r.steps.length} step, ${r.totalMs}ms)`);
+        tedbirgeOS.startReconciler();
+        logger.info("[OS] Reconciler started");
+        ['auditor', 'healer', 'reporter'].forEach(name => {
+          const mod = tedbirgeOS.modules[name];
+          if (mod && typeof mod.start === 'function') {
+            try { mod.start(); logger.info(`[OS] ${name} started`); }
+            catch(e) { logger.error(`[OS] ${name}.start() failed: ${e.message}`); }
+          }
+        });
+      }
       else { logger.error(`[OS] Boot failed: ${r.steps.filter(s=>!s.ok).map(s=>s.name).join(", ")}`); }
     }).catch(err => logger.error(`[OS] Boot threw: ${err.message}`));
   }
