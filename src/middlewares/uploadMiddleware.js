@@ -13,7 +13,7 @@ async function uploadToSupabase(fileBuffer, filename, mimetype) {
   const { createClient } = require("@supabase/supabase-js");
   const supabase = createClient(
     process.env.SUPABASE_URL,
-    process.env.SUPABASE_SERVICE_KEY
+    process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.SUPABASE_SERVICE_KEY
   );
   const { data, error } = await supabase.storage
     .from(SUPABASE_BUCKET)

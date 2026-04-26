@@ -9,12 +9,12 @@ const path = require("path");
 
 const SUPABASE_BUCKET = process.env.SUPABASE_STORAGE_BUCKET || "";
 const SUPABASE_URL = process.env.SUPABASE_URL || "";
-const SUPABASE_SERVICE_KEY = process.env.SUPABASE_SERVICE_KEY || "";
+const SUPABASE_SERVICE_KEY = process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.SUPABASE_SERVICE_KEY || "";
 
 function getSupabaseClient() {
   const { createClient } = require("@supabase/supabase-js");
   if (!SUPABASE_URL || !SUPABASE_SERVICE_KEY) {
-    throw new Error("SUPABASE_URL ve SUPABASE_SERVICE_KEY env değerleri eksik.");
+    throw new Error("SUPABASE_URL ve SUPABASE_SERVICE_ROLE_KEY env degerleri eksik.");
   }
   return createClient(SUPABASE_URL, SUPABASE_SERVICE_KEY);
 }
