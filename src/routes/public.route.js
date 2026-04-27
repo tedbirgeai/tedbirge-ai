@@ -1,5 +1,6 @@
 ﻿const express = require("express");
 const router = express.Router();
+const { publicQueryLimiter } = require("../middlewares/rateLimiters");
 const env = require("../config/env");
 const prisma = require("../config/db");
 const upload = require("../middlewares/uploadMiddleware");
@@ -466,7 +467,7 @@ router.get("/verify-html/:id", async (req, res) => {
  *
  * Döner: status, assignedLawyerFirstName, lastUpdated
  */
-router.get("/leads/query", async (req, res) => {
+router.get("/leads/query", publicQueryLimiter, async (req, res) => {
   try {
     const phone = req.query.phone ? String(req.query.phone).trim() : null;
     const code  = req.query.code  ? String(req.query.code).trim()  : null;

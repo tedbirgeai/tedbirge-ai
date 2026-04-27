@@ -27,4 +27,13 @@ const passwordResetLimiter = rateLimit({
   legacyHeaders: false,
 });
 
-module.exports = { authLimiter, registerLimiter, passwordResetLimiter };
+// Public basvuru durum sorgusu — brute-force koruması
+const publicQueryLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000, // 15 dakika
+  max: 20,
+  message: { success: false, message: "Cok fazla sorgu. Lutfen 15 dakika sonra tekrar deneyin." },
+  standardHeaders: true,
+  legacyHeaders: false,
+});
+
+module.exports = { authLimiter, registerLimiter, passwordResetLimiter, publicQueryLimiter };
