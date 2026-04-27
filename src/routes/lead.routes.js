@@ -34,6 +34,7 @@ router.patch("/:id/unarchive", auth, role("ADMIN", "SALES", "REPRESENTATIVE"), c
 router.patch("/:id/restore",   auth, role("ADMIN"), controller.restoreLead);
 router.delete("/:id",          auth, role("ADMIN"), controller.softDeleteLead);
 router.delete("/:id/gdpr-delete", auth, controller.gdprDelete);
+router.get("/:id/gdpr-export",   auth, role("ADMIN"), controller.gdprExport);
 router.get("/:id/emsal", auth, role("ADMIN","SALES","LAWYER"), controller.getEmsalKararlar);
 router.get("/:id/kaza-raporu", auth, role("ADMIN","SALES","LAWYER"), controller.getKazaRaporu);
 router.get("/:id/generate-petition", auth, role("ADMIN","SALES","LAWYER"), controller.generateLeadPetition);

@@ -490,6 +490,39 @@ exports.gdprDelete = asyncHandler(async (req, res) => {
   res.json({ success: true, message: `Lead ${lead.leadCode} ve tüm ilişkili veriler silindi.` });
 });
 
+exports.gdprExport = asyncHandler(async (req, res) => {
+  const { id } = req.params;
+
+  const lead = await prisma.lead.findUnique({
+    where: { id },
+    include: {
+      activities: true,
+      assignments: true,
+      Bilirkisi: true,
+      messages: true,
+      ChatSession: true,
+      contracts: true,
+      davaSurec: true,
+      documents: true,
+      durusmalar: true,
+      ihtarnameler: true,
+      Masraf: true,
+      Petition: true,
+      uyapDosyaSyncs: true,
+    },
+  });
+
+  if (!lead) {
+    return res.status(404).json({ success: false, message: "Lead bulunamadı." });
+  }
+
+  res.json({
+    success: true,
+    exportedAt: new Date().toISOString(),
+    exportedBy: req.user.email,
+    data: lead,
+  });
+});
 
 exports.addActivityNote = asyncHandler(async (req, res) => {
   const { id } = req.params;
