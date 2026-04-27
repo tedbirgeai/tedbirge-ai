@@ -1,4 +1,5 @@
 ﻿const prisma = require("../config/db");
+const { calculateQualificationScore } = require("./analyzer.service");
 const { runWorkflow } = require("./workflow.service");
 const { buildDocumentDraftTexts } = require("./document-template.service");
 const ApiError = require("../utils/ApiError");
@@ -70,6 +71,11 @@ async function createLead(data, ownerId = null, createdById = null) {
   await prisma.activityLog.create({
     data: { leadId: lead.id, action: "BILDIRIM_GONDERILDI", detail: `Başvuru alındı bildirimi gönderildi (SMS + WhatsApp + e-posta). Takip: ${lead.leadCode}` },
   }).catch(() => {});
+
+  // Nitelendirme skoru — async, bloke etmez
+  calculateQualificationScore(lead.id).catch((err) =>
+    console.error("[QUALIFY] Skor tetiklenemedi:", err.message)
+  );
 
   return lead;
 }
