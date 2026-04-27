@@ -1,10 +1,42 @@
 "use strict";
 
 const Anthropic = require("@anthropic-ai/sdk");
+const crypto = require("crypto");
 const { calculateCompensationEngine } = require("./compensation.engine");
 const analysisConfig = require("../config/analysis.config");
+const prisma = require("../config/db");
 
 const MODEL = "claude-sonnet-4-6";
+
+// KVKK m.10 — algoritmik seffaflik audit logu (best-effort)
+async function logAIUsage(purpose, inputText, outputText, opts = {}) {
+  const { userId, leadId, latencyMs } = opts;
+  const hash = inputText
+    ? crypto.createHash("sha256").update(inputText).digest("hex")
+    : "";
+  const dataSent = `hash:${hash} | snippet:${(inputText || "").slice(0, 200)}`;
+
+  if (!userId) {
+    console.log(`[AI] AIUsageLog purpose=${purpose} size=${(inputText || "").length} hash=${hash.slice(0, 8)}`);
+    return;
+  }
+  try {
+    await prisma.aIUsageLog.create({
+      data: {
+        userId,
+        leadId: leadId || null,
+        aiService: `anthropic/${MODEL}`,
+        purpose,
+        inputSize: (inputText || "").length,
+        outputSize: (outputText || "").length,
+        dataSent,
+        latencyMs: latencyMs || null,
+      },
+    });
+  } catch (err) {
+    console.error("[AI] AIUsageLog kayit hatasi:", err.message);
+  }
+}
 
 function isMockMode() {
   return analysisConfig.analysisMode === "mock";
@@ -21,7 +53,7 @@ function getClient() {
  * @param {string} text - OCR veya ham belge metni
  * @returns {Promise<{type: string, subType: string, confidence: number, summary: string, keyFindings: string[]}>}
  */
-async function interpretResponse(text) {
+async function interpretResponse(text, ctx = {}) {
   if (!text || text.trim().length < 10) {
     return { type: null, subType: null, confidence: 0, summary: "", keyFindings: [] };
   }
@@ -38,6 +70,8 @@ async function interpretResponse(text) {
 
   const client = getClient();
 
+  const inputText = `Şu belgeyi analiz et:\n\n${text.slice(0, 6000)}`;
+  const t0 = Date.now();
   const message = await client.messages.create({
     model: MODEL,
     max_tokens: 512,
@@ -51,15 +85,11 @@ Yalnızca geçerli JSON formatında yanıt ver (başka metin ekleme):
   "summary": "Türkçe kısa özet, 1-2 cümle",
   "keyFindings": ["bulgu1", "bulgu2"]
 }`,
-    messages: [
-      {
-        role: "user",
-        content: `Şu belgeyi analiz et:\n\n${text.slice(0, 6000)}`
-      }
-    ]
+    messages: [{ role: "user", content: inputText }]
   });
 
   const raw = (message.content[0]?.text || "").trim();
+  await logAIUsage("interpretResponse", inputText, raw, { ...ctx, latencyMs: Date.now() - t0 });
 
   try {
     const jsonMatch = raw.match(/\{[\s\S]*\}/);
@@ -77,7 +107,7 @@ Yalnızca geçerli JSON formatında yanıt ver (başka metin ekleme):
  * @param {Array} [documents] - Lead'e ait belgeler (parsedText içeren)
  * @returns {Promise<string>} Üretilen dilekçe metni
  */
-async function generatePetition(lead, type, documents = []) {
+async function generatePetition(lead, type, documents = [], ctx = {}) {
   if (isMockMode()) {
     return `[MOCK DİLEKÇE - ${type || "GENEL"}]\n\nMüvekkil: ${lead?.customerName || "Belirtilmemiş"}\nBu dilekçe MOCK modunda üretilmiştir. Gerçek analiz için ANALYSIS_MODE=real olarak ayarlayın.`;
   }
@@ -174,6 +204,8 @@ Bilirkişi raporuna itiraz dilekçesi yaz.
 Müvekkil lehine alternatif hesaplama öner.`;
   }
 
+  const petitionInput = `Aşağıdaki müvekkil bilgileri için "${petitionLabel}" hazırla:\n\n${leadContext}${extractedFromDocs}${typeSpecificPrompt ? `\n\nÖZEL TALİMATLAR:\n${typeSpecificPrompt}` : ""}`;
+  const t0 = Date.now();
   const message = await client.messages.create({
     model: MODEL,
     max_tokens: 3000,
@@ -192,15 +224,12 @@ Güncel 2026 hukuki limitleri ve referansları:
 - Sigorta itiraz süresi: poliçe red tebliğinden 2 yıl
 - Yargıtay 17. HD: trafik kazalarında tam kusur tespiti gerekir
 - Yargıtay 21. HD: iş kazasında SGK rücu alacağı TBK m.49 kapsamında`,
-    messages: [
-      {
-        role: "user",
-        content: `Aşağıdaki müvekkil bilgileri için "${petitionLabel}" hazırla:\n\n${leadContext}${extractedFromDocs}${typeSpecificPrompt ? `\n\nÖZEL TALİMATLAR:\n${typeSpecificPrompt}` : ""}`
-      }
-    ]
+    messages: [{ role: "user", content: petitionInput }]
   });
 
-  return message.content[0]?.text || "";
+  const output = message.content[0]?.text || "";
+  await logAIUsage("generatePetition", petitionInput, output, { ...ctx, leadId: lead?.id, latencyMs: Date.now() - t0 });
+  return output;
 }
 
 // Yardımcı: belge metninden regex ile değer çıkar
@@ -216,7 +245,7 @@ function _extractFromDocs(text, regex) {
  * @param {object} [lead={}] - İsteğe bağlı lead verisi (yaş, gelir, kusur oranı)
  * @returns {Promise<object>} Compensation engine sonuçları + Claude'un hukuki analizi
  */
-async function analyzeDocument(text, lead = {}) {
+async function analyzeDocument(text, lead = {}, ctx = {}) {
   if (!text || text.trim().length < 20) {
     return {
       error: "Analiz için yeterli metin bulunamadı",
@@ -256,6 +285,8 @@ async function analyzeDocument(text, lead = {}) {
     `Dosya güç skoru        : ${engineResult.legalRisk.fileStrengthScore} (${engineResult.legalRisk.fileStrengthLevel})`,
   ].join("\n");
 
+  const analyzeInput = `Belge metni (ilk 4000 karakter):\n${text.slice(0, 4000)}\n\n---\nOtomatik analiz sonuçları:\n${engineSummary}\n\nBu dosyayı hukuki açıdan değerlendir ve dava stratejisi öner.`;
+  const t0 = Date.now();
   const message = await client.messages.create({
     model: MODEL,
     max_tokens: 1024,
@@ -263,15 +294,11 @@ async function analyzeDocument(text, lead = {}) {
 Sana bir belge metni ve otomatik ön analiz sonuçları verilecek.
 Görevin: ön analizi değerlendir, hesaplamadaki zayıf/eksik noktaları belirt ve müvekkil lehine hukuki strateji öner.
 Yanıtını maddeler halinde, Türkçe ve profesyonel bir hukuk diliyle yaz.`,
-    messages: [
-      {
-        role: "user",
-        content: `Belge metni (ilk 4000 karakter):\n${text.slice(0, 4000)}\n\n---\nOtomatik analiz sonuçları:\n${engineSummary}\n\nBu dosyayı hukuki açıdan değerlendir ve dava stratejisi öner.`
-      }
-    ]
+    messages: [{ role: "user", content: analyzeInput }]
   });
 
   const aiAnalysis = message.content[0]?.text || "";
+  await logAIUsage("analyzeDocument", analyzeInput, aiAnalysis, { ...ctx, leadId: lead?.id, latencyMs: Date.now() - t0 });
 
   return {
     ...engineResult,
