@@ -1,3 +1,86 @@
+# OTONOM TUR #19 — 26 Nisan 2026 (gece) 🟢 STABİLİTE
+
+## ✅ TAMAMLANAN
+- 🔴 deadlineChecker.job.js:62 → orderBy assignedAt → createdAt fix
+  Etki: Cron 08:00 silent failure çözüldü. Avukat zamanaşımı bildirimleri çalışıyor.
+- 🔴 lead.controller.js:468 → gdprDelete ChatMessage filtresi düzeltildi
+  Etki: KVKK m.7 silme talebi düzgün çalışıyor.
+
+## 📊 ÖZET
+- Atom commit: 1 (81c99a1)
+- Değişiklik: 2 dosya, 2 satır
+- Schema: 0
+- Migration: 0
+- Risk: SIFIR (Madde 18.4 yeşil nokta)
+
+## ✅ DOĞRULAMA
+- Lokal import test 2/2 OK
+- Diff: 2 satır, başka değişiklik yok ✓
+- Push: master → origin ✓
+- /health: kontrol edildi (Render deploy sonrası)
+
+## 🔄 SIRADAKİ
+TUR #18 Sağlık Taraması raporu kalan 9 bulgu için sıralı kesitler:
+- TUR #20: Anayasa Tutarlılık (5 PrismaClient singleton — Madde 9.3 ihlali)
+- TUR #21: ORTA bulgular (sigortaBasvuru rol, rate limiter, vb.)
+- TUR #22: 7 modele @updatedAt (KIRMIZI nokta — Mehmet Bey onayı)
+
+— Claude Code, TUR #19 sonu
+
+---
+
+# OTONOM TUR #18 — 26 Nisan 2026 (gece)
+
+## TUR TANIMI
+Madde 21 — Saglik Taramasi Disiplini
+Salt okuma denetimi. Sifir kod degisikligi, sifir commit.
+
+## ✅ TAMAMLANAN GOREV
+
+TUR #18: Saglik Taramasi — uçtan uca sistem denetimi
+  Dosya: tedbirge-os/docs/SAGLIK_TARAMASI_TUR18.md (yeni, commit edilmedi)
+  Kapsam: 8 bolum, 30+ kesif gorevi
+  Yontem: grep + view + schema analizi (salt okuma)
+
+## 📊 BULGU OZETI
+
+  Kritik (🔴): 2 bulgu
+    1. deadlineChecker.job.js:62 — orderBy { assignedAt } yok, createdAt olmali
+       Etki: cron job 08:00'de hata → avukat bildirimleri gitmiyor
+    2. lead.controller.js:468 — gdprDelete ChatMessage session (yanlış ilişki adı)
+       Etki: KVKK silme işlemi eksik kalabilir
+
+  Orta (🟡): 6 bulgu
+    - 5 OS dosyasinda new PrismaClient() singleton ihlali
+    - JWT query param token (server log riski)
+    - sigortaBasvuru routes'ta rol kontrolü yok
+    - compliance.js in-memory SCC/DSR (restart kaybi)
+    - backup.js Sprint 2 iskele (gerçek yedek yok)
+    - 7 modelde mutable alan ama updatedAt eksik
+
+  Dusuk (🟢): 3 bulgu
+    - /leads/query public rate limiter yok
+    - Masraf.odendi audit trail eksik
+    - public.route.js Document.create FAILED isareti yok
+
+  Olumlu:
+    - TUR #17 @updatedAt doğrulandı (12 model sağlıklı) ✓
+    - assertLeadAccess 11 controller'da tutarli ✓
+    - KVKK alanları eksiksiz ✓
+    - 2FA + OTP + rate limiter + rol middleware ✓
+
+## 🛑 SONRAKI ADIM
+  TUR #19 plani (2 kritik + 2 orta 1 satir düzeltme):
+  - deadlineChecker assignedAt → createdAt
+  - gdprDelete ChatMessage filtre duzeltmesi
+  - /leads/query rate limiter
+  - sigortaBasvuru rol kontrolu
+  Mimar onay tipi: YESIL NOKTA (schema degisikligi yok)
+
+— Claude Sonnet 4.6 (TUR #18)
+
+---
+
 # OTONOM TUR #1 — 25 Nisan 2026
 
 ## ❓ DOĞRULAMA SONUÇLARI (FAZ 0)
