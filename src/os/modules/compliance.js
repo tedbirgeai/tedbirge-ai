@@ -221,10 +221,10 @@ async function checkSccExpirations() {
 // ============================================================================
 
 /**
- * Veri sahibi talebi ekle (erisim, silme, tasima, duzeltme).
+ * Veri sahibi talebi ekle (erisim, silme, tasima, duzeltme) — in-memory + DB create.
  * @param {object} req - { type, requesterId, payload? }
  */
-function addRequest(req) {
+async function addRequest(req) {
   if (!req?.type || !req?.requesterId) {
     throw new Error("addRequest: type + requesterId zorunlu");
   }
@@ -248,6 +248,21 @@ function addRequest(req) {
   };
 
   dsrQueue.set(id, record);
+
+  try {
+    await prisma.dataSubjectRequest.create({
+      data: {
+        id,
+        requesterTC: String(req.requesterId),
+        requestType: req.type,
+        description: req.payload ? JSON.stringify(req.payload) : req.type,
+        status: DSR_STATUS.PENDING,
+      },
+    });
+  } catch (err) {
+    console.error("[COMPLIANCE] addRequest DB create hatasi:", err.message);
+  }
+
   return record;
 }
 
@@ -353,7 +368,33 @@ async function init() {
     }
     console.log(`[COMPLIANCE] init: ${records.length} SCC kaydi DB'den yuklendi`);
   } catch (err) {
-    console.error("[COMPLIANCE] init hatasi:", err.message);
+    console.error("[COMPLIANCE] init SCC hatasi:", err.message);
+  }
+
+  // DSR seed — bekleyen talepler
+  try {
+    const dsrRecords = await prisma.dataSubjectRequest.findMany({
+      where: { status: { in: [DSR_STATUS.PENDING, DSR_STATUS.IN_PROGRESS] } },
+    });
+    for (const r of dsrRecords) {
+      if (!dsrQueue.has(r.id)) {
+        dsrQueue.set(r.id, {
+          id: r.id,
+          type: r.requestType,
+          requesterId: r.requesterTC,
+          payload: null,
+          requestedAt: r.receivedAt?.toISOString() || new Date().toISOString(),
+          dueBy: new Date(
+            (r.receivedAt?.getTime() || Date.now()) + DSR_SLA_DAYS * 24 * 60 * 60 * 1000
+          ).toISOString(),
+          status: r.status,
+          completedAt: r.respondedAt?.toISOString() || null,
+        });
+      }
+    }
+    console.log(`[COMPLIANCE] init: ${dsrRecords.length} DSR kaydi DB'den yuklendi`);
+  } catch (err) {
+    console.error("[COMPLIANCE] init DSR hatasi:", err.message);
   }
 }
 
