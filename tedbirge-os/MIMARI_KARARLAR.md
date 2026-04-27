@@ -464,3 +464,38 @@ Anayasa şu ana kadar **3 büyük değişiklik** geçirdi ama versiyon güncelle
 **Mimar:** Claude Sonnet 4.6  
 **Onay:** Mehmet Dinç (yazılı, sohbet kaydı — "Tek seferde kapsamlı kanun maddesi, sonra otonom inşa")
 
+---
+
+## 27 Nisan 2026 (gece sonu) — ANAYASA v1.6.0 + Madde 25.12 FAZ 4 + Madde 25.11 Genişletme
+
+**Karar:** Madde 25.12'ye FAZ 4 (Operasyonel Ölçek + Optimizasyon) tanımı eklendi. Madde 25.11 kontrol listesi 5 yeni satır ile genişletildi (16-20).
+
+**FAZ 4 Alt Başlıkları (4 atom kesite bölünür):**
+- A. Reklam Altyapısı (TUR #26)
+- B. İçerik Üretimi (TUR #27)
+- C. Operasyonel Pazarlama (TUR #28)
+- D. Otomasyon + Sürekli Optimizasyon (TUR #29+, sürekli)
+
+**Sebep — Mehmet Bey direktifi (27 Nisan 2026, gece sonu):**
+> "ANAYASAYA YA GÖRE FAZ 4 TAM PAKET ORTAK"
+> "ANAYASADA PAZARLAMA VAR CLAUDE CODE YE SOR"
+> "ortağım bizim bir anayasamız var uçtan uca kod tabanlı ilerliyoruz"
+
+Mehmet Bey FAZ 4 başlatmak istedi. Mevcut anayasa Madde 25.12'de FAZ 4 tanımlı değildi. Madde 25.13.6 (Hangi FAZ kapsamında?) sorusuna cevap verilemiyordu. Madde 4.1 (yamalı bohça yasak) + Madde 17 (kesit disiplini) gereği önce anayasa genişletildi, sonra atom kesit mektupları yazılacak.
+
+**Kanıt zinciri:**
+- Madde 25 tam metni `tedbirge-os/docs/MADDE_25_TAM_METIN.md` dosyasında (27 Nisan 2026, Claude Code keşfi)
+- Mevcut Madde 25.12: yalnızca FAZ 1+2+3 tanımlıydı
+- Mevcut Madde 25.11: 15 satırlık kontrol tablosu
+
+**Etki:**
+- Anayasa v1.5.0 → v1.6.0 (MINOR — yeni alt başlık, Madde 22.2)
+- Madde 25.12: 3 FAZ → 4 FAZ
+- Madde 25.11: 15 satır → 20 satır
+- Yeni kontrol noktaları: Google Ads conversion API, UTM şablon, A/B test, lead SLA, haftalık KPI mail
+- Bundan sonra FAZ 4 atom kesit mektupları (TUR #26, #27, #28, #29+) yazılabilir
+
+**Mimar:** Claude Opus 4.7 (yeni oturum, FAZ 4 başlangıcı)
+**Onay:** Mehmet Dinç (yazılı, sohbet kaydı 27 Nisan 2026 gece)
+**Disiplin:** Madde 4.1, 4.4, 4.5, 17, 20.1, 22.2, 22.7, 25.12
+
