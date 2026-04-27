@@ -1,3 +1,38 @@
+# OTONOM TUR #21 — 27 Nisan 2026 🟢 AUTH/YETKİ SERTLEŞTİRME
+
+## ✅ TAMAMLANAN
+- 🟡 authMiddleware.js: JWT query param token kaldırıldı (token sızıntı riski kapatıldı)
+- 🟡 sigortaBasvuru.routes.js: roleMiddleware eklendi — POST/PATCH → ADMIN/SALES/LAWYER/REPRESENTATIVE
+- 🟡 rateLimiters.js: publicQueryLimiter eklendi (15 dk × 20 istek)
+- 🟡 public.route.js: /leads/query endpoint'ine publicQueryLimiter uygulandı
+
+## 📊 ÖZET
+- Atom commit: 1 (6cbc39e — 4 dosya, 16 satır net değişiklik)
+- Schema/Migration: 0
+- Risk: SIFIR (Madde 18.4 yeşil nokta)
+- Sağlık Taraması TUR #18 raporundaki 3 ORTA güvenlik bulgusu KAPALI
+
+## ✅ DOĞRULAMA
+- Lokal import test 4/4 OK
+- Diff: sadece hedeflenen değişiklikler ✓
+- Push: master → origin ✓
+- /health: 200 (Render deploy sonrası)
+
+## 🎯 KAZANIM
+- Token sızıntı riski (server log/browser history) → KAPALI
+- sigortaBasvuru CUSTOMER kötüye kullanım riski → KAPALI
+- /leads/query brute-force riski → KAPALI
+
+## 🔄 SIRADAKİ
+TUR #18 Sağlık Taraması raporunun kalan bulguları:
+- TUR #22: Schema @updatedAt 7 modele ekleme (KIRMIZI nokta — Mehmet Bey onayı şart)
+- TUR #23: compliance.js DB entegrasyonu (in-memory SCC/DSR → DB)
+- TUR #24: backup.js gerçek pg_dump (kesit, planlı)
+
+— Claude Code, TUR #21 sonu
+
+---
+
 # OTONOM TUR #20 — 27 Nisan 2026 🟢 ANAYASA TUTARLILIK
 
 ## ✅ TAMAMLANAN
