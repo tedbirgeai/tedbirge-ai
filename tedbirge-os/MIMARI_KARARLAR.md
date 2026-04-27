@@ -428,3 +428,39 @@ Anayasa şu ana kadar **3 büyük değişiklik** geçirdi ama versiyon güncelle
 
 **Mimar:** Claude Opus 4.7  
 **Onay:** Mehmet Dinç (yazılı, sohbet kaydı)
+
+---
+
+## 27 Nisan 2026 (akşam) — Anayasa v1.5.0: Madde 25 (Pazarlama + Web + Marka Kapsamlı)
+
+**Karar:** Pazarlama + Web Yüzü + Marka Disiplini Madde 25 olarak anayasaya eklendi (kapsamlı).
+
+**Kapsam:** 14 alt madde:
+- 25.1 Tedbirge'in pazarlamadaki sıfatı
+- 25.2 Marka mesajı
+- 25.3 KIRMIZI çizgi yasaklı vaatler
+- 25.4 İzinli mesaj çerçevesi
+- 25.5 Web arayüzü (marka kimliği + yasal bileşenler + dönüşüm yüzeyi + görsel/etkileşim + mobil + a11y)
+- 25.6 Sosyal medya disiplini
+- 25.7 KVKK + İYS + pazarlama veri
+- 25.8 Yanıltıcı bilgi denetimi
+- 25.9 İzinli kanallar + araçlar
+- 25.10 Pazarlama verisi audit
+- 25.11 Kod altyapı zorunlulukları (15 satır kontrol listesi)
+- 25.12 Üç faz disiplini (FAZ 1 → 2 → 3)
+- 25.13 7 sorulu pazarlama kararı filtresi
+- 25.14 Yabancı pazar ayrımı (Madde 26'ya bırakıldı)
+
+**Kanıt zemini:** PAZARLAMA_FIZIBILITE.md (27 Nisan 2026) — 5 KRİTİK eksik tespit edildi (cookie banner, GA4/Pixel, İYS opt-out, UTM frontend, qualificationScore).
+
+**Sıradaki adım:** TUR #25 FAZ 1 mektubu (Yasal + Ölçüm Temeli — Cookie banner, aydınlatma, GA4, Pixel, UTM fix, İYS, robots/sitemap). Otonom inşa Madde 18.2 disiplini ile.
+
+**Sınır:** Sadece Türkiye geneli. Yabancı plaka + çoklu dil pazarlama Madde 26'da.
+
+**Etki:**
+- Anayasa v1.4.0 → v1.5.0 (MINOR — yeni madde, Madde 22.2)
+- 23 madde + 1 kapanış → 24 madde + 1 kapanış (Madde 25 eklendi)
+
+**Mimar:** Claude Sonnet 4.6  
+**Onay:** Mehmet Dinç (yazılı, sohbet kaydı — "Tek seferde kapsamlı kanun maddesi, sonra otonom inşa")
+
