@@ -58,6 +58,7 @@ model Bilirkisi {
   itirazTarihi  DateTime?
   itirazIcerigi String?
   createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
   Lead          Lead      @relation(fields: [leadId], references: [id])
 }
 
@@ -161,6 +162,7 @@ model Durusma {
   aciklama     String?
   hatirlatildi Boolean  @default(false)
   createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
   Lead         Lead     @relation(fields: [leadId], references: [id])
 }
 
@@ -280,6 +282,7 @@ model Masraf {
   aciklama  String?
   odendi    Boolean  @default(false)
   createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
   Lead      Lead     @relation(fields: [leadId], references: [id])
 }
 
@@ -579,6 +582,7 @@ model UYAPDosyaSync {
   sonGuncelleme DateTime
   fullPayload   Json
   syncedAt      DateTime @default(now())
+  updatedAt     DateTime @updatedAt
 
   @@index([leadId])
   @@index([syncedAt])
@@ -594,6 +598,7 @@ model UYAPTebligat {
   receivedAt   DateTime @default(now())
   readByLawyer Boolean  @default(false)
   linkedLeadId String?
+  updatedAt    DateTime @updatedAt
 
   @@index([lawyerId, readByLawyer])
   @@index([dosyaNo])
@@ -610,6 +615,7 @@ model SBMSorgu {
   sorgulayanId String
   sorgulayan   User     @relation("SBMSorgular", fields: [sorgulayanId], references: [id])
   createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
 
   @@unique([sorguTipi, sorguAnahtar])
   @@index([sorgulayanId])
@@ -667,6 +673,7 @@ model DataSubjectRequest {
   handlerId    String?
   handler      User?     @relation("DataSubjectRequestsHandled", fields: [handlerId], references: [id])
   responseNote String?   @db.Text
+  updatedAt    DateTime  @updatedAt
 
   @@index([status, receivedAt])
   @@index([requesterTC])

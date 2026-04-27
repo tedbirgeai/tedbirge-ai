@@ -1,0 +1,24 @@
+-- TUR #22: @updatedAt 7 modele eklendi (TUR #17 tamamlayicisi)
+-- Mevcut satirlar icin DEFAULT CURRENT_TIMESTAMP kullanildi
+-- Etkilenen modeller: Bilirkisi, Durusma, Masraf, UYAPDosyaSync, UYAPTebligat, DataSubjectRequest, SBMSorgu
+
+-- AlterTable
+ALTER TABLE "Bilirkisi" ADD COLUMN "updatedAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP;
+
+-- AlterTable
+ALTER TABLE "DataSubjectRequest" ADD COLUMN "updatedAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP;
+
+-- AlterTable
+ALTER TABLE "Durusma" ADD COLUMN "updatedAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP;
+
+-- AlterTable
+ALTER TABLE "Masraf" ADD COLUMN "updatedAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP;
+
+-- AlterTable
+ALTER TABLE "SBMSorgu" ADD COLUMN "updatedAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP;
+
+-- AlterTable
+ALTER TABLE "UYAPDosyaSync" ADD COLUMN "updatedAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP;
+
+-- AlterTable
+ALTER TABLE "UYAPTebligat" ADD COLUMN "updatedAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP;
