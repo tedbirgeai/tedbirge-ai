@@ -46,6 +46,11 @@ router.post("/public-lead", upload.single("file"), supabaseUploadMiddleware, asy
     const utmSource   = req.query.utm_source   || req.body.utm_source   || null;
     const utmMedium   = req.query.utm_medium   || req.body.utm_medium   || null;
     const utmCampaign = req.query.utm_campaign || req.body.utm_campaign || null;
+    const utmTerm     = req.query.utm_term     || req.body.utm_term     || null;
+    const utmContent  = req.query.utm_content  || req.body.utm_content  || null;
+    const gclid       = req.query.gclid        || req.body.gclid        || null;
+    const referrer    = req.body.referrer    || null;
+    const landingPage = req.body.landing_page || null;
 
     const lead = await leadService.createLead({
       customerName: String(fullName).trim(),
@@ -60,6 +65,11 @@ router.post("/public-lead", upload.single("file"), supabaseUploadMiddleware, asy
       utmSource:   utmSource   ? String(utmSource).slice(0, 100)   : null,
       utmMedium:   utmMedium   ? String(utmMedium).slice(0, 100)   : null,
       utmCampaign: utmCampaign ? String(utmCampaign).slice(0, 100) : null,
+      utmTerm:     utmTerm     ? String(utmTerm).slice(0, 100)     : null,
+      utmContent:  utmContent  ? String(utmContent).slice(0, 100)  : null,
+      gclid:       gclid       ? String(gclid).slice(0, 200)       : null,
+      referrer:    referrer    ? String(referrer).slice(0, 200)    : null,
+      landingPage: landingPage ? String(landingPage).slice(0, 200) : null,
     }, null, null);
 
     let document = null;
