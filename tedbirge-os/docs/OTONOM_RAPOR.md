@@ -1,3 +1,41 @@
+# TUR #23 KVKK PERSISTENCE — 27 Nisan 2026
+
+## ✅ TAMAMLANAN GÖREVLER (5)
+
+- C1: compliance.js — addScc() async DB upsert + init() SCC seed | Commit: `0c747e7`
+- C2: compliance.js — addRequest() async DB create + init() DSR seed | Commit: `666a577`
+- C3: lead.controller.js — gdprDelete cascade: 6 eksik tablo eklendi | Commit: `0d9977a`
+- C4: ai.service.js — logAIUsage() KVKK m.10 audit (SHA-256 hash, PII maskelendi) | Commit: `9169e18`
+- C5: lead.controller.js + lead.routes.js — GET /:id/gdpr-export (ADMIN) | Commit: `153edc8`
+
+## 📊 ÖZET
+- Tamamlanan: 5
+- Başarısız commit: 0
+- Push: ✅ `153edc8`
+- Health check: bekleniyor (5 dk arka plan)
+- Sıradaki: TUR #24 BACKUP MİMARİSİ (pg_dump)
+
+---
+
+# KVKK PERSISTENCE KEŞİF — 27 Nisan 2026 (Madde 21 — mini KEŞİF)
+
+## ✅ TAMAMLANDI
+- Kod değişikliği: SIFIR — Madde 21.2 tam uyum
+- Oluşturulan dosya: `tedbirge-os/docs/KVKK_PERSISTENCE_KESIF.md`
+- Commit/push: YOK
+
+## 📊 ÖZET
+- Okunan dosya sayısı: 7 (compliance.js, kvkk.js, boot.js, schema, lead.controller, 2 grep)
+- En kritik 3 bulgu:
+  1. 🔴 compliance.js / boot.js KOPUKLUK — SCC hiçbir zaman DB'ye yazılmıyor, boot her restart'ta uyarı üretiyor
+  2. 🔴 AIUsageLog schema-only — hiçbir servis yazmıyor, KVKK m.10 audit trail sıfır
+  3. 🔴 gdprDelete eksik cascade — Bilirkisi, Durusma, Masraf, UYAPDosyaSync, IhtarnameTakip, Petition silinmiyor
+- TUR #23 seçenek: A (dar, 3-4 saat) veya B (geniş, 1-2 hafta) — Mehmet Bey karar verecek
+
+— Claude Code, KVKK Persistence KEŞİF sonu
+
+---
+
 # OTONOM TUR #22 — 27 Nisan 2026 (sabah) 🔴 SCHEMA @updatedAt
 
 ## ✅ TAMAMLANAN

@@ -1,5 +1,5 @@
 # TEDBİRGE.AI YOL HARİTASI v1.0
-**Son güncelleme:** 27 Nisan 2026 (sabah)
+**Son güncelleme:** 27 Nisan 2026 (öğleden sonra)
 **Anayasa versiyonu:** v1.4.0 (Madde 24 sonrası)
 **İlke:** MoSCoW + Now-Next-Later hibrit (Madde 24.5)
 
@@ -12,14 +12,14 @@
 **Paydaş etkisi:** ADMIN, LAWYER (öncelikli)
 **Başlama:** 26 Nisan 2026
 **Tahmini bitiş:** 1 hafta içinde (kapasiteye göre)
-**Aktif tur:** TUR #22 (sonraki — Mehmet Bey onayı bekliyor)
+**Aktif tur:** TUR #24
 
 ### Kesit içi turlar
 - ✅ TUR #19 STABİLİTE — deadlineChecker + gdprDelete (kapandı, commit `81c99a1`)
 - ✅ TUR #20 ANAYASA TUTARLILIK — 5 PrismaClient singleton (kapandı, commit `36e741d`)
 - ✅ TUR #21 AUTH/YETKİ — JWT + sigortaBasvuru + rate limiter (kapandı, commit `6cbc39e`)
 - ✅ TUR #22 SCHEMA @updatedAt — 7 modele decorator (kapandı, commit `2135e12`)
-- ⏳ TUR #23 KVKK PERSISTENCE — compliance.js DB entegrasyonu + KVKK Aktarım Uyum (birleşik)
+- ✅ TUR #23 KVKK PERSISTENCE — compliance DB köprüsü + gdprDelete cascade + AIUsageLog + gdprExport (kapandı, commit `153edc8`)
 - ⏳ TUR #24 BACKUP MİMARİSİ — gerçek pg_dump (Sprint 3)
 
 ---
