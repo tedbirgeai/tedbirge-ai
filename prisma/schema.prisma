@@ -255,6 +255,11 @@ model Lead {
   utmSource             String?
   utmMedium             String?
   utmCampaign           String?
+  utmTerm               String?          // Google Ads keyword
+  utmContent            String?          // A/B test varyanti / banner ID
+  referrer              String?          // document.referrer
+  landingPage           String?          // Ilk gelinen URL (path)
+  gclid                 String?          // Google Click ID (server-side conversion)
   AccidentCase          AccidentCase[]
   activities            ActivityLog[]
   assignments           Assignment[]
