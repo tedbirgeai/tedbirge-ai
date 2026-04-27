@@ -14,7 +14,7 @@ async function logAIUsage(purpose, inputText, outputText, opts = {}) {
   const hash = inputText
     ? crypto.createHash("sha256").update(inputText).digest("hex")
     : "";
-  const dataSent = `hash:${hash} | snippet:${(inputText || "").slice(0, 200)}`;
+  const dataSent = `hash:${hash}`;
 
   if (!userId) {
     console.log(`[AI] AIUsageLog purpose=${purpose} size=${(inputText || "").length} hash=${hash.slice(0, 8)}`);
