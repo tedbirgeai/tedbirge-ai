@@ -1,3 +1,50 @@
+# OTONOM TUR #25 FAZ 1 — 27 Nisan 2026 🔴 KIRMIZI → 🟢 KAPANDI
+
+## ✅ MEHMET BEY YAZILI ONAYI: EVET (TUR #25 FAZ 1 onaylandı)
+
+## ✅ TAMAMLANAN (8 commit + 1 fix)
+
+- C1: react-cookie-consent npm install — panel `3307e18`
+- C2: CookieConsent.tsx + layout.tsx mount — `b2cadd2`
+- C3: GoogleAnalytics.tsx (cookie rıza bağlı) + .env.local.example GA4_ID — `a0526c2`
+- C4: UTM frontend — window.location.search zaten vardı, useSearchParams denendi → Suspense sorunu, eski yönteme revert — `9f3afd4`
+- C5: /kvkk-aydinlatma + /cerez-politikasi sayfaları (yurt dışı aktarım dahil) — `aecf46d`
+- C6: robots.ts + sitemap.ts dinamik (Next.js App Router) — `b9ce29d`
+- C7: unsubscribe.routes.js + email footer + SMS BIRAK opt-out — `c1322c3`
+- C8: Footer.tsx yasal linkler (KVKK Aydınlatma, Çerez, Kullanım Koşulları, İletişim) — `eb1f007`
+- Push: backend master `0ff9902..c1322c3` + panel `9f4456b..9f3afd4`
+- Build: ✓ 53 sayfa başarılı
+- Render /health: 200
+
+## 📊 ÖZET
+
+- 8+1 commit, 2 push
+- Schema değişikliği: YOK (yeşil nokta Madde 18.4)
+- Madde 25.11 kontrol listesi: 1, 2, 3, 5, 6, 7 KAPALI
+  - 4 (Meta Pixel) — Mehmet Bey kararı: yok bu turda
+  - 8-15 sonraki TUR'lar
+- UTM: window.location.search (useSearchParams → Suspense sorunu — eski yöntem korundu)
+
+## 🎯 KAZANIM (kalıcı)
+
+- KVKK m.10 aydınlatma yükümlülüğü tamam (/kvkk-aydinlatma)
+- Madde 24.10 yurt dışı aktarım açıklaması tamam
+- Cookie consent banner aktif (kabul → GA4 tetiklenir, red → sıfır pixel)
+- GA4 altyapı hazır (Mehmet Bey G-XXXXXXXXXX girecek)
+- 6563 sayılı kanun İYS opt-out altyapısı (email footer + SMS BIRAK)
+- SEO temeli (robots.txt + sitemap.xml, 6 URL)
+- Footer yasal link bütünlüğü
+
+## 🔄 SIRADAKİ
+
+- Mehmet Bey: GA4 hesabı aç → NEXT_PUBLIC_GA4_ID Vercel'e ekle
+- Mehmet Bey: Cookie banner test et (kabul/red)
+- Sonra TUR #25 FAZ 2 — Dönüşüm + Marka (qualificationScore + LexScan prefill + landing pages + anasayfa redesign)
+
+— Claude Code, TUR #25 FAZ 1 sonu
+
+---
+
 # TUR #23 KVKK PERSISTENCE — 27 Nisan 2026
 
 ## ✅ TAMAMLANAN GÖREVLER (5)
