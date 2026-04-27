@@ -1,3 +1,33 @@
+# OTONOM TUR #26 FAZ 4-A — 28 Nisan 2026 🟢 KAPANDI
+
+## ✅ TAMAMLANAN (6 commit — push onayı bekleniyor)
+
+**Atom 1 (Backend)** — Prisma schema + manual migration: 5 yeni UTM alan (utmTerm, utmContent, gclid, referrer, landingPage). `migrate deploy` ile production DB'ye uygulandı.
+  Commit: `95e9469` (backend)
+
+**Atom 2 (Panel)** — `lib/utm.ts` (sessionStorage tabanlı UTM persistence, KVKK-guvenli) + `UtmCapture.tsx` client wrapper. 3 nis landing page + basvuru/page.tsx guncellendi. Manuel UTM okuma kaldirildi, appendUtmToFormData ile 8 alan aktariliyor.
+  Commit: `d8bd044` (panel)
+
+**Atom 3 (Backend + Panel)** — Backend: public.route.js + lead.service.js 5 yeni alan. Panel: GoogleAnalytics.tsx'e trackEvent + trackConversion export. basvuru/page.tsx'e form_view (mount) + generate_lead (basari) GA4 events.
+  Commits: `f209386` (backend), `03143e8` (panel)
+
+**Atom 4 (Backend + Panel)** — ai.service.js PII fix: dataSent artik sadece hash (snippet kaldirildi, KVKK m.12). /iletisim sayfasi olusturuldu (Madde 25.5.2). sitemap.ts'e /iletisim eklendi.
+  Commits: `4ee923a` (backend), `27e6ef9` (panel)
+
+## 📊 OZET
+- Tamamlanan atom: 4 / 4
+- Commit: 6 (backend: 3, panel: 3)
+- Build: TEMİZ (62 sayfa statik)
+- Production DB migration: UYGULANMIS (prisma migrate status — 9/9 up-to-date)
+- Push: BEKLIYOR — Mehmet Bey toplu push onayi isteniyor
+- KVKK: AIUsageLog PII duzeltmesi uygulandı (Atom 4)
+
+## 🛑 DUR
+
+4 atom tamamlandi. Madde 18.2 — push oncesi Mehmet Bey onayi bekleniyor.
+
+---
+
 # OTONOM TUR #25 FAZ 3 — 27 Nisan 2026 (aksam) 🟢 KAPANDI
 
 ## ✅ TAMAMLANAN (5 commit)
