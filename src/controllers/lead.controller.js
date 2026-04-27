@@ -471,6 +471,12 @@ exports.gdprDelete = asyncHandler(async (req, res) => {
     prisma.assignment.deleteMany({ where: { leadId: id } }),
     prisma.document.deleteMany({ where: { leadId: id } }),
     prisma.activityLog.deleteMany({ where: { leadId: id } }),
+    prisma.bilirkisi.deleteMany({ where: { leadId: id } }),
+    prisma.durusma.deleteMany({ where: { leadId: id } }),
+    prisma.masraf.deleteMany({ where: { leadId: id } }),
+    prisma.uYAPDosyaSync.deleteMany({ where: { leadId: id } }),
+    prisma.ihtarnameTakip.deleteMany({ where: { leadId: id } }),
+    prisma.petition.deleteMany({ where: { leadId: id } }),
     prisma.lead.delete({ where: { id } }),
   ]);
 
