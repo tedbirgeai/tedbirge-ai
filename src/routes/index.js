@@ -26,6 +26,7 @@ const decisionSupportRoutes = require("./decision-support.routes");
 const sigortaBasvuruRoutes = require("./sigortaBasvuru.routes");
 const muhatapAIRoutes = require("./muhatapAI.routes");
 const adminOsRoutes = require("./admin.os.routes");
+const { router: unsubscribeRouter } = require("./unsubscribe.routes");
 
 const router = express.Router();
 
@@ -58,6 +59,7 @@ router.use("/leads", muhatapAIRoutes);
 router.use("/os", adminOsRoutes);
 router.use("/os", require("./os.events.routes"));
 router.use("/os/healer", require("./os.healer.routes"));
+router.use("/", unsubscribeRouter);
 router.use('/', publicRoutes);
 
 module.exports = router;

@@ -20,6 +20,7 @@
  */
 
 const nodemailer = require("nodemailer");
+const { generateUnsubscribeToken } = require("../routes/unsubscribe.routes");
 
 // ─── Transporter ──────────────────────────────────────────────────────────────
 
@@ -94,6 +95,19 @@ const FROM = () => process.env.SMTP_FROM
 
 const REPLY_TO = () => process.env.SMTP_REPLY_TO || process.env.SMTP_USER || null;
 
+// ─── İYS opt-out footer ──────────────────────────────────────────────────────
+
+function buildUnsubscribeFooter({ leadId, email }) {
+  try {
+    const token = generateUnsubscribeToken({ leadId, email, channel: "email" });
+    const base = process.env.PUBLIC_BASE_URL || "https://www.tedbirge.ai";
+    const url = `${base}/api/unsubscribe?token=${encodeURIComponent(token)}`;
+    return `<p style="font-size:11px;color:#94a3b8;margin-top:12px;text-align:center;">Bu iletiyi almak istemiyorsaniz <a href="${url}" style="color:#94a3b8;">buradan abonelikten cikabilirsiniz</a>. Tedbirge LegalTech.</p>`;
+  } catch {
+    return "";
+  }
+}
+
 // ─── HTML Şablon ──────────────────────────────────────────────────────────────
 
 function wrapHtml(title, body, opts = {}) {
@@ -147,7 +161,8 @@ function wrapHtml(title, body, opts = {}) {
     <div class="footer">
       Bu e-posta Tedbirge sistemi tarafından otomatik gönderilmiştir.<br/>
       Sorular için: <a href="mailto:destek@tedbirge.ai" style="color:#1E1E8E">destek@tedbirge.ai</a> &nbsp;|&nbsp;
-      <a href="https://tedbirge.ai/kvkk" style="color:#94a3b8">KVKK Aydınlatma</a>
+      <a href="https://tedbirge.ai/kvkk-aydinlatma" style="color:#94a3b8">KVKK Aydınlatma</a>
+      ${opts.unsubscribeFooter || ""}
     </div>
   </div>
 </body>
@@ -208,7 +223,7 @@ async function sendApplicationReceivedEmail(lead) {
     <p style="font-size:12px;color:#94a3b8;margin-top:24px">
       Bu platform yalnızca ön değerlendirme amacıyla çalışır. Kesin hukuki tavsiye için avukatınıza başvurunuz.
     </p>`,
-    { preheader: `Başvuru No: ${lead.leadCode} — Tedbirge` }
+    { preheader: `Başvuru No: ${lead.leadCode} — Tedbirge`, unsubscribeFooter: buildUnsubscribeFooter({ leadId: lead.id, email: lead.customerEmail }) }
   );
   return sendEmail({
     to: lead.customerEmail,

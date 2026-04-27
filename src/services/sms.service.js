@@ -173,7 +173,7 @@ async function sendStatusChangeSms(lead, newStatus) {
   const name  = (lead.customerName || "").split(" ")[0] || "Musterimiz";
   // Türkçe karakter kullanma — SMS segmentini küçük tut
   const msg = `Sayin ${name}, basvurunuz "${label}" asamasina gecti. ` +
-              `Detay: tedbirge.ai/basvuru-sorgula | Dosya: ${lead.leadCode || ""}`;
+              `Detay: tedbirge.ai/basvuru-sorgula | Dosya: ${lead.leadCode || ""} | Iptal: BIRAK`;
   return sendSms(lead.customerPhone, msg);
 }
 
