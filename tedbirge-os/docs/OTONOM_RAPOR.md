@@ -1,3 +1,42 @@
+# OTONOM TUR #20 — 27 Nisan 2026 🟢 ANAYASA TUTARLILIK
+
+## ✅ TAMAMLANAN
+- Anayasa Madde 9.3 ihlali kapatıldı: 5 OS dosyasında PrismaClient singleton geçişi
+  - src/bootstrap/dbSelfHeal.js (+ $disconnect kaldırıldı)
+  - src/os/reconciler.js
+  - src/os/idempotency.js
+  - src/os/eventBus.js
+  - src/os/boot.js
+- Tüm dosyalar artık src/config/db.js singleton'ını import ediyor
+- Not: Mektupta src/db/prisma.js belirtilmişti, gerçek singleton src/config/db.js'de bulundu
+
+## 📊 ÖZET
+- Atom commit: 1 (36e741d — 5 dosya, 1 mantıksal iş)
+- Schema/Migration: 0
+- Risk: SIFIR (Madde 18.4 yeşil nokta)
+- Auditor prisma_violation taraması artık 0 ihlal göstermeli
+
+## ✅ DOĞRULAMA
+- Lokal import test 5/5 OK
+- Diff: sadece hedeflenen değişiklikler ✓
+- Push: master → origin ✓
+- /health: 200 (Render deploy sonrası)
+
+## 🎯 KAZANIM
+- Connection pool baskısı azaldı (5 instance → 1 singleton)
+- Memory leak riski azaldı
+- Anayasa Madde 9.3 ihlali → KAPALI
+- Sistem mimarisi tutarlı
+
+## 🔄 SIRADAKİ
+TUR #18 Sağlık Taraması raporu kalan 6 ORTA + 3 DÜŞÜK bulgu:
+- TUR #21: ORTA bulgular (sigortaBasvuru rol, /leads/query rate limiter, JWT query token, vb.)
+- TUR #22: 7 modele @updatedAt (KIRMIZI nokta — Mehmet Bey onayı şart)
+
+— Claude Code, TUR #20 sonu
+
+---
+
 # OTONOM TUR #19 — 26 Nisan 2026 (gece) 🟢 STABİLİTE
 
 ## ✅ TAMAMLANAN
