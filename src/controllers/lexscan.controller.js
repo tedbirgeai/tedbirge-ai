@@ -36,7 +36,14 @@ HUKUKI ÇERÇEVE (kullan):
 YASAK:
 - "Avukat değilim" gibi sorumluluk reddi yazma (zaten ön değerlendirme platformu olduğu açık)
 - Kesin garanti verme
-- Rakip hukuk bürolarını önerme`;
+- Rakip hukuk bürolarını önerme
+
+BASVURU YONLENDIRME:
+Kullanici durumunu yeterince anlattiysa, yanita su JSON blogu ekle (sadece 1 kez, en sona):
+<<<TEDBIRGE_PREFILL>>>
+{"summary": "<kullanicinin anlattigi kaza ozetini Turkce yaz, max 300 karakter>", "accidentType": "<TRAFIK_KAZASI | IS_KAZASI | DIGER>"}
+<<<TEDBIRGE_PREFILL_END>>>
+Bu blok panel tarafindan okunur ve basvuru formunu otomatik doldurur. Kullaniciya gosterilmez.`;
 
 exports.chat = asyncHandler(async (req, res) => {
   const { messages, sessionId } = req.body;
