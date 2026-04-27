@@ -1,3 +1,23 @@
+# OTONOM TUR #25 FAZ 2 — 27 Nisan 2026 🟢 YESİL — KAPANDI
+
+## ✅ TAMAMLANAN (5 commit — Commit 4 atlandı, LexScan panel UI yok)
+
+- C1: analyzer.service.js calculateQualificationScore(leadId) + lead.service.js async tetikleyici — `c7bbdfc` (backend)
+- C2: lexscan.controller.js SYSTEM_PROMPT prefill marker <<<TEDBIRGE_PREFILL>>> — `b5315fa` (backend)
+- C3: basvuru/page.tsx ?prefill=<base64> URL param ile form prefill (useEffect, window.location.search) — `52033b1` (panel)
+- C4: ATLANDI — LexScan panel UI bulunamadi (tedbirge-panel'de lexscan sayfasi mevcut degil)
+- C5: 3 nis landing sayfasi + sitemap guncelleme — `9f40b0b` (panel)
+  - /trafik-kazasi-tazminat, /is-kazasi-tazminat, /sigorta-tazminat-reddedildi
+- C6: Anasayfa footer Hukuki Bilgi sutunu nis sayfalara yonlendirildi — `affdd3c` (panel)
+
+## 📊 ÖZET
+- Backend push: `b8f3c6c..b5315fa`
+- Panel push: `9f3afd4..affdd3c`
+- Uretim saglik: kontrol edilmeli (render deploy bekleniyor)
+- Sıradaki: Mehmet Bey dogrulama + TUR #25 FAZ 2 kapanisi
+
+---
+
 # OTONOM TUR #25 FAZ 1 — 27 Nisan 2026 🔴 KIRMIZI → 🟢 KAPANDI
 
 ## ✅ MEHMET BEY YAZILI ONAYI: EVET (TUR #25 FAZ 1 onaylandı)
