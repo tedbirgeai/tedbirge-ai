@@ -812,7 +812,218 @@ Versiyon kuralları **Madde 20.6 ile uyumlu** olmalı. Çelişki olursa Madde 20
 
 ---
 
-## 23. KAPANIŞ — NİYE BU ANAYASA VAR
+## 24. İŞ PLANI DİSİPLİNİ — Tedbirge'nin Konumu, Paydaşlar, Gelir Modeli, Yol Haritası
+
+### 24.1 İlke — Tedbirge'nin Konumu
+
+Tedbirge.ai bir **B2B SaaS LegalTech platformu**dur. Avukatlara teknolojik altyapı sağlar — hukuk hizmeti vermez. Avukatın hizmetini dijitalleştirir.
+
+**Yasal yapı:**
+- Sahibi: Mehmet Dinç (girişimci, şahıs şirketi)
+- Marka: Tedbirge (Türk Patent ve Marka Kurumu tescilli)
+- Faaliyet alanı: B2B yazılım hizmeti
+
+**Tedbirge taraf değildir:**
+- Müvekkil-Avukat sözleşmelerinde (Avukat doğrudan müvekkille sözleşme yapar)
+- Hukuki tavsiyede (Tedbirge öneri sunar, avukat karar verir)
+- Dava süreçlerinde (Avukat dava açar, Tedbirge süreç takip arayüzü sağlar)
+- KDV/stopaj yükümlülüklerinde (Avukatlık + Vekalet Kanunu — Avukat sorumlu)
+
+**Tedbirge taraftır:**
+- Avukat-Tedbirge platform sözleşmesinde (B2B müşteri ilişkisi)
+- Temsilci-Tedbirge sözleşmesinde (lead getirme, komisyon paylaşımı)
+- Veri işleme zincirinde (KVKK m.3 — Veri İşleyen sıfatıyla)
+- Kendi mali kayıtlarında (komisyon geliri, gelir vergisi)
+
+### 24.2 Paydaş Yapısı — 4 İç + 7 Dış Kategori
+
+**İç Paydaşlar (kullanıcı rolleri):**
+
+| Rol | Sıfat | Tedbirge ile İlişki |
+|---|---|---|
+| ADMIN | Tedbirge yöneticisi | Sistem sahibi |
+| LAWYER | Avukat (B2B müşteri) | Hizmet ücreti öder, sistemi kullanır |
+| REPRESENTATIVE | Temsilci (lead getiren) | Komisyon alır (%10) |
+| CUSTOMER | Müvekkil (avukatın müvekkili) | Avukat üzerinden değer alır |
+
+**Dış Paydaşlar (resmi muhataplar — 7 kategori):**
+
+A. İletişim Kanalları (NetGSM, Gmail, Meta WhatsApp, Web Push)
+B. AI/ML Sağlayıcıları (Anthropic, Tesseract, OCR.space)
+C. Veri/Depolama (Supabase)
+D. Ödeme/Mali (yerli — IBAN havale; **Tedbirge için PayTR gerekmez**)
+E. Devlet/Kamu (UYAP, SBM — Sprint 4)
+F. Hukuki Muhatap Kategorileri (13 tip — template motoru, avukatın muhatapları)
+G. Düzenleyici/Tescil (KVKK Kurumu, VERBİS, Türk Patent, GİB, BTK/İYS)
+
+**Detaylı atlas:** `tedbirge-os/docs/RESMI_MUHATAP_HARITASI_KESIF.md`
+
+**Önemli Ayrım:**
+- Kategori F (13 hukuki muhatap tipi) — bunlar **avukatın muhatapları** (mahkeme, sigorta, SGK vb.). Tedbirge sadece **avukat için arayüz/şablon** sunar.
+- Kategori A-E + G — **Tedbirge'in doğrudan muhatapları** (servis sözleşmesi, yasal yükümlülük).
+
+### 24.3 Gelir Modeli — Kanıtlı
+
+**Komisyon yapısı (Mali Akış KEŞİF + Mehmet Bey direktifi):**
+
+```
+Direkt müvekkil (public form, self-register, WhatsApp inbound):
+  Tahsilat → Avukat tahsil eder
+  Avukat → Tedbirge'e komisyon havale eder: Tahsilat × %20
+  Net: Avukat %80 / Tedbirge %20
+
+Temsilci aracılığıyla:
+  Tahsilat → Avukat tahsil eder
+  Avukat → Tedbirge'e komisyon havale eder: Tahsilat × %20
+  Tedbirge → Temsilciye paylaşım: Tedbirge komisyonunun %50'si
+  Net: Avukat %80 / Tedbirge %10 / Temsilci %10
+```
+
+**Schema kanıtı:** `Lead.komisyonOrani` (default 20), sözleşmede "Platform komisyonunun %50'si" ifadesi (~%10 net).
+
+**Para akışı:**
+- IBAN üzerinden manuel havale (otomatik dağıtım sistemi yok)
+- PayTR Marketplace **gerekli değil** (Mehmet Bey direktifi)
+- CommissionLog modeli **eksik** (gelecek kesit — TUR ile eklenecek)
+
+### 24.4 Yasal Sorumluluk Dağılımı
+
+**Avukatın Sorumluluğu** (Avukatlık Kanunu + Vekalet — Mehmet Bey direktifi):
+- Müvekkil sözleşmesi
+- Hukuki tavsiye, dava açma, savunma
+- KDV (avukat vergi mükellefi)
+- Stopaj
+- UYAP girişi (e-imza ile)
+- SGK/SBM/Sigorta sorgu (avukat yetkisi ile)
+- Müvekkil verisinin işlenmesinden veri sorumlusu
+
+**Tedbirge'in Sorumluluğu:**
+- Platform altyapısının çalışması
+- KVKK Veri İşleyen sıfatıyla yükümlülükler (m.12 — güvenlik)
+- KVKK m.9 yurt dışı aktarım uyumu (4 sağlayıcı için SCC)
+- Marka koruması (Türk Patent — tescilli)
+- Komisyon gelirinin gelir vergisi (şahıs şirketi)
+- E-arşiv (GİB limiti aşılıyorsa — 2026)
+
+**Temsilcinin Sorumluluğu:**
+- Lead'in gerçekliğinden sorumluluk (sahte lead → Tedbirge sözleşmesi ihlali)
+- Komisyon vergisi (kendi gelir vergisi)
+
+### 24.5 Yol Haritası Dokümanı
+
+Yol haritası `tedbirge-os/IS_PLANI.md` dokümanında tutulur (anayasa-yönetir, ayrı dosya).
+
+**Format:** MoSCoW (Must/Should/Could/Won't) + Now-Next-Later (1-3 ay / 3-6 ay / 6+ ay) hibrit.
+
+**Zorunlu bölümler:**
+1. Aktif kesit (hangisi şu an açık)
+2. NOW / NEXT / LATER kesit listeleri
+3. Her kesit için MoSCoW etiketi
+4. Paydaş etki tablosu (4 iç paydaş)
+5. Bağımlılık zinciri
+6. Kapasite notu (gerçekçi)
+
+**Detaylı format:** İş Planı Fizibilite Raporu Bölüm 4 + Birleşik Analiz Raporu Bölüm 7.
+
+### 24.6 Önceliklendirme Kuralı (Sıralı)
+
+Bir kesit/iş şu sırayla seçilir:
+
+1. **MUST + NOW** — anında (kesit beklemez):
+   - Üretim çökmesi (silent failure, /health 5xx)
+   - KVKK m.7 ihlali (silme talebi)
+   - KVKK m.9 ihlali (yurt dışı aktarım — SCC eksik)
+   - KVKK k.18 idari para cezası riski (1.4M TL)
+   - Anayasa ihlali
+   - Hukuki dava kaybı riski (yanlış AI önerisi, geçersiz sözleşme)
+   - Avukatlık Kanunu m.46 ihlali (UYAP zorunluluğu — uzun vadeli)
+
+2. **MUST + NEXT** — sıradaki kesitte
+3. **SHOULD + NOW** — mevcut kesitin parçası
+4. **SHOULD + NEXT** — sonraki kesit menüsü
+5. **COULD** — `tedbirge-os/TASK_QUEUE.md`'ye yazılır
+6. **WON'T** — arşivlenir (Madde 20.2.D)
+
+### 24.7 Kesit Tipi Sınıflandırması
+
+**A. Bulgu Kapatma Turu** (atomik, hızlı)
+- Sağlık taraması veya runtime hata sonrası
+- Süre: 1-2 saat
+- Tek atom commit
+- Örnek: TUR #19, #20, #21
+
+**B. Stratejik Kesit** (planlı, uzun)
+- Yeni özellik veya yeni akış
+- Süreç: Keşif → Mimari karar → Sıralı turlar → Kapanış (Madde 17.3)
+- Süre: 1-3 hafta, 5-10 tur
+- Örnek: Müvekkil İletişim Kesiti, AI Analiz Doğruluk Kesiti
+
+### 24.8 İş Bitirme Kriterleri
+
+Bir kesit/tur "bitti" sayılır eğer **TÜMÜ** sağlanırsa:
+1. Tüm planlanan turlar tamamlandı
+2. Production'da kanıtlandı (/health 200 + manuel test)
+3. OTONOM_RAPOR.md'de kapanış kaydı var
+4. Bağımlı işler engellenmiyor
+5. Kapsam dışına çıkılmadı (Madde 4.1)
+
+Yarım bitmiş kesit kapatılamaz (Madde 17.4).
+
+### 24.9 Karar Mekanizması
+
+- **Mimar önerir** (kanıtla, MoSCoW + Now-Next-Later sınıflandırması ile)
+- **Mehmet Bey karar verir** (Madde 17.5 — son söz)
+- **Tartışma + hemfikir** (anlaşmazlık varsa Madde 4.3 — şüphede DUR)
+- Mimar **anayasaya aykırı** öneriyi reddedebilir (Madde 17.4 ruhu)
+
+### 24.10 KVKK Yurt Dışı Aktarım Disiplini
+
+Tedbirge'in **4 yurt dışı aktarım yaptığı sağlayıcı** vardır:
+- Supabase (ABD) — DB + Storage
+- Anthropic (ABD) — AI analiz
+- Meta WhatsApp (ABD/EU) — mesajlaşma
+- Gmail/Google (ABD) — e-posta
+
+Her aktarım için KVKK m.9 gereği **SCC (Standart Sözleşme Maddeleri)** belgesi tutulur. Belgeler `tedbirge-os/KVKKSCC/` klasöründe ve `KVKKSCC` veritabanı tablosunda kayıtlıdır.
+
+SCC'siz yeni bir yurt dışı aktarım yapmak Madde 3.1 KIRMIZI çizgisidir (KVKK ihlali = veri kaybı sayılır).
+
+### 24.11 Hukuki Muhatap Şablon Disiplini
+
+Tedbirge 13 hukuki muhatap tipini destekler (Kategori F — `muhatapAI.service.js`). Her tip için:
+- İlgili kanun referansı (KTK, TBK, ISG, SGK, vb.)
+- Cevap süresi
+- Zamanaşımı süresi
+- İhtarname şablonu
+
+**Şablon değişiklikleri** Mehmet Bey + bir uzman avukat onayı ile yapılır. Otomatik şablon değişikliği yasaktır.
+
+`muhatapAI.service.js`'in **güven skoru 0.7'nin altında** olan önerilerde insan onayı zorunludur.
+
+### 24.12 Yol Haritası Güncelleme
+
+`tedbirge-os/IS_PLANI.md` şu durumlarda güncellenir:
+1. Her kesit kapanışında (zorunlu)
+2. Sağlık taraması sonrası (Madde 21.5 ile birlikte)
+3. Mehmet Bey direktifi olduğunda
+4. Kritik bulgu sonrası (acil kesit eklenir)
+
+Güncelleme **mimar mektubu içinde** yapılır — bağımsız commit değil.
+
+### 24.13 Yasaklı Davranış
+
+- ❌ Yol haritası olmadan B tipi kesit açma
+- ❌ Aynı anda 2+ B tipi kesit aktif (Madde 17.4 ihlali)
+- ❌ "Anlık kararlarla ilerleyelim" (Madde 20.1 ihlali — kanıtsız iş)
+- ❌ Yol haritasını güncellemeden kesit kapatma
+- ❌ MUST etiketini "iyi olur" işler için kullanma (etiket sıkı tutulur)
+- ❌ Tarih sözü vermek (kapasite belirsiz — Now-Next-Later disiplini)
+- ❌ Tedbirge'i avukatlık hizmeti veriyor gibi gösterme (24.1 ihlali — yasal risk)
+- ❌ KDV/stopaj sorumluluğunu Tedbirge'e atfetme (24.4 ihlali — Avukatlık K. ihlali)
+
+---
+
+## 26. KAPANIŞ — NİYE BU ANAYASA VAR
 
 Tedbirge.ai 20 bin satır iş kalitesi backend kodu olan, **Türkiye'de rakipsiz mimariye** sahip bir LegalTech projesi.  
 3 avukat canlıda kullanıyor.  
@@ -827,8 +1038,8 @@ Mehmet Bey sahaya çıkabilsin diye bu disiplin var.
 
 ---
 
-**— Tedbirge Mimari Anayasası v1.3.0**  
+**— Tedbirge Mimari Anayasası v1.4.0**  
 **25 Nisan 2026 — başlangıç (Claude Opus 4.7)**  
-**26 Nisan 2026 — v1.3.0 son güncelleme (Madde 20+21+22 eklendi)**  
+**27 Nisan 2026 — v1.4.0 son güncelleme (Madde 24 — İş Planı Disiplini eklendi)**  
 **Versiyon geçmişi: tedbirge-os/MIMARI_KARARLAR.md**  
 **Her major/minor değişiklikte versiyon güncellemesi ZORUNLU (Madde 22)**

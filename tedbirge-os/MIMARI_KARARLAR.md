@@ -379,7 +379,52 @@ Anayasa şu ana kadar **3 büyük değişiklik** geçirdi ama versiyon güncelle
 | v1.2.0 | 26 Nisan 2026 | Madde 17 (Kesit Disiplini) + Madde 18 (Otonom Tur Zinciri) eklendi → Madde 19 (Kapanış) | 19 | (anayasa genişletme v2 commit) |
 | **v1.3.0** | **26 Nisan 2026 (gece)** | **Madde 20 (Anayasa Evrim) + Madde 21 (Sağlık Taraması) + Madde 22 (Versiyon Disiplini) eklendi → Madde 23 (Kapanış)** | **22 + Kapanış** | **a4ec692** |
 
+| **v1.4.0** | **27 Nisan 2026 (sabah)** | **Madde 24 (İş Planı Disiplini) eklendi → Madde 26 (Kapanış)** | **23 + Kapanış** | **(bu commit)** |
+
 **KVKK kanıt notu:** Bundan sonra anayasa değişikliklerinde tarih + commit hash + açıklama bu tablo formatına yazılacak (Madde 22.7).
 
 **Mimar:** Claude Opus 4.7  
 **Tarih:** 26 Nisan 2026 (gece)
+
+---
+
+## 27 Nisan 2026 (sabah) — ANAYASA v1.4.0 + Madde 24 (İş Planı Disiplini)
+
+**Karar:** Anayasaya Madde 24 (İş Planı Disiplini) eklendi. Eski Madde 23 (Kapanış) → Madde 26 olarak kaydı.
+
+**Madde 24 İçeriği (13 alt madde):**
+- 24.1 İlke (Tedbirge'nin konumu — B2B SaaS LegalTech)
+- 24.2 Paydaş yapısı (4 iç + 7 dış kategori)
+- 24.3 Gelir modeli (Tedbirge %20 / Temsilci %10-%10)
+- 24.4 Yasal sorumluluk dağılımı (Avukatlık K. + KVKK)
+- 24.5 Yol haritası dokümanı (IS_PLANI.md)
+- 24.6 Önceliklendirme kuralı (sıralı)
+- 24.7 Kesit tipi (A: Bulgu Kapatma, B: Stratejik)
+- 24.8 İş bitirme kriterleri
+- 24.9 Karar mekanizması
+- 24.10 KVKK yurt dışı aktarım disiplini
+- 24.11 Hukuki muhatap şablon disiplini
+- 24.12 Yol haritası güncelleme
+- 24.13 Yasaklı davranış
+
+**Sebep — 4 fizibilite raporu birleştirildi:**
+1. İş Planı Fizibilite Raporu (576 satır) — MoSCoW + Now-Next-Later
+2. Resmi Muhatap KEŞİF Raporu (376 satır) — 7 kategori atlas
+3. Birleşik Analiz Raporu (430 satır) — sentez
+4. Mali Akış Mini KEŞİF (421 satır) — gelir modeli kanıtı
+
+**Mehmet Bey direktifleri (anayasaya gömüldü):**
+- Tedbirge B2B SaaS, hukuk hizmeti vermez (Madde 24.1)
+- Mehmet Dinç girişimci, marka sahibi (Madde 24.1)
+- Tedbirge %20 / Temsilci %10-%10 (Madde 24.3)
+- IBAN havale, PayTR gerekli değil (Madde 24.3)
+- KDV/stopaj/sorumluluk Avukatlık + Vekalet — Avukat (Madde 24.4)
+
+**Etki:**
+- Anayasa v1.3.0 → v1.4.0 (MINOR — yeni madde, Madde 22.2)
+- 22 madde + 1 kapanış → 23 madde + 1 kapanış
+- IS_PLANI.md v1.0 oluşturuldu
+- Bundan sonra her kesit Madde 24 disiplini ile başlar
+
+**Mimar:** Claude Opus 4.7  
+**Onay:** Mehmet Dinç (yazılı, sohbet kaydı)
