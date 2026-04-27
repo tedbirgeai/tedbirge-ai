@@ -1200,6 +1200,11 @@ Aşağıdaki bileşenler **kod tabanında mevcut olmadan** pazarlama kampanyası
 | 13 | Hero animasyonu (Lottie/video/gradient) | anasayfa | YOK → TUR #26 |
 | 14 | Müvekkil yolculuğu zaman tüneli | anasayfa | YOK → TUR #26 |
 | 15 | Blog modülü + 10 makale | /blog rotası | YOK → TUR #27 sonrası |
+| 16 | Google Ads conversion API | /api/conversion + env | YOK → TUR #26 (FAZ 4-A) |
+| 17 | UTM şablon kütüphanesi | docs/UTM_SABLON.md | YOK → TUR #26 (FAZ 4-A) |
+| 18 | A/B test altyapısı | basvuru/page.tsx variants | YOK → TUR #29 (FAZ 4-D) |
+| 19 | Lead takip SLA otomasyon | jobs/leadFollowUp.job.js | YOK → TUR #28 (FAZ 4-C) |
+| 20 | Haftalık KPI mail otomasyonu | jobs/weeklyReport.job.js | YOK → TUR #28 (FAZ 4-C) |
 
 **Bu tablo Madde 25'in canlı kontrol listesidir.** Yeni bileşen eklendiğinde tablo güncellenir (Madde 20 evrim).
 
@@ -1241,6 +1246,49 @@ TUR #27 + sonrası:
 
 **Tahmini süre:** sürekli (3+ ay aktif yönetim).
 
+#### FAZ 4 — Operasyonel Ölçek + Optimizasyon (NEXT, FAZ 1+2+3 sonrası)
+
+TUR #26 ve sonrası kapsamı (atom turlara bölünür):
+
+**A. Reklam Altyapısı (TUR #26 — ilk atom)**
+- Google Ads conversion API kurulum (server-side tracking)
+- Meta Pixel + Conversion API (eğer Meta Ads kullanılacaksa — Mehmet Bey kararı 27 Nisan: "Meta Pixel YOK", bu satır karara bağlı)
+- UTM şablon disiplini (kanal × kampanya × adgrup × keyword)
+- Bütçe disiplini (günlük/aylık limit + alarm)
+- Landing page A/B test altyapısı (3 niş sayfa için varyant testi)
+- Lead → CRM webhook (gelen lead'in kaynağı net işaretlensin)
+
+**B. İçerik Üretimi (TUR #27)**
+- Blog makale doldurma (lib/blog.ts içindeki 3 taslak: trafik/iş/sigorta-ret)
+- SEO odaklı uzun rehber makaleler (3000+ kelime, mevzuat referanslı — m.25.4)
+- Sosyal medya post serileri (m.25.6.3 izinli içerik tipleri)
+- Editörel takvim (haftalık plan, aylık tema — m.25.6.2)
+- LexScan AI'dan blog özet üretme (otomasyon, ama insan denetimi zorunlu)
+
+**C. Operasyonel Pazarlama (TUR #28)**
+- Lead takip otomasyonu (yeni başvuru → 24 saat içinde temas SLA)
+- Conversion funnel alarm sistemi (form bırakma > %50 ise alarm)
+- Haftalık KPI raporu otomatik (m.25.10 metrikleri otomatik mail)
+- Retargeting cohort'ları (form başlat ama bitirme: 7 gün retargeting)
+- Avukat performans dashboard (lead → atama → tahsilat süresi)
+
+**D. Otomasyon + Sürekli Optimizasyon (TUR #29+, sürekli)**
+- Lead skor revizyonu (qualificationScore tabanlı sıralama, avukat panelinde)
+- A/B test motoru (landing page + form alanları + CTA varyantları)
+- Davranış izleme (heatmap, session recording — KVKK rıza ile, m.25.7)
+- Maliyet optimizasyonu (CPL düşürme — bidding strateji, audience daraltma)
+- Yeni kanal ekleme (m.25.13 7 sorulu filtre ile her yeni kanal denetlenir)
+
+**Tahmini süre:** A 1 hafta, B+C+D sürekli (aylık döngü).
+
+**KIRMIZI nokta sinyali:**
+- Yeni env değişkeni eklenirse (GOOGLE_ADS_CONVERSION_ID vb.)
+- Yeni 3rd party SDK eklenirse (npm install)
+- Davranış izleme kütüphanesi (Hotjar, Microsoft Clarity vb.)
+→ Madde 18.3 yazılı onay zorunlu.
+
+**FAZ 4 disiplin notu:** FAZ 4 dört alt başlığı (A+B+C+D) **kapsam**tır, **uygulama atom turlara bölünür** (Madde 4.1 yamalı bohça yasak). Tek mektupta dört başlığı birden uygulama YASAK.
+
 ### 25.13 Pazarlama Kararı Filtresi (Karar Vermeden Önce 7 Soru)
 Her yeni pazarlama hamlesi (yeni kanal, yeni kampanya, yeni mesaj çerçevesi):
 1. **Tüketici hukukuna uygun mu?** (6502 + Reklam Kurulu)
@@ -1273,9 +1321,10 @@ Mehmet Bey sahaya çıkabilsin diye bu disiplin var.
 
 ---
 
-**— Tedbirge Mimari Anayasası v1.5.0**  
+**— Tedbirge Mimari Anayasası v1.6.0**  
 **25 Nisan 2026 — başlangıç (Claude Opus 4.7)**  
-**27 Nisan 2026 — v1.4.0 son güncelleme (Madde 24 — İş Planı Disiplini eklendi)**  
+**27 Nisan 2026 — v1.4.0 (Madde 24 — İş Planı Disiplini eklendi)**  
 **27 Nisan 2026 (akşam) — v1.5.0 (Madde 25 — Pazarlama + Web Yüzü + Marka Disiplini eklendi)**  
+**27 Nisan 2026 (gece sonu) — v1.6.0 (Madde 25.12 + 25.11 — FAZ 4 tanımı + 5 yeni kontrol satırı eklendi)**  
 **Versiyon geçmişi: tedbirge-os/MIMARI_KARARLAR.md**  
 **Her major/minor değişiklikte versiyon güncellemesi ZORUNLU (Madde 22)**
