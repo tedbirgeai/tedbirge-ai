@@ -465,7 +465,7 @@ exports.gdprDelete = asyncHandler(async (req, res) => {
   }
 
   await prisma.$transaction([
-    prisma.chatMessage.deleteMany({ where: { session: { leadId: id } } }),
+    prisma.chatMessage.deleteMany({ where: { leadId: id } }),
     prisma.chatSession.deleteMany({ where: { leadId: id } }),
     prisma.contract.deleteMany({ where: { leadId: id } }),
     prisma.assignment.deleteMany({ where: { leadId: id } }),
