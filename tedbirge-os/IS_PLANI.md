@@ -18,7 +18,7 @@
 - ✅ TUR #19 STABİLİTE — deadlineChecker + gdprDelete (kapandı, commit `81c99a1`)
 - ✅ TUR #20 ANAYASA TUTARLILIK — 5 PrismaClient singleton (kapandı, commit `36e741d`)
 - ✅ TUR #21 AUTH/YETKİ — JWT + sigortaBasvuru + rate limiter (kapandı, commit `6cbc39e`)
-- ⏳ TUR #22 SCHEMA @updatedAt — 7 modele decorator (KIRMIZI nokta, Mehmet Bey onayı şart)
+- ✅ TUR #22 SCHEMA @updatedAt — 7 modele decorator (kapandı, commit `2135e12`)
 - ⏳ TUR #23 KVKK PERSISTENCE — compliance.js DB entegrasyonu + KVKK Aktarım Uyum (birleşik)
 - ⏳ TUR #24 BACKUP MİMARİSİ — gerçek pg_dump (Sprint 3)
 

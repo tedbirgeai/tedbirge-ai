@@ -1,3 +1,111 @@
+# OTONOM TUR #22 — 27 Nisan 2026 (sabah) 🔴 SCHEMA @updatedAt
+
+## ✅ TAMAMLANAN
+- 7 modele @updatedAt decorator eklendi:
+  - Bilirkisi, Durusma, Masraf, UYAPDosyaSync, UYAPTebligat, DataSubjectRequest, SBMSorgu
+- Migration: 20260427000001_add_updatedat_7_models (production'a uygulandı)
+- TUR #17'nin tamamlayıcısı (toplam 16 modelde @updatedAt)
+
+## 📊 ÖZET
+- Atom commit: 2135e12 (schema + migration)
+- KIRMIZI nokta onayı: Mehmet Bey yazılı (sohbet kaydı 27 Nisan)
+- Schema: 7 satır eklendi (additive change)
+- Migration: 7 ALTER TABLE ADD COLUMN DEFAULT CURRENT_TIMESTAMP
+- Bloker: migrate dev drift → çözüm: migrate deploy + manuel migration SQL (DEFAULT eklendi)
+- Risk: Düşük (TUR #17 ile kanıtlanmış pattern)
+
+## ✅ DOĞRULAMA
+- Lokal test: Masraf OK, updatedAt: 2026-04-27T07:24:03.332Z
+- Prisma generate: başarılı
+- /health 200
+
+## 🎯 KAZANIM
+- KVKK m.5 (doğruluk) audit trail tam (DataSubjectRequest)
+- Masraf ödeme tarihi izlenebilir (mali kayıt güçlendi)
+- UYAPTebligat okunma zamanı kayıt (avukatlık etiği)
+- Bilirkişi rapor güncelleme tarihi izlenebilir
+- 16 modelin tamamı (TUR #17 + #22) tutarlı
+
+## 🔄 SIRADAKİ
+- TUR #23: KVKK Persistence (compliance.js DB entegrasyonu + KVKK Aktarım Uyum)
+- TUR #24: Backup Mimarisi (gerçek pg_dump)
+
+— Claude Code, TUR #22 sonu
+
+---
+
+# ANAYASA v1.4.0 — 27 Nisan 2026 (sabah)
+
+## ✅ TAMAMLANDI
+- CLAUDE.md: Madde 24 (İş Planı Disiplini, 13 alt madde) eklendi
+- CLAUDE.md: Eski Madde 23 (Kapanış) → Madde 26
+- CLAUDE.md: Versiyon v1.3.0 → v1.4.0
+- tedbirge-os/IS_PLANI.md v1.0 oluşturuldu (MoSCoW + Now-Next-Later)
+- tedbirge-os/MIMARI_KARARLAR.md: v1.4.0 karar kaydı + versiyon tarihçesi eklendi
+- Commit: 348e617 — push tamam
+
+## 📊 ÖZET
+- Kod değişikliği: SIFIR (sadece dokümantasyon — Madde 18.4 yeşil nokta)
+- Schema/Migration: SIFIR
+- Risk: SIFIR
+- Sıradaki: TUR #22 (Schema @updatedAt 7 model — KIRMIZI nokta, Mehmet Bey onayı şart)
+
+— Claude Code, 27 Nisan 2026 (sabah)
+
+---
+
+# MALİ AKIŞ MİNİ KEŞİF — 27 Nisan 2026 (Madde 21 — Mini KEŞİF)
+
+## ✅ TAMAMLANDI
+- Kod değişikliği: SIFIR
+- Oluşturulan dosya: `tedbirge-os/docs/MALI_AKIS_KESIF.md`
+
+## 📊 ÖZET
+- Okunan kaynak dosyası: 14
+- Komisyon %20 sabiti: schema default + analytics raporlama (fiili dağıtım manuel)
+- Temsilci payı: sözleşmede "Platform komisyonunun %50'si" (=~%10 net) — kod otomasyonu yok
+- PayTR: Müvekkil → tek tüccar hesabı; Marketplace split YOK
+- E-fatura: YOK (GİB entegrasyonu bulunamadı)
+- Masraf: ayrı model var, komisyon hesabında otomatik düşülmüyor
+- hakEdisStatus: String tipi, özel endpoint yok (genel lead PATCH)
+- CommissionLog / dağıtım DB kaydı: YOK
+
+## 🛑 MEHMETı BEY NETLEŞTIRECEK
+- Avukat/temsilci IBAN kaydı nerede? (User modelinde yok)
+- Fatura yönü: avukat → Tedbirge mi, Tedbirge → avukat mı?
+- E-arşiv yükümlülüğü (2026 GİB)
+- PayTR hesabı kimin adına (Tedbirge mi, avukat mı)?
+
+## 🔄 SIRADAKİ
+Madde 24 (İş Planı Yasası) gelir modeli — bu raporu input olarak kullanacak.
+
+---
+
+# RESMİ MUHATAP HARİTASI KEŞİF — 27 Nisan 2026 (Madde 21 Sağlık Taraması)
+
+## ✅ TAMAMLANDI
+- Kod değişikliği: SIFIR (Madde 21 — okuma-only)
+- Oluşturulan dosya: `tedbirge-os/docs/RESMI_MUHATAP_HARITASI_KESIF.md`
+
+## 📊 ÖZET
+- Okunan servis dosyası: 12
+- Aktif dış entegrasyon: 7 (NetGSM, Gmail, WhatsApp, Anthropic, Tesseract, Supabase, PayTR)
+- Stub entegrasyon: 2 (UYAP + SBM — Sprint 4)
+- KVKK m.9 yurt dışı aktarım riski: 4 sağlayıcı (SCC zorunlu)
+- Push: YOK (mektup direktifi)
+- Tespit edilen risk: 7 (2x ORTA kritik, 5x ORTA/DÜŞÜK)
+
+## 🛑 DİKKAT
+- PayTR ENV (.env.example'da eksik) → ödeme sessizce mock modda kalabilir
+- Anthropic API → lead verisi ABD'ye gidiyor — SCC belgesi mevcut mu? Doğrulanmadı.
+
+## 🔄 SIRADAKİ
+- TUR #22: Schema @updatedAt (KIRMIZI nokta — Mehmet Bey onayı şart)
+- TUR #23: compliance.js DB (in-memory SCC/DSR → KVKKSCC + DataSubjectRequest)
+- Madde 24 (İş Planı Yasası): Atlas tamamlandı — mimar oturumu başlayabilir
+
+---
+
 # OTONOM TUR #21 — 27 Nisan 2026 🟢 AUTH/YETKİ SERTLEŞTİRME
 
 ## ✅ TAMAMLANAN
