@@ -13,11 +13,10 @@
  * Referans: TEDBIRGE_OS_FIZIBILITE_v2 — Prensip 2 (Desired vs Actual State)
  */
 
-const { PrismaClient } = require('@prisma/client');
+const prisma = require("../config/db");
+// prisma artik singleton'dan geliyor (Madde 9.3 — TUR #20)
 const { bus, EVENT_TYPES } = require('./eventBus');
 const { cleanupExpired } = require('./idempotency');
-
-const prisma = new PrismaClient();
 
 // ─── Configuration ──────────────────────────────────────────────────────────
 

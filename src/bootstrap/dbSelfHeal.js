@@ -9,10 +9,8 @@
 // Kullanim: server.js'in basinda, app.listen()'den once cagrilir.
 //   await selfHealDatabase();
 
-const { PrismaClient } = require("@prisma/client");
-
-// Ayri PrismaClient instance — global instance'i kirletme
-const prisma = new PrismaClient();
+const prisma = require("../config/db");
+// prisma artik singleton'dan geliyor (Madde 9.3 — TUR #20)
 
 const HEAL_TASKS = [
   {
@@ -97,7 +95,7 @@ async function selfHealDatabase() {
   const okCount = results.filter(r => r.ok).length;
   console.log(`[DB-HEAL] tamamlandi — basarili: ${okCount}/${results.length}`);
 
-  await prisma.$disconnect();
+  // $disconnect kaldirildi — singleton process boyunca yasar (Madde 9.3 — TUR #20)
 
   return results;
 }

@@ -13,9 +13,8 @@
  * Referans: TEDBIRGE_OS_FIZIBILITE_v2 — Prensip 12 (Idempotency)
  */
 
-const { PrismaClient } = require('@prisma/client');
-
-const prisma = new PrismaClient();
+const prisma = require("../config/db");
+// prisma artik singleton'dan geliyor (Madde 9.3 — TUR #20)
 
 const DEFAULT_TTL_MS = 60 * 60 * 1000; // 1 saat
 const HEADER_NAME = 'idempotency-key';

@@ -11,10 +11,9 @@
  * Referans: TEDBIRGE_OS_FIZIBILITE_v2 — Prensip 8 (Boot Sequence)
  */
 
-const { PrismaClient } = require('@prisma/client');
+const prisma = require("../config/db");
+// prisma artik singleton'dan geliyor (Madde 9.3 — TUR #20)
 const { bus, EVENT_TYPES } = require('./eventBus');
-
-const prisma = new PrismaClient();
 
 // ─── Step Definitions ───────────────────────────────────────────────────────
 

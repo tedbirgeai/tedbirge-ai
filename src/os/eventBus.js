@@ -13,9 +13,8 @@
  */
 
 const { EventEmitter } = require('node:events');
-const { PrismaClient } = require('@prisma/client');
-
-const prisma = new PrismaClient();
+const prisma = require("../config/db");
+// prisma artik singleton'dan geliyor (Madde 9.3 — TUR #20)
 
 // ─── Event Taxonomy ─────────────────────────────────────────────────────────
 // Her event bir "namespace:action" pattern'i izler.
