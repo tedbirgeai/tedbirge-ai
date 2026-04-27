@@ -1,4 +1,5 @@
 const asyncHandler = require("../utils/asyncHandler");
+const prisma = require("../config/db");
 const {
   getLeadFunnel,
   getConversionRate,
@@ -70,4 +71,65 @@ exports.getIletisimOzet = asyncHandler(async (req, res) => {
 exports.getKritikSureler = asyncHandler(async (req, res) => {
   const data = await getKritikSureler(req.user);
   res.json({ success: true, data });
+});
+
+exports.getMarketingMetrics = asyncHandler(async (req, res) => {
+  const { from, to } = req.query;
+  const fromDate = from ? new Date(from) : new Date(Date.now() - 30 * 24 * 60 * 60 * 1000);
+  const toDate   = to   ? new Date(to)   : new Date();
+
+  const [leadsBySource, leadsByUtmSource, leadsByUtmCampaign, leadsByStatus, allLeads, dailyLeads] =
+    await Promise.all([
+      prisma.lead.groupBy({
+        by: ["source"],
+        where: { createdAt: { gte: fromDate, lte: toDate } },
+        _count: { id: true },
+      }),
+      prisma.lead.groupBy({
+        by: ["utmSource"],
+        where: { createdAt: { gte: fromDate, lte: toDate }, utmSource: { not: null } },
+        _count: { id: true },
+      }),
+      prisma.lead.groupBy({
+        by: ["utmCampaign"],
+        where: { createdAt: { gte: fromDate, lte: toDate }, utmCampaign: { not: null } },
+        _count: { id: true },
+      }),
+      prisma.lead.groupBy({
+        by: ["status"],
+        where: { createdAt: { gte: fromDate, lte: toDate } },
+        _count: { id: true },
+      }),
+      prisma.lead.findMany({
+        where: { createdAt: { gte: fromDate, lte: toDate } },
+        select: { qualificationScore: true },
+      }),
+      prisma.$queryRaw`
+        SELECT DATE("createdAt") as date, COUNT(*)::int as count
+        FROM "Lead"
+        WHERE "createdAt" >= ${fromDate} AND "createdAt" <= ${toDate}
+        GROUP BY DATE("createdAt")
+        ORDER BY date ASC
+      `,
+    ]);
+
+  const totalLeads = allLeads.length;
+  const scoreDistribution = {
+    yuksek:       allLeads.filter(l => (l.qualificationScore ?? 0) >= 70).length,
+    orta:         allLeads.filter(l => (l.qualificationScore ?? 0) >= 40 && (l.qualificationScore ?? 0) < 70).length,
+    dusuk:        allLeads.filter(l => (l.qualificationScore ?? 0) > 0  && (l.qualificationScore ?? 0) < 40).length,
+    hesaplanmadi: allLeads.filter(l => !l.qualificationScore).length,
+  };
+
+  res.json({
+    success: true,
+    period: { from: fromDate.toISOString(), to: toDate.toISOString() },
+    totalLeads,
+    leadsBySource:      leadsBySource.map(s => ({ source: s.source || "(belirtilmemis)", count: s._count.id })),
+    leadsByUtmSource:   leadsByUtmSource.map(s => ({ utmSource: s.utmSource, count: s._count.id })),
+    leadsByUtmCampaign: leadsByUtmCampaign.map(s => ({ utmCampaign: s.utmCampaign, count: s._count.id })),
+    conversionFunnel:   leadsByStatus.map(s => ({ status: s.status, count: s._count.id })),
+    scoreDistribution,
+    dailyLeads,
+  });
 });
