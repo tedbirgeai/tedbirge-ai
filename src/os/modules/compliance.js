@@ -83,6 +83,7 @@
 
 const { bus, EVENT_TYPES } = require("../eventBus");
 const { registerPolicyHandler } = require("../reconciler");
+const prisma = require("../../config/db");
 
 // ============================================================================
 // SECTION 1 — CONSTANTS
@@ -134,18 +135,45 @@ let alertsEmitted = 0;
 // ============================================================================
 
 /**
- * Yeni veri isleyen sozlesmesi ekle.
+ * Yeni veri isleyen sozlesmesi ekle — in-memory + DB upsert.
  * @param {object} scc - { id, processor, signedAt, validUntil, jurisdiction, dataCategory }
  */
-function addScc(scc) {
+async function addScc(scc) {
   if (!scc?.id || !scc?.processor || !scc?.validUntil) {
     throw new Error("addScc: id, processor, validUntil zorunlu");
   }
-  sccRegistry.set(scc.id, {
+  const record = {
     ...scc,
     addedAt: new Date().toISOString(),
-  });
-  return sccRegistry.get(scc.id);
+  };
+  sccRegistry.set(scc.id, record);
+
+  try {
+    await prisma.kVKKSCC.upsert({
+      where: { id: scc.id },
+      update: {
+        dataProcessor: scc.processor,
+        country: scc.jurisdiction || "UNKNOWN",
+        sccSignedAt: scc.signedAt ? new Date(scc.signedAt) : new Date(),
+        expiresAt: scc.validUntil ? new Date(scc.validUntil) : null,
+        status: "ACTIVE",
+        notlar: scc.dataCategory || null,
+      },
+      create: {
+        id: scc.id,
+        dataProcessor: scc.processor,
+        country: scc.jurisdiction || "UNKNOWN",
+        sccSignedAt: scc.signedAt ? new Date(scc.signedAt) : new Date(),
+        expiresAt: scc.validUntil ? new Date(scc.validUntil) : null,
+        status: "ACTIVE",
+        notlar: scc.dataCategory || null,
+      },
+    });
+  } catch (err) {
+    console.error("[COMPLIANCE] addScc DB upsert hatasi:", err.message);
+  }
+
+  return record;
 }
 
 function removeScc(id) {
@@ -305,6 +333,30 @@ async function runTick() {
 // SECTION 7 — LIFECYCLE
 // ============================================================================
 
+/**
+ * Boot sirasinda DB'den SCC kayitlarini belleye yukle.
+ * runBoot() icinde DB adiminden sonra cagirilir.
+ */
+async function init() {
+  try {
+    const records = await prisma.kVKKSCC.findMany({ where: { status: "ACTIVE" } });
+    for (const r of records) {
+      sccRegistry.set(r.id, {
+        id: r.id,
+        processor: r.dataProcessor,
+        signedAt: r.sccSignedAt?.toISOString() || null,
+        validUntil: r.expiresAt?.toISOString() || null,
+        jurisdiction: r.country,
+        dataCategory: r.notlar || null,
+        addedAt: r.createdAt?.toISOString() || new Date().toISOString(),
+      });
+    }
+    console.log(`[COMPLIANCE] init: ${records.length} SCC kaydi DB'den yuklendi`);
+  } catch (err) {
+    console.error("[COMPLIANCE] init hatasi:", err.message);
+  }
+}
+
 function start() {
   if (isRunning) {
     console.warn("[COMPLIANCE] zaten calisiyor, start cagrisi gormezden gelindi");
@@ -411,6 +463,7 @@ registerPolicyHandler(MODULE_NAME, policyHandler);
 // ============================================================================
 
 module.exports = {
+  init,
   start,
   stop,
   runTick,

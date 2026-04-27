@@ -85,6 +85,11 @@ async function pingSBM() {
   console.warn('[BOOT] SBM manuel mode (web sorgu wizard aktif)');
 }
 
+async function initComplianceSCC() {
+  const compliance = require('./modules/compliance');
+  await compliance.init();
+}
+
 async function checkKVKKSCC() {
   // KVKKSCC tablosunda aktif ve süresi dolmamış kayıtlar var mı?
   const activeScc = await prisma.kVKKSCC.count({
@@ -133,6 +138,7 @@ const BOOT_STEPS = [
   { name: 'SSE Endpoints', run: initSSEEndpoints, critical: true },
   { name: 'UYAP Connectivity', run: pingUYAP, optional: true }, // anlaşma gelene kadar optional
   { name: 'SBM Health', run: pingSBM, optional: true },
+  { name: 'Compliance SCC Init', run: initComplianceSCC, optional: true },
   { name: 'KVKK SCC Validity', run: checkKVKKSCC, optional: true }, // ilk kurulum öncesi warn
   { name: 'VERBİS Kayıt', run: checkVERBIS, optional: true }, // ilk kurulum öncesi warn
 ];
