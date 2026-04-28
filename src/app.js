@@ -31,6 +31,7 @@ app.use(
     origin: process.env.CORS_ORIGIN
       ? process.env.CORS_ORIGIN.split(",").map((o) => o.trim())
       : true, // allow all origins when CORS_ORIGIN not set
+    credentials: true,
     allowedHeaders: ["Content-Type", "Authorization"],
     methods: ["GET", "HEAD", "PUT", "PATCH", "POST", "DELETE", "OPTIONS"],
     optionsSuccessStatus: 204,
