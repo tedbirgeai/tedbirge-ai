@@ -1,3 +1,49 @@
+# OTONOM TUR #37 — 28 Nisan 2026 (gec gece) GA4 PANEL IZOLASYONU
+
+## ✅ TAMAMLANAN GOREVLER (3 ATOM)
+
+### A1 — ROOT layout temizligi
+- app/layout.tsx: `import GoogleAnalytics` + `<GoogleAnalytics />` kaldirildi
+- CookieBanner ve diger root bilesenleri DOKUNULMADI
+- Build: npx next build BASARILI
+- Commit: 0a1e18f
+
+### A2 — Public layout GA4 entegrasyonu
+- app/(public)/layout.tsx: import + `<GoogleAnalytics />` fragment basina eklendi
+- Mevcut FloatingWhatsApp + AiChatWidget yapisina saygi gosterildi
+- Build: npx next build BASARILI
+- Commit: cccd060
+
+### A3 — Production push + dogrulama bekliyor
+- Push: tedbirge-panel master 93a17c4..cccd060
+- Vercel deploy tetiklendi
+- Production kanit (4 dogrulama): Mehmet Bey tarayicida dogrulamalı
+  1. https://www.tedbirge.ai/ → Cookie kabul → Network gtag/js VAR?
+  2. https://www.tedbirge.ai/basvuru → gtag/js VAR?
+  3. /dashboard → gtag YOK?
+  4. /musteri → gtag YOK?
+
+## 📊 OZET
+- 2 atom kod commit + push (panel repo)
+- 0 schema / 0 migration / 0 npm / 0 env
+- 1 import + 1 render satiri kaldirildi (root layout)
+- 1 import + 1 render satiri eklendi (public layout)
+- KVKK risk azaltildi: avukat/musteri URL'leri artik GA4'e gitmiyor
+
+## 🎯 KAZANIM (bekleyen)
+- O1 (GA4 production aktif): dogrulama bekleniyor
+- Madde 25.7 KVKK panel izolasyonu: SAGLANDI (kod seviyesinde)
+- Cookie consent gate: KORUNDU (GoogleAnalytics.tsx degismedi)
+- FAZ 4-B (blog) yolu: TAMAMEN ACIK (tum bulgular kapatilinca)
+
+## 🔄 SIRADAKI
+Mehmet Bey tarayici dogrulamasi → 4 kanit → TUR #37 resmi kapanisi.
+FAZ 4-B blog icerik uretimi — "FAZ 4-B ac" ile baslar.
+
+— Claude Code, TUR #37 A3, anayasa v1.9.1
+
+---
+
 # OTONOM TUR #36 — 28 Nisan 2026 (gec aksam) 🟢 OTONOM DEVIR SISTEMI
 
 ## ✅ TAMAMLANAN GOREVLER (4 FAZ)
