@@ -285,6 +285,29 @@ Yeni karar bu dosyaya **yukarıdaki formatla** eklenir.
 
 ---
 
+## 28 Nisan 2026 (sabah) — ANAYASA v1.7.0 + 7 YENİ MADDE
+
+**Karar:** Anayasaya 7 yeni madde eklendi (Madde 26-32). Eski Madde 26 (Kapanış) → Madde 33.
+
+**Yeni maddeler:**
+- 26 — Otonom Devir + Sağlık Taraması Başlatma
+- 27 — Sağlık Taraması Periyodikliği
+- 28 — Onay Disiplini Genişletmesi (T tipi otomatik onay)
+- 29 — Migration Uygulandi Kanıtı (ALTER TABLE çıktısı şart)
+- 30 — Frontend Standart Disiplini (apiFetch zorunlu)
+- 31 — Ortam İzolasyonu (lokal dev ≠ production)
+- 32 — Anayasa Boyut Disiplini (40k+ özet versiyon)
+
+**Sebep:** 28 Nisan 2026 sabah 3 sızıntı (migration drift, CORS, 401) ve sağlık taraması TUR #27 (21 bulgu) kanıtladı: bu 7 disiplin anayasada yoktu.
+
+**Sürüm:** v1.6.0 → v1.7.0 (Madde 22 — MINOR — yeni madde eklendi)
+
+**Mimar:** Claude Opus 4.7 (28 Nisan sabah devir oturumu, Mehmet Bey direktifi)
+
+**Risk:** SIFIR (sadece dokümantasyon, Madde 18.4 yeşil nokta)
+
+---
+
 ## 26 Nisan 2026 (öğle) — TUR #5 KAPANIŞ + ALTYAPI KEŞİF NOTU
 
 **TUR #5 onaylandı:** SUPABASE kanonik + Web Push entegrasyonu, 5 commit, sıfır anayasa ihlali, public URL kanıtı toplandı.

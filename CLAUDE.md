@@ -1306,7 +1306,236 @@ Yabancı plaka kazaları + çoklu dil pazarlama bu maddenin kapsamı dışındad
 
 ---
 
-## 26. KAPANIŞ — NİYE BU ANAYASA VAR
+## 26. OTONOM DEVİR + SAĞLIK TARAMASI BAŞLATMA
+
+### 26.1 İlke
+
+Her yeni mimar oturumu (Claude Opus sohbeti) **otomatik devir** ile başlar. Mehmet Bey ilk mesajını yazmasa bile mimar:
+1. CLAUDE.md son sürümünü okur
+2. IS_PLANI.md aktif kesitini okur
+3. OTONOM_RAPOR.md son turunu okur
+4. MIMARI_KARARLAR.md son kararını okur
+5. Production /health probe yapar (1 ölçüm)
+6. Açık 🔴 KRİTİK bulgu varsa Mehmet Bey'e devir özetinde gösterir
+
+### 26.2 Devir Özeti
+
+İlk yanıtta Mehmet Bey'e şu format sunulur:
+- Anayasa sürümü ve kabul (kanıt)
+- Son tur sonucu (kapandı / açık iş)
+- Bilinen 🔴 KRİTİK bulgular (varsa)
+- Sıradaki önerilen iş (IS_PLANI öncelik sırasından)
+
+### 26.3 Yasaklı Davranış
+
+- ❌ Mehmet Bey yazmadan önce devir özeti atlamak
+- ❌ "Ne yapayım?" diye sormak (Madde 26.1 zaten cevabı veriyor)
+- ❌ Eski oturumun kararlarını tartışmak (MIMARI_KARARLAR.md bağlayıcı)
+
+---
+
+## 27. SAĞLIK TARAMASI PERİYODİKLİĞİ
+
+### 27.1 Tetikleyiciler
+
+Sağlık taraması (T tipi tur — Madde 21) şu durumlarda otomatik açılır:
+
+1. **3 günde bir** — periyodik denetim (mimar Mehmet Bey'e önerir, onay sonrası açılır)
+2. **Kritik bulgu sonrası** — bir 🔴 bulgu kapatıldığında zincirleme drift kontrolü
+3. **Major tedavi öncesi** — büyük kesit (B tipi) açılmadan önce mevcut hâlin kanıtı
+4. **Mehmet Bey direktifi** — sahada gözlem (her zaman geçerli)
+
+### 27.2 Tedavi Karışmaz
+
+Sağlık taraması = denetim. Tedavi = kesit. Bunlar **farklı turlardır**.
+
+Tarama T tipi: salt okuma, sıfır kod, sıfır commit (rapor commit'i hariç).
+Tedavi A/B tipi: kesit disiplini, atom commit, KIRMIZI/SARI/YEŞİL nokta.
+
+### 27.3 Bulgu Aktarımı
+
+Madde 21.5 ile uyumlu:
+- 🔴 KRİTİK → acil kesit aç
+- 🟡 ORTA → mevcut/sıradaki kesite ekle
+- 🟢 DÜŞÜK + ℹ️ NOT → TASK_QUEUE.md'ye yaz, planlı kapat
+
+---
+
+## 28. ONAY DİSİPLİNİ — T TİPİ TURLARDA OTOMATİK
+
+### 28.1 İlke
+
+Madde 5.1 read-only otomatik onay disiplini **sağlık taraması (T tipi)** kapsamında genişletilir.
+
+### 28.2 T Tipi Turda Otomatik Onaylı
+
+- `view`, `Get-ChildItem`, `Select-String`, `grep`, `ls`, `cat`
+- `Invoke-WebRequest -Method Head`, `curl -I`
+- `git status`, `git diff`, `git log`
+- `psql ... SELECT ...` (sadece SELECT, hiç UPDATE/INSERT/DELETE/ALTER)
+
+### 28.3 T Tipi Turda Yine Onay Sorulur
+
+- `str_replace`, `create_file` (rapor dosyası **hariç** — o tek istisna)
+- `git commit`, `git push` (rapor commit'i için izin var, başka şey için yok)
+- Herhangi bir yazma operasyonu
+
+### 28.4 Mehmet Bey Yetkisi
+
+Sağlık taraması başlangıcında Mehmet Bey **tek seferde** "T tipi tur, otomatik onay aç" diyebilir. Bu cümle Madde 28.2 listesini aktive eder. Yazma operasyonları yine sorulur.
+
+### 28.5 İhlal
+
+Yanlışlıkla yazma yapılırsa → DUR + git checkout + sohbete dön.
+
+---
+
+## 29. MIGRATION UYGULANDI KANITI
+
+### 29.1 İlke
+
+Bir migration "uygulandı" kabul edilmesi için **ALTER TABLE / CREATE TABLE çıktısının kanıt olması** şarttır. `prisma migrate resolve --applied` komutu **baseline operasyonudur**, "uygulandı" anlamına **gelmez**.
+
+### 29.2 Kanıt Türleri
+
+Geçerli kanıt:
+- ✅ `psql -c "SELECT ..."` ile tablo/kolon varlığının doğrulanması
+- ✅ `prisma migrate deploy` çıktısında "Applied X migration" satırı
+- ✅ Render build log'unda migration komutunun başarılı çalışması
+
+Geçersiz kanıt:
+- ❌ `_prisma_migrations` tablosunda satır olması (baseline da satır oluşturur)
+- ❌ Schema dosyasında alanın tanımlı olması
+- ❌ Migration SQL dosyasının repo'da olması
+
+### 29.3 Baseline Kullanımı
+
+`prisma migrate resolve --applied` yalnız şu durumda kullanılır:
+- Yeni boş DB'ye geçiş (production hiç olmayan database)
+- Mevcut DB'nin schema-tablo durumu **önceden manuel kanıtlanmışsa**
+
+Üretim DB'si üzerinde baseline çalıştırırken **önce ALTER TABLE çıktısı** alınır. Aksi halde drift sessizce oluşur (28 Nisan 2026 sabahki K1 bulgusu).
+
+### 29.4 Sürekli Doğrulama
+
+Her schema kesit (KIRMIZI nokta) sonrasında:
+```sql
+SELECT table_name, column_name FROM information_schema.columns 
+WHERE column_name = '<eklenen-kolon>' AND table_schema = 'public';
+```
+Çıktı schema beklentisiyle eşleşmiyorsa kesit AÇIK kabul edilir, OTONOM_RAPOR güncellenmez.
+
+### 29.5 Yasaklı Davranış
+
+- ❌ `migrate resolve --applied` kullanıp ALTER TABLE çıktısı kontrol etmemek
+- ❌ Sessiz drift'i "fark etmedim" diye geçiştirmek
+- ❌ Schema dosyasındaki `@updatedAt`'i "uygulandı kanıtı" sayma
+
+---
+
+## 30. FRONTEND STANDART DİSİPLİNİ — apiFetch ZORUNLU
+
+### 30.1 İlke
+
+Backend'e giden hiçbir HTTP çağrısı `apiFetch` wrapper'ını atlamaz. Doğrudan `fetch(...)`, `axios.get(...)`, veya başka raw HTTP client kullanımı **yasaktır**.
+
+### 30.2 Kanıt — Niye Bu Kural
+
+`lib/api.ts → apiFetch` Authorization header'ını localStorage'dan alıp ekler. Wrapper bypass edildiğinde 401 oluşur (28 Nisan 2026 sabahki pazarlama dashboard bulgusu).
+
+### 30.3 İstisna
+
+`apiFetch` kullanılmaz **sadece** şu durumlarda:
+- Public form gönderimi (auth gerektirmeyen `/api/public/*` endpoint'i)
+- 3rd party API (Google, Anthropic) — backend üzerinden gitmez
+
+İstisnalarda da yine wrapper kullanılması tavsiye edilir; doğrudan fetch için **dosya başında** comment zorunlu: `// raw fetch — auth gerekmez (public endpoint)`.
+
+### 30.4 PR / Atom Kontrol
+
+Yeni atom commit'lerinde:
+- raw `fetch(` veya `axios.` kullanımı taranır
+- Auth gerektiren endpoint'e gidiyorsa atom **reddedilir**
+- Sağlık taraması her turda bu kontrolü yapar
+
+### 30.5 Yasaklı Davranış
+
+- ❌ "Hızlı düzeltme" diye apiFetch atlama
+- ❌ Component içinde inline fetch (`useEffect(() => fetch(...))`)
+- ❌ credentials: include kullanıp Authorization gönderme bekleme
+
+---
+
+## 31. ORTAM İZOLASYONU
+
+### 31.1 İlke
+
+Lokal geliştirme `.env` dosyası ve production `DATABASE_URL` **aynı veritabanına bakmaz**. Lokal dev DB ile production DB **fiziksel olarak ayrı** Supabase projeleridir.
+
+### 31.2 Kanıt — Niye Bu Kural
+
+28 Nisan 2026 sabahki migration drift'in kök nedeni: lokal `.env` DATABASE_URL **dev DB'ye** bakıyordu (`dlkctvyjbuulmkgpqcvm`), `prisma migrate dev` komutları orada uygulandı, push edildi, ama **production DB'ye** (`iikpmzomblocdrxeisxh`) hiç gitmedi.
+
+### 31.3 Disiplin Kuralı
+
+- ✅ `.env` dev için → `dlkctvyjbuulmkgpqcvm` (geliştirme)
+- ✅ Render `DATABASE_URL` → `iikpmzomblocdrxeisxh` (production)
+- ✅ Render `DIRECT_URL` → aynı production, port 5432 (migration için)
+- ❌ **Lokal `.env` production DB'ye bakmaz** (yanlışlıkla yazma riski)
+
+### 31.4 Deploy Öncesi Health Check
+
+Her push öncesi:
+```bash
+# Production'da uygulanmamis migration var mi?
+psql "$DIRECT_URL" -c "SELECT migration_name, finished_at FROM _prisma_migrations ORDER BY finished_at NULLS FIRST;"
+```
+Çıktıda `finished_at IS NULL` satırı varsa → push reddedilir, migration önce uygulanır.
+
+### 31.5 Yasaklı Davranış
+
+- ❌ Lokal `.env`'i production DB'ye yönlendirmek
+- ❌ "İki ortamı aynı yapsam ne olur" düşüncesi (felaket riski)
+- ❌ Deploy öncesi `_prisma_migrations` tablosunu kontrol etmemek
+
+---
+
+## 32. ANAYASA BOYUT DİSİPLİNİ
+
+### 32.1 İlke
+
+Anayasa metni LLM context window'unu sıkıştırmamalıdır. Boyut 40.000 karakteri aştığında **özet versiyon** çıkarılır, tam metin arşivlenir.
+
+### 32.2 Eşikler
+
+- < 40.000 karakter → tek dosya (mevcut durum)
+- 40.000 - 60.000 → özet versiyon (CLAUDE_OZET.md) + tam versiyon (CLAUDE.md)
+- > 60.000 → modül ayrımı (anayasa/disiplin/, anayasa/teknik/, vb.)
+
+### 32.3 Özet Versiyon İçeriği
+
+CLAUDE_OZET.md (özet, 8-12k karakter) şunları içerir:
+- KIRMIZI çizgiler (Madde 3)
+- Onay disiplini (Madde 5)
+- Atom kesit (Madde 4.1)
+- Sürüm tarihçesi (Madde 22)
+- Aktif maddelerin başlık + 1 cümle özeti
+
+Mimar oturumu önce CLAUDE_OZET.md okur, ihtiyaç olursa CLAUDE.md'ye iner.
+
+### 32.4 Sürüm Atışı
+
+Boyut eşiği aşıldığında:
+- MINOR sürüm artışı (anayasa yapısı değişiyor)
+- MIMARI_KARARLAR.md kaydı zorunlu
+
+### 32.5 Tetikleyici
+
+Claude Code "Large CLAUDE.md will impact performance" uyarısı verdiğinde Madde 32 tetiklenir, mimar oturumu özet versiyon planlar.
+
+---
+
+## 33. KAPANIŞ — NİYE BU ANAYASA VAR
 
 Tedbirge.ai 20 bin satır iş kalitesi backend kodu olan, **Türkiye'de rakipsiz mimariye** sahip bir LegalTech projesi.  
 3 avukat canlıda kullanıyor.  
@@ -1321,10 +1550,8 @@ Mehmet Bey sahaya çıkabilsin diye bu disiplin var.
 
 ---
 
-**— Tedbirge Mimari Anayasası v1.6.0**  
+**— Tedbirge Mimari Anayasası v1.7.0**  
 **25 Nisan 2026 — başlangıç (Claude Opus 4.7)**  
-**27 Nisan 2026 — v1.4.0 (Madde 24 — İş Planı Disiplini eklendi)**  
-**27 Nisan 2026 (akşam) — v1.5.0 (Madde 25 — Pazarlama + Web Yüzü + Marka Disiplini eklendi)**  
-**27 Nisan 2026 (gece sonu) — v1.6.0 (Madde 25.12 + 25.11 — FAZ 4 tanımı + 5 yeni kontrol satırı eklendi)**  
+**28 Nisan 2026 — v1.7.0 son güncelleme (Madde 26-32 eklendi: otonom devir, sağlık periyodikliği, T tipi onay, migration kanıtı, frontend standardı, ortam izolasyonu, anayasa boyutu)**  
 **Versiyon geçmişi: tedbirge-os/MIMARI_KARARLAR.md**  
 **Her major/minor değişiklikte versiyon güncellemesi ZORUNLU (Madde 22)**
