@@ -4,13 +4,14 @@
 
 const express = require("express");
 const authMiddleware = require("../middlewares/authMiddleware");
+const roleMiddleware = require("../middlewares/roleMiddleware");
 const { oneriAl, oneriOnayla } = require("../controllers/muhatapAI.controller");
 
 const router = express.Router({ mergeParams: true });
 
 router.use(authMiddleware);
 
-router.post("/:id/muhatap-ai", oneriAl);
-router.post("/:id/muhatap-ai/onay", oneriOnayla);
+router.post("/:id/muhatap-ai", roleMiddleware("ADMIN", "SALES", "LAWYER", "REPRESENTATIVE"), oneriAl);
+router.post("/:id/muhatap-ai/onay", roleMiddleware("ADMIN", "SALES", "LAWYER", "REPRESENTATIVE"), oneriOnayla);
 
 module.exports = router;
