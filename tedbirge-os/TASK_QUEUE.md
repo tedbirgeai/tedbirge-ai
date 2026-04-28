@@ -175,6 +175,57 @@
 
 ---
 
+## 🔴 MİMAR ONAYI BEKLİYOR — YENİ BULGU (28 Nisan 2026)
+
+[ ] **AccidentCase tablosu production'da YOK**
+    Bulgu: Mehmet Bey Render Shell PSQL çalıştırdı — `information_schema.tables`'da 0 row.
+    Schema'da model tanımlı, migration yok, tablo hiç oluşturulmamış.
+    Risk: AccidentCase kullanan endpoint'ler production'da çökebilir (Prisma runtime hatası).
+    Aksiyon: Mimar oturumu karar verecek — CREATE TABLE mı, migration mı, başka yol mu?
+    NOT: TUR #28'de dokunulmadı (Mehmet Bey direktifi).
+
+---
+
+## 🟢 TASK_QUEUE — TUR #27 SAGLIK TARAMASI BULGULARI (D + N)
+
+### Düşük Öncelik (D)
+
+[ ] **D1: Backend TODO 9 işlevsel eksik** (AI Analiz Doğruluk Kesiti)
+    - src/data/zmss-limits.js:12 — 2011 öncesi ZMSS limitleri eksik
+    - src/os/boot.js:42 — Supabase bucket listesi stub
+    - src/os/boot.js:62 — pg-boss job queue kaydı yok
+    - src/os/reconciler.js:28 — Handler map boş (reconciler hiç iş yapmıyor)
+    - src/services/compensation.engine.v2.js:16,102 — Faz 2 senaryo hesaplama eksik
+    - src/services/kalem-hesaplari.js:62 — Yıllık güncelleme gerekiyor
+    - src/services/kalem-hesaplari.js:444 — Emsal karar veritabanı stub
+
+[ ] **D2: Panel TODO 2 (hukukcu sayfası)**
+    - tedbirge-panel/app/(panel)/dashboard/hukukcu/page.tsx:190 — Durusma tablosu mock
+    - tedbirge-panel/app/(panel)/dashboard/hukukcu/page.tsx:292 — ActivityLog eksik
+
+[ ] **D3: OPENAI_API_KEY ölü env değişkeni — Mehmet Bey Render'dan silecek**
+    Hiçbir servis OPENAI_API_KEY kullanmıyor. Render dashboard'dan kaldır.
+
+[ ] **D4: Masraf.odendi audit trail eksik**
+    TUR #18'den bu yana çözülmemiş.
+
+[ ] **D5: IS_PLANI.md stale — mimar oturumunda güncellenecek**
+    Hâlâ "Aktif tur: TUR #24" yazıyor. TUR #24-28 tamamlandı.
+
+[ ] **D6: backup modülü Sprint 3 stub — gerçek pg_dump yok**
+    src/os/modules/backup.js start() çalışıyor ama gerçek yedekleme yok.
+    TUR #24 BACKUP MİMARİSİ IS_PLANI MUST+NOW kapsamında.
+
+### Not Seviyesi (N)
+
+[ ] **N1: /api/system/status endpoint yok (404)**
+    Alternatif: /api/os/status çalışıyor (ADMIN auth). Yeni endpoint gerekirse mimar kararı.
+
+[ ] **N4: Google Search Console property doğrulanmış mı?**
+    HTML'de google-site-verification tag var. Mehmet Bey GSC'de property doğrulanmış mı kontrol etsin.
+
+---
+
 ## 🛑 MİMAR ONAYI BEKLİYOR
 
 [ ] **G2-23: KVKK Adapter implementation** (Sprint 2)  

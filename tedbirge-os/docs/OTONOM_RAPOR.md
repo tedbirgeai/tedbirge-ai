@@ -1,3 +1,57 @@
+# OTONOM TUR #28 ANA TEDAVI — 28 Nisan 2026 (gece)
+
+## ✅ TAMAMLANAN (9 commit)
+
+**FAZ 1 — Anayasa v1.7.0**
+  Commit: `4d041f6` (root repo)
+  Madde 26-32 eklendi (7 yeni madde), Madde 33 KAPANIŞ, versiyon guncellendi.
+  MIMARI_KARARLAR.md v1.7.0 kaydı eklendi.
+
+**FAZ 2 — K1 Migration Drift SQL Dok**
+  Commit: `68411bc` (root repo)
+  tedbirge-os/docs/MIGRATION_DRIFT_FIX_SQL.md olusturuldu.
+  Mehmet Bey Render Shell'den 7/8 ALTER TABLE calistirdi. (18 satır — beklenen 19, AccidentCase yok)
+
+**FAZ 3 — K2 chat auth + O5 sigortaBasvuru role + O6 muhatapAI role**
+  Commit: `beaf0e8` — chat.routes.js authMiddleware eklendi (K2)
+  Commit: `47d669d` — sigortaBasvuru 3 GET route'a roleMiddleware eklendi (O5)
+  Commit: `890d62b` — muhatapAI roleMiddleware import + 2 POST route'a rol eklendi (O6)
+
+**FAZ 4 — K3 LexScan /lexscan sayfasi**
+  Panel commit: `e508397`
+  tedbirge-panel/app/(public)/lexscan/page.tsx olusturuldu.
+  middleware.ts zaten public — dokunma gerekmedi.
+
+**FAZ 5 — O3 OS modulleri 3 → 16**
+  Commit: `6ba0637` (root repo)
+  src/server.js 13 yeni modul ismi eklendi. start() guard zaten mevcuttu.
+
+**FAZ 6 — O2 .env.example + O4 API_BASE env standartlastirma**
+  Commit: `d79e1fc` — .env.example 18+ eksik degisken eklendi (O2)
+  Panel commit: `a818832` — 6 dosyada localhost → production URL + env adi fix (O4)
+
+## ⚠️ YENİ BULGU — MİMAR OTURUMU GEREKIYOR
+AccidentCase tablosu production DB'de TAMAMEN YOK (information_schema.tables 0 row).
+Schema.prisma'da tanimlı ama tablo hic olusturulmamis.
+TASK_QUEUE: 🔴 KRITIK — CREATE TABLE karari → mimar oturumu.
+TUR #28'de DOKUNULMADI (Mehmet Bey direktifi).
+
+## 📊 OZET
+- Atom commit: 9 (7 root + 2 panel)
+- FAZ sayisi: 6/7 (FAZ 7 = bu rapor + probe)
+- Schema/npm install/env: 0
+- Migration: Mehmet Bey Render Shell ile (7/8 basarili)
+- Anayasa: v1.6.0 → v1.7.0 (7 yeni madde)
+
+## 🔄 SIRADAKİ
+- Mimar oturumu: AccidentCase CREATE TABLE karari (KRITIK)
+- Mimar oturumu: IS_PLANI.md guncelleme (hala TUR #24 yazar)
+- Marketing rol politikasi karari (devam eden)
+
+— Claude Code, TUR #28 sonu
+
+---
+
 # OTONOM TUR #27 — 28 Nisan 2026 (sabah) SAGLIK TARAMASI
 
 ## ✅ TAMAMLANAN
