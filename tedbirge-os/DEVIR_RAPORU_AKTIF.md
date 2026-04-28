@@ -6,11 +6,11 @@
 
 ---
 
-## DURUM — 28 Nisan 2026 (akşam, TUR #36 sonu)
+## DURUM — 28 Nisan 2026 (gece, TUR #36 + fix)
 
-**Anayasa:** v1.9.0 yürürlükte (34 madde + Kapanış)
+**Anayasa:** v1.9.1 yürürlükte (34 madde + Kapanış)
 **Aktif kesit:** Bulgu Kapatma Fazı (TUR #27–#36 tamamlandı)
-**Son TUR:** #36 — Otonom Devir Sistemi (Madde 26 sertleştirme + Madde 27.4 + DEVIR_RAPORU_AKTIF.md)
+**Son TUR:** #36 + v1.9.1 fix — Madde 26.4 CLI vs sohbet arayüzü fark düzeltmesi (commit 97973f8)
 
 ---
 
