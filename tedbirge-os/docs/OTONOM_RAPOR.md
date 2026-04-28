@@ -1,3 +1,30 @@
+# OTONOM TUR #32 — 28 Nisan 2026 (ogleden sonra) SAGLIK TARAMASI TEKRARI
+
+## ✅ TAMAMLANAN
+- Saglik taramasi TUR #28 sonrasi tekrari (Madde 27 — zincirleme drift kontrolu)
+- 11 baslik: backend yapi, migration, auth/role, health, apiFetch, web probe, OS, env, performans, AccidentCase, Madde 26-32
+
+## 📊 BULGU SAYILARI
+- 🔴 KRITIK: 1 (K1-TUR32 AccidentCase: panel aktif, backend route yok, DB tablo yok)
+- 🟡 ORTA: 2 (O1: GA4 Vercel env; O2: Anayasa 65KB > 60K esigi)
+- 🟢 DUSUK: 4
+- ℹ️ NOT: 3
+
+## 🎯 BITIS TANIMI KARSILANDI MI: HAYIR
+- Sebep: AccidentCase 🔴 KRITIK acik — 3 aktif avukat "Yeni Vaka Ac" tıklayınca 404 hatası alıyor
+- FAZ 4-B (blog icerik) henüz baslatılamaz
+
+## 🔄 SIRADAKI
+- **Mimar oturumu:** AccidentCase TUR #29 (KIRMIZI nokta — CREATE TABLE + backend CRUD)
+- **Mehmet Bey aksiyon:** Vercel NEXT_PUBLIC_GA4_ID ekle (5 dk — O1 kapanir)
+- **Mehmet Bey aksiyon:** Render Shell 3 sorgu (Madde 29 migration kanıtı + OS SystemEvent)
+- **Mimar oturumu:** IS_PLANI.md guncelleme (hala TUR #24 yazar)
+- **Mimar oturumu:** Anayasa Madde 32 — CLAUDE_OZET.md modul ayırımı planı
+
+— Claude Code, TUR #32 sonu
+
+---
+
 # OTONOM TUR #28 ANA TEDAVI — 28 Nisan 2026 (gece)
 
 ## ✅ TAMAMLANAN (9 commit)
