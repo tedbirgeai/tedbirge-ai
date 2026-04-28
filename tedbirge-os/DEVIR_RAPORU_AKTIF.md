@@ -18,7 +18,23 @@
 
 ## 🔴 AÇIK KRİTİK BULGULAR
 
-**Yok.**
+### 🔴 K1 — TUR #40 FAZ 1 — TÜM BLOG DETAY SAYFALARI 404 (gizli pencere kanıtlı)
+- **Kanıt:** 3 slug production'da 404 veriyor (Mehmet Bey gizli pencere testi):
+  - `/blog/trafik-kazasi-tazminat-rehberi-2026` → 404
+  - `/blog/is-kazasi-tazminat-sureci` → 404
+  - `/blog/sigorta-tazminat-reddedildi-ne-yapmali` → 404
+- **Bilinen:** Slug doğru, `generateStaticParams` kayıtlı, deploy "Ready", commit 5523603 temiz
+- **Bilinmeyen:** Runtime'da `blog/[slug]/page.tsx` neden 404 veriyor — sebep kanıtsız, tahmin yapılmadı
+- **Diğer açık sorunlar:**
+  - prose stili çalışmıyor (`@tailwindcss/typography` kurulu değil)
+  - Anasayfada blog bölümü yok
+  - Niş landing sayfalarında blog linki yok
+  - Footer'da blog linki yok
+- **Yarınki mimar yapacak:**
+  1. Lokalde `npm run dev` çalıştır → hata mesajını gör
+  2. `blog/[slug]/page.tsx` incele — runtime hatasını bul
+  3. Tek atom düzeltme + public URL kanıt
+  4. Sonra: stil + uçtan uca link + niş landing
 
 ---
 
