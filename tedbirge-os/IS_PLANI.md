@@ -53,6 +53,10 @@
 - **Risk:** Hukuki — `muhatapAI.service.js` güven skoru kullanımı + compensation engine doğruluğu
 - **Süre:** 1-2 hafta
 - **Bağımlılık:** TUR #23 (KVKK) sonrası (yurt dışı aktarım netleşmeli)
+- **Kapsam Notu (TUR #29 eklendi — 28 Nisan 2026):** AccidentCase (AI Kaza Rekonstrüksiyon) bu kesitte aktif edilecek
+  - Schema: hazır (`// @deferred` işareti — Madde 33)
+  - Panel UI: hazır (YAKINDA badge ile — TUR #29-B)
+  - Backend: YOK — CREATE TABLE + service + route bu kesitte yazılacak
 
 **4. Sözleşme Yönetimi Kesiti (Stratejik B)**
 - **Paydaş:** LAWYER, CUSTOMER

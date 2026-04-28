@@ -8,6 +8,7 @@ datasource db {
   directUrl = env("DIRECT_URL")
 }
 
+// @deferred — AI Kaza Rekonstruksiyon ozelligi (Madde 33) — AI Analiz Dogruluk Kesiti'nde aktif edilecek (Q3 2026)
 model AccidentCase {
   id           String             @id @default(cuid())
   leadId       String
@@ -167,6 +168,7 @@ model Durusma {
   Lead         Lead     @relation(fields: [leadId], references: [id])
 }
 
+// @deferred — AccidentCase ile birlikte gelir (Madde 33)
 model Evidence {
   id             String       @id @default(cuid())
   accidentCaseId String

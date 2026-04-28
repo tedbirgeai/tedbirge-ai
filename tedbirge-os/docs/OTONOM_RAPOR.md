@@ -1,3 +1,40 @@
+# OTONOM TUR #29-B — 28 Nisan 2026 (ogleden sonra) SON TEDAVI
+
+## ✅ TAMAMLANAN (3 FAZ)
+
+**FAZ 1 — Panel UI Fix (commit 5517dbe)**
+- `tedbirge-panel/app/(panel)/leads/[id]/page.tsx`
+- accidentCase + accidentCaseLoading state kaldirildi
+- createAccidentCase() fonksiyonu kaldirildi (404 uretiyor, backend yok)
+- Kaza Rekonstruksiyon bloku amber YAKINDA kart olarak degistirildi
+- Build: npx next build BASARILI
+- Push: tedbirge-panel master
+
+**FAZ 2 — Anayasa v1.8.0 (commit c148e62)**
+- `CLAUDE.md` — Madde 33 eklendi (Beklemede Ozellik Disiplini)
+- Eski Madde 33 (Kapalis) → Madde 34 olarak yeniden numaralandirildi
+- `tedbirge-os/MIMARI_KARARLAR.md` — v1.8.0 karar kaydi eklendi
+- Push: tedbirge-ai master
+
+**FAZ 3 — Schema @deferred + IS_PLANI (bu commit)**
+- `prisma/schema.prisma` — AccidentCase + Evidence modelleri @deferred yorumu eklendi
+- `tedbirge-os/IS_PLANI.md` — AI Analiz Dogruluk Kesiti kapsamina AccidentCase notu eklendi
+- `tedbirge-os/docs/OTONOM_RAPOR.md` — bu guncelleme
+
+## 📊 OZET
+- Panel 404 hata: KAPATILDI (YAKINDA badge, aktif buton yok)
+- Anayasa: v1.7.0 → v1.8.0 (Madde 33)
+- Schema: @deferred isaretleri eklendi (Madde 33.2 kosul 2)
+- IS_PLANI: AccidentCase Q3 2026 AI Analiz Dogruluk Kesiti kapsaminda
+
+## 🔄 SIRADAKI
+TUR #33 mini saglik taramasi — AccidentCase + Madde 33 uyum kontrolu
+Bitis tanimi: saglik taramasi TUR #32 KARSILANMADI → simdi yeniden kontrol
+
+— Claude Code, TUR #29-B sonu, anayasa v1.8.0
+
+---
+
 # OTONOM TUR #29 — 28 Nisan 2026 (ogleden sonra) ACCIDENTCASE KANIT
 
 ## ✅ TAMAMLANAN
