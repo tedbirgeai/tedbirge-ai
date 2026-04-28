@@ -559,3 +559,33 @@ Bu "Senaryo B — Yarı kurulu" durumu için anayasada hiçbir kural yoktu.
 **Onay:** Mehmet Dinç (TUR #29-B mektubu — yazılı talimat)
 **Disiplin:** Madde 4.1, 4.4, 17.4, 20.1, 20.4, 22.2, 22.6
 
+
+---
+
+## 28 Nisan 2026 (akşam) — ANAYASA v1.9.0 + Otonom Devir Sistemi
+
+**Karar:** Anayasa Madde 26 (Otonom Devir) sertleştirildi. Yeni alt maddeler eklendi:
+- 26.4 — Açılış Protokolü (zorunlu 6 komut zinciri, atlatılamaz)
+- 26.5 — Açılış Mesajı Formatı (sabit şablon)
+- 26.6 — DEVIR_RAPORU_AKTIF.md (canlı tek dosya)
+- 26.7 — Yasaklı davranış (26.4-26.6 kapsamı)
+
+Madde 27'ye eklendi:
+- 27.4 — Kapanış Uyarısı (sohbet süresi eşiği + uyarı formatı + Mehmet Bey kararı)
+
+**Sebep:** 28 Nisan 2026 boyunca defalarca yaşanan iki sürtünme:
+- Yeni sohbet açıldığında mimar "ne yapayım?" diye sordu
+- Bağlam dolduğunda kullanıcı yapısal güvence kaybı yaşadı (compact uyarısı)
+
+Mehmet Bey direktifi (sohbet kaydı, akşam):
+- "Hiç kapanışta beni uyarsın, sohbet süresi doluyor yeni sohbet aç desin"
+- "Açılışta bana hiçbir şey söylemeden kaldığı yerden devam edecek"
+- "Tam otonom sistemi kur"
+
+**Sürüm artışı:** MINOR (v1.8.0 → v1.9.0 — yeni alt maddeler, Madde 22 disiplini)
+
+**Mimar:** Claude Sonnet 4.6 (TUR #36, 28 Nisan akşam)
+
+**Risk:** SIFIR (sadece dokümantasyon — Madde 18.4 yeşil nokta)
+
+**Etki:** Bağlam kayıpsız oturum geçişi. Mehmet Bey sahaya çıkarken yapısal güvence: yeni sohbet otonom devralır, bağlam köprüsü insan eliyle taşınmaz.
