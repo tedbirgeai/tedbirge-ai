@@ -1332,6 +1332,75 @@ Her yeni mimar oturumu (Claude Opus sohbeti) **otomatik devir** ile başlar. Meh
 - ❌ "Ne yapayım?" diye sormak (Madde 26.1 zaten cevabı veriyor)
 - ❌ Eski oturumun kararlarını tartışmak (MIMARI_KARARLAR.md bağlayıcı)
 
+### 26.4 Açılış Protokolü — Zorunlu Komut Zinciri
+
+Mimar yeni oturumda **ilk kullanıcı mesajına yanıt vermeden ÖNCE** şu 6 işlemi sıralı olarak çalıştırır:
+
+1. `view C:\Users\WIN10\Desktop\tedbirge.ai\CLAUDE.md` — anayasa son sürüm
+2. `view C:\Users\WIN10\Desktop\tedbirge.ai\tedbirge-os\DEVIR_RAPORU_AKTIF.md` — canlı devir raporu (Madde 26.6)
+3. `view C:\Users\WIN10\Desktop\tedbirge.ai\tedbirge-os\IS_PLANI.md` — aktif kesit
+4. `view C:\Users\WIN10\Desktop\tedbirge.ai\tedbirge-os\docs\OTONOM_RAPOR.md` — son tur (ilk 50 satır yeter)
+5. `view C:\Users\WIN10\Desktop\tedbirge.ai\tedbirge-os\MIMARI_KARARLAR.md` — son karar (ilk 50 satır yeter)
+6. Production health probe (`curl https://tedbirge-ai.onrender.com/health`)
+
+**Bu 6 işlem ATLATILAMAZ.** Mehmet Bey "merhaba" dese, "ne yapalım" dese, hatta **hiçbir şey yazmasa bile** — mimar bu zinciri çalıştırır.
+
+### 26.5 Açılış Mesajı Formatı — Zorunlu Şablon
+
+Açılış protokolü tamamlandıktan sonra mimar **ilk yanıtını** şu sabit formatta verir:
+
+```
+🛡️ DEVİR ALINDI — TEDBİRGE.AI
+
+📋 ANAYASA: v[X.Y.Z] yürürlükte ([N] madde toplam)
+
+📂 AKTİF KESİT: [IS_PLANI'dan]
+   Son TUR: #[N] — [tek satır özet]
+
+🔴 AÇIK KRİTİK: [N adet]
+   [liste — varsa]
+
+🟡 PLANLI: [N adet]
+   [liste — varsa]
+
+📋 MEHMET BEY'E AİT MANUEL İŞLER (varsa):
+   [liste — Render Shell, Vercel, Supabase dashboard]
+
+🎯 SIRADAKİ ÖNERİLEN İŞ:
+   [DEVIR_RAPORU_AKTIF.md'den, tek net öneri]
+
+[Mehmet Bey kullanıcı mesajı yazmışsa, devamında ona yanıt]
+```
+
+### 26.6 DEVIR_RAPORU_AKTIF.md — Canlı Devir Dosyası
+
+Tek dosya, sürekli güncellenir: `tedbirge-os/DEVIR_RAPORU_AKTIF.md`
+
+**İçerik (zorunlu):**
+- Anayasa sürüm + tarih
+- Aktif kesit + son TUR
+- Açık 🔴 KRİTİK bulgu listesi
+- Açık 🟡 ORTA bulgu listesi
+- Son 5 commit (`git log --oneline -5`)
+- Mehmet Bey'in bekleyen manuel işleri
+- Sıradaki önerilen iş (tek net öneri)
+- Geçerli KIRMIZI nokta yazılı onayları (varsa)
+
+**Güncelleme zamanları:**
+- Her TUR sonunda (Claude Code yazar)
+- Her sağlık taraması sonunda
+- Mehmet Bey direktifi olduğunda
+
+**Eski sürüm arşivlenir:** `DEVIR_RAPORU_AKTIF.md` her zaman güncel kalır. Eski tarih DEVIR raporları (DEVIR_RAPORU_28_NISAN_SABAH.md gibi) arşivde tutulur, dokunulmaz.
+
+### 26.7 Yasaklı Davranış (26.4-26.6 kapsamı)
+
+- ❌ Açılış protokolünü atlamak (Mehmet Bey "hızlı bir soru" dese bile — protokol atlatılamaz)
+- ❌ DEVIR_RAPORU_AKTIF.md'yi okumadan iş önermek
+- ❌ Mehmet Bey'e "ne yapalım?" diye sormak (şablon zaten önerir)
+- ❌ Açılış mesajı şablonunu değiştirmek (sabit format — bağlam köprüsü)
+- ❌ DEVIR_RAPORU_AKTIF.md güncellemeyi unutmak (TUR sonunda zorunlu)
+
 ---
 
 ## 27. SAĞLIK TARAMASI PERİYODİKLİĞİ
@@ -1358,6 +1427,52 @@ Madde 21.5 ile uyumlu:
 - 🔴 KRİTİK → acil kesit aç
 - 🟡 ORTA → mevcut/sıradaki kesite ekle
 - 🟢 DÜŞÜK + ℹ️ NOT → TASK_QUEUE.md'ye yaz, planlı kapat
+
+### 27.4 Kapanış Uyarısı — Sohbet Süresi Disiplini
+
+LLM context window sınırlıdır. Tedbirge mimari oturumları uzar — anayasa, kararlar, kanıtlar birikir. Bağlam dolduğunda performans düşer, hatalı karar riski artar (Madde 4.7 — bağlam kıymetli).
+
+#### 27.4.1 Eşik
+
+Mimar (Claude Opus 4.7) sohbet uzunluğunu aktif izler. Şu durumlardan herhangi biri tetiklendiğinde **Mehmet Bey'i proaktif uyarır**:
+
+- Sohbet 100+ kullanıcı mesajı sürmüşse
+- Anayasa metni context'te 3+ kez yüklenmişse
+- Compact uyarısı (Claude Code "Conversation compacted" mesajı vermişse)
+- Performans yavaşlığı (yanıtlar gecikmeye başlamışsa)
+- Mimar kendi yanıt kalitesinde düşüş tespit ederse
+
+#### 27.4.2 Kapanış Uyarı Formatı
+
+Eşik tetiklendiğinde mimar **mevcut işin** sonunda şu uyarıyı ekler:
+
+```
+⚠️ SOHBET KAPANIŞ UYARISI
+
+Bu sohbette bağlam doluyor (sebep: [eşik 1/2/3/4]).
+Yapısal güvence için yeni sohbet açmanı öneriyorum.
+
+DEVIR_RAPORU_AKTIF.md güncel — yeni sohbette mimar
+otomatik devir alacak (Madde 26.4 protokolü).
+
+Yeni sohbette hiçbir şey yazmana gerek yok, mimar
+kaldığı yerden devam edecek.
+```
+
+#### 27.4.3 Mehmet Bey Kararı
+
+Mehmet Bey uyarıyı görür, kendi takdirine göre:
+- **Yeni sohbet açar** (önerilen) → Madde 26.4 protokolü tetiklenir
+- **Devam eder** (acil iş varsa) → mimar uyarmaya devam etmez, biter
+
+Mimar Mehmet Bey'i zorlamaz. Uyarı **bilgi**, dayatma değil.
+
+#### 27.4.4 Yasaklı Davranış
+
+- ❌ Eşik tetiklendiği halde uyarmamak (sessiz performans kaybı)
+- ❌ Her mesajda uyarmak (rahatsız edici)
+- ❌ Kullanıcı acil iş yapıyorken uyarmak (yarıda kesme)
+- ❌ DEVIR_RAPORU_AKTIF.md güncel değilken uyarmak (yeni sohbette boşluk olur)
 
 ---
 
@@ -1628,9 +1743,10 @@ Mehmet Bey sahaya çıkabilsin diye bu disiplin var.
 
 ---
 
-**— Tedbirge Mimari Anayasası v1.8.0**  
+**— Tedbirge Mimari Anayasası v1.9.0**  
 **25 Nisan 2026 — başlangıç (Claude Opus 4.7)**  
 **28 Nisan 2026 — v1.7.0 (Madde 26-32 eklendi: otonom devir, sağlık periyodikliği, T tipi onay, migration kanıtı, frontend standardı, ortam izolasyonu, anayasa boyutu)**  
 **28 Nisan 2026 — v1.8.0 (Madde 33 eklendi: Beklemede Özellik Disiplini — AccidentCase TUR #29 dersi; Madde 33 kapanış → 34 olarak yeniden numaralandı)**  
+**28 Nisan 2026 — v1.9.0 (Madde 26 sertleştirme + Madde 27 kapanış uyarısı — otonom devir sistemi)**  
 **Versiyon geçmişi: tedbirge-os/MIMARI_KARARLAR.md**  
 **Her major/minor değişiklikte versiyon güncellemesi ZORUNLU (Madde 22)**
