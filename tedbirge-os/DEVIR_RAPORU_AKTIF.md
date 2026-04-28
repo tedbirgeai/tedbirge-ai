@@ -5,14 +5,14 @@
 
 ---
 
-## DURUM — 28 Nisan 2026 (gec gece, TUR #37 kod tamamlandı)
+## DURUM — 28 Nisan 2026 (gec gece, TUR #38 kod tamamlandi)
 
 **Anayasa:** v1.9.1 yürürlükte (34 madde + Kapanış)
-**Aktif kesit:** Bulgu Kapatma Fazı (TUR #27–#37 kod tamamlandı)
-**Son TUR:** #37 — GA4 panel izolasyonu (Madde 25.7 KVKK uyum)
-- A1: root layout'tan GA4 kaldırıldı — commit 0a1e18f (panel repo)
-- A2: public layout'a GA4 eklendi — commit cccd060 (panel repo)
-- Push: 93a17c4..cccd060 → Vercel deploy tetiklendi
+**Aktif kesit:** FAZ 4-B Operasyonel Ölçek (TUR #38 tamamlandı — doğrulama bekleniyor)
+**Son TUR:** #38 — PWA iOS install rehberi
+- A1: IosInstallGuide.tsx oluşturuldu — commit 2a4dde3
+- A2: PwaProvider'a entegre edildi — commit c1773a1
+- Push: cccd060..c1773a1 → Vercel deploy tetiklendi
 
 ---
 
@@ -24,52 +24,64 @@
 
 ## 🟡 PLANLI BULGULAR
 
-### O1 — GA4 production kanıtı bekleniyor
-- **Durum:** Kod değişikliği yapıldı, Vercel deploy tetiklendi
+### O1 — TUR #37 GA4 production kanıtı bekleniyor
+- **Durum:** Kod değişikliği yapıldı (TUR #37), Vercel deploy edildi
 - **Kalan:** Mehmet Bey tarayıcıda 4 doğrulama yapacak (bitiş tanımı Madde 27.1)
 - **Doğrulama listesi:**
   1. https://www.tedbirge.ai/ → Cookie kabul → DevTools Network → `gtag/js?id=G-7MP4HD08T6` **VAR** mı?
   2. https://www.tedbirge.ai/basvuru → `gtag` **VAR** mı?
   3. https://www.tedbirge.ai/dashboard → `gtag` **YOK** mu?
   4. https://www.tedbirge.ai/musteri → `gtag` **YOK** mu?
-- 4 evet → O1 KAPANDI, bu dosya güncellenir
+- 4 evet → O1 KAPANDI
+
+### O2 — TUR #38 PWA iOS production kanıtı bekleniyor
+- **Durum:** IosInstallGuide.tsx push edildi, Vercel deploy tetiklendi
+- **Kalan:** Madde 27.1 ölçüt 11-13
+  - Ölçüt 11: Vercel dashboard → "Ready" durumu
+  - Ölçüt 12: Chrome DevTools → iPhone simülasyon → 3s sonra banner görünüyor mu?
+  - Ölçüt 13: **Gerçek iPhone Safari** → https://www.tedbirge.ai/ → banner + modal çalışıyor mu?
+- 3 evet → O2 KAPANDI, TUR #38 resmi kapanışı
 
 ---
 
 ## 📋 MEHMET BEY'İN BEKLEYEN MANUEL İŞLERİ
 
-1. **Tarayıcı doğrulaması** (5 dk) — yukarıdaki 4 adım
-   - Yeni Incognito pencere aç (Ctrl+Shift+N)
-   - F12 → Network → filter: `gtag`
-   - Sonucu sohbete bildir → TUR #37 resmi kapanır
+1. **TUR #37 GA4 kanıtı** (5 dk) — O1'i kapat
+   - Yeni Incognito (Ctrl+Shift+N) → F12 → Network → filter: `gtag`
+   - tedbirge.ai/, /basvuru, /dashboard, /musteri kontrol
+
+2. **TUR #38 PWA iOS kanıtı** (5 dk) — O2'yi kapat
+   - Vercel dashboard deploy "Ready" kontrolü
+   - Chrome DevTools → Device: iPhone 14 Pro → https://www.tedbirge.ai/ yenile → 3s bekle → banner görünmeli
+   - Kendi iPhone'unda Safari → https://www.tedbirge.ai/ → 3s bekle → banner görünmeli
+
+3. **Blog 3 HTML içeriği** — Sıradaki FAZ 4-B kesiti
+   - lib/blog.ts'deki 3 placeholder → mevzuat referanslı içerik
+   - Mehmet Bey + uzman avukat onayı ile
 
 ---
 
 ## 📝 SON 5 COMMIT (panel repo)
 
 ```
+c1773a1 feat(pwa): IosInstallGuide PwaProvider'a baglandi
+2a4dde3 feat(pwa): IosInstallGuide component eklendi (iOS Safari install rehberi)
 cccd060 feat(public): GA4 sadece public route'a baglandi (Madde 25.7 KVKK izolasyonu)
 0a1e18f refactor(layout): GA4 ROOT layout'tan kaldirildi (Madde 25.7 panel izolasyonu)
 93a17c4 feat(belge): TUR #35-4/5/6 - soft delete + retry + bulk delete UI
-d077e31 feat(upload): TUR #34 — frontend belge boyut on kontrolu
-5517dbe feat(ui): AccidentCase Kaza Rekonstruksiyon — Yakinda badge
 ```
 
 ---
 
 ## 🎯 SIRADAKİ ÖNERİLEN İŞ
 
-**Önce:** Mehmet Bey tarayıcı doğrulaması → TUR #37 resmi kapanışı
+**Önce:** Mehmet Bey O2 + O1 doğrulaması (toplam 10 dk)
 
-**Sonra: FAZ 4-B — Blog İçerik Üretimi (Anayasa Madde 25.12)**
-
-Yapısal inşaat (TUR #27–#37) tamamen kapandı. Sıradaki büyüme katmanı:
-- 3 niş landing için SEO odaklı uzun rehber (3000+ kelime, mevzuat referanslı)
-- Blog makale doldurma (`lib/blog.ts`'deki 3 taslak)
-- Sosyal medya post serileri
-- Editörel takvim
-
-**"FAZ 4-B aç"** diyince mimar konu seçimi + içerik takvimi mektubu yazar.
+**Sonra: Blog 3 makale içerik üretimi (FAZ 4-B devamı)**
+- 3 taslak: trafik kazası, iş kazası, sigorta tazminat reddedildi
+- `lib/blog.ts`'deki placeholder'ları mevzuat referanslı HTML ile doldurmak
+- Mimar taslak yazar, Mehmet Bey + uzman avukat redakte eder (Madde 25.13 #3)
+- "TUR #39 aç" diyince mimar içerik mektubu yazar
 
 ---
 
@@ -80,8 +92,8 @@ Yapısal inşaat (TUR #27–#37) tamamen kapandı. Sıradaki büyüme katmanı:
 
 ---
 
-**Mimar:** Claude Sonnet 4.6 (TUR #37 A3)
-**Son güncelleme:** 28 Nisan 2026 gece
-**Bir sonraki güncelleme:** Mehmet Bey 4 kanıtı bildirince (O1 kapanışı)
+**Mimar:** Claude Sonnet 4.6 (TUR #38 A3)
+**Son güncelleme:** 28 Nisan 2026 gec gece
+**Bir sonraki güncelleme:** O2 kanıtları bildirince (TUR #38 resmi kapanışı)
 
-🛡️ Anayasa v1.9.1 — GA4 KVKK izole, panel korumalı, FAZ 4-B'ye yol açık.
+🛡️ Anayasa v1.9.1 — iOS PWA install rehberi hazır, Mehmet Bey gerçek iPhone testi bekliyor.

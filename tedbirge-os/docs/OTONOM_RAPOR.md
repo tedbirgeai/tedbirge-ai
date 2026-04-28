@@ -1,3 +1,61 @@
+# OTONOM TUR #38 — 28 Nisan 2026 (gec gece) PWA IOS INSTALL REHBERI
+
+## ✅ TAMAMLANAN GOREVLER (3 ATOM)
+
+### A1 — IosInstallGuide component
+- components/IosInstallGuide.tsx olusturuldu (366 satir)
+- iOS Safari tespit: /iPad|iPhone|iPod/ + Safari + !CriOS/FxiOS/EdgiOS
+- Standalone gate: window.matchMedia standalone + navigator.standalone
+- localStorage 30 gun dismiss (anonim, KVKK uyumlu)
+- framer-motion: slide-up banner + modal AnimatePresence + stagger animasyon
+- Share ikonu pulse animasyonu (1.5s loop, useReducedMotion respect)
+- ARIA: role="dialog", aria-modal, aria-labelledby, aria-describedby
+- Keyboard: Escape → modal kapat
+- Marka rengi: #1317FB (mevcut panel palette)
+- Build: npx next build BASARILI (63/63 sayfa)
+- Commit: 2a4dde3
+
+### A2 — PwaProvider entegrasyon
+- components/PwaProvider.tsx: import + <IosInstallGuide /> eklendi (4 satir)
+- Mevcut Android install banner DOKUNULMADI
+- Mevcut PushAskBanner DOKUNULMADI
+- Build: npx next build BASARILI (63/63 sayfa)
+- Commit: c1773a1
+
+### A3 — Production push + bekleyen dogrulama
+- Push: tedbirge-panel master cccd060..c1773a1
+- Vercel deploy tetiklendi
+- Backend health: {"success":true} ✅
+- Production kanit (Madde 27.1 olcut 11-13): Mehmet Bey dogrulamalı
+  - Kanit 11: Vercel deploy "Ready"
+  - Kanit 12: Chrome DevTools → iPhone simulation → 3s sonra banner gorunmeli
+  - Kanit 13: Gercek iPhone Safari → https://www.tedbirge.ai/ → banner gorunmeli
+
+## 📊 OZET
+- 1 yeni dosya (IosInstallGuide.tsx, 366 satir)
+- 1 dosya degistirildi (PwaProvider.tsx, +4 satir)
+- 0 schema / 0 migration / 0 npm install / 0 env
+- 2 atom kod commit + push
+- KVKK: cookie YOK, sadece localStorage (kisisel veri yok)
+
+## 🎯 KAZANIM
+- iOS kullanicilari (Turkiye %30+) artik PWA install talimati goruyor
+- Madde 25.5.4 mobil uyumlu deneyim vaadi gerceklesti
+- Mehmet Bey 28 Nisan gozlemi: "kimse telefona nasil yukleyecegini bilmiyor" → KOD HAZIR
+- Marka tonu Madde 25.2 saygili (sade, etkili, sansasyonel degil)
+
+## 🔄 SIRADAKI
+Mehmet Bey:
+1. Vercel deploy "Ready" dogrulasi
+2. Chrome DevTools iPhone simulasyon testi (Kanit 12)
+3. Gercek iPhone Safari testi (Kanit 13) → TUR #38 resmi kapanisi
+
+FAZ 4-B devami: blog 3 makale icerik uretimi (Mehmet Bey + uzman avukat).
+
+— Claude Code, TUR #38 A3, anayasa v1.9.1
+
+---
+
 # OTONOM TUR #37 — 28 Nisan 2026 (gec gece) GA4 PANEL IZOLASYONU
 
 ## ✅ TAMAMLANAN GOREVLER (3 ATOM)
