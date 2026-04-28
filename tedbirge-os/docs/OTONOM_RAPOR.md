@@ -1,3 +1,31 @@
+# OTONOM TUR #35 — 28 Nisan 2026 (gec aksam) BELGE YONETIMI - 3 KATMAN
+
+## ✅ TAMAMLANAN GOREVLER (6 FAZ)
+
+- **FAZ 0 — Keşif:** `deletedAt` schema'da eksik tespit edildi, duruldu, Madde 29 kanıt alındı
+- **FAZ 1 — Schema sync:** `prisma/schema.prisma` Document modeline `deletedAt DateTime?` eklendi
+  - Commit: 731d77b
+- **FAZ 2 — Backend controller:** `src/controllers/document.controller.js` — softDeleteDocument, retryDocumentAnalysis, bulkDeleteDocuments eklendi
+- **FAZ 3 — Backend routes:** `src/routes/hukuk.routes.js` — 3 yeni endpoint (DELETE, POST retry, POST bulk-delete)
+- **FAZ 3 devami — deletedAt filtreleri:** lead.service.js + lead.controller.js + timeline.service.js (tüm document sorgularina `deletedAt: null` eklendi)
+  - Backend Commit: 2d1ba99
+- **FAZ 4 — Frontend tek silme:** DocumentList.tsx — confirmDelete state + modal (KVKK 30 gun mesaji)
+- **FAZ 5 — Frontend retry:** retrying state + inline SVG spinner (FAILED belgeler icin)
+- **FAZ 6 — Frontend bulk:** selectedIds Set + toggleSelectAll + bulk modal
+  - Panel Commit: 93a17c4 | Build: BASARILI
+- **FAZ 7 — leads/[id]/page.tsx:** inline belge listesi kaldirildi, DocumentList onRefresh baglandi
+  - Build: BASARILI | Push: panel
+
+## 📊 OZET
+- Backend: 3 endpoint (softDelete, retry, bulkDelete)
+- Frontend: DocumentList.tsx tam yeniden yazim (234 satir ekleme)
+- deletedAt filtreleri: 5 sorgu guncellendi
+- Production /health: 200 OK
+- Sistem saglik: %100
+- Siradaki: O1-TUR32 GA4 env var (Mehmet Bey Vercel dashboard ayari)
+
+---
+
 # OTONOM TUR #34 — 28 Nisan 2026 (aksam) BELGE BOYUT ON KONTROL
 
 ## ✅ TAMAMLANAN
