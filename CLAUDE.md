@@ -1,4 +1,4 @@
-# TEDBIRGE.AI — MİMAR ANAYASASI
+﻿# TEDBIRGE.AI — MİMAR ANAYASASI
 
 > Bu dosya Claude Code (terminal) ve sohbet mimarları için **bağlayıcı kuralname**dir.  
 > Her oturumda otomatik okunmalı, her görevde uygulanmalıdır.  
@@ -106,6 +106,26 @@ Her commit'i **revert edilebilir** kıl. Push öncesi düşün: bu commit yanlı
 
 ### 4.7 BAĞLAM KIYMETLİDİR
 Çok büyük dosyaları tarayacaksan: önce hedeflenen satır aralığını bul, sonra `view --view_range`. Bağlamı boşa harcama.
+
+### 4.8 MİGRASYON UYGULANDI KANITI
+
+Bir migration "uygulandı" kabul edilmesi için **ALTER TABLE / CREATE TABLE çıktısının kanıt olması** şarttır. `prisma migrate resolve --applied` **baseline operasyonudur**, "uygulandı" anlamına **gelmez**.
+
+**Geçerli kanıt:**
+- ✅ `psql -c "SELECT ..."` ile tablo/kolon varlığının doğrulanması
+- ✅ `prisma migrate deploy` çıktısında "Applied X migration" satırı
+- ✅ Render build log'unda migration komutunun başarılı çalışması
+
+**Geçersiz kanıt:**
+- ❌ `_prisma_migrations` tablosunda satır olması (baseline da satır oluşturur)
+- ❌ Schema dosyasında alanın tanımlı olması
+- ❌ Migration SQL dosyasının repo'da olması
+
+`prisma migrate resolve --applied` yalnız şu durumda kullanılır: yeni boş DB'ye geçiş veya mevcut DB schema-tablo durumu önceden manuel kanıtlanmışsa. Üretim DB'sinde baseline öncesi **ALTER TABLE çıktısı** alınır.
+
+Her schema kesit (KIRMIZI nokta) sonrasında kolon varlığı SELECT ile doğrulanır. Çıktı schema beklentisiyle eşleşmiyorsa kesit AÇIK kalır, OTONOM_RAPOR güncellenmez.
+
+**Yasak:** `migrate resolve --applied` kullanıp ALTER TABLE çıktısı almamak · sessiz drift'i geçiştirmek · schema dosyasındaki alanı "uygulandı kanıtı" saymak.
 
 ---
 
@@ -510,6 +530,23 @@ Otonom zincir aşağıdaki durumlarda **otomatik DUR + sohbete dön**:
 - 1 saat tek görevde sıkışma (Madde 6)
 - Mektubun beklediği önkoşul yerine getirilmemiş (önceki tur eksik)
 - Anayasa Madde 17 ihlali (kesit dışı işlere kayma)
+
+### 18.7 T Tipi Turda Onay Disiplini
+
+Sağlık taraması (T tipi tur — Madde 21) için Madde 5.1 onay disiplini şöyle genişler:
+
+**T tipi turda otomatik onaylı:**
+- `view`, `Get-ChildItem`, `Select-String`, `grep`, `ls`, `cat`
+- `Invoke-WebRequest -Method Head`, `curl -I`
+- `git status`, `git diff`, `git log`
+- `psql ... SELECT ...` (sadece SELECT — UPDATE/INSERT/DELETE/ALTER yasak)
+
+**T tipi turda yine onay sorulur:**
+- `str_replace`, `create_file` (rapor dosyası **hariç** — tek istisna)
+- `git commit`, `git push` (rapor commit'i için izin var, başka şey için yok)
+- Herhangi bir yazma operasyonu
+
+Sağlık taraması başlangıcında Mehmet Bey **tek seferde** "T tipi tur, otomatik onay aç" diyebilir. Yazma operasyonları yine sorulur. Yanlışlıkla yazma yapılırsa → DUR + git checkout + sohbete dön.
 
 ---
 
@@ -1023,286 +1060,25 @@ Güncelleme **mimar mektubu içinde** yapılır — bağımsız commit değil.
 
 ---
 
-## MADDE 25 — PAZARLAMA + WEB YÜZÜ + MARKA DİSİPLİNİ (Türkiye Geneli)
+## MADDE 25 — PAZARLAMADİSİPLİNİ (Özet)
 
-> Bu madde Tedbirge'in dünyaya bakan tüm yüzünü disipline eder: pazarlama, web arayüzü, görsel marka kimliği, sosyal medya, içerik, dijital reklam, ölçüm. Tedbirge bir LegalTech şirketidir; reklamı **kendi markası adına** yapar, hukuki hizmet pazarlamaz. Bu madde Madde 24 (İş Planı) + Madde 24.10 (KVKK Aktarım) + Madde 4.1 (yamalı bohça yasak) ile bağlıdır.
+> **Tam metin (25.1–25.14):** `tedbirge-os/CLAUDE_MADDE_25_DETAY.md`
+> **Hızlı kontrol + durum tablosu:** `tedbirge-os/MADDE_25_KONTROL.md`
 
-### 25.1 Tedbirge'in Pazarlamadaki Sıfatı
-Tedbirge LegalTech şirketidir. Hukuki hizmet sağlayıcısı değildir. Pazarlama kendi markası adına yapılır — kazazedeyi/mağduru hak arama bilincine ulaştırma + dijital platform tanıtımı. Avukatlık K. m.55 reklam yasağı Tedbirge'yi doğrudan bağlamaz. Mehmet Dinç **girişimci, marka sahibi**dir; LegalTech ürününü yönetir, avukat değildir.
+**Temel ilke:** Tedbirge LegalTech şirketidir — hukuki hizmet pazarlamaz, kendi markasını pazarlar. Avukatlık K. m.55 doğrudan bağlamaz; Mehmet Dinç girişimci, avukat değil.
 
-### 25.2 Pazarlama Vaadi (Marka Mesajı)
-- **Vaat:** "Hak arama sürecini dijitalleştir, kolaylaştır, hızlandır"
-- **Vaat değil:** "Tazminat al" / "Avukat tut" / "Davayı kazan"
-- Tedbirge **sonuç değil, süreç altyapısı** vaat eder.
-- Marka tonu: güvenilir, sade, eğitici, empatik — sansasyonel değil.
+**🔒 KIRMIZI çizgi (m.25.3):** "Kesin tazminat" / sayısal başarı vaadi / avukat isim+foto / sahte yorum / yanıltıcı sigorta rakamı / TBB reklam yasağı ihlali → DUR.
 
-### 25.3 KIRMIZI Çizgi — Yasaklı Vaatler
-Tüketicinin Korunması K. (6502) ve Reklam Kurulu mevzuatı gereği YASAK:
-- "Kesin tazminat alacaksınız" / "X TL garantili"
-- "En iyi platform" / "Türkiye'nin 1 numaralı"
-- Sayısal başarı oranı vaadi ("%95 kazandık")
-- Belirli avukatın isim/fotoğraf/başarı oranı (TBB Reklam Yasağı koruması)
-- Yanıltıcı sigorta tazminat rakamı (gerçek SBM tablosuna aykırı vaatler)
-- Sahte yorum / değerlendirme / referans
-- Tıbbi tanı/tedavi vaadi (sağlık verisi alanı için)
+**Pazarlama başlamadan FAZ 1 tamamlanmış olmalı.** Mevcut: FAZ 1+2 TAMAMLANDI (TUR #25/#26), FAZ 3 AKTİF (TUR #27+).
 
-### 25.4 İzinli Mesaj Çerçevesi
-- "Hak arama sürecini bilin" — bilgilendirme
-- "Ücretsiz tazminat hesaplama" — Tedbirge'in somut hizmeti
-- "Uzman hukuki destek ile dijital eşleştirme" — avukat ismi vermeden
-- Anonim örnek senaryolar (eğitim amaçlı, kişi adı yok)
-- Karayolları Trafik K., İş Sağlığı ve Güvenliği K., SBM tablosu, mahkeme içtihatları referansları
-- Yasal süreç açıklamaları (zaman aşımı, başvuru aşamaları, gerekli belgeler)
+**7 sorulu filtre (m.25.13):** ① Tüketici hukuku ② LegalTech sıfatı ③ TBB uyumu ④ KVKK+İYS ⑤ Kod altyapı ⑥ FAZ kapsamı ⑦ Ölçüm planı — **7 evet → uygulanır, biri hayır → DUR.**
 
-### 25.5 Web Arayüzü — Tedbirge'in Dünyaya Bakan Yüzü
-Tedbirge'nin web arayüzü kurumsal kimliği yansıtır + yasal yükümlülükleri karşılar + dönüşüm motoru gibi çalışır. Aşağıdaki bileşenler **kod düzeyinde mevcut** olmak zorundadır:
+**KVKK/İYS özeti (m.25.7):** Cookie consent olmadan GA4/Pixel tetiklenmez. Form'da 3 ayrı opt-in kutu (default işaretsiz). Her SMS/e-posta'da İYS opt-out zorunlu. Rıza/red zaman damgalı kaydedilir.
 
-#### 25.5.1 Marka Kimliği (Görsel Tutarlılık)
-- **Logo:** Tek dosya, tüm sayfalarda aynı yerde (tedbirge-panel/public/logo)
-- **Renk paleti:** ana renk + 2 yardımcı renk + nötr (Tailwind config'te tanımlı)
-- **Tipografi:** ana font + başlık fontu (next/font ile yüklü)
-- **İkon seti:** tek kütüphane (lucide-react veya benzer — karışık YASAK)
-- **Görsel ton:** profesyonel, sade, güvenilir — clipart YASAK
+**Kod altyapı bileşenleri** (20 madde, güncel durum): `MADDE_25_KONTROL.md §3`.
 
-`tedbirge-panel/app/layout.tsx` ve `tailwind.config.ts` kalıcı referans dosyalarıdır. Marka değişikliği bu iki dosya merkezinden yapılır.
+**Faz sırası atlanamaz (m.25.12):** FAZ 1 (yasal/ölçüm) → FAZ 2 (dönüşüm/marka) → FAZ 3 (trafik/içerik) → FAZ 4 A+B+C+D (operasyonel ölçek — atom turlara bölünür, tek mektupta karıştırma yasak).
 
-#### 25.5.2 Yasal Bileşenler (Mevzuat Zorunluluğu)
-- **Cookie consent banner:** İlk ziyarette gösterilir, kullanıcı **kabul/red/özelleştir** seçenekleri sunar (KVKK m.10 + ePrivacy)
-- **Aydınlatma metni:** `/kvkk-aydinlatma` sayfası — yurt dışı aktarım sağlayıcıları (Vercel, Supabase, Anthropic, Meta, Google) **açıkça** belirtilir (Madde 24.10)
-- **Çerez politikası:** `/cerez-politikasi` sayfası — hangi çerez ne yapar, ne kadar saklanır
-- **Kullanım koşulları:** `/kullanim-kosullari` — Tedbirge'in B2C platform sıfatı, sorumluluk sınırları
-- **KVKK başvuru sayfası:** `/kvkk-basvuru` — DataSubjectRequest endpoint'ine bağlı (TUR #23 sonrası)
-- **İletişim sayfası:** `/iletisim` — şirket adı, MERSİS no (varsa), e-posta, telefon (Bilgi Toplumu Hizmetleri K.)
-- **Footer:** Her sayfada sabit, yukarıdaki 6 sayfaya link içerir
-
-#### 25.5.3 Dönüşüm Yüzeyi (Conversion Surface)
-- **Anasayfa:** Net vaat (m.25.2), tek belirgin CTA, sosyal kanıt (anonim), 3 anlatım blok (kim için, nasıl çalışır, neden Tedbirge)
-- **Niş Landing Pages (kaza türü bazlı):**
-  - `/trafik-kazasi-tazminat` (ölümlü, yaralanmalı, maddi hasar)
-  - `/is-kazasi-tazminat` (SGK + manevi)
-  - `/sigorta-tazminat-reddedildi` (KTT itiraz)
-  - Her biri özel mesaj + özel form (gereksiz alan yok)
-- **Public form `/basvuru`:** UTM otomatik yakalama (frontend `useSearchParams`), KVKK rıza kutucuğu (default işaretsiz, opt-in), sağlık verisi rızası ayrı kutucuk, **pazarlama rızası ayrı kutucuk** (İYS + e-posta için)
-- **LexScan `/lexscan`:** AI sohbet sonu **prefill URL ile başvuru** (`?prefill=...`) — kazazedenin yazdığı bilgiler form'a otomatik aktarılır, sıfırdan tekrar yazma yok
-- **Müşteri portal `/musteri`:** mevcut (TUR #15) — pazarlamada **vaat olarak öne çıkar**: "Davanızı dijital takip edin"
-
-#### 25.5.4 Görsel + Etkileşim (Canlı Yüz)
-- **Hero alanı:** statik resim YASAK; ya **Lottie animasyonu** ya **kısa loop video** ya **animated gradient** (sadece bir tanesi seçilir, dağınık olmaz)
-- **Süreç animasyonu:** "Nasıl çalışır" bölümünde **3-4 adım animasyonlu görselle** anlatılır (form → analiz → eşleştirme → süreç)
-- **Sosyal kanıt animasyonu:** "Bu hafta X başvuru alındı" gibi **canlı sayaç** (gerçek veriden, abartısız) — tek satırlık animasyon
-- **Haber/blog akışı:** Anasayfada son 3 blog yazısı carousel ile dönüşümlü (SEO + güven)
-- **Müvekkil yolculuğu zaman tüneli:** Ana sayfada interaktif blok — kazadan tahsilat'a kadar adımlar
-- **CSS framework:** Tailwind (mevcut). Animasyon: **Framer Motion** veya saf CSS keyframes (yeni paket gerekirse Madde 18.3 KIRMIZI nokta ile onay)
-- **Görsel aşırılık YASAK:** Parıltı, gereksiz parallax, otomatik açılan modal, agresif pop-up (kullanıcı deneyimini bozar + KVKK rıza akışını gizler)
-
-#### 25.5.5 Mobil Öncelik
-- Tüm sayfalar **mobile-first** Tailwind responsive class'lar ile yazılır
-- Mobil 320px → 768px → 1024px → 1440px breakpoint'lerinde test edilir
-- Touch hedef minimum 44x44px (Apple HIG + Material Design ortak standart)
-- Yatay scroll YASAK (kötü UX)
-
-#### 25.5.6 Erişilebilirlik (a11y)
-- Tüm görsellerin `alt` attribute'ü Türkçe + anlamlı
-- Form alan etiketleri `<label>` ile bağlı
-- Klavye navigasyonu çalışır (Tab order doğru)
-- Renk kontrastı WCAG AA seviyesi (4.5:1 metin için)
-- Ekran okuyucu test (NVDA / VoiceOver) — düzenli denetim
-
-### 25.6 Sosyal Medya — İçerik + Şablon Disiplini
-Tedbirge'in sosyal medya hesapları **marka tutarlılığı** ile yönetilir:
-
-#### 25.6.1 Aktif Kanallar (Türkiye)
-- **Instagram** — görsel + video (reel + post + story)
-- **TikTok** — eğitim video formatı (15-60 saniye)
-- **YouTube** — uzun format (5-15 dakika rehber)
-- **LinkedIn** — kurumsal + B2B (avukatlara yönelik içerik)
-- **X (Twitter)** — hukuk haberleri + içtihat (opsiyonel)
-- **Facebook** — sosyal medya hesabı tutulur (reklam için gerekli) ama organic önceliği düşük
-
-#### 25.6.2 İçerik Şablonu Disiplini
-- **Tek brand kit:** Logo, renk, font tüm postlarda aynı
-- **Şablon kütüphanesi:** Canva veya Figma — minimum 10 şablon (eğitim post, sosyal kanıt, blog tanıtım, kullanıcı sorusu, mevzuat değişikliği, avukat ipucu)
-- **İçerik takvimi:** Haftalık planlama, aylık tema, 1 hafta önceden hazır
-- **Hashtag stratejisi:** Türkçe ana hashtag (#trafikkazasi #tazminat #iskazasi) + niş etiketler
-
-#### 25.6.3 İçerik Türleri ve KIRMIZI Çizgileri
-İzinli içerik:
-- Eğitici: "İş kazası geçirenlerin bilmesi gereken 5 hak"
-- Mevzuat: "SBM tablosu güncellendi, ne anlama geliyor?"
-- Süreç: "Başvurudan sonuca: tipik bir trafik kazası dosyası nasıl ilerler?"
-- Anonim örnek: "X bir kazazede, SGK'ya başvurdu, sigorta da buradaydı..."
-- Soru-cevap: kullanıcı yorumlarına yanıt
-- Teknoloji: "Tedbirge nasıl çalışır?" tanıtımı
-
-YASAK içerik (m.25.3 paralel):
-- Belirli avukat ismi / fotoğraf / kazanılan dava sayısı
-- Tazminat rakam vaadi
-- Müvekkil isim / yüz / dosya bilgisi (KVKK)
-- Sansasyonel başlık ("Bunu yapan tazminatın 10 katını alıyor!")
-- Sigortacıyı / avukatı / mahkemeyi karalayıcı içerik
-
-### 25.7 KVKK + İYS + Pazarlama Veri Disiplini
-- **Cookie consent:** GA4, Meta Pixel, TikTok Pixel **rıza alınmadan tetiklenmez** (cookie banner red'inde pixel atılmaz)
-- **Pazarlama rızası ayrı:** Form'da "KVKK aydınlatma okudum" + "sağlık verisi işlenmesini onaylıyorum" + **"e-posta/SMS ile pazarlama mesajı almak istiyorum"** üç ayrı kutucuk (default hepsi işaretsiz)
-- **İYS opt-out:** Her e-posta + SMS gönderiminde **opt-out linki/kelimesi** zorunlu — kullanıcı tek tıkla rıza geri alabilir
-- **Audit log:** Her rıza/red kayıt edilir (`Lead` modelinde + `ActivityLog`'ta zaman damgalı)
-- **PII maskeleme:** Pazarlama analizinde kullanılan AI çağrılarında müvekkil PII maskelenir (TUR #23 AIUsageLog disiplini ile paralel)
-
-### 25.8 Yanıltıcı Bilgi Denetimi
-- Web arayüzündeki **her sayfa** mevzuat referanslı yazılır — kanun maddesi, mahkeme kararı, SBM tablosu kaynağı belirtilir
-- Mehmet Bey **3 ayda bir** tüm public sayfaları gözden geçirir, mevzuat değişikliği varsa içerik güncellenir
-- Yeni bir vaat / istatistik / oran metne girerse **kaynak link** zorunlu (Reklam Kurulu denetimi koruma)
-- Eski / yanıltıcı ifade tespit edilirse **24 saat içinde** düzeltilir
-- Kullanıcı şikayeti / Tüketici Hakem Heyeti başvurusu gelirse 3 dakikada kanıt zinciri (m.25.10)
-
-### 25.9 İzinli Pazarlama Kanalları + Araçları (Türkiye)
-- **Arama:** Google Ads (Türkiye yerel hedef)
-- **Sosyal:** Meta Ads (Facebook/Instagram), TikTok Ads
-- **Görsel + video:** YouTube Ads (genç kitle + eğitim)
-- **Influencer/içerik üretici:** Mikro hesap (10K-100K), hukuk-sigorta-sağlık alanı, yazılı sözleşme + KVKK uyum + etiketli post (#işbirliği)
-- **SEO:** Blog (kendi alt domain veya `/blog` rotası), Google Search Console kayıtlı, sitemap.xml dinamik
-- **Email pazarlama:** İzinli liste (İYS opt-in), şablon merkezi (`notificationTemplates.js` — TUR #18 ertelendi, gelecek)
-- **Push:** mevcut (TUR #5), pazarlama push **opt-in ile**
-- **YASAK kanallar:** Soğuk arama, izinsiz toplu SMS/e-posta, sahte yorum, agresif retargeting (rahatsız edici sıklık), spam forum/yorum
-
-### 25.10 Pazarlama Verisi Audit ve Ölçüm Disiplini
-**Ölçümsüz pazarlama YASAK.** Her kampanya için:
-- **Harcama** (TL bazında, kanal başı)
-- **Lead** (yeni başvuru sayısı, kanal başı)
-- **CPL** (lead başına maliyet, hedef: kanal başı tanımlı)
-- **Conversion funnel** (ziyaretçi → form başlat → form bitir → avukat ataması → sözleşme → tahsilat)
-- **ROI** (komisyon geliri / pazarlama harcaması, kanal başı)
-
-Bu metrikler:
-- Backend: `/api/analytics` endpoint (mevcut, genişletilecek)
-- Frontend: `/dashboard/pazarlama` sayfası (yeni — TUR #27 kapsamında)
-- 3rd party: GA4 + Meta Ads Manager + Google Ads Manager (gerçek pazarlama harcaması raporu)
-
-Şikayet gelirse (Reklam Kurulu, KVKK Kurumu, Tüketici Hakem Heyeti) **kanıt zinciri 3 dakikada** çıkartılabilir olmalı (lead başına KVKK rıza zaman damgası, kanal kaynağı, gönderilen mesaj logu).
-
-### 25.11 Kod Altyapı Zorunlulukları (Madde 4.4 — kod kanıt)
-Aşağıdaki bileşenler **kod tabanında mevcut olmadan** pazarlama kampanyası BAŞLATILAMAZ:
-
-| # | Bileşen | Konum | Durum (KEŞİF 27 Nis 2026) |
-|---|---|---|---|
-| 1 | Cookie consent banner | tedbirge-panel/components/ | YOK → TUR #25 FAZ 1 |
-| 2 | Aydınlatma metni (yurt dışı aktarım dahil) | /kvkk-aydinlatma | YOK / yarım → TUR #25 FAZ 1 |
-| 3 | GA4 entegrasyonu | layout.tsx + env | YOK → TUR #25 FAZ 1 |
-| 4 | Meta Pixel | layout.tsx + env | YOK → TUR #25 FAZ 1 |
-| 5 | UTM frontend yakalama | basvuru/page.tsx | YARIM → TUR #25 FAZ 1 |
-| 6 | İYS opt-out altyapısı | sms + email service | YOK → TUR #25 FAZ 1 |
-| 7 | robots.txt + sitemap.xml | tedbirge-panel/public/ + app/ | YOK → TUR #25 FAZ 1 |
-| 8 | qualificationScore AI hesaplama | analyzer.service.js | 0 default → TUR #26 |
-| 9 | LexScan → /basvuru prefill köprüsü | lexscan + basvuru | YOK → TUR #26 |
-| 10 | Niş landing pages | tedbirge-panel/app/(public)/* | YOK → TUR #26 |
-| 11 | Pazarlama dashboard | /dashboard/pazarlama | YOK → TUR #27 |
-| 12 | Conversion funnel hesabı | /api/analytics | YOK → TUR #27 |
-| 13 | Hero animasyonu (Lottie/video/gradient) | anasayfa | YOK → TUR #26 |
-| 14 | Müvekkil yolculuğu zaman tüneli | anasayfa | YOK → TUR #26 |
-| 15 | Blog modülü + 10 makale | /blog rotası | YOK → TUR #27 sonrası |
-| 16 | Google Ads conversion API | /api/conversion + env | YOK → TUR #26 (FAZ 4-A) |
-| 17 | UTM şablon kütüphanesi | docs/UTM_SABLON.md | YOK → TUR #26 (FAZ 4-A) |
-| 18 | A/B test altyapısı | basvuru/page.tsx variants | YOK → TUR #29 (FAZ 4-D) |
-| 19 | Lead takip SLA otomasyon | jobs/leadFollowUp.job.js | YOK → TUR #28 (FAZ 4-C) |
-| 20 | Haftalık KPI mail otomasyonu | jobs/weeklyReport.job.js | YOK → TUR #28 (FAZ 4-C) |
-
-**Bu tablo Madde 25'in canlı kontrol listesidir.** Yeni bileşen eklendiğinde tablo güncellenir (Madde 20 evrim).
-
-### 25.12 Üç Faz Disiplini (Atlama YASAK — Madde 17.4 yamalı bohça yasağı paralel)
-
-#### FAZ 1 — Yasal + Ölçüm Temeli (NOW + MUST)
-**Reklam başlamadan ZORUNLU.** TUR #25 kapsamı:
-- Cookie consent banner
-- Aydınlatma metni güncelleme (yurt dışı aktarım)
-- GA4 + Meta Pixel kurulumu (cookie rıza ile bağlı)
-- UTM frontend fix (basvuru/page.tsx)
-- İYS opt-out altyapısı (sms + email service)
-- robots.txt + sitemap.xml
-- /kvkk-basvuru sayfası (DataSubjectRequest endpoint'e — TUR #23 sonrası)
-- /cerez-politikasi + /kullanim-kosullari sayfaları
-- Footer'da yasal link bütünlüğü
-
-**Tahmini süre:** 1 hafta. KIRMIZI nokta var (env değişikliği — GA4_ID, META_PIXEL_ID + npm install — cookie consent kütüphanesi).
-
-#### FAZ 2 — Dönüşüm + Marka Yüzü (NOW + MUST, FAZ 1 sonrası)
-TUR #26 kapsamı:
-- qualificationScore gerçek AI hesaplama (analyzer.service genişletme)
-- LexScan → /basvuru prefill köprüsü
-- Niş landing pages (3 başlık: trafik / iş / sigorta-ret)
-- Anasayfa yeniden tasarım (hero animasyonu, süreç animasyonu, sosyal kanıt, müvekkil yolculuğu)
-- Mobil deneyim denetimi
-- Erişilebilirlik (a11y) denetimi
-
-**Tahmini süre:** 1-2 hafta.
-
-#### FAZ 3 — Trafik + Ölçüm + İçerik (NOW → NEXT)
-TUR #27 + sonrası:
-- /dashboard/pazarlama analytics dashboard (UTM kırılım, conversion funnel, KPI kartları)
-- Google Ads ilk kampanya (test bütçesi)
-- Meta Ads ilk kampanya
-- Blog modülü kurulum + 10 başlangıç makale
-- Sosyal medya içerik takvimi başlangıcı
-- KPI raporu otomasyonu (haftalık)
-
-**Tahmini süre:** sürekli (3+ ay aktif yönetim).
-
-#### FAZ 4 — Operasyonel Ölçek + Optimizasyon (NEXT, FAZ 1+2+3 sonrası)
-
-TUR #26 ve sonrası kapsamı (atom turlara bölünür):
-
-**A. Reklam Altyapısı (TUR #26 — ilk atom)**
-- Google Ads conversion API kurulum (server-side tracking)
-- Meta Pixel + Conversion API (eğer Meta Ads kullanılacaksa — Mehmet Bey kararı 27 Nisan: "Meta Pixel YOK", bu satır karara bağlı)
-- UTM şablon disiplini (kanal × kampanya × adgrup × keyword)
-- Bütçe disiplini (günlük/aylık limit + alarm)
-- Landing page A/B test altyapısı (3 niş sayfa için varyant testi)
-- Lead → CRM webhook (gelen lead'in kaynağı net işaretlensin)
-
-**B. İçerik Üretimi (TUR #27)**
-- Blog makale doldurma (lib/blog.ts içindeki 3 taslak: trafik/iş/sigorta-ret)
-- SEO odaklı uzun rehber makaleler (3000+ kelime, mevzuat referanslı — m.25.4)
-- Sosyal medya post serileri (m.25.6.3 izinli içerik tipleri)
-- Editörel takvim (haftalık plan, aylık tema — m.25.6.2)
-- LexScan AI'dan blog özet üretme (otomasyon, ama insan denetimi zorunlu)
-
-**C. Operasyonel Pazarlama (TUR #28)**
-- Lead takip otomasyonu (yeni başvuru → 24 saat içinde temas SLA)
-- Conversion funnel alarm sistemi (form bırakma > %50 ise alarm)
-- Haftalık KPI raporu otomatik (m.25.10 metrikleri otomatik mail)
-- Retargeting cohort'ları (form başlat ama bitirme: 7 gün retargeting)
-- Avukat performans dashboard (lead → atama → tahsilat süresi)
-
-**D. Otomasyon + Sürekli Optimizasyon (TUR #29+, sürekli)**
-- Lead skor revizyonu (qualificationScore tabanlı sıralama, avukat panelinde)
-- A/B test motoru (landing page + form alanları + CTA varyantları)
-- Davranış izleme (heatmap, session recording — KVKK rıza ile, m.25.7)
-- Maliyet optimizasyonu (CPL düşürme — bidding strateji, audience daraltma)
-- Yeni kanal ekleme (m.25.13 7 sorulu filtre ile her yeni kanal denetlenir)
-
-**Tahmini süre:** A 1 hafta, B+C+D sürekli (aylık döngü).
-
-**KIRMIZI nokta sinyali:**
-- Yeni env değişkeni eklenirse (GOOGLE_ADS_CONVERSION_ID vb.)
-- Yeni 3rd party SDK eklenirse (npm install)
-- Davranış izleme kütüphanesi (Hotjar, Microsoft Clarity vb.)
-→ Madde 18.3 yazılı onay zorunlu.
-
-**FAZ 4 disiplin notu:** FAZ 4 dört alt başlığı (A+B+C+D) **kapsam**tır, **uygulama atom turlara bölünür** (Madde 4.1 yamalı bohça yasak). Tek mektupta dört başlığı birden uygulama YASAK.
-
-### 25.13 Pazarlama Kararı Filtresi (Karar Vermeden Önce 7 Soru)
-Her yeni pazarlama hamlesi (yeni kanal, yeni kampanya, yeni mesaj çerçevesi):
-1. **Tüketici hukukuna uygun mu?** (6502 + Reklam Kurulu)
-2. **Tedbirge'in LegalTech sıfatına yakışır mı?** (m.25.1-25.2)
-3. **Avukat ortakları TBB ihlaline sokuyor mu?** (m.25.3 KIRMIZI çizgi)
-4. **KVKK + cookie consent + İYS uyumlu mu?** (m.25.7)
-5. **Kod altyapı destekliyor mu?** (m.25.11 tablo)
-6. **Hangi FAZ kapsamında?** (FAZ 1 → 2 → 3 sırası m.25.12)
-7. **Ölçüm planı ne?** (m.25.10 — KPI hedefi tanımlı mı)
-
-7 evet → uygulanır. Bir hayır → DUR.
-
-### 25.14 Yabancı Pazar (Ayrılmış)
-Yabancı plaka kazaları + çoklu dil pazarlama bu maddenin kapsamı dışındadır. İlk evre Türkiye geneli. Yabancı pazar açılımı **Madde 26** ile düzenlenir, ülkeye özel hukuki danışmanlık + ek araştırma sonrasında.
 
 ---
 
@@ -1484,79 +1260,6 @@ Mimar Mehmet Bey'i zorlamaz. Uyarı **bilgi**, dayatma değil.
 - ❌ DEVIR_RAPORU_AKTIF.md güncel değilken uyarmak (yeni sohbette boşluk olur)
 
 ---
-
-## 28. ONAY DİSİPLİNİ — T TİPİ TURLARDA OTOMATİK
-
-### 28.1 İlke
-
-Madde 5.1 read-only otomatik onay disiplini **sağlık taraması (T tipi)** kapsamında genişletilir.
-
-### 28.2 T Tipi Turda Otomatik Onaylı
-
-- `view`, `Get-ChildItem`, `Select-String`, `grep`, `ls`, `cat`
-- `Invoke-WebRequest -Method Head`, `curl -I`
-- `git status`, `git diff`, `git log`
-- `psql ... SELECT ...` (sadece SELECT, hiç UPDATE/INSERT/DELETE/ALTER)
-
-### 28.3 T Tipi Turda Yine Onay Sorulur
-
-- `str_replace`, `create_file` (rapor dosyası **hariç** — o tek istisna)
-- `git commit`, `git push` (rapor commit'i için izin var, başka şey için yok)
-- Herhangi bir yazma operasyonu
-
-### 28.4 Mehmet Bey Yetkisi
-
-Sağlık taraması başlangıcında Mehmet Bey **tek seferde** "T tipi tur, otomatik onay aç" diyebilir. Bu cümle Madde 28.2 listesini aktive eder. Yazma operasyonları yine sorulur.
-
-### 28.5 İhlal
-
-Yanlışlıkla yazma yapılırsa → DUR + git checkout + sohbete dön.
-
----
-
-## 29. MIGRATION UYGULANDI KANITI
-
-### 29.1 İlke
-
-Bir migration "uygulandı" kabul edilmesi için **ALTER TABLE / CREATE TABLE çıktısının kanıt olması** şarttır. `prisma migrate resolve --applied` komutu **baseline operasyonudur**, "uygulandı" anlamına **gelmez**.
-
-### 29.2 Kanıt Türleri
-
-Geçerli kanıt:
-- ✅ `psql -c "SELECT ..."` ile tablo/kolon varlığının doğrulanması
-- ✅ `prisma migrate deploy` çıktısında "Applied X migration" satırı
-- ✅ Render build log'unda migration komutunun başarılı çalışması
-
-Geçersiz kanıt:
-- ❌ `_prisma_migrations` tablosunda satır olması (baseline da satır oluşturur)
-- ❌ Schema dosyasında alanın tanımlı olması
-- ❌ Migration SQL dosyasının repo'da olması
-
-### 29.3 Baseline Kullanımı
-
-`prisma migrate resolve --applied` yalnız şu durumda kullanılır:
-- Yeni boş DB'ye geçiş (production hiç olmayan database)
-- Mevcut DB'nin schema-tablo durumu **önceden manuel kanıtlanmışsa**
-
-Üretim DB'si üzerinde baseline çalıştırırken **önce ALTER TABLE çıktısı** alınır. Aksi halde drift sessizce oluşur (28 Nisan 2026 sabahki K1 bulgusu).
-
-### 29.4 Sürekli Doğrulama
-
-Her schema kesit (KIRMIZI nokta) sonrasında:
-```sql
-SELECT table_name, column_name FROM information_schema.columns 
-WHERE column_name = '<eklenen-kolon>' AND table_schema = 'public';
-```
-Çıktı schema beklentisiyle eşleşmiyorsa kesit AÇIK kabul edilir, OTONOM_RAPOR güncellenmez.
-
-### 29.5 Yasaklı Davranış
-
-- ❌ `migrate resolve --applied` kullanıp ALTER TABLE çıktısı kontrol etmemek
-- ❌ Sessiz drift'i "fark etmedim" diye geçiştirmek
-- ❌ Schema dosyasındaki `@updatedAt`'i "uygulandı kanıtı" sayma
-
----
-
 ## 30. FRONTEND STANDART DİSİPLİNİ — apiFetch ZORUNLU
 
 ### 30.1 İlke
