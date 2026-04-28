@@ -1,3 +1,24 @@
+# OTONOM TUR #29 — 28 Nisan 2026 (ogleden sonra) ACCIDENTCASE KANIT
+
+## ✅ TAMAMLANAN
+- AccidentCase model + backend + frontend + OS kullanim taramasi (7 baslik)
+- Senaryo: **B — Yari kurulu** (frontend iskelet hazir, backend hic yazilmamis)
+- Rapor: `tedbirge-os/docs/ACCIDENTCASE_KANIT_TUR29.md`
+
+## 📊 OZET
+- Kanit: Backend 0 referans / Panel leads/[id] aktif / "yakinda" etiketi mevcut
+- 0 kod / 0 schema / 0 migration / 0 env / 0 npm
+- Madde 21 + 27 + 28 + 4.4 disiplini tam
+
+## 🔄 SIRADAKI
+Mimar oturumu — Senaryo B'ye gore iki secenekli karar:
+- KISA VADE (YEŞİL nokta): Panel "Kaza Rekonstruksiyon" blogunu kaldir / "Yakinda" yap
+- UZUN VADE (KIRMIZI nokta, ayri kesit): Tam AccidentCase backend + Evidence + AI rapor
+
+— Claude Code, TUR #29 sonu
+
+---
+
 # OTONOM TUR #32 — 28 Nisan 2026 (ogleden sonra) SAGLIK TARAMASI TEKRARI
 
 ## ✅ TAMAMLANAN
