@@ -1,3 +1,31 @@
+# OTONOM TUR #34 — 28 Nisan 2026 (aksam) BELGE BOYUT ON KONTROL
+
+## ✅ TAMAMLANAN
+- `components/documents/UploadForm.tsx` — MAX 50 MB → 20 MB (backend Vision limiti ile eslesti)
+- `pickFiles`: boyut asimi aninda tespit, sessiz filtre yerine acik uyari + sikistirma linkleri
+- `sizeError` state: inline kirmizi kutu (dosya adi + MB + smallpdf/tinypng/squoosh)
+- Build: BASARILI | Commit: d077e31 | Push: panel repo
+
+## 📊 OZET
+- 1 dosya, 21 satir ekleme, 2 satir degisim (atom kesit Madde 4.1)
+- 0 schema / 0 migration / 0 npm / 0 env
+- Backend dokunulmadi (savunma katmani zaten calisiyor)
+- Risk: Yesil nokta (Madde 18.4)
+- Madde 30 (apiFetch): uyumlu kaldi
+
+## 🎯 KAZANIM
+- Once: 26.5 MB PDF yukle → server bekle → backend reject → "Vaka acilamadi" hatasi
+- Simdi: 20 MB+ dosya sec → aninda inline uyari → sikistirma yonlendirme → kullanici kucultup tekrar dener
+- Bandwidth tasarrufu (buyuk dosya server'a gitmiyor)
+
+## 🔄 SIRADAKI
+- Mehmet Bey dogrulasin: buyuk PDF sec → uyari gorulmeli / kucuk PDF → normal yukleme
+- O1-TUR32: GA4 (Vercel NEXT_PUBLIC_GA4_ID girilince kapaniyor)
+
+— Claude Code, TUR #34 sonu, anayasa v1.8.0
+
+---
+
 # OTONOM TUR #33 — 28 Nisan 2026 (aksam) BITIS TANIMI DOGRULAMA
 
 ## ✅ TAMAMLANAN
