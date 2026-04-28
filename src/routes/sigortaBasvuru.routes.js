@@ -8,9 +8,9 @@ const pdfController = require("../controllers/sigortaBasvuru.pdf.controller");
 router.use(authMiddleware);
 
 router.post("/lead/:leadId", roleMiddleware("ADMIN", "SALES", "LAWYER", "REPRESENTATIVE"), controller.create);
-router.get("/lead/:leadId", controller.listByLead);
-router.get("/:id", controller.getOne);
+router.get("/lead/:leadId", roleMiddleware("ADMIN", "SALES", "LAWYER", "REPRESENTATIVE"), controller.listByLead);
+router.get("/:id", roleMiddleware("ADMIN", "SALES", "LAWYER", "REPRESENTATIVE"), controller.getOne);
 router.patch("/:id/status", roleMiddleware("ADMIN", "SALES", "LAWYER", "REPRESENTATIVE"), controller.changeStatus);
-router.get("/:id/pdf", pdfController.generatePdf);
+router.get("/:id/pdf", roleMiddleware("ADMIN", "SALES", "LAWYER", "REPRESENTATIVE"), pdfController.generatePdf);
 
 module.exports = router;
