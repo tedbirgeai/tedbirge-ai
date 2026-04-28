@@ -6,6 +6,31 @@
 
 ---
 
+## 28 Nisan 2026 — v1.10.0 Anayasa Sadeleştirme + Modülasyon (TUR #39)
+
+**Karar:** CLAUDE.md 74K → 50K karaktere indirildi. Madde 25 ayrı dosyaya modüle edildi. Dört madde mevcut maddeler içine gömüldü. İki madde birleştirildi.
+
+**Sebep:** CLAUDE.md Madde 27 eşiğini (>60K karakter = modül ayrımı) aşmıştı. LLM context verimliliği düşüyor, her oturumda sıkıştırma oluyor, karar kalitesi bozulabiliyordu. TUR #39 Ön Keşif (KU1-KU8) bunu kanıtladı.
+
+**Yapılan değişiklikler:**
+- Madde 25 tam metin (~17K karakter) → `CLAUDE_MADDE_25_DETAY.md` + `MADDE_25_KONTROL.md`
+- Madde 28 (T tipi onay) → §18.7 olarak Madde 18'e gömüldü
+- Madde 29 (migration kanıtı) → §4.8 olarak Madde 4'e gömüldü
+- Madde 30 (apiFetch) → §13.2 olarak Madde 13'e gömüldü
+- Madde 31 (ortam izolasyonu) → §13.3 olarak Madde 13'e gömüldü
+- Madde 26+27 birleştirildi: Madde 27 içeriği §26.8+§26.9 olarak Madde 26'ya eklendi
+- Eski Madde 32 → Madde 27, 33 → Madde 28, 34 → Madde 29
+- SALES rolü Madde 11'e eklendi (schema enum'da vardı, anayasada eksikti)
+
+**Alternatif:** Strateji W (tam modül ayrımı, anayasa/disiplin/ + anayasa/teknik/ gibi klasörler). Reddedildi — 6 dosyaya bölünme daha fazla "nereye bakacağım" sorunu yaratır.
+
+**Etki:** CLAUDE.md, `tedbirge-os/CLAUDE_MADDE_25_DETAY.md`, `tedbirge-os/MADDE_25_KONTROL.md`
+
+**Mimar:** Claude Sonnet 4.6 (TUR #39 — 28 Nisan 2026 gece)  
+**Mehmet Bey onayı:** 28 Nisan 2026 yazılı — "Strateji Z: Sadeleştirme + Madde 25 modülasyonu"
+
+---
+
 ## 25 Nisan 2026 — Mimari Anayasa Yürürlüğe Girdi
 
 **Karar:** `CLAUDE.md` proje köküne yerleştirildi, **bağlayıcı kuralname** statüsünde.

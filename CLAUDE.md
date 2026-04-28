@@ -1366,11 +1366,12 @@ Mehmet Bey sahaya çıkabilsin diye bu disiplin var.
 
 ---
 
-**— Tedbirge Mimari Anayasası v1.9.1**  
+**— Tedbirge Mimari Anayasası v1.10.0**  
 **25 Nisan 2026 — başlangıç (Claude Opus 4.7)**  
 **28 Nisan 2026 — v1.7.0 (Madde 26-32 eklendi: otonom devir, sağlık periyodikliği, T tipi onay, migration kanıtı, frontend standardı, ortam izolasyonu, anayasa boyutu)**  
 **28 Nisan 2026 — v1.8.0 (Madde 28 eklendi: Beklemede Özellik Disiplini — AccidentCase TUR #29 dersi; Madde 28 (eski 33) kapanış → 29 (eski 34) olarak yeniden numaralandı)**  
 **28 Nisan 2026 — v1.9.0 (Madde 26 sertleştirme + Madde 26.9 kapanış uyarısı — otonom devir sistemi)**  
 **28 Nisan 2026 — v1.9.1 (Madde 26.4 düzeltme — CLI vs sohbet arayüzü farkı, arayüz tablosu eklendi)**  
+**28 Nisan 2026 — v1.10.0 (TUR #39 Anayasa Sadeleştirme: Madde 25 modülasyonu, 28+29+30+31 birleştirme, 26+27 birleştirme, SALES rolü, 74K→50K karakter)**  
 **Versiyon geçmişi: tedbirge-os/MIMARI_KARARLAR.md**  
 **Her major/minor değişiklikte versiyon güncellemesi ZORUNLU (Madde 22)**
