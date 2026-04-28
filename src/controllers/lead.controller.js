@@ -246,7 +246,7 @@ exports.downloadPowerOfAttorneyPdf = asyncHandler(async (req, res) => {
 exports.runLeadWorkflow = asyncHandler(async (req, res) => {
   const lead = await prisma.lead.findUnique({
     where: { id: req.params.id },
-    include: { documents: true, assignments: true }
+    include: { documents: { where: { deletedAt: null } }, assignments: true }
   });
 
   if (!lead) {
@@ -503,7 +503,7 @@ exports.gdprExport = asyncHandler(async (req, res) => {
       ChatSession: true,
       contracts: true,
       davaSurec: true,
-      documents: true,
+      documents: { where: { deletedAt: null } },
       durusmalar: true,
       ihtarnameler: true,
       Masraf: true,

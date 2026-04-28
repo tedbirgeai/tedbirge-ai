@@ -1,5 +1,6 @@
 const express = require("express");
 const ctrl = require("../controllers/hukuk.controller");
+const docCtrl = require("../controllers/document.controller");
 const auth = require("../middlewares/authMiddleware");
 const role = require("../middlewares/roleMiddleware");
 
@@ -29,5 +30,10 @@ router.post("/:id/bilirkisi/:bilirkisiId/analiz", auth, role("ADMIN", "SALES", "
 // ─── MASRAF ──────────────────────────────────────────────────────────────────
 router.get("/:id/masraflar", auth, ctrl.getMasraflar);
 router.post("/:id/masraflar", auth, role("ADMIN", "SALES", "REPRESENTATIVE", "LAWYER"), ctrl.createMasraf);
+
+// ─── BELGE YÖNETİMİ ──────────────────────────────────────────────────────────
+router.delete("/:id/documents/:documentId", auth, role("ADMIN", "SALES", "LAWYER"), docCtrl.softDeleteDocument);
+router.post("/:id/documents/:documentId/retry-analysis", auth, role("ADMIN", "SALES", "LAWYER"), docCtrl.retryDocumentAnalysis);
+router.post("/:id/documents/bulk-delete", auth, role("ADMIN", "SALES", "LAWYER"), docCtrl.bulkDeleteDocuments);
 
 module.exports = router;

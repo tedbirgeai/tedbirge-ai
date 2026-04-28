@@ -62,7 +62,7 @@ async function getLeadTimeline(leadId) {
   ] = await Promise.all([
     prisma.lead.findUnique({ where: { id: leadId }, select: { createdAt: true, customerName: true, accidentType: true } }),
     prisma.assignment.findMany({ where: { leadId }, include: { lawyer: { select: { fullName: true } } }, orderBy: { createdAt: "asc" } }),
-    prisma.document.findMany({ where: { leadId }, orderBy: { createdAt: "asc" } }),
+    prisma.document.findMany({ where: { leadId, deletedAt: null }, orderBy: { createdAt: "asc" } }),
     prisma.activityLog.findMany({ where: { leadId }, orderBy: { createdAt: "asc" } }),
     prisma.durusma.findMany({ where: { leadId }, orderBy: { tarih: "asc" } }),
     prisma.ihtarnameTakip.findMany({ where: { leadId }, orderBy: { createdAt: "asc" } }),
