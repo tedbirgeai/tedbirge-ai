@@ -388,6 +388,26 @@ Production'a push edilmiş kodda:
 - ❌ Test endpoint'i (mount edilmemiş olmalı)
 - ❌ Geçici fix'ler ("şimdilik böyle olsun" zihniyeti)
 
+### 13.2 Frontend: apiFetch Zorunlu
+
+Backend'e giden hiçbir HTTP çağrısı `apiFetch` wrapper'ını atlamaz. Doğrudan `fetch(...)`, `axios.get(...)` yasaktır. `lib/api.ts → apiFetch` Authorization header'ını localStorage'dan alır — bypass = 401.
+
+**İstisna:** `/api/public/*` (auth gerektirmez) + 3rd party API (backend üzerinden gitmez). İstisnada `// raw fetch — auth gerekmez (public endpoint)` comment zorunlu.
+
+**Yasak:** apiFetch atlama · inline fetch (`useEffect(() => fetch(...))`) · credentials:include ile auth bekleme.
+
+### 13.3 Ortam İzolasyonu
+
+Lokal `.env` ve production `DATABASE_URL` **farklı** Supabase projeleridir.
+
+- `.env` → dev DB (`dlkctvyjbuulmkgpqcvm`)
+- Render `DATABASE_URL` → production (`iikpmzomblocdrxeisxh`)
+- Render `DIRECT_URL` → aynı production, port 5432 (migration için)
+
+Deploy öncesi: `psql "$DIRECT_URL" -c "SELECT migration_name, finished_at FROM _prisma_migrations ORDER BY finished_at NULLS FIRST;"` — `finished_at IS NULL` varsa push reddedilir.
+
+**Yasak:** Lokal `.env`'i production DB'ye yönlendirmek · deploy öncesi migration kontrol etmemek · "iki ortamı aynı yapsam ne olur" düşüncesi.
+
 ---
 
 ## 14. AGENT LOOP'U BAŞLATMA SIRASI
@@ -1186,146 +1206,36 @@ Tek dosya, sürekli güncellenir: `tedbirge-os/DEVIR_RAPORU_AKTIF.md`
 - ❌ Açılış mesajı şablonunu değiştirmek (sabit format — bağlam köprüsü)
 - ❌ DEVIR_RAPORU_AKTIF.md güncellemeyi unutmak (TUR sonunda zorunlu)
 
----
+### 26.8 Sağlık Taraması Periyodikliği
 
-## 27. SAĞLIK TARAMASI PERİYODİKLİĞİ
-
-### 27.1 Tetikleyiciler
-
-Sağlık taraması (T tipi tur — Madde 21) şu durumlarda otomatik açılır:
+Sağlık taraması (T tipi tur — Madde 21) şu durumlarda açılır:
 
 1. **3 günde bir** — periyodik denetim (mimar Mehmet Bey'e önerir, onay sonrası açılır)
 2. **Kritik bulgu sonrası** — bir 🔴 bulgu kapatıldığında zincirleme drift kontrolü
 3. **Major tedavi öncesi** — büyük kesit (B tipi) açılmadan önce mevcut hâlin kanıtı
 4. **Mehmet Bey direktifi** — sahada gözlem (her zaman geçerli)
 
-### 27.2 Tedavi Karışmaz
+Sağlık taraması = denetim. Tedavi = kesit. Bunlar **farklı turlardır**. Bulgu aktarımı: 🔴 → acil kesit · 🟡 → mevcut/sıradaki kesite · 🟢+ℹ️ → TASK_QUEUE.md.
 
-Sağlık taraması = denetim. Tedavi = kesit. Bunlar **farklı turlardır**.
+### 26.9 Sohbet Kapanış Uyarısı
 
-Tarama T tipi: salt okuma, sıfır kod, sıfır commit (rapor commit'i hariç).
-Tedavi A/B tipi: kesit disiplini, atom commit, KIRMIZI/SARI/YEŞİL nokta.
+LLM context window sınırlıdır. Şu durumlardan biri tetiklendiğinde mimar Mehmet Bey'i **mevcut iş sonunda** uyarır:
 
-### 27.3 Bulgu Aktarımı
+- Sohbet 100+ kullanıcı mesajı sürdü
+- Anayasa context'te 3+ kez yüklendi
+- Claude Code "Conversation compacted" verdi
+- Yanıt kalitesinde mimar düşüş tespit etti
 
-Madde 21.5 ile uyumlu:
-- 🔴 KRİTİK → acil kesit aç
-- 🟡 ORTA → mevcut/sıradaki kesite ekle
-- 🟢 DÜŞÜK + ℹ️ NOT → TASK_QUEUE.md'ye yaz, planlı kapat
-
-### 27.4 Kapanış Uyarısı — Sohbet Süresi Disiplini
-
-LLM context window sınırlıdır. Tedbirge mimari oturumları uzar — anayasa, kararlar, kanıtlar birikir. Bağlam dolduğunda performans düşer, hatalı karar riski artar (Madde 4.7 — bağlam kıymetli).
-
-#### 27.4.1 Eşik
-
-Mimar (Claude Opus 4.7) sohbet uzunluğunu aktif izler. Şu durumlardan herhangi biri tetiklendiğinde **Mehmet Bey'i proaktif uyarır**:
-
-- Sohbet 100+ kullanıcı mesajı sürmüşse
-- Anayasa metni context'te 3+ kez yüklenmişse
-- Compact uyarısı (Claude Code "Conversation compacted" mesajı vermişse)
-- Performans yavaşlığı (yanıtlar gecikmeye başlamışsa)
-- Mimar kendi yanıt kalitesinde düşüş tespit ederse
-
-#### 27.4.2 Kapanış Uyarı Formatı
-
-Eşik tetiklendiğinde mimar **mevcut işin** sonunda şu uyarıyı ekler:
-
+**Uyarı şablonu:**
 ```
-⚠️ SOHBET KAPANIŞ UYARISI
-
-Bu sohbette bağlam doluyor (sebep: [eşik 1/2/3/4]).
-Yapısal güvence için yeni sohbet açmanı öneriyorum.
-
-DEVIR_RAPORU_AKTIF.md güncel — yeni sohbette mimar
-otomatik devir alacak (Madde 26.4 protokolü).
-
-Yeni sohbette hiçbir şey yazmana gerek yok, mimar
-kaldığı yerden devam edecek.
+⚠️ SOHBET KAPANIŞ UYARISI — bağlam doluyor ([sebep]).
+DEVIR_RAPORU_AKTIF.md güncel. Yeni sohbet açarsan mimar
+otomatik devir alır (Madde 26.4) — hiçbir şey yazmana gerek yok.
 ```
 
-#### 27.4.3 Mehmet Bey Kararı
+Mehmet Bey kararı verir: yeni sohbet (önerilen) veya devam (acil ise). Mimar zorlamaz.
 
-Mehmet Bey uyarıyı görür, kendi takdirine göre:
-- **Yeni sohbet açar** (önerilen) → Madde 26.4 protokolü tetiklenir
-- **Devam eder** (acil iş varsa) → mimar uyarmaya devam etmez, biter
-
-Mimar Mehmet Bey'i zorlamaz. Uyarı **bilgi**, dayatma değil.
-
-#### 27.4.4 Yasaklı Davranış
-
-- ❌ Eşik tetiklendiği halde uyarmamak (sessiz performans kaybı)
-- ❌ Her mesajda uyarmak (rahatsız edici)
-- ❌ Kullanıcı acil iş yapıyorken uyarmak (yarıda kesme)
-- ❌ DEVIR_RAPORU_AKTIF.md güncel değilken uyarmak (yeni sohbette boşluk olur)
-
----
-## 30. FRONTEND STANDART DİSİPLİNİ — apiFetch ZORUNLU
-
-### 30.1 İlke
-
-Backend'e giden hiçbir HTTP çağrısı `apiFetch` wrapper'ını atlamaz. Doğrudan `fetch(...)`, `axios.get(...)`, veya başka raw HTTP client kullanımı **yasaktır**.
-
-### 30.2 Kanıt — Niye Bu Kural
-
-`lib/api.ts → apiFetch` Authorization header'ını localStorage'dan alıp ekler. Wrapper bypass edildiğinde 401 oluşur (28 Nisan 2026 sabahki pazarlama dashboard bulgusu).
-
-### 30.3 İstisna
-
-`apiFetch` kullanılmaz **sadece** şu durumlarda:
-- Public form gönderimi (auth gerektirmeyen `/api/public/*` endpoint'i)
-- 3rd party API (Google, Anthropic) — backend üzerinden gitmez
-
-İstisnalarda da yine wrapper kullanılması tavsiye edilir; doğrudan fetch için **dosya başında** comment zorunlu: `// raw fetch — auth gerekmez (public endpoint)`.
-
-### 30.4 PR / Atom Kontrol
-
-Yeni atom commit'lerinde:
-- raw `fetch(` veya `axios.` kullanımı taranır
-- Auth gerektiren endpoint'e gidiyorsa atom **reddedilir**
-- Sağlık taraması her turda bu kontrolü yapar
-
-### 30.5 Yasaklı Davranış
-
-- ❌ "Hızlı düzeltme" diye apiFetch atlama
-- ❌ Component içinde inline fetch (`useEffect(() => fetch(...))`)
-- ❌ credentials: include kullanıp Authorization gönderme bekleme
-
----
-
-## 31. ORTAM İZOLASYONU
-
-### 31.1 İlke
-
-Lokal geliştirme `.env` dosyası ve production `DATABASE_URL` **aynı veritabanına bakmaz**. Lokal dev DB ile production DB **fiziksel olarak ayrı** Supabase projeleridir.
-
-### 31.2 Kanıt — Niye Bu Kural
-
-28 Nisan 2026 sabahki migration drift'in kök nedeni: lokal `.env` DATABASE_URL **dev DB'ye** bakıyordu (`dlkctvyjbuulmkgpqcvm`), `prisma migrate dev` komutları orada uygulandı, push edildi, ama **production DB'ye** (`iikpmzomblocdrxeisxh`) hiç gitmedi.
-
-### 31.3 Disiplin Kuralı
-
-- ✅ `.env` dev için → `dlkctvyjbuulmkgpqcvm` (geliştirme)
-- ✅ Render `DATABASE_URL` → `iikpmzomblocdrxeisxh` (production)
-- ✅ Render `DIRECT_URL` → aynı production, port 5432 (migration için)
-- ❌ **Lokal `.env` production DB'ye bakmaz** (yanlışlıkla yazma riski)
-
-### 31.4 Deploy Öncesi Health Check
-
-Her push öncesi:
-```bash
-# Production'da uygulanmamis migration var mi?
-psql "$DIRECT_URL" -c "SELECT migration_name, finished_at FROM _prisma_migrations ORDER BY finished_at NULLS FIRST;"
-```
-Çıktıda `finished_at IS NULL` satırı varsa → push reddedilir, migration önce uygulanır.
-
-### 31.5 Yasaklı Davranış
-
-- ❌ Lokal `.env`'i production DB'ye yönlendirmek
-- ❌ "İki ortamı aynı yapsam ne olur" düşüncesi (felaket riski)
-- ❌ Deploy öncesi `_prisma_migrations` tablosunu kontrol etmemek
-
----
+**Yasak:** Eşik tetiklendiği halde uyarmamak · her mesajda uyarmak · DEVIR_RAPORU_AKTIF.md güncel değilken uyarmak.
 
 ## 32. ANAYASA BOYUT DİSİPLİNİ
 
