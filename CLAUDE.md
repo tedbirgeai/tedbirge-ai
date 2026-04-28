@@ -1332,16 +1332,25 @@ Her yeni mimar oturumu (Claude Opus sohbeti) **otomatik devir** ile başlar. Meh
 - ❌ "Ne yapayım?" diye sormak (Madde 26.1 zaten cevabı veriyor)
 - ❌ Eski oturumun kararlarını tartışmak (MIMARI_KARARLAR.md bağlayıcı)
 
-### 26.4 Açılış Protokolü — Zorunlu Komut Zinciri
+### 26.4 Açılış Protokolü — Zorunlu Okuma Zinciri
 
-Mimar yeni oturumda **ilk kullanıcı mesajına yanıt vermeden ÖNCE** şu 6 işlemi sıralı olarak çalıştırır:
+Mimar yeni oturumda **ilk kullanıcı mesajına yanıt vermeden ÖNCE** şu 6 kaynağı sıralı olarak okur:
 
-1. `view C:\Users\WIN10\Desktop\tedbirge.ai\CLAUDE.md` — anayasa son sürüm
-2. `view C:\Users\WIN10\Desktop\tedbirge.ai\tedbirge-os\DEVIR_RAPORU_AKTIF.md` — canlı devir raporu (Madde 26.6)
-3. `view C:\Users\WIN10\Desktop\tedbirge.ai\tedbirge-os\IS_PLANI.md` — aktif kesit
-4. `view C:\Users\WIN10\Desktop\tedbirge.ai\tedbirge-os\docs\OTONOM_RAPOR.md` — son tur (ilk 50 satır yeter)
-5. `view C:\Users\WIN10\Desktop\tedbirge.ai\tedbirge-os\MIMARI_KARARLAR.md` — son karar (ilk 50 satır yeter)
-6. Production health probe (`curl https://tedbirge-ai.onrender.com/health`)
+1. **CLAUDE.md** — anayasa son sürüm
+2. **tedbirge-os/DEVIR_RAPORU_AKTIF.md** — canlı devir raporu (Madde 26.6) — **EN KRİTİK**
+3. **tedbirge-os/IS_PLANI.md** — aktif kesit
+4. **tedbirge-os/docs/OTONOM_RAPOR.md** — son tur (ilk 50 satır yeter)
+5. **tedbirge-os/MIMARI_KARARLAR.md** — son karar (ilk 50 satır yeter)
+6. Production health probe — `curl https://tedbirge-ai.onrender.com/health`
+
+**Arayüz farkı — okuma yöntemi:**
+
+| Arayüz | Yöntem |
+|---|---|
+| Claude Code CLI (terminal) | `Read` tool ile dosya yolu: `C:\Users\WIN10\Desktop\tedbirge.ai\...` |
+| Claude Opus sohbet (claude.ai) | Proje knowledge'dan oku — dosya yüklü değilse Mehmet Bey'den iste |
+
+Sohbet arayüzünde dosya proje knowledge'da **yoksa**: "Mehmet Bey, [dosya adı] en güncel halini yapıştırır mısın?" de. "Ne yapayım?" sorma — Madde 26.7.
 
 **Bu 6 işlem ATLATILAMAZ.** Mehmet Bey "merhaba" dese, "ne yapalım" dese, hatta **hiçbir şey yazmasa bile** — mimar bu zinciri çalıştırır.
 
@@ -1743,10 +1752,11 @@ Mehmet Bey sahaya çıkabilsin diye bu disiplin var.
 
 ---
 
-**— Tedbirge Mimari Anayasası v1.9.0**  
+**— Tedbirge Mimari Anayasası v1.9.1**  
 **25 Nisan 2026 — başlangıç (Claude Opus 4.7)**  
 **28 Nisan 2026 — v1.7.0 (Madde 26-32 eklendi: otonom devir, sağlık periyodikliği, T tipi onay, migration kanıtı, frontend standardı, ortam izolasyonu, anayasa boyutu)**  
 **28 Nisan 2026 — v1.8.0 (Madde 33 eklendi: Beklemede Özellik Disiplini — AccidentCase TUR #29 dersi; Madde 33 kapanış → 34 olarak yeniden numaralandı)**  
 **28 Nisan 2026 — v1.9.0 (Madde 26 sertleştirme + Madde 27 kapanış uyarısı — otonom devir sistemi)**  
+**28 Nisan 2026 — v1.9.1 (Madde 26.4 düzeltme — CLI vs sohbet arayüzü farkı, arayüz tablosu eklendi)**  
 **Versiyon geçmişi: tedbirge-os/MIMARI_KARARLAR.md**  
 **Her major/minor değişiklikte versiyon güncellemesi ZORUNLU (Madde 22)**
