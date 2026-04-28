@@ -1535,7 +1535,85 @@ Claude Code "Large CLAUDE.md will impact performance" uyarısı verdiğinde Madd
 
 ---
 
-## 33. KAPANIŞ — NİYE BU ANAYASA VAR
+## 33. BEKLEMEDE ÖZELLİK DİSİPLİNİ — Yarım Özellik Yönetimi
+
+### 33.1 İlke
+
+Tedbirge.ai gibi büyüyen bir sistemde bazı özellikler kasıtlı olarak ertelenir — schema tasarımı yapılmış, frontend iskeleti kurulmuş, ama backend henüz yazılmamıştır. Bu "yarım kurulu" durum **Senaryo B** olarak tanımlanır (AccidentCase örneği — TUR #29 kanıt).
+
+**Problem:** Backend olmayan bir özelliğin frontend'de aktif butonu varsa kullanıcı 404 görür. Bu hem kötü UX hem de gizli bir bug'dır.
+
+**Çözüm:** Üç koşulun aynı anda sağlanması zorunludur.
+
+### 33.2 Üç Koşul (Hepsi Zorunlu)
+
+Beklemede (deferred) bir özellik için şunların **tamamı** mevcut olmalı:
+
+1. **Panel'de belirgin YAKINDA badge** — kullanıcı 404 görmez, özelliğin planlandığını bilir
+2. **Schema'da `// @deferred` yorumu** — hangi modelin beklemede olduğu okunabilir
+3. **IS_PLANI.md kaydı** — hangi kesitte aktif edileceği planlı
+
+Üç koşuldan biri eksikse → sağlık taramasında 🔴 KRİTİK bulgu sayılır.
+
+### 33.3 Panel Badge Standardı
+
+Beklemede özellik bloğu şu şablona uyar:
+
+```tsx
+{/* Ozellik Adi (AI) — Madde 33: Beklemede Ozellik */}
+<section className="bg-gradient-to-br from-amber-50 to-amber-100 border-2 border-amber-300 rounded-lg p-6 my-4 relative">
+  <div className="absolute top-2 right-2 bg-amber-500 text-white text-xs font-bold px-3 py-1 rounded-full uppercase tracking-wide">
+    Yakında
+  </div>
+  <h3 className="text-base font-bold text-amber-900 mb-2">
+    🔬 Özellik Başlığı
+  </h3>
+  <p className="text-amber-800 text-sm mb-4">
+    Ne yapacağının kısa açıklaması.
+  </p>
+  <div className="bg-white/60 rounded p-3 text-sm text-amber-700 italic">
+    Bu özellik [Kesit Adı]'nda aktif edilecek ([Çeyrek]). Şu an tasarımı yapılmış,
+    geliştirme sıraya girmiştir.
+  </div>
+</section>
+```
+
+- Renk: amber (kahverengi-sarı tonları) — turuncu veya kırmızı YASAK (aciliyet hissi vermez)
+- "Yeni Vaka Aç" gibi aktif buton YASAK — tıklanabilir hiçbir API çağrısı OLMAMALI
+- Tooltip veya disabled button da kabul edilir ancak badge zorunludur
+
+### 33.4 Schema Yorum Standardı
+
+```prisma
+// @deferred — [Özellik Adı] (Madde 33) — [Kesit] kesitinde aktif edilecek
+model BekleyenModel {
+  ...
+}
+```
+
+`prisma migrate` veya `prisma db push` çalıştırılmadan önce `// @deferred` yorumlu model **BUILD'e dahil edilmez** — schema'da durmaya devam eder, ileride migrate edilir.
+
+### 33.5 IS_PLANI.md Kayıt Standardı
+
+```markdown
+### [Kesit Adı] (NEXT)
+- [ ] [BekleyenModel] backend + Evidence + full AI pipeline aktif edilecek
+  - Schema: hazır (@deferred işareti)
+  - Panel UI: hazır (YAKINDA badge ile)
+  - Backend: YOK — bu kesitte yazılacak
+```
+
+### 33.6 Yasaklı Davranış
+
+- ❌ Aktif buton → 404 üreten endpoint (Madde 33.2 #1 ihlali)
+- ❌ Schema'da `@deferred` yorumu olmadan bekleyen model
+- ❌ IS_PLANI.md kaydı olmadan bekleyen özellik
+- ❌ "Geçici olarak devre dışı" açıklaması yeterlidir düşüncesi — üç koşul şart
+- ❌ Bekleyen özellik için sağlık taramasında ℹ️ NOT yerine görmezden gelme
+
+---
+
+## 34. KAPANIŞ — NİYE BU ANAYASA VAR
 
 Tedbirge.ai 20 bin satır iş kalitesi backend kodu olan, **Türkiye'de rakipsiz mimariye** sahip bir LegalTech projesi.  
 3 avukat canlıda kullanıyor.  
@@ -1550,8 +1628,9 @@ Mehmet Bey sahaya çıkabilsin diye bu disiplin var.
 
 ---
 
-**— Tedbirge Mimari Anayasası v1.7.0**  
+**— Tedbirge Mimari Anayasası v1.8.0**  
 **25 Nisan 2026 — başlangıç (Claude Opus 4.7)**  
-**28 Nisan 2026 — v1.7.0 son güncelleme (Madde 26-32 eklendi: otonom devir, sağlık periyodikliği, T tipi onay, migration kanıtı, frontend standardı, ortam izolasyonu, anayasa boyutu)**  
+**28 Nisan 2026 — v1.7.0 (Madde 26-32 eklendi: otonom devir, sağlık periyodikliği, T tipi onay, migration kanıtı, frontend standardı, ortam izolasyonu, anayasa boyutu)**  
+**28 Nisan 2026 — v1.8.0 (Madde 33 eklendi: Beklemede Özellik Disiplini — AccidentCase TUR #29 dersi; Madde 33 kapanış → 34 olarak yeniden numaralandı)**  
 **Versiyon geçmişi: tedbirge-os/MIMARI_KARARLAR.md**  
 **Her major/minor değişiklikte versiyon güncellemesi ZORUNLU (Madde 22)**

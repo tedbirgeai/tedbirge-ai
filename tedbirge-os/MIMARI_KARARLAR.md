@@ -522,3 +522,40 @@ Mehmet Bey FAZ 4 başlatmak istedi. Mevcut anayasa Madde 25.12'de FAZ 4 tanıml�
 **Onay:** Mehmet Dinç (yazılı, sohbet kaydı 27 Nisan 2026 gece)
 **Disiplin:** Madde 4.1, 4.4, 4.5, 17, 20.1, 22.2, 22.7, 25.12
 
+---
+
+## 28 Nisan 2026 (öğleden sonra) — ANAYASA v1.8.0 + Madde 33 EKLENDİ
+
+**Karar:** Anayasaya 1 yeni madde eklendi:
+- **Madde 33:** Beklemede Özellik Disiplini (yarım kurulu özellik yönetimi)
+- Eski Madde 33 (Kapanış) → **Madde 34** olarak yeniden numaralandı
+
+**Sebep — Kanıta Dayalı (Madde 20.1):**
+TUR #29 AccidentCase kanıt taraması şunu kanıtladı:
+- Frontend'de aktif "Yeni Vaka Aç" butonu vardı
+- Backend'de 0 referans, endpoint yoktu
+- Her tıklamada kullanıcı 404 görüyordu
+Bu "Senaryo B — Yarı kurulu" durumu için anayasada hiçbir kural yoktu.
+
+**Madde 33 — 3 Koşul (hepsi zorunlu):**
+1. Panel'de belirgin YAKINDA badge (amber gradient, aktif buton yok)
+2. Schema'da `// @deferred` yorumu
+3. IS_PLANI.md kaydı (hangi kesitte aktif edilecek)
+
+Üç koşuldan biri eksikse → sağlık taramasında 🔴 KRİTİK sayılır.
+
+**Uygulanan Tedavi (TUR #29-B):**
+- `tedbirge-panel/app/(panel)/leads/[id]/page.tsx` — Kaza Rekonstrüksiyon bloğu amber YAKINDA kart olarak değiştirildi (commit 5517dbe)
+- `prisma/schema.prisma` — AccidentCase + Evidence modelleri `// @deferred` yorumu ile işaretlendi
+- `tedbirge-os/IS_PLANI.md` — AI Analiz Doğruluk Kesiti kapsamına AccidentCase eklendi
+
+**Sürüm:** v1.7.0 → v1.8.0 (Madde 22 — MINOR — yeni madde eklendi)
+
+**Alternatif (seçilmedi):**
+- Senaryo A: CREATE TABLE + tam backend — pahalı, Q3 2026 öncesi gereksiz (KIRMIZI nokta olurdu)
+- Senaryo C: Frontend + schema tamamen sil — geleceği kapatır, tasarım emekten kaçar
+
+**Mimar:** Claude Sonnet 4.6 (TUR #29-B, 28 Nisan 2026 öğleden sonra)
+**Onay:** Mehmet Dinç (TUR #29-B mektubu — yazılı talimat)
+**Disiplin:** Madde 4.1, 4.4, 17.4, 20.1, 20.4, 22.2, 22.6
+
