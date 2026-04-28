@@ -151,6 +151,7 @@ model Document {
   pageCount          Int?
   createdAt          DateTime       @default(now())
   updatedAt          DateTime       @updatedAt
+  deletedAt          DateTime?
   Lead               Lead           @relation(fields: [leadId], references: [id])
 }
 
