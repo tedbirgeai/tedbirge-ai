@@ -63,7 +63,7 @@ selfHealDatabase()
             logger.info(`[OS] Boot OK (${r.steps.length} step, ${r.totalMs}ms)`);
             tedbirgeOS.startReconciler();
             logger.info("[OS] Reconciler started");
-            ['auditor', 'healer', 'reporter'].forEach(name => {
+            ['auditor', 'healer', 'reporter', 'compliance', 'backup', 'costGuard', 'performance', 'security', 'pulse', 'maintenance', 'analyzer', 'notifications', 'navigation', 'insurance', 'uyapControl', 'deploy'].forEach(name => {
               const mod = tedbirgeOS.modules[name];
               if (mod && typeof mod.start === 'function') {
                 try { mod.start(); logger.info(`[OS] ${name} started`); }
