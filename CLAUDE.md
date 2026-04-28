@@ -346,6 +346,7 @@ await assertLeadAccess(req.user, lead);
 
 ### Backend roller:
 - **ADMIN** — Tedbirge sahibi (Mehmet Bey), tam yetki
+- **SALES** — Satış/pazarlama ekibi, lead yönetimi ve dönüşüm takibi
 - **LAWYER** — Avukat, kendine atanan lead'leri görür
 - **REPRESENTATIVE** — Temsilci, kendi getirdiği müvekkilleri yönetir
 - **MUSTERI** — Müvekkil, sadece kendi dosyasına erişir
@@ -1080,7 +1081,7 @@ Güncelleme **mimar mektubu içinde** yapılır — bağımsız commit değil.
 
 ---
 
-## MADDE 25 — PAZARLAMADİSİPLİNİ (Özet)
+## 25. PAZARLAMADİSİPLİNİ (Özet)
 
 > **Tam metin (25.1–25.14):** `tedbirge-os/CLAUDE_MADDE_25_DETAY.md`
 > **Hızlı kontrol + durum tablosu:** `tedbirge-os/MADDE_25_KONTROL.md`
@@ -1237,19 +1238,19 @@ Mehmet Bey kararı verir: yeni sohbet (önerilen) veya devam (acil ise). Mimar z
 
 **Yasak:** Eşik tetiklendiği halde uyarmamak · her mesajda uyarmak · DEVIR_RAPORU_AKTIF.md güncel değilken uyarmak.
 
-## 32. ANAYASA BOYUT DİSİPLİNİ
+## 27. ANAYASA BOYUT DİSİPLİNİ
 
-### 32.1 İlke
+### 27.1 İlke
 
 Anayasa metni LLM context window'unu sıkıştırmamalıdır. Boyut 40.000 karakteri aştığında **özet versiyon** çıkarılır, tam metin arşivlenir.
 
-### 32.2 Eşikler
+### 27.2 Eşikler
 
 - < 40.000 karakter → tek dosya (mevcut durum)
 - 40.000 - 60.000 → özet versiyon (CLAUDE_OZET.md) + tam versiyon (CLAUDE.md)
 - > 60.000 → modül ayrımı (anayasa/disiplin/, anayasa/teknik/, vb.)
 
-### 32.3 Özet Versiyon İçeriği
+### 27.3 Özet Versiyon İçeriği
 
 CLAUDE_OZET.md (özet, 8-12k karakter) şunları içerir:
 - KIRMIZI çizgiler (Madde 3)
@@ -1260,21 +1261,21 @@ CLAUDE_OZET.md (özet, 8-12k karakter) şunları içerir:
 
 Mimar oturumu önce CLAUDE_OZET.md okur, ihtiyaç olursa CLAUDE.md'ye iner.
 
-### 32.4 Sürüm Atışı
+### 27.4 Sürüm Atışı
 
 Boyut eşiği aşıldığında:
 - MINOR sürüm artışı (anayasa yapısı değişiyor)
 - MIMARI_KARARLAR.md kaydı zorunlu
 
-### 32.5 Tetikleyici
+### 27.5 Tetikleyici
 
-Claude Code "Large CLAUDE.md will impact performance" uyarısı verdiğinde Madde 32 tetiklenir, mimar oturumu özet versiyon planlar.
+Claude Code "Large CLAUDE.md will impact performance" uyarısı verdiğinde Madde 27 tetiklenir, mimar oturumu özet versiyon planlar.
 
 ---
 
-## 33. BEKLEMEDE ÖZELLİK DİSİPLİNİ — Yarım Özellik Yönetimi
+## 28. BEKLEMEDE ÖZELLİK DİSİPLİNİ — Yarım Özellik Yönetimi
 
-### 33.1 İlke
+### 28.1 İlke
 
 Tedbirge.ai gibi büyüyen bir sistemde bazı özellikler kasıtlı olarak ertelenir — schema tasarımı yapılmış, frontend iskeleti kurulmuş, ama backend henüz yazılmamıştır. Bu "yarım kurulu" durum **Senaryo B** olarak tanımlanır (AccidentCase örneği — TUR #29 kanıt).
 
@@ -1282,7 +1283,7 @@ Tedbirge.ai gibi büyüyen bir sistemde bazı özellikler kasıtlı olarak ertel
 
 **Çözüm:** Üç koşulun aynı anda sağlanması zorunludur.
 
-### 33.2 Üç Koşul (Hepsi Zorunlu)
+### 28.2 Üç Koşul (Hepsi Zorunlu)
 
 Beklemede (deferred) bir özellik için şunların **tamamı** mevcut olmalı:
 
@@ -1292,12 +1293,12 @@ Beklemede (deferred) bir özellik için şunların **tamamı** mevcut olmalı:
 
 Üç koşuldan biri eksikse → sağlık taramasında 🔴 KRİTİK bulgu sayılır.
 
-### 33.3 Panel Badge Standardı
+### 28.3 Panel Badge Standardı
 
 Beklemede özellik bloğu şu şablona uyar:
 
 ```tsx
-{/* Ozellik Adi (AI) — Madde 33: Beklemede Ozellik */}
+{/* Ozellik Adi (AI) — Madde 28: Beklemede Ozellik */}
 <section className="bg-gradient-to-br from-amber-50 to-amber-100 border-2 border-amber-300 rounded-lg p-6 my-4 relative">
   <div className="absolute top-2 right-2 bg-amber-500 text-white text-xs font-bold px-3 py-1 rounded-full uppercase tracking-wide">
     Yakında
@@ -1319,10 +1320,10 @@ Beklemede özellik bloğu şu şablona uyar:
 - "Yeni Vaka Aç" gibi aktif buton YASAK — tıklanabilir hiçbir API çağrısı OLMAMALI
 - Tooltip veya disabled button da kabul edilir ancak badge zorunludur
 
-### 33.4 Schema Yorum Standardı
+### 28.4 Schema Yorum Standardı
 
 ```prisma
-// @deferred — [Özellik Adı] (Madde 33) — [Kesit] kesitinde aktif edilecek
+// @deferred — [Özellik Adı] (Madde 28) — [Kesit] kesitinde aktif edilecek
 model BekleyenModel {
   ...
 }
@@ -1330,7 +1331,7 @@ model BekleyenModel {
 
 `prisma migrate` veya `prisma db push` çalıştırılmadan önce `// @deferred` yorumlu model **BUILD'e dahil edilmez** — schema'da durmaya devam eder, ileride migrate edilir.
 
-### 33.5 IS_PLANI.md Kayıt Standardı
+### 28.5 IS_PLANI.md Kayıt Standardı
 
 ```markdown
 ### [Kesit Adı] (NEXT)
@@ -1340,9 +1341,9 @@ model BekleyenModel {
   - Backend: YOK — bu kesitte yazılacak
 ```
 
-### 33.6 Yasaklı Davranış
+### 28.6 Yasaklı Davranış
 
-- ❌ Aktif buton → 404 üreten endpoint (Madde 33.2 #1 ihlali)
+- ❌ Aktif buton → 404 üreten endpoint (Madde 28.2 #1 ihlali)
 - ❌ Schema'da `@deferred` yorumu olmadan bekleyen model
 - ❌ IS_PLANI.md kaydı olmadan bekleyen özellik
 - ❌ "Geçici olarak devre dışı" açıklaması yeterlidir düşüncesi — üç koşul şart
@@ -1350,7 +1351,7 @@ model BekleyenModel {
 
 ---
 
-## 34. KAPANIŞ — NİYE BU ANAYASA VAR
+## 29. KAPANIŞ — NİYE BU ANAYASA VAR
 
 Tedbirge.ai 20 bin satır iş kalitesi backend kodu olan, **Türkiye'de rakipsiz mimariye** sahip bir LegalTech projesi.  
 3 avukat canlıda kullanıyor.  
@@ -1368,8 +1369,8 @@ Mehmet Bey sahaya çıkabilsin diye bu disiplin var.
 **— Tedbirge Mimari Anayasası v1.9.1**  
 **25 Nisan 2026 — başlangıç (Claude Opus 4.7)**  
 **28 Nisan 2026 — v1.7.0 (Madde 26-32 eklendi: otonom devir, sağlık periyodikliği, T tipi onay, migration kanıtı, frontend standardı, ortam izolasyonu, anayasa boyutu)**  
-**28 Nisan 2026 — v1.8.0 (Madde 33 eklendi: Beklemede Özellik Disiplini — AccidentCase TUR #29 dersi; Madde 33 kapanış → 34 olarak yeniden numaralandı)**  
-**28 Nisan 2026 — v1.9.0 (Madde 26 sertleştirme + Madde 27 kapanış uyarısı — otonom devir sistemi)**  
+**28 Nisan 2026 — v1.8.0 (Madde 28 eklendi: Beklemede Özellik Disiplini — AccidentCase TUR #29 dersi; Madde 28 (eski 33) kapanış → 29 (eski 34) olarak yeniden numaralandı)**  
+**28 Nisan 2026 — v1.9.0 (Madde 26 sertleştirme + Madde 26.9 kapanış uyarısı — otonom devir sistemi)**  
 **28 Nisan 2026 — v1.9.1 (Madde 26.4 düzeltme — CLI vs sohbet arayüzü farkı, arayüz tablosu eklendi)**  
 **Versiyon geçmişi: tedbirge-os/MIMARI_KARARLAR.md**  
 **Her major/minor değişiklikte versiyon güncellemesi ZORUNLU (Madde 22)**
