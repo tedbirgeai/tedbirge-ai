@@ -1,3 +1,48 @@
+# OTONOM TUR #36 — 28 Nisan 2026 (gec aksam) 🟢 OTONOM DEVIR SISTEMI
+
+## ✅ TAMAMLANAN GOREVLER (4 FAZ)
+
+### FAZ 1 — Anayasa v1.9.0
+- Madde 26 sertlestirildi:
+  - 26.4 Acilis Protokolu (zorunlu 6 komut, atlatılamaz)
+  - 26.5 Acilis Mesaji Formati (sabit sablon)
+  - 26.6 DEVIR_RAPORU_AKTIF.md disiplini
+  - 26.7 Yasakli davranislar
+- Madde 27.4 eklendi:
+  - Kapanis Uyarisi (esik + uyari formati + Mehmet Bey karari)
+- Surum v1.8.0 → v1.9.0
+- Commit: 12fe701
+
+### FAZ 2 — MIMARI_KARARLAR kayit
+- 28 Nisan aksam karar kaydi eklendi
+- Commit: ebed1a0
+
+### FAZ 3 — DEVIR_RAPORU_AKTIF.md
+- Ilk surum yazildi (28 Nisan aksam durumu, gercek git log ile)
+- Acik KRİTİK: 0
+- Acik ORTA: 1 (GA4 redeploy)
+- Commit: 86670bc
+
+### FAZ 4 — OTONOM_RAPOR
+- Bu rapor
+
+## 📊 OZET
+- 4 atom commit (anayasa + kararlar + devir + rapor)
+- 0 schema / 0 migration / 0 npm / 0 env
+- Risk: yeşil nokta (Madde 18.4)
+
+## 🎯 KAZANIM
+- Yeni mimar oturumu otomatik devralir (Madde 26.4)
+- Mehmet Bey "ne yapalim?" sorusu duymaz
+- Sohbet kapanis uyarisi proaktif (Madde 27.4)
+- DEVIR_RAPORU_AKTIF.md canli tek dosya — bagam koprusu kuruldu
+
+## 🔄 SIRADAKİ
+- O1 GA4 redeploy (Mehmet Bey, 5 dk)
+- FAZ 4-B (blog icerik) — Mehmet Bey hazir oldugunda
+
+---
+
 # OTONOM TUR #35 — 28 Nisan 2026 (gec aksam) BELGE YONETIMI - 3 KATMAN
 
 ## ✅ TAMAMLANAN GOREVLER (6 FAZ)
