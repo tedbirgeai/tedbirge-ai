@@ -1,3 +1,34 @@
+# OTONOM PAZARLAMA 401 ATOM FIX — 28 Nisan 2026 (sabah)
+
+## ✅ TAMAMLANAN
+- /dashboard/pazarlama 401 hatasi cozuldu
+- Kok neden: pazarlama/page.tsx dogrudan fetch() cagirmis, apiFetch wrapper'ini bypass etmis
+- Fix: fetch() → apiFetch() (1 dosya, ~8 satir net degisiklik)
+
+## 📊 OZET
+- Atom commit: 1 (panel repo) — c4b4ed6
+- Schema/migration/npm install/env: 0
+- Risk: 🟢 yesil nokta (Madde 18.4)
+
+## ✅ DOGRULAMA
+- /health 200
+- Vercel deploy: tamam
+- Tarayici: Mehmet Bey dogrulasin
+
+## ⚠️ ACIK MİMAR KARARI
+- Backend /api/analytics/marketing route'u SADECE ADMIN rolune acik
+- Diger 7 analytics endpoint'i ADMIN+SALES+REPRESENTATIVE
+- Bu farklilık MIMARI_KARARLAR.md'de kayitli DEGIL
+- Mimar oturumu karar verecek: politika kasitli mi, yoksa rol listesi tamamlanmali mi?
+
+## 🔄 SIRADAKİ
+- Mimar oturumu: marketing rol politikasi karari
+- Oncelik 2: Footer + ust menuye /iletisim linki
+
+— Claude Code, pazarlama 401 atom fix sonu
+
+---
+
 # OTONOM TUR #26 FAZ 4-A — 28 Nisan 2026 🟢 KAPANDI
 
 ## ✅ TAMAMLANAN (6 commit — push onayı bekleniyor)
