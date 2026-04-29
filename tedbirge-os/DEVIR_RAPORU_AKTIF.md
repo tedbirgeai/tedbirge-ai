@@ -1,94 +1,99 @@
 # 🛡️ DEVIR RAPORU (AKTİF) — TEDBİRGE.AI
 
-**Son güncelleme:** 29 Nisan 2026 (sabah)
+**Son güncelleme:** 29 Nisan 2026 (öğleden sonra)
 **Anayasa:** v1.10.0
 **Aktif kesit:** FAZ 4-B Operasyonel Ölçek
-**Son TUR:** #40 — Blog görünürlük + içerik (3 bulgu, 9 atom kapatıldı)
+**Son TUR:** #41 — PWA icon altyapısı (K4 + O1 + O2 kapatıldı)
 
 ---
 
 ## 🔴 AÇIK KRİTİK
 
-YOK. TUR #40 sonrası kritik açık iş bulunmuyor.
+YOK.
 
 ---
 
 ## 🟡 PLANLI / BEKLEYEN
 
-### O1 — TUR #37 GA4 production tarayıcı kanıtı
-
-**Durum:** GA4 entegrasyonu lokal kanıtlı, production deploy yapıldı, **manuel tarayıcı kanıtı bekleniyor.**
-**Mehmet Bey'in işi:** Production'da 4 sayfada (anasayfa, hesapla, blog detay, başvuru) DevTools Network panelinde `gtag/js` ve `collect` istekleri 200 dönüyor mu?
-**Süre:** 5 dk
-
-### O2 — TUR #38 PWA iOS production kanıtı
-
-**Durum:** PWA manifest + service worker entegrasyonu lokal kanıtlı, production deploy yapıldı, **iPhone Safari kanıtı bekleniyor.**
-**Mehmet Bey'in işi:** Gerçek iPhone Safari'de "Ana Ekrana Ekle" → ikon + isim doğru mu, açılış ekranı görünüyor mu?
-**Süre:** 5 dk
-
-### O3 — KAPANDI
-
-K1 (TUR #40 FAZ 1 trafik makalesi production'da görünüyor mu?) bu turda kapandı — Image 7 kanıt.
+YOK. TUR #41 sonrası tüm DEVIR bekleyenleri kapandı.
 
 ---
 
 ## 📋 MEHMET BEY MANUEL İŞLER
 
-1. **O1** — GA4 production tarayıcı kanıtı (5 dk)
-2. **O2** — PWA iOS production kanıtı (5 dk)
-3. (TUR #40 production kontrolü tamamlandı, ek manuel iş yok)
+YOK.
 
 ---
 
-## 🟢 YAN BULGULAR (TUR #40'ta açıldı)
+## 🟢 YAN BULGULAR (gelecek tur adayları, fonksiyonel acil değil)
 
-### M1 — Vercel edge curl 403 vs browser 404
+### M1 — Vercel edge curl 403 vs browser 404 (ETKİSİZ, takip yok)
 
-**Detay:** TUR #40 K1 araştırması sırasında `/blog` curl ile 403, browser ile 404 dönüyordu. K1 düzeldikten sonra ikisi de 200 oldu.
-**Aksiyon:** Şu an etkisiz, takip gerekmez. Cookie/CDN edge davranışı, eğer ileride benzer çelişki çıkarsa hatırlanmalı.
+**Detay:** TUR #40 K1 araştırması sırasında `/blog` curl ile 403, browser ile 404 dönüyordu. K1 düzeldikten sonra ikisi de 200.
+**Aksiyon:** Şu an etkisiz, takip gerekmez. Cookie/CDN edge davranışı.
 
 ### M2 — middleware.ts → proxy.ts migration (Next 16 deprecation)
 
-**Detay:** `middleware.ts` Next.js 16'da deprecated. Build sırasında uyarı üretiyor. Fonksiyonel etki yok, ileri sürümlerde kaldırılacak.
-**Aksiyon:** Ayrı bir mimar kararı turu — `proxy.ts`'e migration.
+**Detay:** `middleware.ts` Next.js 16'da deprecated, build uyarısı.
 **Öncelik:** SHOULD + NEXT (3-6 ay)
+**Süre:** ~1 saat (rename + import + build kanıtı)
+**Risk:** Düşük
 
-### M3 — İki Footer pattern'i (anasayfa inline + global)
+### M3 — İki Footer pattern'i (anasayfa inline + global root)
 
-**Detay:** Anasayfada inline lacivert tam Footer (4 sütun, marka/sosyal) + tüm sayfalarda root layout'tan gelen global beyaz minimal Footer (yasal linkler şeridi). İki ayrı kod tabanı.
-**Aksiyon:** Mimari karar gerekli — birleştirme mi, rol ayrımı mı? K2'de Blog linki ikisine de ayrı ayrı eklendi (homojen değil).
-**Öncelik:** SHOULD + LATER (6+ ay) — şu an fonksiyonel sorun yok.
+**Detay:** Anasayfada inline lacivert tam Footer + tüm sayfalarda global beyaz minimal Footer. İki ayrı kod tabanı, blog linki ikisine ayrı eklendi.
+**Öncelik:** SHOULD + LATER (6+ ay)
+**Aksiyon:** Mimari karar gerekli (birleştirme mi, rol ayrımı mı?)
+
+### M5 — Manifest icon kaynağı logo.png olabilir mi (TUR #41'de açıldı)
+
+**Detay:** `app/manifest.ts` icons array `/icons/icon-192.png` ve `/icons/icon-512.png` kullanıyor (TUR #41 K4 C2 ile doğrultuldu). Ama `public/logo.png` (640×640, Format24bppRgb, kurumsal kaynak) manifest'te kullanılmıyor. Tarayıcılar 640×640 → 192/512 resize yapabilir, kurumsal görsel kalitesi yükselir.
+**Öncelik:** COULD + LATER (kozmetik)
+**Tetikleyici:** PWA install splash screen veya Android adaptive icon şikayeti gelirse.
 
 ---
 
 ## 🎯 SIRADAKİ ÖNERİLEN İŞ
 
-**Mehmet Bey karar:**
+**TUR #41 sonrası tertemiz devir.** Mehmet Bey karar:
 
-**Seçenek A — Bekleyenleri kapat (önce hijyen):**
-- O1 (GA4) ve O2 (PWA iOS) kanıtlarını topla → bu iki bulgu da kapanır → AÇIK KRİTİK 0, PLANLI 0 olur
+**Seçenek A — Yeni FAZ 4-B turu (operasyonel ölçek):**
+- IS_PLANI'da NOW kesitinde sıradaki MUST işi
+- Örn. başvuru formu tamamlama, dava takibi paneli, SEO meta optimizasyonu
 
-**Seçenek B — FAZ 4-B yeni tur (operasyonel ölçek):**
-- TUR #40 ile blog altyapısı tamam. Sıradaki adım IS_PLANI'da NOW kesitinde olan iş — örn. başvuru formu tamamlama, dava takibi paneli, SEO meta optimizasyonu
+**Seçenek B — Mimari turlardan biri:**
+- M2 (middleware → proxy migration) — küçük teknik borç turu
+- M3 (Footer birleştirme) — tasarım kararı
+- M5 (manifest logo.png) — opsiyonel kalite iyileştirmesi
 
-**Seçenek C — Mimari turlardan biri (M2 veya M3):**
-- M2 (`middleware.ts` → `proxy.ts`): teknik borç temizliği, küçük tur
-- M3 (Footer birleştirme): tasarım kararı, tek tur
+**Seçenek C — Mola:**
+- TUR #40 + TUR #41 yoğun günlerdi
+- Sıfır açık iş ile bir sonraki Claude oturumu temiz başlar
 
-Mimar (sohbet) önerisi: **Seçenek A** — bekleyenleri kapatıp sıfır açık bulgu ile yeni faza geç. O1 ve O2 ufak işler, devir disiplini gereği biriktirilmemeli.
+Mimar (sohbet) önerisi: **Mehmet Bey'in tercihine bağlı**. Disiplin açısından en temiz devir noktası şu an (sıfır açık iş, yan bulgular dökümlü).
 
 ---
 
-## 📊 TUR #40 ÖZETİ (referans)
+## 📊 TUR #41 ÖZETİ (referans)
 
-- **Süre:** ~6 saat, 3 oturum
-- **Atom:** 9 (1+5+1+2)
-- **Commit:** 9 (`5523603 → 1932b75`)
-- **Push:** 3
-- **Etkilenen dosya:** 6 (panel)
-- **Mimar hata sayısı:** 2 (Madde 4 ihlali, ikisi de yapı tarafından yakalandı)
+- **Süre:** ~2 saat, 1 oturum
+- **Atom:** 7 (4 panel + 3 os)
+- **Commit:** 4 panel (`8020d0a → 1038a6a`) + 3 os
+- **Push:** 2 (panel + os)
+- **Mimar hata:** 0
 - **KIRMIZI çizgi ihlali:** 0
 - **Production görsel kanıt:** 8/8
+
+Detay: OTONOM_RAPOR.md → TUR #41 bloğu.
+
+---
+
+## 📊 TUR #40 ÖZETİ (önceki tur referansı)
+
+- **Süre:** ~6 saat, 3 oturum
+- **Atom:** 12 (9 panel + 3 os)
+- **Commit:** 9 panel + 3 os
+- **Mimar hata:** 2 (Madde 4 ihlali, ikisi de yapı tarafından yakalandı)
+- **KIRMIZI çizgi ihlali:** 0
 
 Detay: OTONOM_RAPOR.md → TUR #40 bloğu.
