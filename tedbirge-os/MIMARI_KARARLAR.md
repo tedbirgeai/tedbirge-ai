@@ -614,3 +614,72 @@ Mehmet Bey direktifi (sohbet kaydı, akşam):
 **Risk:** SIFIR (sadece dokümantasyon — Madde 18.4 yeşil nokta)
 
 **Etki:** Bağlam kayıpsız oturum geçişi. Mehmet Bey sahaya çıkarken yapısal güvence: yeni sohbet otonom devralır, bağlam köprüsü insan eliyle taşınmaz.
+
+---
+
+## 29-30 Nisan 2026 — TUR #42 Kurumsal Kimlik Birleştirme
+
+### Karar 1: Paylaşımlı PublicNav Component Kararı
+
+**Bağlam:** TUR #42 K5 araştırması gösterdi: 27 public sayfanın hiçbiri paylaşımlı nav component kullanmıyor. Anasayfa kendi inline `function PublicNav()` (159 satır), /basvuru kendi inline `<header>` (358-385. satırlar arası), niş landing'lerde nav yok. Bu dağınık nav yapısı:
+- Görsel tutarsızlığa sebep oluyor
+- Bakım maliyeti yüksek
+- TUR #44 Animasyon turunda sayfa geçişleri için paylaşımlı nav şart
+
+**Karar:** Anasayfanın inline PublicNav fonksiyonu `components/PublicNav.tsx` dosyasına çıkarıldı. Tüm pazarlama sayfaları (~14 sayfa) bu paylaşımlı component'i kullanır. Auth sayfaları (login, register, forgot-password, reset-password, sifre-belirle) kendi minimal layout'larını korur (farklı UX akışı).
+
+**Uygulanan:**
+- `components/PublicNav.tsx` — yeni dosya, 165 satır (sticky + glassmorphism + framer-motion)
+- 13 sayfa entegre edildi: /, /basvuru, /blog, /blog/[slug], 3 niş landing, /hakkimizda, /iletisim, /haberler, /tazminat-hesapla, /lexscan, /referanslar, /basvuru-sorgula
+
+**Alternatif (seçilmedi):** Sayfa-bazlı nav korunsun, sadece /basvuru düzeltilsin (dar K5). Geleceğin animasyon ve SEO turları için dezavantajlı, kapsamı genişlettik.
+
+**Mimar:** Claude Opus 4.7 (TUR #42 K5, 29 Nisan 2026 gece)
+**Onay:** Mehmet Dinç ("ortak web arayüzü bir bütündür" — yazılı talimat)
+**Disiplin:** Madde 4 (kanıt), Madde 17.3, Madde 17.5
+
+---
+
+### Karar 2: M3 Yan Bulgusu Küçük Parçasını Kapsama Dahil Etme
+
+**Bağlam:** TUR #40'tan beri açık M3 yan bulgusu: "iki Footer pattern'i (anasayfa inline lacivert + global beyaz)". TUR #42 K5 Tur B mektubunda "Footer dokunulmaz" sözü verilmişti. Ancak Mehmet Bey production kontrolünde fark etti: /basvuru'da hâlâ mor renkler görünüyor. Kanıt zinciri (Claude Code raporu): /basvuru kaynak kod %100 lacivert, mor renkler Footer.tsx hover renklerinden geliyor (10 × #534AB7).
+
+**Karar:** M3'ün küçük parçası (Footer hover renk #534AB7 → #1E1E8E, 5 satır) bu turda kapatıldı. M3'ün asıl parçası (iki Footer pattern'i birleştirme — mimari karar gerek) LATER kalıyor.
+
+**Uygulanan:** `components/layout/Footer.tsx` 5 satır `hover:text-[#534AB7]` → `hover:text-[#1E1E8E]`. Commit `1da080c`.
+
+**Niye söz değiştirildi:** Madde 17.4'e göre mimar sözünü tutmalı. Ancak Madde 17.5 son söz Mehmet Bey'de — gözlem kanıt olarak kapsamı meşrulaştırdı. Risk minimal (sadece hover, layout etkilenmez), 5 satır CSS değişikliği.
+
+**Alternatif (seçilmedi):** M3'ü tamamen LATER bırakıp TUR #42 kapansın. Ancak production'da görünür mor problem devam ederdi.
+
+**Mimar:** Claude Opus 4.7 (TUR #42 K7, 29 Nisan 2026 gece geç)
+**Onay:** Mehmet Dinç (production gözlemi + Madde 17.5 son söz)
+**Disiplin:** Madde 4, Madde 17.4, Madde 17.5
+
+---
+
+### Karar 3: /login Gradient — Kurumsal Lacivert Ailesi Tasarım Sistemi
+
+**Bağlam:** /login sayfası sol dekoratif paneli (hidden lg:flex masaüstü görünümü) gradient `#1E1E8E → #3b239f → #22145f` kullanıyordu. `#3b239f` (koyu violet/mor) ve `#22145f` (çok koyu navy-purple) kurumsal palette dışı renkler. Mehmet Bey'in vurgusu: "ortak web arayüzü bir bütündür".
+
+**Karar:** Gradient kurumsal lacivert ailesi içinde kalır:
+- `#1E1E8E` = `var(--brand-primary)` (kurumsal lacivert) — başlangıç
+- `#18187a` = `--brand-primary-hover` (lacivert ailesi koyu varyant) — orta
+- `#0f0f4d` = lacivert ailesi en koyu (siyah değil, lacivert kuzeni) — bitiş
+
+Bu yeni gradient lacivertten kendi koyu kuzenine geçer — mor yok, kurumsal kimlikte.
+
+**Uygulanan:** `app/(public)/login/page.tsx` line 88 gradient değişimi. Commit `d0c3cc3`.
+
+**Tasarım sistemi sonucu:**
+- Ana renk: #1E1E8E (kurumsal lacivert) — birincil
+- Koyu varyant: #18187a — hover, vurgu
+- En koyu: #0f0f4d — gradient ucu (yeni eklenen, palette'te değişken yok)
+- Yeşil aksent: #5CB85C — CTA, aksiyon
+- M7 yan bulgusu: /lexscan blue gradient hâlâ Tailwind native (kurumsal palete identical değil) — LATER
+
+**Alternatif (seçilmedi):** Düz #1E1E8E kullanmak (gradient olmadan). Ancak gradient sayfada görsel zenginlik sağlıyor, kurumsal aile içinde kaldıkça uygundur.
+
+**Mimar:** Claude Opus 4.7 (TUR #42 K8, 30 Nisan 2026 gece yarısı)
+**Onay:** Mehmet Dinç (görsel kontrol — 3 rol Yönetici/Temsilci/Hukukçu kanıtlı)
+**Disiplin:** Madde 4, Madde 17.5
