@@ -8,9 +8,9 @@
 ## 🎯 AKTİF KESİT
 
 **Faz:** FAZ 4-B Operasyonel Ölçek
-**Son TUR:** #40 — Blog görünürlük + içerik
+**Son TUR:** #41 — PWA icon altyapısı (K4 + O1 + O2 kapatıldı)
 **Anayasa:** v1.10.0
-**Son güncelleme:** 29 Nisan 2026
+**Son güncelleme:** 29 Nisan 2026 (öğleden sonra)
 
 ### Kesit içi turlar (özet)
 
@@ -20,13 +20,14 @@
 | #38 | PWA iOS | Lokal ✅, iPhone Safari kanıtı bekliyor (O2) |
 | #39 | (kayıt için OTONOM_RAPOR'a bak) | — |
 | #40 | Blog görünürlük + içerik (K1+K2+K3) | ✅ Lokal + production kapalı (8/8 kanıt) |
+| #41 | PWA icon altyapısı (K4) + GA4/PWA bekleyenleri (O1+O2) | ✅ Lokal + production kapalı |
 
 ### Aktif önceliklendirme (sıradaki tur adayları)
 
-1. **O1+O2 kapanışı** (Mehmet Bey manuel kontrol — 10 dk)
-2. **NOW kesitinde sıradaki iş** (aşağıdaki MUST+NOW listesi)
-3. **M2 — middleware → proxy migration** (NEXT)
-4. **M3 — Footer birleştirme** (LATER)
+1. **NOW kesitinde sıradaki iş** (aşağıdaki MUST+NOW listesi)
+2. **M2 — middleware → proxy migration** (NEXT)
+3. **M3 — Footer birleştirme** (LATER)
+4. **M5 — manifest icon kaynağı logo.png** (LATER, kozmetik)
 
 ---
 
@@ -127,6 +128,11 @@
 - WhatsApp Business onayı (Meta production geçişi)
 - Bilirkişi raporu yönetimi
 - Baro doğrulama otomasyonu
+- **M5** — Manifest icon kaynağı: logo.png (640×640, opak) → manifest icons (şu an icon-192.png/icon-512.png)
+  - Tip: Kalite iyileştirmesi
+  - Süre: ~30 dk (manifest path değişimi + lokal kanıt + push)
+  - Risk: Düşük
+  - Tetikleyici: PWA install splash veya Android adaptive icon şikayeti
 
 ---
 
@@ -212,6 +218,7 @@ CommissionLog + Mali Modülü (LATER)
 
 ## 🔄 GÜNCELLEME TARİHÇESİ
 
+- **2026-04-29 (öğleden sonra)** — TUR #41 sonrası: aktif kesit son TUR #40 → #41, M5 (manifest logo.png) COULD+LATER'a eklendi.
 - **2026-04-29** — TUR #40 sonrası senkronizasyon: aktif kesit FAZ 4-B v1.10.0'a güncellendi (önceden TUR #24 v1.4.0). M2, M3 yan bulguları eklendi.
 - v1.0 — 27 Nisan 2026 (sabah) — başlangıç sürümü (Madde 24 ile birlikte)
 
