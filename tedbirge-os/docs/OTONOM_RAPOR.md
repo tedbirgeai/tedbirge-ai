@@ -1,3 +1,67 @@
+## TUR #40 — FAZ 4-B Operasyonel Ölçek (Blog Görünürlük + İçerik)
+
+**Tarih:** 28-29 Nisan 2026 (gec gece + sabah)
+**Anayasa:** v1.10.0
+**Süre:** ~6 saat (3 oturum)
+**Etkilenen repo:** tedbirge-panel
+**Toplam commit:** 9 (5523603 → 0905932 → df9d1da → 82a11ed → 965c4e8 → 4ab0189 → 139c73d → 04061dc → 1932b75)
+**Push:** 3 (FAZ 1 trafik makale, K1 düzeltme, K2 5 atom, K3 2 atom — sırayla)
+
+### Kapsam
+
+Üç bulgu kapatıldı:
+- **K1** — Blog detay 404 (Next.js 16.2.2 params Promise unwrap)
+- **K2** — Blog görünmezliği (anasayfa + iki footer + 3 niş landing → 5 atom)
+- **K3** — Boş makale içerikleri (FAZ 2 iş kazası + FAZ 3 sigorta → 2 atom)
+
+### K1 — params Promise Unwrap
+
+**Sebep (kanıt):** Next.js 16.2.2 `params` artık `Promise<{ slug: string }>` olarak gelir. `app/(public)/blog/[slug]/page.tsx`'te senkron erişim runtime hatası + 404 üretiyordu.
+**Atom:** Tek dosya — `generateMetadata` ve `BlogPost` imzaları Promise'a çevrildi, `await params` destructure eklendi, fonksiyon `async` yapıldı.
+**Kanıt:** Dev log'da Next.js'in tam hata mesajı (`params is a Promise...`), build 63/63 ● statik, lokal 4 × 200, production 3 slug 200 + tam içerik.
+**Commit:** 0905932
+
+### K2 — Blog Görünürlük (5 atom)
+
+**Sebep:** `/blog` sayfası çalışıyordu ama anasayfa, footer, niş landing'lerden hiçbir yerden link yoktu. Sıradan ziyaretçi blog'un varlığını bilmiyor.
+**Atomlar:**
+- A1: `app/(public)/page.tsx` — `<BlogSection />` (NewsSection-CtaSection arası, 3 kart, lacivert link, motion uyumlu) + inline lacivert footer "Hukuki Bilgi" sütununa Blog linki. Commit `df9d1da`.
+- A2: `components/layout/Footer.tsx` — global beyaz footer sağ link listesinin ilk item'ı olarak Blog. Commit `82a11ed`.
+- A3: `app/(public)/trafik-kazasi-tazminat/page.tsx` — FAQ-CTA arası inline SVG kitap ikonlu blog banner. Commit `965c4e8`.
+- A4: `app/(public)/is-kazasi-tazminat/page.tsx` — aynı pattern, iş kazası makalesi. Commit `4ab0189`.
+- A5: `app/(public)/sigorta-tazminat-reddedildi/page.tsx` — aynı pattern, sigorta makalesi. Commit `139c73d`.
+
+**Kurumsal renk disiplini:** Yeşil (#5CB85C) sadece CTA için, yeni elementler lacivert (#1E1E8E). Yeşil "kirletilmedi". Anasayfa başlık "Hukuki Rehberler" seçildi (`/blog` H1 ile tekrar olmasın diye).
+**Kanıt:** Build 63/63, lokal 6 × 200 (regresyon dahil), production 5 görsel kanıt (anasayfa kartlar, lacivert footer, beyaz global footer, 3 niş banner).
+
+### K3 — Makale İçerikleri (2 atom)
+
+**Sebep:** `is-kazasi-tazminat-sureci` ve `sigorta-tazminat-reddedildi-ne-yapmali` makaleleri `[ICERIK MEHMET BEY TARAFINDAN DOLDURULACAK]` placeholder içeriyordu. K2 bu boş makalelere 7 farklı yerden link verdi → görünürlük arttı, içerik boş kaldı → KVKK Madde 25 sınırına dokunuyordu.
+**Atomlar:**
+- A1 (FAZ 2): `lib/blog.ts` — iş kazası makalesi tam içerik. 5510 SGK m.13, TBK m.417, bilirkişi, TBK m.55-m.56, zamanaşımı (TBK m.72/146), 7036 arabuluculuk, İş Mahkemesi. Commit `04061dc`.
+- A2 (FAZ 3): aynı dosya — sigorta reddi makalesi. Reddin niteliği, 5684 m.30 Tahkim, mahkeme yolu, 7155 zorunlu arabuluculuk, TTK m.1420 zamanaşımı. Commit `1932b75`.
+
+**KVKK disiplini (Madde 25):** Avukat ismi yok, garanti vaadi yok ("kazanırsınız"/"%100"/"kesinlikle"), somut tazminat rakamı yok. "Bir avukata danışmadan kesin karar vermeyin" disclaimer her iki makalede mevcut. Kanun referansları gerçek (uydurulmamış).
+**Kanıt:** Lokal placeholder grep = 0, lokal 3 × 200, production 3 makale tam içerik (Image 7-8-9).
+
+### Mimar Hata Tutanağı (Madde 4 ihlalleri — şeffaflık)
+
+Bu turda mimar (sohbet) iki hata yaptı, ikisi de Madde 4 (önce oku) ihlali:
+
+1. **K2 Tur B mektubunda `lucide-react` import edildi.** `package.json` okunmadan kütüphanenin yüklü olduğu varsayıldı. Claude Code A3'te TypeScript hatası ile DURDU (Madde 3.6 KIRMIZI — npm install yasak). Tur B-2 mektubunda inline SVG ile düzeltildi. **Disiplin çalıştı, KIRMIZI çizgi yamanmadı.**
+
+2. **K2 Tur B push edildikten sonra Mehmet Bey FAZ 2/FAZ 3 makalelerinin boş olduğunu fark etti.** DEVIR raporundaki "FAZ 2 + FAZ 3 makaleleri henüz yazılmadı" notu mimar tarafından gözden kaçırıldı. K2 push edilmeden önce "boş makalelere link veriyoruz" durumunun fark edilmesi gerekirdi. K3 (acil içerik turu) ile telafi edildi.
+
+**Sonuç:** Anayasa Madde 4 disiplini iki kez bende ihlal edildi, iki kez de yapı yakalayıp düzeltti. KIRMIZI çizgilerden hiçbiri yamanmadı, fonksiyonel sonuca ulaşıldı.
+
+### Yan Bulgular (TUR #40'ta açıldı, kapsam dışı kaldı)
+
+- **M1** — `/blog` curl 403, browser 404 (Vercel edge davranışı). K1 düzeldikten sonra ikisi de 200 oldu, takip gerekmez.
+- **M2** — `middleware.ts` Next 16'da deprecated, `proxy.ts`'e geçilmesi gerekiyor. Build uyarısı, fonksiyonel etkisi yok. Ayrı tur konusu.
+- **M3** — İki Footer pattern'i (anasayfa inline lacivert + global beyaz). Mimari tutarsızlık. İleride birleştirme veya rol netleştirme kararı.
+
+---
+
 # OTONOM TUR #40 FAZ 1 — 28 Nisan 2026 (gec gece) TRAFIK KAZASI BLOG MAKALESI
 
 ## ✅ TAMAMLANAN GOREVLER (1 ATOM)
