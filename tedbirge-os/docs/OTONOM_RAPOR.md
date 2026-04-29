@@ -1,11 +1,11 @@
-## TUR #43 — SEO Meta Disiplini (Tur B-1: Altyapı)
+## TUR #43 — SEO Meta Disiplini (Tur A keşif + Tur B-1 altyapı + Tur B-2 anlam)
 
 **Tarih:** 30 Nisan 2026 (gece yarısı sonrası) — 1 Mayıs 2026
 **Anayasa:** v1.10.0
-**Süre:** ~1 saat 30 dk
-**Etkilenen repo:** tedbirge-panel
-**Durum:** Tur B-1 ✅ KAPALI, Tur B-2 ⏳ AÇIK (JSON-LD + anasayfa server/client)
-**Toplam commit:** 5
+**Süre:** ~3 saat (Tur A keşif + Tur B-1 5 atom + Tur B-2 5 atom)
+**Etkilenen repo:** tedbirge-panel (kod) + tedbirge-os (devir)
+**Durum:** ✅ TAM KAPALI (3 alt-tur)
+**Toplam commit:** 9 panel (B1→B9)
 
 ### Tur A — Keşif (önceki, salt okuma)
 
@@ -41,9 +41,40 @@
 
 ### KIRMIZI çizgi ihlali: 0
 
-### Tur B-2 bekliyor
+### Tur B-2 — JSON-LD + Anasayfa Server/Client (5 atom — B6 + B7 + B8 + B9 + B10)
 
-JSON-LD (Organization, WebSite, LegalService, Article, BreadcrumbList) + anasayfa `"use client"` server/client bölmesi — mimar mektubu B-1 production doğrulamasından sonra yazılacak.
+- **B6** — `components/JsonLd.tsx` (yeni 122 satır, server component) + Organization + WebSite root layout enjeksiyonu. 4 schema factory (`organizationSchema`, `websiteSchema`, `legalServiceSchema`, `articleSchema`). Tüm sayfalarda kalıtım. — commit `eb3b45e`
+- **B7** — LegalService JSON-LD 3 niş landing (`/trafik-kazasi-tazminat`, `/is-kazasi-tazminat`, `/sigorta-tazminat-reddedildi`). Her sayfa kendi `serviceType` (Trafik/İş/Sigorta İtiraz). + Country (areaServed=Türkiye) + Organization (provider). — commit `82d67ae` (B10 ile birleşik)
+- **B8** — Article JSON-LD blog detay (`app/(public)/blog/[slug]/page.tsx`). `lib/blog.ts` field kanıtı: `slug, title, date, excerpt`. Article schema headline=title, description=excerpt, datePublished=date, image=opengraph-image, publisher logo. — commit `9b79c0c` (B10 ile birleşik)
+- **B9** — Anasayfa server/client bölmesi: `app/(public)/page.tsx` rename → `HomePageClient.tsx` (905 satır client kod aynen korundu, sadece `export default function PublicHomePage` → `HomePageClient`). Yeni server component `page.tsx` (23 satır) anasayfa-özel metadata (title "Trafik ve İş Kazası Tazminat Yönetim Platformu", canonical, openGraph) + `<HomePageClient />` render. — commit `a83ca7f`
+- **B10** — og:image regresyon fixi (Mimar onayı sonrası ek atom): B9 metadata override Tur B-1 Next.js convention `og:image` kalıtımını sildi. Anasayfa + 3 niş landing + blog detay metadata'larında `openGraph.images: ["/opengraph-image"]` + `twitter.images` eklendi. 5 dosya, ~30 satır. Commit'ler B7+B8+B9 içinde birleşik.
+
+**B10 niye gerekti:** Next.js metadata merge davranışı: child `openGraph` objesi override ettiğinde parent OG sub-fields kalıtımı silinir (partial merge yok). Tur B-1'de `og:image` Next.js convention sayesinde otomatik bağlanmıştı; B9 metadata override bunu kırdı, manuel `images` referansı zorunlu oldu.
+
+### Mimar hata sayısı (Tur B-2): 1
+
+**Hata:** B9 mektubu `openGraph.images` belirtmedi, Next.js merge davranışı atlandı. Lokal smoke test'te yakalandı, B10 ek atomu ile kapatıldı (Mehmet Bey yazılı onay — Seçenek A genişletilmiş).
+
+### Production kanıt (Tur B-2)
+
+- Anasayfa title: `Trafik ve İş Kazası Tazminat Yönetim Platformu | Tedbirge AI` (template `%s | Tedbirge AI` çalışıyor)
+- Anasayfa canonical: `https://www.tedbirge.ai/`
+- Anasayfa schema: Organization, WebSite (2 tip, root'tan)
+- 3 niş landing schema: Organization, WebSite, LegalService, Country (4 tip)
+- Blog detay schema: Organization, WebSite, Article, ImageObject (4 tip — publisher logo)
+- og:image + twitter:image: 4 sayfa kategorisinde de mevcut (anasayfa, niş, blog detay)
+- Tur B-1 regresyon: 0 (opengraph-image 200, sitemap 19, robots /musteri/, /dashboard 307 — tümü korundu)
+
+### TUR #43 İSTATİSTİK (3 alt-tur toplamı)
+
+- Toplam atom: 10 panel (B1→B10) + os güncellemeleri
+- Toplam commit: 9 panel + os
+- KIRMIZI çizgi ihlali: 0
+- Mimar hata: 2 (B-1: middleware + B-2: og:image merge)
+- Schema tipleri canlı: Organization, WebSite, LegalService, Article (+ Country, ImageObject yardımcı)
+- SEO katman 1 (altyapı) ✅ + katman 2 (anlam) ✅ → Tedbirge.ai ilk kez Google rich snippet'a hazır
+
+### TUR #43 KAPANDI
 
 ---
 

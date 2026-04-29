@@ -1,25 +1,21 @@
 # 🛡️ DEVIR RAPORU (AKTİF) — TEDBİRGE.AI
 
-**Son güncelleme:** 1 Mayıs 2026 (TUR #43 Tur B-1 sonrası)
+**Son güncelleme:** 1 Mayıs 2026 (TUR #43 TAM KAPANDI — Tur A + B-1 + B-2)
 **Anayasa:** v1.10.0
 **Aktif kesit:** FAZ 4-B Operasyonel Ölçek
-**Son TUR:** #43 Tur B-1 — SEO Meta Altyapı (B1+B2+B3+B4+B5 kapatıldı)
+**Son TUR:** #43 — SEO Meta Disiplini (10 atom B1→B10 kapatıldı)
 
 ---
 
 ## 🔴 AÇIK KRİTİK
 
-**TUR #43 Tur B-2** — JSON-LD + anasayfa server/client bölmesi
-- JSON-LD (Organization + WebSite + LegalService + Article + BreadcrumbList) — Tur A'da SIFIR JSON-LD tespit edildi, Google rich snippet imkanı tamamen kapalı
-- Anasayfa `app/(public)/page.tsx` `"use client"` directive'i nedeniyle kendi server-side metadata export edemiyor — server/client bölmesi (server wrapper + client component) gerek
-- Mimar mektubu B-1 production doğrulamasından sonra yazılacak
-- Beklenen atom: 4-5 (1 anasayfa refactor + 3-4 JSON-LD enjeksiyon)
+YOK. TUR #43 tam kapandı.
 
 ---
 
 ## 🟡 PLANLI / BEKLEYEN
 
-YOK (Tur B-2 yukarıda kritik olarak listelendi).
+YOK.
 
 ---
 
@@ -61,36 +57,39 @@ YOK.
 
 ## 🎯 SIRADAKİ ÖNERİLEN İŞ
 
-**TUR #43 Tur B-1 KAPALI**, Tur B-2 açık. Mehmet Bey kararı:
+**TUR #43 TAM KAPALI** (Tur A + B-1 + B-2). Mehmet Bey kararı:
 
-**Seçenek A — TUR #43 Tur B-2 (devam):**
-- JSON-LD enjeksiyonu (Organization + WebSite + LegalService + Article + BreadcrumbList)
-- Anasayfa server/client bölmesi (server wrapper + client component)
-- Mimar mektubu yazılacak (B-1 production doğrulaması ✅ tamam)
-- Süre tahmini: ~1.5-2 saat (4-5 atom)
-- **Önerilen:** SEO çalışmasının zincirini koparmadan kapatmak
+**Seçenek A — TUR #44 Animasyon ve Mikro Etkileşimler:**
+- Mehmet Bey'in eski talebi: "muazzam yazı akışları, sayfa kaymaları, canlı yazı ve görsel akışları"
+- Anasayfa zaten framer-motion + SectionReveal + cardVariants kullanıyor; eksikler niş landing, blog detay, /basvuru, /login geçişleri
+- Tur A araştırma gerekli (mevcut animasyon sistemi haritası)
+- Süre tahmini: ~5-8 saat (büyük tur, alt-turlara bölünebilir)
+- SEO meta düzeldikten sonra animasyon zenginliği daha görünür
 
-**Seçenek B — Mola:**
-- TUR #40 + #41 + #42 + #43 B-1 = ~18 saatte 33 atom uygulandı
+**Seçenek B — Mola (önerilen):**
+- TUR #40 + #41 + #42 + #43 = ~21 saatte ~38 atom uygulandı
+- Sürdürülebilir değil, mola hak edilmiş
 - Bir sonraki Claude oturumu temiz başlangıç (Madde 26.4 protokol)
-- Tur B-2 mektubu yarın/öbürgün yazılır
+- TUR #44 yarın/öbürgün
 
-**Seçenek C — TUR #44 Animasyon (B-2 sonrası):**
-- Önceki devir notunda da belirtildi: SEO meta düzeldikten sonra animasyon zenginliği görünür
-- Tur B-2 kapanmadan açılması anayasa Madde 17.4 ihlali (yarım kesit)
+**Seçenek C — İçerik Turu (yan bulgu B8):**
+- `lib/blog.ts` statik POSTS dizisi (3 post, 2026-04-27 tarihi)
+- Yeni blog post ekleme süreci elle TypeScript düzenleme — DB veya markdown filesystem değil
+- Article schema canlı, içerik artırılabilir (SEO için fark yaratır)
+- Süre: 1-2 saat per post
 
-Mimar önerisi: **Seçenek A — Tur B-2 ile zinciri kapat**, sonra mola. Tur B-1 momentum'u taze, kapsam dar (4-5 atom).
+Mimar önerisi: **Seçenek B — Mola.** SEO altyapısı + anlam katmanı tamam, Google indeksleme ve rich snippet için zaman gerek (1-2 hafta). Bu süre içinde mola, sonra TUR #44 veya içerik turu.
 
 ---
 
-## 📊 TUR #43 Tur B-1 ÖZETİ (referans)
+## 📊 TUR #43 ÖZETİ (referans — 3 alt-tur)
 
-- **Süre:** ~1 saat 30 dk, 1 oturum
-- **Atom:** 5 panel (B1+B2+B3+B4+B5 — B5 mimar onayı sonrası ek atom)
-- **Commit:** 5 panel (`9f3c699 → aa068ce`)
-- **Push:** 1 (toplu)
-- **Mimar hata:** 1 (mektupta middleware öngörülmedi, lokal smoke test yakaladı, B5 ile kapatıldı)
-- **Production kanıt:** 5/5 (anasayfa OG/twitter ✓, opengraph-image 200 PNG 1200×630 ✓, sitemap 19 URL ✓, robots /musteri/ ✓)
+- **Süre:** ~3 saat toplam (Tur A keşif + Tur B-1 5 atom + Tur B-2 5 atom)
+- **Atom:** 10 panel (B1→B10) + os güncellemeleri
+- **Commit:** 9 panel (`9f3c699 → a83ca7f`) + os
+- **Push:** 2 (Tur B-1 sonrası, Tur B-2 sonrası)
+- **Mimar hata:** 2 (Tur B-1 middleware + Tur B-2 og:image merge — ikisi de yapı tarafından yakalandı)
+- **Production kanıt:** 10/10 (Schema.org 4 tip canlı, og:image her sayfada, opengraph-image 200, sitemap 19, robots korundu, /dashboard 307)
 
 Detay: OTONOM_RAPOR.md → TUR #43 bloğu. Tur A keşif: docs/TUR43_TUR_A_SEO_KESIF.md.
 

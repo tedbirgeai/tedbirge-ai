@@ -750,3 +750,68 @@ Bu yeni gradient lacivertten kendi koyu kuzenine geçer — mor yok, kurumsal ki
 **Mimar:** Claude Opus 4.7 (TUR #43 B5, 30 Nisan 2026 gece yarısı sonrası)
 **Onay:** Mehmet Dinç (yazılı — "Mimar onayı: Seçenek A. B5 atomu uygula, 5 atom toplu commit/push, production doğrula.")
 **Disiplin:** Madde 4, Madde 6 (DUR şartı), Madde 17.5
+
+---
+
+## 1 Mayıs 2026 — TUR #43 Tur B-2 SEO Anlam Katmanı (5 atom)
+
+### Karar 5: JSON-LD Ortak Component (DRY + 4 Schema Factory)
+
+**Bağlam:** Tur A'da JSON-LD sıfır tespit edildi — Google rich snippet, knowledge graph ve LegalService nis pazar görünürlüğü tamamen kapalı. Sayfa başına manuel `<script type="application/ld+json">` yazmak DRY ihlali ve kod tekrarı olurdu (her sayfada `JSON.stringify`, factory mantığı tekrarlanır).
+
+**Karar:** `components/JsonLd.tsx` ortak server component oluşturuldu (122 satır). 4 type-safe factory:
+- `organizationSchema()` — sirket bilgisi (root, tüm sayfalar)
+- `websiteSchema()` — site adı + dil + publisher (root, tüm sayfalar)
+- `legalServiceSchema({name, description, url, serviceType})` — niş landing'ler için
+- `articleSchema({headline, description, url, datePublished, ...})` — blog detay için
+
+`<JsonLd data={...} />` component'i tek obje veya obje dizisi kabul eder. Server component (SSR'da render olur, client hydration'a bağımlı değil — Google bot gördüğünde hazır).
+
+**Alternatif (seçilmedi):** Sayfa başına manuel `<script>` enjeksiyonu — DRY ihlali, factory'ler her sayfada tekrar yazılırdı. JSON-LD'i client-side enjekte etmek — bot'lar SSR HTML'i çeker, JSON-LD görmez.
+
+**Mimar:** Claude Opus 4.7 (TUR #43 B6, 1 Mayıs 2026)
+**Onay:** Mehmet Dinç ("YAZ ORTAK")
+**Disiplin:** Madde 4.5
+
+---
+
+### Karar 6: Anasayfa "use client" Tuzağı — Server Wrapper Pattern
+
+**Bağlam:** Tur A'da anasayfa `app/(public)/page.tsx` `"use client"` directive'i nedeniyle kendi server-side `metadata` export edemediği tespit edildi. Anasayfa Tedbirge.ai'nin ana giriş noktası — Google'da generic "Tedbirge AI" başlığıyla görünüyordu, ana niş anahtar kelimeler (trafik kazası tazminatı, iş kazası) yansımıyordu. İki seçenek vardı: (a) Root layout metadata'yi anasayfa için optimize etmek (diğer sayfalar override ettiği için yetersiz), (b) Anasayfayı server wrapper + client component bölmesine ayırmak.
+
+**Karar:** Server wrapper pattern (Seçenek b) seçildi:
+- Mevcut `page.tsx` (905 satır client kod) → `HomePageClient.tsx` rename, sadece `export default function PublicHomePage` → `HomePageClient` adı değişti, JSX/hooks/motion/state aynen korundu
+- Yeni `page.tsx` (23 satır server component) — anasayfa-özel metadata (title "Trafik ve İş Kazası Tazminat Yönetim Platformu", description keyword-rich, canonical, openGraph) + `<HomePageClient />` render
+
+**Sonuç:** Production'da anasayfa başlığı `Trafik ve İş Kazası Tazminat Yönetim Platformu | Tedbirge AI` (template `%s | Tedbirge AI` çalıştı), canonical doğru, content render olmaya devam ediyor.
+
+**Risk:** Anasayfa ana giriş noktası, refactor regresyonu görünür ve maliyetli. Lokal smoke test (HTTP 200, hero metni HTML'de var) + production kanıtı ile doğrulandı.
+
+**Alternatif (seçilmedi):** Root layout metadata'yı anasayfa için optimize — diğer sayfalar (niş landing, blog) kendi metadata'larıyla override eder, anasayfa-özel keyword'ler diğerlerine bulaşırdı.
+
+**Mimar:** Claude Opus 4.7 (TUR #43 B9, 1 Mayıs 2026)
+**Onay:** Mehmet Dinç ("YAZ ORTAK", görsel kontrol Mehmet Bey'in tarayıcıda doğrulamasıyla)
+**Disiplin:** Madde 4.2 (atom seviyesi), Madde 17.5
+
+---
+
+### Karar 7: Next.js Metadata Merge — og:image Manuel Referans (Ek Atom B10)
+
+**Bağlam:** B9 anasayfa metadata'sı `openGraph: {title, description, url, type}` tanımladığında Tur B-1'de Next.js `app/opengraph-image.tsx` convention'undan otomatik gelen `og:image` ve `twitter:image` **kayboldu**. Lokal smoke test yakaladı.
+
+**Kök sebep:** Next.js metadata merge davranışı — child `openGraph` objesi parent'ı **kısmi merge etmez**, override ettiğinde tüm sub-fields override edilir. Yani `images` belirtmezsen kalıtım almaz, **sıfır gelir**.
+
+**Karar:** B10 ek atomu olarak (Mehmet Bey yazılı onay — "Seçenek A genişletilmiş") og:image regresyonu fixlendi. 5 dosyada manuel `openGraph.images: ["/opengraph-image"]` + `twitter.images` referansı eklendi:
+- `app/(public)/page.tsx` (anasayfa)
+- 3 niş landing
+- `app/(public)/blog/[slug]/page.tsx` generateMetadata
+
+`/opengraph-image` relative path — `metadataBase` (Tur B-1) sayesinde absolute URL üretildi.
+
+**Niye söz değiştirildi:** Tur B-2 mektubu B9 metadata'sında `openGraph.images` belirtmedi — mimar Next.js merge davranışını atladı. Mehmet Bey yazılı onayı ile B10 atomu eklendi (Madde 17.5 son söz).
+
+**Alternatif (seçilmedi):** Anasayfa `openGraph` objesini tamamen kaldırıp root inheritance — anasayfa-özel og:title/description (anasayfa için ana kazanım) kayıp olurdu.
+
+**Mimar:** Claude Opus 4.7 (TUR #43 B10, 1 Mayıs 2026)
+**Onay:** Mehmet Dinç (yazılı — "Mimar onayı: Seçenek A genişletilmiş. B9 og:image fix + B10 atomu (niş landing 3 + blog detay 1 = 4 dosya).")
+**Disiplin:** Madde 4, Madde 6 (DUR şartı), Madde 17.5
