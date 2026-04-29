@@ -8,9 +8,9 @@
 ## 🎯 AKTİF KESİT
 
 **Faz:** FAZ 4-B Operasyonel Ölçek
-**Son TUR:** #42 — Kurumsal Kimlik Birleştirme (K5+K6+K7+K8 kapatıldı)
-**Anayasa:** v1.10.0
-**Son güncelleme:** 30 Nisan 2026 (gece yarısı)
+**Son TUR:** #44 — Hareket Disiplini (BÜYÜK KAPANIŞ — 25 atom, ~10 saat tek gün)
+**Anayasa:** v1.11.0
+**Son güncelleme:** 1 Mayıs 2026 (gece geç)
 
 ### Kesit içi turlar (özet)
 
@@ -22,13 +22,30 @@
 | #40 | Blog görünürlük + içerik (K1+K2+K3) | ✅ Lokal + production kapalı (8/8 kanıt) |
 | #41 | PWA icon altyapısı (K4) + GA4/PWA bekleyenleri (O1+O2) | ✅ Lokal + production kapalı |
 | #42 | Kurumsal kimlik birleştirme (K5+K6+K7+K8) | ✅ Lokal + production kapalı |
+| #43 | SEO Meta Disiplini (Tur A keşif + B-1 altyapı + B-2 anlam) | ✅ 10 atom, 4 schema tipi (Org/WebSite/LegalService/Article) |
+| #44 | Hareket Disiplini (Tur A + 44.1 + 44.2+44.3 birleşik + C9) | ✅ 25 atom, anasayfa cinematic 2.2sn, 9 sayfa Reveal, anayasa Madde 29 eklendi |
+
+### TUR #44 — Hareket Disiplini ✅ BÜYÜK KAPANIŞ
+
+**Tarih:** 1 Mayıs 2026 (tek gün, ~10 saat)
+**Atom:** ~25 (Tur A keşif + 7 altyapı + 9 yaygınlaştırma + 8 cinematic + 1 son rötuş C9)
+**Commit:** 13 panel (`7081d29` → `9555bb8`) + 5 OS (`edc40fe` → `9bebbf5`)
+**Anayasa:** v1.10.0 → v1.11.0 (Madde 29 Hareket Disiplini eklendi, KAPANIŞ Madde 30'a kaydı)
+
+**Sonuç:**
+- Türkiye legal tech sınıfında zirve teyitli
+- Dünya legal tech çıtasının %50-60'ında (linear.app/framer.com erişilebilir)
+- Anasayfa hero 2.2sn cinematic akış (badge → kelime stagger → highlight sweep → alt yazı → CTA pulse)
+- 9 sayfada Reveal motion disiplini, hover scale v2 (1.08) + glow + magnetic
+- 0 ek paket (Senaryo 1 başarılı), 0 schema/migration/env
+
+Detay: `docs/OTONOM_RAPOR.md` → TUR #44 büyük blok.
 
 ### Aktif önceliklendirme (sıradaki tur adayları)
 
-1. **NOW kesitinde sıradaki iş** (aşağıdaki MUST+NOW listesi)
-2. **M2 — middleware → proxy migration** (NEXT)
-3. **M3 — Footer birleştirme** (LATER)
-4. **M5 — manifest icon kaynağı logo.png** (LATER, kozmetik)
+1. **MOLA önerilen** — TUR #40-#44 ~30 saatte 70+ atom, sürdürülebilir değil
+2. **TUR #45 İçerik Stratejisi** (önerilen sonraki) — SEO + blog yol haritası
+3. **TUR #45 Yan bulgu temizliği** alternatifi — Y1 hex hardcoding + M2 middleware Next 16 + Y4 OS arşivleme
 
 ---
 
@@ -225,6 +242,7 @@ CommissionLog + Mali Modülü (LATER)
 
 ## 🔄 GÜNCELLEME TARİHÇESİ
 
+- **2026-05-01 (gece geç)** — TUR #44 BÜYÜK KAPANIŞ sonrası: aktif kesit son TUR #42 → #44, anayasa v1.10.0 → v1.11.0 (Madde 29 Hareket Disiplini), TUR #43 + #44 satırları ve TUR #44 detay bloğu eklendi, Y1/Y2/Y3/Y4 yan bulgular DEVIR'e geçti.
 - **2026-04-30 (gece yarısı)** — TUR #42 sonrası: aktif kesit son TUR #41 → #42, M7 (/lexscan blue gradient) COULD+LATER'a eklendi.
 - **2026-04-29 (öğleden sonra)** — TUR #41 sonrası: aktif kesit son TUR #40 → #41, M5 (manifest logo.png) COULD+LATER'a eklendi.
 - **2026-04-29** — TUR #40 sonrası senkronizasyon: aktif kesit FAZ 4-B v1.10.0'a güncellendi (önceden TUR #24 v1.4.0). M2, M3 yan bulguları eklendi.

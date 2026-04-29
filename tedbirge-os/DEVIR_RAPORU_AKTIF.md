@@ -1,7 +1,7 @@
 # 🛡️ DEVIR RAPORU (AKTİF) — TEDBİRGE.AI
 
 **Son güncelleme:** 1 Mayıs 2026 (gece geç — TUR #44 BÜYÜK KAPANIŞ)
-**Anayasa:** v1.10.0
+**Anayasa:** v1.11.0
 **Aktif kesit:** FAZ 4-B Operasyonel Ölçek
 **Son TUR:** #44 — Hareket Disiplini (KAPALI — büyük kesit, ~25 atom, ~10 saat tek gün)
 

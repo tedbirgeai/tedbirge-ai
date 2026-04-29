@@ -1,7 +1,7 @@
 ## TUR #44 — Hareket Disiplini (BÜYÜK KAPANIŞ — Tur A + 44.1 + 44.2+44.3 birleşik + C9 son rötuş)
 
 **Tarih:** 1 Mayıs 2026 (gece — gece yarısı sonrası)
-**Anayasa:** v1.10.0
+**Anayasa:** v1.10.0 → **v1.11.0** (TUR #44 kapanışta Madde 29 Hareket Disiplini eklendi)
 **Süre:** Tur A 75 dk + TUR #44.1 ~3 saat + TUR #44.2+44.3 birleşik ~3-4 saat + C9 rötuş ~15 dk = ~7-8 saat tek gün
 **Etkilenen repo:** tedbirge-panel (kod) + tedbirge-os (devir)
 **Toplam commit:** 6 panel (TUR #44.1) + 4 panel (TUR #44.2+44.3 birleşik C9 dahil) + os güncellemeleri

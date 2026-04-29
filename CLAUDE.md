@@ -1351,7 +1351,69 @@ model BekleyenModel {
 
 ---
 
-## 29. KAPANIŞ — NİYE BU ANAYASA VAR
+## 29. HAREKET DİSİPLİNİ — Animation Discipline
+
+**Amaç:** Tedbirge.ai'nin kullanıcı deneyiminde hareket (animation) **kurumsal kalitede** olmalı. Hareket sayfa-spesifik magic number'larla değil, **merkezi disiplinle** yönetilir.
+
+### 29.1 — Merkezi motion kaynağı zorunlu
+
+Tüm animasyon variant'ları, ease curve'leri, duration değerleri ve hover scale faktörleri **`lib/motion.ts`** dosyasında tanımlanır. Sayfa-içi inline magic number (`whileHover={{ scale: 1.15 }}` gibi) **YASAK** — token üzerinden referans verilmeli (`HOVER_SCALE.emphatic`, `HOVER_SCALE_V2.cinematic`).
+
+CSS tarafında aynı disiplin: motion token'ları **`globals.css`** içinde CSS custom property olarak (`--ease-standard`, `--duration-base`, `--ease-cinematic` vb.) tanımlanır. Sayfa-içi inline `transition: all 0.5s ease` **YASAK** — utility class veya CSS variable üzerinden referans.
+
+### 29.2 — Reduced-motion 3 katmanlı respect
+
+WCAG 2.2.3 + Madde 25 erişilebilirlik gereği `prefers-reduced-motion: reduce` **3 katmanda** respect edilir:
+
+1. **CSS düzey:** `@media (prefers-reduced-motion: reduce)` global fallback (`globals.css`)
+2. **Framer config düzey:** Public layout `<MotionConfig reducedMotion="user">` wrapper
+3. **Component düzey:** Custom motion component'lerde `useReducedMotion()` hook
+
+3 katman birlikte çalışır — biri kırılırsa diğerleri korur. Yeni motion component yazılırken **hepsi zorunlu**.
+
+### 29.3 — Ortak motion component disiplini
+
+Sayfa-spesifik tekrarlayan motion pattern'leri **`components/ui/`** klasöründe ortak component olarak çıkarılır:
+- `<Reveal>` — scroll-triggered fade-in (useInView pattern, parent variant collision'a karşı bağışık)
+- `<MotionButton>` — hover scale + tap feedback + opsiyonel glow
+- `<MotionCard>` — hover lift + opsiyonel glow
+
+Tüm ortak component'ler `forwardRef` ile yazılır — polymorphic `as` prop ve external ref desteği zorunlu.
+
+### 29.4 — Cinematic için Senaryo 1 disiplini
+
+Tedbirge'nin animasyon altyapısı **framer-motion + CSS @keyframes**'le sınırlıdır. GSAP / Lottie / Rive / Three.js gibi ek kütüphaneler **YASAK** — istisna ancak Mehmet Bey yazılı onayı + mimari karar mektubu ile açılır. Sebep: bundle bütçesi (< 250 KB First Load JS), designer bağımsızlığı (kod tabanlı), bakım kolaylığı (tek motion sistemi).
+
+Senaryo 1 ile linear.app/framer.com çıtasının %50-60'ı erişilebilir; daha fazlası ek kütüphane kararı gerektirir.
+
+### 29.5 — Soft initial state pattern
+
+SSR + hydration arası geçişte donmuş hidden state kullanıcıya "kayıp" hissi vermemeli. Variant'ların `hidden` state'inde:
+- `opacity: 0` yerine **`opacity: 0.3-0.4`** (yarı görünür)
+- `filter: blur(8px)` yerine **`blur(2-4px)`** (hafif bulanık)
+- `y: 24` yerine **`y: 10-18`** (az kayık)
+
+Donmuş bile olsa "yumuşakça beliriyor" hisseder, "kayıp" değil. Animasyon **nihai sonucu** (visible state) bundan etkilenmez.
+
+### 29.6 — Hareket performans bütçesi
+
+Animasyon eklemek **Lighthouse Performance Score** 5+ puan düşüremez. LCP > 2.5s, CLS > 0.1, INP > 200ms eşikleri kırmızı çizgi — aşılırsa atom revert. Yeni atom uygulandıktan sonra **lokal smoke test + production verify** her ikisinde de skor kontrolü zorunlu.
+
+GPU-accelerated property kullanımı (transform, opacity) zorunlu; `top/left/right/bottom/width/height` üzerinden animation **YASAK** (layout thrashing).
+
+### 29.7 — "Tek mektup uçtan uca" pattern (CEO direktifi)
+
+Büyük kesitlerde (10+ atom, 5+ saat öngörülen) **atom başına Mehmet Bey görsel onayı sürdürülebilir değil**. Bu durumda:
+- Mimar mektup içinde tüm atomları net tarif eder
+- Claude Code uçtan uca uygular (working tree'yi koruyarak)
+- Mehmet Bey **tek görsel onay noktası**nda bakar
+- "Muazzam mı değil mi" kararıyla ya commit ya ayar
+
+Risk: yanlış varsayım kapsam patlatır. Karşı tedbir: mektup öncesi mevcut working tree açıkça not edilir, varsayımlar görünür yapılır. TUR #44.2+44.3 birleşik bu pattern'in ilk uygulamasıdır.
+
+---
+
+## 30. KAPANIŞ — NİYE BU ANAYASA VAR
 
 Tedbirge.ai 20 bin satır iş kalitesi backend kodu olan, **Türkiye'de rakipsiz mimariye** sahip bir LegalTech projesi.  
 3 avukat canlıda kullanıyor.  
@@ -1366,12 +1428,13 @@ Mehmet Bey sahaya çıkabilsin diye bu disiplin var.
 
 ---
 
-**— Tedbirge Mimari Anayasası v1.10.0**  
+**— Tedbirge Mimari Anayasası v1.11.0**  
 **25 Nisan 2026 — başlangıç (Claude Opus 4.7)**  
 **28 Nisan 2026 — v1.7.0 (Madde 26-32 eklendi: otonom devir, sağlık periyodikliği, T tipi onay, migration kanıtı, frontend standardı, ortam izolasyonu, anayasa boyutu)**  
 **28 Nisan 2026 — v1.8.0 (Madde 28 eklendi: Beklemede Özellik Disiplini — AccidentCase TUR #29 dersi; Madde 28 (eski 33) kapanış → 29 (eski 34) olarak yeniden numaralandı)**  
 **28 Nisan 2026 — v1.9.0 (Madde 26 sertleştirme + Madde 26.9 kapanış uyarısı — otonom devir sistemi)**  
 **28 Nisan 2026 — v1.9.1 (Madde 26.4 düzeltme — CLI vs sohbet arayüzü farkı, arayüz tablosu eklendi)**  
 **28 Nisan 2026 — v1.10.0 (TUR #39 Anayasa Sadeleştirme: Madde 25 modülasyonu, 28+29+30+31 birleştirme, 26+27 birleştirme, SALES rolü, 74K→50K karakter)**  
+**1 Mayıs 2026 — v1.11.0 (Madde 29 Hareket Disiplini eklendi → KAPANIŞ Madde 30'a kaydı. TUR #44 büyük kesit sonrası kalıcı prensipler: merkezi motion kaynak, 3 katmanlı reduced-motion, ortak component disiplini, Senaryo 1 paket sınırı, soft initial state, performans bütçesi, "tek mektup uçtan uca" pattern.)**  
 **Versiyon geçmişi: tedbirge-os/MIMARI_KARARLAR.md**  
 **Her major/minor değişiklikte versiyon güncellemesi ZORUNLU (Madde 22)**

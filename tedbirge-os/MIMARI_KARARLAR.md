@@ -428,6 +428,9 @@ Anayasa şu ana kadar **3 büyük değişiklik** geçirdi ama versiyon güncelle
 | **v1.3.0** | **26 Nisan 2026 (gece)** | **Madde 20 (Anayasa Evrim) + Madde 21 (Sağlık Taraması) + Madde 22 (Versiyon Disiplini) eklendi → Madde 23 (Kapanış)** | **22 + Kapanış** | **a4ec692** |
 
 | **v1.4.0** | **27 Nisan 2026 (sabah)** | **Madde 24 (İş Planı Disiplini) eklendi → Madde 26 (Kapanış)** | **23 + Kapanış** | **(bu commit)** |
+| **v1.11.0** | **1 Mayıs 2026 (gece geç)** | **Madde 29 (Hareket Disiplini) eklendi → KAPANIŞ Madde 30. TUR #44 büyük kesit sonrası kalıcı prensipler anayasaya yansıdı: merkezi motion kaynak, 3 katmanlı reduced-motion, ortak component disiplini, Senaryo 1 paket sınırı, soft initial state, performans bütçesi, "tek mektup uçtan uca" pattern.** | **29 + KAPANIŞ** | **(bu commit)** |
+
+*Not: Tablonun v1.4.0 ile v1.11.0 arasındaki sürüm satırları (v1.5.0 → v1.10.0) henüz eklenmemiş — anayasa header'ında tarihçe mevcut. Tablo tutarlılığı ayrı bir doküman bütünlük turu adayı.*
 
 **KVKK kanıt notu:** Bundan sonra anayasa değişikliklerinde tarih + commit hash + açıklama bu tablo formatına yazılacak (Madde 22.7).
 
