@@ -1,21 +1,25 @@
 # 🛡️ DEVIR RAPORU (AKTİF) — TEDBİRGE.AI
 
-**Son güncelleme:** 30 Nisan 2026 (gece yarısı)
+**Son güncelleme:** 1 Mayıs 2026 (TUR #43 Tur B-1 sonrası)
 **Anayasa:** v1.10.0
 **Aktif kesit:** FAZ 4-B Operasyonel Ölçek
-**Son TUR:** #42 — Kurumsal Kimlik Birleştirme (K5+K6+K7+K8 kapatıldı)
+**Son TUR:** #43 Tur B-1 — SEO Meta Altyapı (B1+B2+B3+B4+B5 kapatıldı)
 
 ---
 
 ## 🔴 AÇIK KRİTİK
 
-YOK.
+**TUR #43 Tur B-2** — JSON-LD + anasayfa server/client bölmesi
+- JSON-LD (Organization + WebSite + LegalService + Article + BreadcrumbList) — Tur A'da SIFIR JSON-LD tespit edildi, Google rich snippet imkanı tamamen kapalı
+- Anasayfa `app/(public)/page.tsx` `"use client"` directive'i nedeniyle kendi server-side metadata export edemiyor — server/client bölmesi (server wrapper + client component) gerek
+- Mimar mektubu B-1 production doğrulamasından sonra yazılacak
+- Beklenen atom: 4-5 (1 anasayfa refactor + 3-4 JSON-LD enjeksiyon)
 
 ---
 
 ## 🟡 PLANLI / BEKLEYEN
 
-YOK. TUR #42 sonrası tüm DEVIR bekleyenleri kapandı.
+YOK (Tur B-2 yukarıda kritik olarak listelendi).
 
 ---
 
@@ -57,31 +61,42 @@ YOK.
 
 ## 🎯 SIRADAKİ ÖNERİLEN İŞ
 
-**TUR #42 sonrası tertemiz devir.** Mehmet Bey kararı:
+**TUR #43 Tur B-1 KAPALI**, Tur B-2 açık. Mehmet Bey kararı:
 
-**Seçenek A — TUR #43 SEO Meta:**
-- TUR #42'nin başında SEO meta turu olarak başlamıştı, K5 acil çıkınca ertelendi
-- Tur A raporu hazır (önceki sohbet geçmişinde, 12 SEO kontrol noktası)
-- Tur B mektubu kısa ve hızlı (atom plan: anasayfa metadata + OG image + JSON-LD + canonical + niş landing schema)
-- Süre tahmini: ~2-3 saat
+**Seçenek A — TUR #43 Tur B-2 (devam):**
+- JSON-LD enjeksiyonu (Organization + WebSite + LegalService + Article + BreadcrumbList)
+- Anasayfa server/client bölmesi (server wrapper + client component)
+- Mimar mektubu yazılacak (B-1 production doğrulaması ✅ tamam)
+- Süre tahmini: ~1.5-2 saat (4-5 atom)
+- **Önerilen:** SEO çalışmasının zincirini koparmadan kapatmak
 
-**Seçenek B — TUR #44 Animasyon ve Mikro Etkileşimler:**
-- Mehmet Bey'in talebi: "muazzam yazı akışları, sayfa kaymaları, canlı yazı ve görsel akışları"
-- Anasayfa zaten framer-motion + SectionReveal + cardVariants kullanıyor
-- Eksikler: niş landing'ler, blog detay, /basvuru, /login sayfa geçişleri, scroll-triggered effects
-- Tur A araştırma gerek (mevcut animasyon sistemi haritası)
-- Süre tahmini: ~5-8 saat (büyük tur, alt-turlara bölünebilir)
-
-**Seçenek C — Mola:**
-- TUR #40 + TUR #41 + TUR #42 = ~17 saatte 28 atom uygulandı
-- Sürdürülebilir değil, mola hak edilmiş
+**Seçenek B — Mola:**
+- TUR #40 + #41 + #42 + #43 B-1 = ~18 saatte 33 atom uygulandı
 - Bir sonraki Claude oturumu temiz başlangıç (Madde 26.4 protokol)
+- Tur B-2 mektubu yarın/öbürgün yazılır
 
-Mimar (sohbet) önerisi: **Seçenek C — mola, sonra TUR #43 SEO** (kısa, hızlı, FAZ 3 trafik/içerik disiplini ile uyumlu). TUR #44 Animasyon **TUR #43 sonrası** olmalı çünkü SEO meta düzeldikten sonra animasyon zenginliği görünür.
+**Seçenek C — TUR #44 Animasyon (B-2 sonrası):**
+- Önceki devir notunda da belirtildi: SEO meta düzeldikten sonra animasyon zenginliği görünür
+- Tur B-2 kapanmadan açılması anayasa Madde 17.4 ihlali (yarım kesit)
+
+Mimar önerisi: **Seçenek A — Tur B-2 ile zinciri kapat**, sonra mola. Tur B-1 momentum'u taze, kapsam dar (4-5 atom).
 
 ---
 
-## 📊 TUR #42 ÖZETİ (referans)
+## 📊 TUR #43 Tur B-1 ÖZETİ (referans)
+
+- **Süre:** ~1 saat 30 dk, 1 oturum
+- **Atom:** 5 panel (B1+B2+B3+B4+B5 — B5 mimar onayı sonrası ek atom)
+- **Commit:** 5 panel (`9f3c699 → aa068ce`)
+- **Push:** 1 (toplu)
+- **Mimar hata:** 1 (mektupta middleware öngörülmedi, lokal smoke test yakaladı, B5 ile kapatıldı)
+- **Production kanıt:** 5/5 (anasayfa OG/twitter ✓, opengraph-image 200 PNG 1200×630 ✓, sitemap 19 URL ✓, robots /musteri/ ✓)
+
+Detay: OTONOM_RAPOR.md → TUR #43 bloğu. Tur A keşif: docs/TUR43_TUR_A_SEO_KESIF.md.
+
+---
+
+## 📊 TUR #42 ÖZETİ (önceki tur referansı)
 
 - **Süre:** ~9 saat, 1 oturum (kapsam keşfedildikçe genişledi)
 - **Atom:** 12 (9 panel + 3 os)
@@ -102,14 +117,3 @@ Detay: OTONOM_RAPOR.md → TUR #42 bloğu.
 - **KIRMIZI çizgi ihlali:** 0
 
 Detay: OTONOM_RAPOR.md → TUR #41 bloğu.
-
----
-
-## 📊 TUR #40 ÖZETİ (önceki tur referansı)
-
-- **Süre:** ~6 saat, 3 oturum
-- **Atom:** 12 (9 panel + 3 os)
-- **Mimar hata:** 2 (Madde 4 ihlali, ikisi de yapı tarafından yakalandı)
-- **KIRMIZI çizgi ihlali:** 0
-
-Detay: OTONOM_RAPOR.md → TUR #40 bloğu.

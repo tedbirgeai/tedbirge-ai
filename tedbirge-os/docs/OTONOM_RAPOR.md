@@ -1,3 +1,52 @@
+## TUR #43 — SEO Meta Disiplini (Tur B-1: Altyapı)
+
+**Tarih:** 30 Nisan 2026 (gece yarısı sonrası) — 1 Mayıs 2026
+**Anayasa:** v1.10.0
+**Süre:** ~1 saat 30 dk
+**Etkilenen repo:** tedbirge-panel
+**Durum:** Tur B-1 ✅ KAPALI, Tur B-2 ⏳ AÇIK (JSON-LD + anasayfa server/client)
+**Toplam commit:** 5
+
+### Tur A — Keşif (önceki, salt okuma)
+
+- Rapor: `tedbirge-os/docs/TUR43_TUR_A_SEO_KESIF.md`
+- 12 KN tarandı, 4 kritik eksiklik tespit edildi (JSON-LD sıfır, OG image yok, anasayfa kendi metasından yoksun, metadataBase eksik)
+- 8 atom önerildi, mimar 2 alt-tura böldü
+
+### Tur B-1 — Altyapı (bu tur, 5 atom)
+
+- **B1** — Root metadata altyapısı (`app/layout.tsx`): metadataBase + title template `%s | Tedbirge AI` + openGraph defaults (type, locale, siteName, url, title, description) + twitter defaults (card=summary_large_image, title, description). Mevcut alanlar (icons, appleWebApp, verification.google, formatDetection, manifest) DOKUNULMADI. — commit `9f3c699`
+- **B2** — Dinamik OG image (`app/opengraph-image.tsx` YENİ, 64 satır): Next.js `ImageResponse` + Edge runtime + 1200×630 PNG + kurumsal lacivert gradient (#1E1E8E → #0F0F4A) + Türkçe başlık. Next.js convention sayesinde otomatik `og:image` ve `twitter:image` üretildi. — commit `6b9b7d3`
+- **B3** — Sitemap eksik 5 sayfa (`app/sitemap.ts`): /haberler (0.7), /referanslar (0.6), /hakkimizda (0.6), /tazminat-hesapla (0.8), /basvuru-sorgula (0.6). 14 URL → 19 URL. — commit `b4a9d96`
+- **B4** — Robots /musteri/ disallow (`app/robots.ts`): KVKK gereği müvekkil portalı bot taramasına kapatıldı. /login, /register, /sifre-belirle bilerek açık (marka araması yararı). — commit `6fe61c0`
+- **B5** — Middleware /opengraph-image public path (`middleware.ts`, **EK ATOM, mimar onayı 30 Nisan gece**): Lokal smoke test'te B2 endpoint'i `307 → /login` döndü. Kök sebep: middleware public path listesinde `/opengraph-image` yoktu, `pathname.includes(".")` koşulu nokta içermeyen URL'i kurtaramadı. Tek satır ekleme ile düzeltildi. — commit `aa068ce`
+
+### Mimar hata sayısı: 1
+
+**Hata:** Mektup yazımında middleware'in `/opengraph-image` rotasını koruyacağı öngörülmedi (Tur A keşfinde middleware kontrol edilmemişti). Lokal smoke test'te yakalandı, kapsam B5 atomu olarak genişletildi (Mehmet Bey yazılı onayı). KIRMIZI çizgi ihlali değil — kırmızı bulgu durma şartı tetiklendi, mimara dönüldü, onay sonrası ek atom uygulandı.
+
+### Kanıt
+
+**Lokal:**
+- TypeScript: 0 hata
+- Build: 64/64 sayfa derlendi (yeni `ƒ /opengraph-image` Dynamic route eklendi)
+- Smoke test (B5 sonrası): tüm 4 endpoint OK
+
+**Production (deploy ~3 dk sonra):**
+- Anasayfa: `og:title, og:description, og:image, og:image:width=1200, og:image:height=630, og:image:type=image/png, og:locale=tr_TR, og:site_name=Tedbirge AI, og:type=website, og:url`
+- Anasayfa twitter: `twitter:card, twitter:title, twitter:description, twitter:image, twitter:image:width/height/type/alt`
+- `/opengraph-image`: HTTP 200, image/png, 87297 bytes, **PNG image data 1200 x 630** ✓
+- `/sitemap.xml`: 19 URL (5 yeni: basvuru-sorgula, haberler, hakkimizda, referanslar, tazminat-hesapla) ✓
+- `/robots.txt`: `Disallow: /api/`, `/dashboard/`, `/admin/`, `/musteri/` (yeni); Sitemap referansı korundu ✓
+
+### KIRMIZI çizgi ihlali: 0
+
+### Tur B-2 bekliyor
+
+JSON-LD (Organization, WebSite, LegalService, Article, BreadcrumbList) + anasayfa `"use client"` server/client bölmesi — mimar mektubu B-1 production doğrulamasından sonra yazılacak.
+
+---
+
 ## TUR #42 — Kurumsal Kimlik Birleştirme + İlgili Düzeltmeler
 
 **Tarih:** 29 Nisan 2026 (gece) — 30 Nisan 2026 (gece yarısı)

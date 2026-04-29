@@ -683,3 +683,70 @@ Bu yeni gradient lacivertten kendi koyu kuzenine geçer — mor yok, kurumsal ki
 **Mimar:** Claude Opus 4.7 (TUR #42 K8, 30 Nisan 2026 gece yarısı)
 **Onay:** Mehmet Dinç (görsel kontrol — 3 rol Yönetici/Temsilci/Hukukçu kanıtlı)
 **Disiplin:** Madde 4, Madde 17.5
+
+---
+
+## 1 Mayıs 2026 — TUR #43 Tur B-1 SEO Altyapı
+
+### Karar 1: SEO Meta Altyapısı 8 Atom 2 Alt-Tura Bölündü
+
+**Bağlam:** Tur A keşfi (12 KN) 4 kritik SEO eksikliği tespit etti — JSON-LD sıfır, OG image yok, anasayfa kendi metasından yoksun (`"use client"` engeli), `metadataBase` eksik. Toplam 8 atom önerildi. Mimar tek seferde uygulamayı reddetti — anasayfa server/client refactor B-1'in düşük-risk altyapı çalışmasıyla aynı kapsama sığmadı.
+
+**Karar:** 8 atom **2 alt-tura** bölündü:
+- **Tur B-1 (bu tur):** Düşük risk, additive — root metadata + dinamik OG image + sitemap satırı + robots satırı (4 atom). Sonradan B5 (middleware fix) eklendi.
+- **Tur B-2 (sonraki):** JSON-LD enjeksiyonu (Organization + WebSite + LegalService + Article + BreadcrumbList) + anasayfa server/client bölmesi. Mimar mektubu B-1 production doğrulamasından sonra yazılır.
+
+**Alternatif (seçilmedi):** Tek seferde 8 atom uygulamak. Anayasa Madde 4.2 (atom seviyesi) ihlali, kapsam belirsizliği, refactor riski daha yüksek olurdu.
+
+**Mimar:** Claude Opus 4.7 (TUR #43, 30 Nisan 2026 gece yarısı sonrası)
+**Onay:** Mehmet Dinç ("YAZ ORTAK" — Tur A raporu sonrası)
+**Disiplin:** Madde 4.2, Madde 17.3
+
+---
+
+### Karar 2: OG Image Dinamik Üretim (Next.js Convention)
+
+**Bağlam:** Tur A'da `og-image.png` 1200×630 statik dosyasının olmadığı tespit edildi. `logo.png` (640×640 JPEG) OG için yetersiz. İki seçenek vardı: (a) Mehmet Bey'den tasarımcı OG image isteyip statik dosya olarak yerleştirmek, (b) Next.js App Router `app/opengraph-image.tsx` convention'u ile dinamik üretmek.
+
+**Karar:** Dinamik üretim seçildi (`app/opengraph-image.tsx`, Edge runtime, `ImageResponse` API). Kurumsal lacivert gradient (#1E1E8E → #0F0F4A), Türkçe başlık, "Trafik ve İş Kazası Tazminat Yönetimi" altyazı + tedbirge.ai. Logo PNG embed BU SÜRÜMDE değil (Edge runtime + uzak dosya çekme + font sorunları riski). Mehmet Bey ileride "logo da olsun" derse v2 atomu olarak eklenir.
+
+**Sonuç:** Next.js convention sayesinde `metadata.openGraph.images` ve `metadata.twitter.images` MANUEL eklenmedi — Next.js otomatik bağladı. Production HTML'de tüm sayfalarda `og:image=https://www.tedbirge.ai/opengraph-image?...` ve eşdeğer `twitter:image` çıktı.
+
+**Alternatif (seçilmedi):** Statik PNG dosyası — Mehmet Bey bağımlılığı + tasarım turu gerektirirdi, B-1 momentumunu kırardı.
+
+**Mimar:** Claude Opus 4.7 (TUR #43 B2, 30 Nisan 2026 gece yarısı sonrası)
+**Onay:** Mehmet Dinç ("YAZ ORTAK")
+**Disiplin:** Madde 4.5
+
+---
+
+### Karar 3: Robots Disallow Sadece /musteri/ Eklendi (Auth Sayfaları Bilerek Açık)
+
+**Bağlam:** Tur A keşfinde Claude Code 6 path için disallow önerdi (login, register, forgot-password, reset-password, sifre-belirle, musteri). Mimar bu öneriyi daralttı.
+
+**Karar:** Sadece `/musteri/` disallow eklendi. Mevcut disallow'lar (`/api/`, `/dashboard/`, `/admin/`) korundu. Auth sayfaları (`/login`, `/register`, `/sifre-belirle` vb.) bilerek **açık** bırakıldı:
+- Marka aramasında ("tedbirge giriş") kullanıcılar arama motorundan login sayfasına ulaşabilir — UX için yararlı
+- KVKK riski yok (auth sayfaları içerik göstermiyor, public statik UI)
+- `/musteri/` müvekkil portalı — KVKK kritiği, içerik halka açık değil → mutlaka disallow
+
+**Alternatif (seçilmedi):** 6 path'i de disallow etmek. Marka SEO açısından dezavantajlı, hiçbir koruma faydası yok.
+
+**Mimar:** Claude Opus 4.7 (TUR #43 B4, 30 Nisan 2026 gece yarısı sonrası)
+**Onay:** Mehmet Dinç ("YAZ ORTAK")
+**Disiplin:** Madde 4, Madde 24.10 (KVKK)
+
+---
+
+### Karar 4: Middleware /opengraph-image Public Path (Ek Atom B5)
+
+**Bağlam:** B2 atomu (opengraph-image.tsx) tamamlandıktan sonra lokal smoke test'te endpoint **HTTP 307 → /login** redirect döndürdü. Kök sebep: `middleware.ts` public path listesinde `/opengraph-image` yoktu, `pathname.includes(".")` koşulu nokta içermeyen URL'i kurtaramadı. Production'da da aynı davranış olur, sosyal medya crawler'lar OG image alamazdı.
+
+**Karar:** Middleware public path listesine `pathname.startsWith("/opengraph-image") ||` eklendi (1 satır). Ek atom B5 olarak kapsama dahil edildi.
+
+**Niye söz değiştirildi:** Tur B-1 mektubu 4 atomdu, mimar middleware'i Tur A'da kontrol etmemişti. Ancak mektup açıkça "OG image PNG değil → DUR + raporla" dedi — Claude Code disipline uydu, mimara döndü, Mehmet Bey yazılı onayı ile B5 atomu eklendi (Madde 17.5 son söz).
+
+**Alternatif (seçilmedi):** B1+B3+B4 commit, B2'yi ayrı turda kapatma — tur disiplini açısından doğru ama momentum kaybı + B2 dosyası ortada kalırdı.
+
+**Mimar:** Claude Opus 4.7 (TUR #43 B5, 30 Nisan 2026 gece yarısı sonrası)
+**Onay:** Mehmet Dinç (yazılı — "Mimar onayı: Seçenek A. B5 atomu uygula, 5 atom toplu commit/push, production doğrula.")
+**Disiplin:** Madde 4, Madde 6 (DUR şartı), Madde 17.5
