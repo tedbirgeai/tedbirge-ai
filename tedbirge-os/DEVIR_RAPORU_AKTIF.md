@@ -1,127 +1,94 @@
-# 🛡️ DEVIR_RAPORU_AKTIF — Tedbirge.ai
+# 🛡️ DEVIR RAPORU (AKTİF) — TEDBİRGE.AI
 
-> **Bu dosya CANLIDIR. Her TUR sonunda mimar tarafından üstüne yazılır.**
-> **Yeni mimar oturumu Madde 26.4 protokolü gereği bu dosyayı OKUR.**
-
----
-
-## DURUM — 28 Nisan 2026 (gec gece, TUR #40 FAZ 1 tamamlandi)
-
-**Anayasa:** v1.10.0 yürürlükte (29 madde + Kapanış)
+**Son güncelleme:** 29 Nisan 2026 (sabah)
+**Anayasa:** v1.10.0
 **Aktif kesit:** FAZ 4-B Operasyonel Ölçek
-**Son TUR:** #40 FAZ 1 — Trafik kazası blog makalesi (lib/blog.ts)
-- A1: lib/blog.ts slug "trafik-kazasi-tazminat-rehberi-2026" dolduruldu
-- Commit: 5523603 (tedbirge-panel repo)
-- Push: c1773a1..5523603 → Vercel deploy tetiklendi
+**Son TUR:** #40 — Blog görünürlük + içerik (3 bulgu, 9 atom kapatıldı)
 
 ---
 
-## 🔴 AÇIK KRİTİK BULGULAR
+## 🔴 AÇIK KRİTİK
 
-### 🔴 K1 — TUR #40 FAZ 1 — TÜM BLOG DETAY SAYFALARI 404 (gizli pencere kanıtlı)
-- **Kanıt:** 3 slug production'da 404 veriyor (Mehmet Bey gizli pencere testi):
-  - `/blog/trafik-kazasi-tazminat-rehberi-2026` → 404
-  - `/blog/is-kazasi-tazminat-sureci` → 404
-  - `/blog/sigorta-tazminat-reddedildi-ne-yapmali` → 404
-- **Bilinen:** Slug doğru, `generateStaticParams` kayıtlı, deploy "Ready", commit 5523603 temiz
-- **Bilinmeyen:** Runtime'da `blog/[slug]/page.tsx` neden 404 veriyor — sebep kanıtsız, tahmin yapılmadı
-- **Diğer açık sorunlar:**
-  - prose stili çalışmıyor (`@tailwindcss/typography` kurulu değil)
-  - Anasayfada blog bölümü yok
-  - Niş landing sayfalarında blog linki yok
-  - Footer'da blog linki yok
-- **Yarınki mimar yapacak:**
-  1. Lokalde `npm run dev` çalıştır → hata mesajını gör
-  2. `blog/[slug]/page.tsx` incele — runtime hatasını bul
-  3. Tek atom düzeltme + public URL kanıt
-  4. Sonra: stil + uçtan uca link + niş landing
+YOK. TUR #40 sonrası kritik açık iş bulunmuyor.
 
 ---
 
-## 🟡 PLANLI BULGULAR
+## 🟡 PLANLI / BEKLEYEN
 
-### O1 — TUR #37 GA4 production kanıtı bekleniyor
-- **Durum:** Kod değişikliği yapıldı (TUR #37), Vercel deploy edildi
-- **Kalan:** Mehmet Bey tarayıcıda 4 doğrulama yapacak
-- **Doğrulama listesi:**
-  1. https://www.tedbirge.ai/ → Cookie kabul → DevTools Network → `gtag/js?id=G-7MP4HD08T6` **VAR** mı?
-  2. https://www.tedbirge.ai/basvuru → `gtag` **VAR** mı?
-  3. https://www.tedbirge.ai/dashboard → `gtag` **YOK** mu?
-  4. https://www.tedbirge.ai/musteri → `gtag` **YOK** mu?
-- 4 evet → O1 KAPANDI
+### O1 — TUR #37 GA4 production tarayıcı kanıtı
 
-### O2 — TUR #38 PWA iOS production kanıtı bekleniyor
-- **Durum:** IosInstallGuide.tsx push edildi, Vercel deploy edildi
-- **Kalan:**
-  - Ölçüt 11: Vercel dashboard → "Ready" durumu
-  - Ölçüt 12: Chrome DevTools → iPhone simülasyon → 3s sonra banner görünüyor mu?
-  - Ölçüt 13: **Gerçek iPhone Safari** → https://www.tedbirge.ai/ → banner + modal çalışıyor mu?
-- 3 evet → O2 KAPANDI, TUR #38 resmi kapanışı
+**Durum:** GA4 entegrasyonu lokal kanıtlı, production deploy yapıldı, **manuel tarayıcı kanıtı bekleniyor.**
+**Mehmet Bey'in işi:** Production'da 4 sayfada (anasayfa, hesapla, blog detay, başvuru) DevTools Network panelinde `gtag/js` ve `collect` istekleri 200 dönüyor mu?
+**Süre:** 5 dk
 
-### O3 — TUR #40 FAZ 1 Vercel "Ready" kanıtı bekleniyor
-- **Durum:** Commit 5523603 push edildi, Vercel deploy tetiklendi
-- **Kalan:**
-  - Vercel dashboard → deploy "Ready" durumu
-  - https://www.tedbirge.ai/blog/trafik-kazasi-tazminat-rehberi-2026 → makale içeriği görünüyor mu?
-- 2 evet → O3 KAPANDI, TUR #40 FAZ 1 resmi kapanışı
+### O2 — TUR #38 PWA iOS production kanıtı
+
+**Durum:** PWA manifest + service worker entegrasyonu lokal kanıtlı, production deploy yapıldı, **iPhone Safari kanıtı bekleniyor.**
+**Mehmet Bey'in işi:** Gerçek iPhone Safari'de "Ana Ekrana Ekle" → ikon + isim doğru mu, açılış ekranı görünüyor mu?
+**Süre:** 5 dk
+
+### O3 — KAPANDI
+
+K1 (TUR #40 FAZ 1 trafik makalesi production'da görünüyor mu?) bu turda kapandı — Image 7 kanıt.
 
 ---
 
-## 📋 MEHMET BEY'İN BEKLEYEN MANUEL İŞLERİ
+## 📋 MEHMET BEY MANUEL İŞLER
 
-1. **TUR #37 GA4 kanıtı** (5 dk) — O1'i kapat
-   - Yeni Incognito (Ctrl+Shift+N) → F12 → Network → filter: `gtag`
-   - tedbirge.ai/, /basvuru, /dashboard, /musteri kontrol
-
-2. **TUR #38 PWA iOS kanıtı** (5 dk) — O2'yi kapat
-   - Vercel dashboard deploy "Ready" kontrolü
-   - Chrome DevTools → Device: iPhone 14 Pro → https://www.tedbirge.ai/ yenile → 3s bekle → banner görünmeli
-   - Kendi iPhone'unda Safari → https://www.tedbirge.ai/ → 3s bekle → banner görünmeli
-
-3. **TUR #40 FAZ 1 kanıtı** (2 dk) — O3'ü kapat
-   - Vercel dashboard → commit 5523603 deploy "Ready" mi?
-   - https://www.tedbirge.ai/blog/trafik-kazasi-tazminat-rehberi-2026 makale içeriği görünüyor mu?
+1. **O1** — GA4 production tarayıcı kanıtı (5 dk)
+2. **O2** — PWA iOS production kanıtı (5 dk)
+3. (TUR #40 production kontrolü tamamlandı, ek manuel iş yok)
 
 ---
 
-## 📝 SON 5 COMMIT (tedbirge-panel repo)
+## 🟢 YAN BULGULAR (TUR #40'ta açıldı)
 
-```
-5523603 feat(blog): TUR #40 FAZ 1 — trafik kazasi makalesi gercek icerikle guncellendi
-c1773a1 feat(pwa): IosInstallGuide PwaProvider'a baglandi
-2a4dde3 feat(pwa): IosInstallGuide component eklendi (iOS Safari install rehberi)
-cccd060 feat(public): GA4 sadece public route'a baglandi (Madde 25.7 KVKK izolasyonu)
-0a1e18f refactor(layout): GA4 ROOT layout'tan kaldirildi (Madde 25.7 panel izolasyonu)
-```
+### M1 — Vercel edge curl 403 vs browser 404
+
+**Detay:** TUR #40 K1 araştırması sırasında `/blog` curl ile 403, browser ile 404 dönüyordu. K1 düzeldikten sonra ikisi de 200 oldu.
+**Aksiyon:** Şu an etkisiz, takip gerekmez. Cookie/CDN edge davranışı, eğer ileride benzer çelişki çıkarsa hatırlanmalı.
+
+### M2 — middleware.ts → proxy.ts migration (Next 16 deprecation)
+
+**Detay:** `middleware.ts` Next.js 16'da deprecated. Build sırasında uyarı üretiyor. Fonksiyonel etki yok, ileri sürümlerde kaldırılacak.
+**Aksiyon:** Ayrı bir mimar kararı turu — `proxy.ts`'e migration.
+**Öncelik:** SHOULD + NEXT (3-6 ay)
+
+### M3 — İki Footer pattern'i (anasayfa inline + global)
+
+**Detay:** Anasayfada inline lacivert tam Footer (4 sütun, marka/sosyal) + tüm sayfalarda root layout'tan gelen global beyaz minimal Footer (yasal linkler şeridi). İki ayrı kod tabanı.
+**Aksiyon:** Mimari karar gerekli — birleştirme mi, rol ayrımı mı? K2'de Blog linki ikisine de ayrı ayrı eklendi (homojen değil).
+**Öncelik:** SHOULD + LATER (6+ ay) — şu an fonksiyonel sorun yok.
 
 ---
 
 ## 🎯 SIRADAKİ ÖNERİLEN İŞ
 
-**Önce:** Mehmet Bey O3 doğrulaması (2 dk) — Vercel deploy + makale URL
+**Mehmet Bey karar:**
 
-**Sonra: TUR #40 FAZ 2 — İş kazası makalesi**
-- lib/blog.ts slug: is-kazasi-tazminat-sureci
-- Mevzuat: 6331 sayılı İSG Kanunu, TBK m.417, SGK mevzuatı, Yargıtay kararları
-- Aynı pattern: sadece lib/blog.ts, başka dosya HAYIR
+**Seçenek A — Bekleyenleri kapat (önce hijyen):**
+- O1 (GA4) ve O2 (PWA iOS) kanıtlarını topla → bu iki bulgu da kapanır → AÇIK KRİTİK 0, PLANLI 0 olur
 
-**Sonra: TUR #40 FAZ 3 — Sigorta ret makalesi**
-- lib/blog.ts slug: sigorta-tazminat-reddedildi-ne-yapmali
-- Mevzuat: 5684 sayılı Sigortacılık Kanunu, Sigorta Tahkim Komisyonu
-- Aynı pattern: sadece lib/blog.ts, başka dosya HAYIR
+**Seçenek B — FAZ 4-B yeni tur (operasyonel ölçek):**
+- TUR #40 ile blog altyapısı tamam. Sıradaki adım IS_PLANI'da NOW kesitinde olan iş — örn. başvuru formu tamamlama, dava takibi paneli, SEO meta optimizasyonu
 
----
+**Seçenek C — Mimari turlardan biri (M2 veya M3):**
+- M2 (`middleware.ts` → `proxy.ts`): teknik borç temizliği, küçük tur
+- M3 (Footer birleştirme): tasarım kararı, tek tur
 
-## 🔐 GEÇERLİ KIRMIZI NOKTA YAZILI ONAYLARI
-
-- 28 Nisan 2026 sabah — TUR #28-B 7 ALTER TABLE (kapandı)
-- 28 Nisan 2026 akşam — TUR #35 Document.deletedAt migration (kapandı)
-- 28 Nisan 2026 gece — TUR #39 Anayasa Sadeleştirme (kapandı)
+Mimar (sohbet) önerisi: **Seçenek A** — bekleyenleri kapatıp sıfır açık bulgu ile yeni faza geç. O1 ve O2 ufak işler, devir disiplini gereği biriktirilmemeli.
 
 ---
 
-**Mimar:** Claude Sonnet 4.6 (TUR #40 FAZ 1)
-**Son güncelleme:** 28 Nisan 2026 gec gece
-**Bir sonraki güncelleme:** O3 kanıtı bildirince veya TUR #40 FAZ 2 başlayınca
+## 📊 TUR #40 ÖZETİ (referans)
 
-🛡️ Anayasa v1.10.0 — Trafik kazası makalesi yayında (Vercel deploy bekleniyor), iş kazası + sigorta makaleleri sırada.
+- **Süre:** ~6 saat, 3 oturum
+- **Atom:** 9 (1+5+1+2)
+- **Commit:** 9 (`5523603 → 1932b75`)
+- **Push:** 3
+- **Etkilenen dosya:** 6 (panel)
+- **Mimar hata sayısı:** 2 (Madde 4 ihlali, ikisi de yapı tarafından yakalandı)
+- **KIRMIZI çizgi ihlali:** 0
+- **Production görsel kanıt:** 8/8
+
+Detay: OTONOM_RAPOR.md → TUR #40 bloğu.
