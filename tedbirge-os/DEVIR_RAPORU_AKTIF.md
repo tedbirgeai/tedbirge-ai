@@ -72,6 +72,18 @@ YOK.
 **Öncelik:** COULD + LATER
 **Süre:** ~1-2 saat
 
+### Y4 — 11 untracked eski keşif raporu (Madde 26.6 ihlali)
+
+**Detay:** OS repo'da `git status` 11 untracked dosya gösteriyor: DOGRULAMA_RAPORU_27_NISAN_GECE.md + docs/BACKUP_MIMARISI_KESIF.md + docs/FAZ_4_A_KESIF.md + docs/KVKK_PERSISTENCE_KESIF.md + docs/MADDE_25_TAM_METIN.md + docs/MALI_AKIS_KESIF.md + docs/PAZARLAMA_FIZIBILITE.md + docs/PUBLIC_FORM_DOCUMENT_BUG_KESIF.md + docs/RENDER_DRIFT_TESHIS.md + docs/RESMI_MUHATAP_HARITASI_KESIF.md + docs/SAGLIK_TARAMASI_TUR18.md.
+
+Eski turlardan (TUR #18 sağlık taraması, KVKK/Backup/FAZ 4-A/Mali Akış/Pazarlama/Render Drift/Resmi Muhatap keşifleri) kalmış raporlar. Mehmet Bey'in lokal disk'te tutuğu ama git'e eklenmemiş — anayasa Madde 26.6 (DEVIR canlı dosya disiplini) ihlali çünkü tarihsel kayıt git'te yoksa gelecek devirlerde bu raporlar Claude oturumlarına ulaşamaz.
+
+**Öncelik:** SHOULD + LATER (kritik değil, ama tarihsel kayıt için gerekli)
+**Çözüm:** Tek tur ile arşivleme — `docs/arsiv/` klasörü oluştur, 11 dosyayı oraya taşı, tek commit ile git'e ekle (örn: `docs(arsiv): TUR #18 öncesi eski keşif raporları arşivlendi`).
+**Süre:** ~15-30 dk
+**Risk:** Düşük (sadece dosya taşıma + git add + commit, içerik değişmez)
+**Tetikleyici:** TUR #45 yan bulgu temizliği veya gelecek herhangi bir Mehmet Bey direktifi
+
 ---
 
 ## 🎯 SIRADAKİ ÖNERİLEN İŞ
