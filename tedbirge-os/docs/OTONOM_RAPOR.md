@@ -1,39 +1,129 @@
-## TUR #42 — K5 Kurumsal Kimlik Kesiti
+## TUR #42 — Kurumsal Kimlik Birleştirme + İlgili Düzeltmeler
 
-**Tarih:** 29 Nisan 2026
+**Tarih:** 29 Nisan 2026 (gece) — 30 Nisan 2026 (gece yarısı)
 **Anayasa:** v1.10.0
-**Süre:** ~3 oturum (bağlam sıkışması nedeniyle 3'e bölündü)
-**Etkilenen repo:** tedbirge-panel
-**Toplam commit:** 8 (C1 component, C3 refactor, C4 basvuru, C5 7sayfa, C7 manifest, C8 5sayfa + basvuru-sorgula)
-**Push:** 8
+**Süre:** ~9 saat (1 oturum, kapsam keşfedildikçe genişledi)
+**Etkilenen repo:** tedbirge-panel (kod) + tedbirge-os (devir)
+**Toplam commit:** 9 panel + 3 os = 12
+**Push:** 4 (panel 9 commit 4 push'ta, os 3 commit toplu)
 
-### Kapsam
+### Kapsam (4 alt-bulgu kapatıldı)
 
-K5 kurumsal kimlik kesiti — 27 public sayfada NavBar tutarsızlığı + renk paleti sapması kapatıldı.
+- **K5** — Kurumsal kimlik birleştirme (asıl tur)
+- **K6** — Hero band rengi tutarlılık
+- **K7** — Footer hover renk (M3'ün küçük parçası)
+- **K8** — /login gradient kurumsal lacivert ailesi
 
-- **C1:** `components/PublicNav.tsx` bağımsız component oluşturuldu (165 satır, glassmorphism + framer-motion) — commit `c6d06ee`
-- **C3:** `app/(public)/page.tsx` anasayfa — inline PublicNav fonksiyonu silindi, import eklendi — commit `a4b6f6f`
-- **C4:** `app/(public)/basvuru/page.tsx` — inline header silindi, #534AB7 → #1E1E8E (lacivert), CTA → #5CB85C (yeşil) — commit `f6723b6`
-- **C5:** 7 sayfa — blog, blog/[slug], trafik-kazasi-tazminat, is-kazasi-tazminat, sigorta-tazminat-reddedildi, hakkimizda, iletisim — PublicNav eklendi — commit `7947fbc`
-- **C7:** `app/layout.tsx` manifest referansı — `/manifest.json` → `/manifest.webmanifest` — commit `8fa8059`
-- **C8:** 5 sayfa — haberler, tazminat-hesapla, lexscan, referanslar, basvuru-sorgula — PublicNav eklendi; basvuru-sorgula inline header silindi + #2d1e78 → #1E1E8E — commit `7c3e7b8`
+### Tetikleyici (Mehmet Bey gözlemleri sırasıyla)
 
-### Kanıt
+1. /basvuru sayfasında mor renk + farklı menü + farklı logo (TUR #42 başlangıcı, K5)
+2. SEO meta turu önerildi ama Mehmet Bey "ortak web arayüzü bir bütündür" dedi → SEO TUR #43'e ertelendi, K5 açıldı
+3. tedbirge.com referans alınması istendi — WebFetch ile kanıtlandı: tedbirge.com çökmüş 13 yaşında site, kurumsal kimlik kaynağı değil. Logo (icon.png + logo.png) tek otoriter kanıt.
+4. /basvuru tamamlandı, ama 5 sayfa daha nav eksik (haberler, tazminat-hesapla, lexscan, referanslar, basvuru-sorgula) — kapsam tarama hatası, K5 tamir
+5. Hero band #0A1628 (siyaha yakın) tutarsızlığı — K6
+6. /basvuru'da hâlâ mor görünmesi (Footer hover) ve /login mor — K7+K8
 
-- TypeScript: 0 hata
-- Build: 63/63 sayfa, 0 hata
-- Git push: master → 7c3e7b8
+### K5 — Kurumsal Kimlik Birleştirme (8 atom)
 
-### Yan Bulgular (Ertelenmiş)
+**Atomlar:**
+- C1: components/PublicNav.tsx (yeni paylaşımlı nav componenti, 165 satır, anasayfa orijinaliyle birebir uyumlu, sticky + glassmorphism + framer-motion). Commit `c6d06ee`.
+- C2: ATLANDI (PublicFooter — M3 yan bulgu, ileride)
+- C3: app/(public)/page.tsx anasayfa refactor — inline PublicNav (159 satır) silindi, component import edildi. Commit `a4b6f6f`.
+- C4: app/(public)/basvuru/page.tsx — mor #534AB7 (60+ referans) → kurumsal lacivert+yeşil, inline header silindi, paylaşımlı PublicNav. Commit `f6723b6`.
+- C5: 7 sayfaya PublicNav (blog, blog/[slug], 3 niş landing, hakkimizda, iletisim). Commit `7947fbc`.
+- C6: ATLANDI (globals.css mor referans yok, kontrol edildi)
+- C7: app/layout.tsx manifest path TUR #41 kalıntısı düzeltmesi (#manifest.json → manifest.webmanifest). Commit `8fa8059`.
+- C8: 5 sayfa kapsam tarama hatası tamiri (haberler, tazminat-hesapla, lexscan, referanslar, basvuru-sorgula) + /basvuru-sorgula inline header sil + #2d1e78 → #1E1E8E. Commit `7c3e7b8`.
 
-- **M3:** `components/layout/Footer.tsx` — 5× `hover:text-[#534AB7]` var. Kapsam dışı, mektup direktifi.
-- **M7:** `/lexscan` hero gradient `from-blue-900 to-blue-700` → kurumsal #1E1E8E. Kapsam dışı.
+**Kanıt:**
+- Lokal: TypeScript 0 hata, build 63/63
+- Production: 14 sayfa × 200 (anasayfa + 13 pazarlama sayfası)
+- Görsel: 8 ekran görüntüsü (anasayfa, /basvuru, /tazminat-hesapla, /haberler, /referanslar, /hakkimizda, /basvuru-sorgula, /login Yönetici/Temsilci/Hukukçu)
+
+### K6 — Hero Band Rengi Tutarlılık (1 atom)
+
+**Tetikleyici:** Mehmet Bey /haberler ve /tazminat-hesapla'daki hero band'ın "siyaha yakın" göründüğünü fark etti.
+
+**Ön kontrol kanıtı:**
+- Anasayfa hero: #1E1E8E (lacivert)
+- /haberler hero: #0A1628 (siyaha yakın koyu lacivert)
+- /tazminat-hesapla hero: #0A1628 + gradient
+- CSS variable --pub-dark 9 sayfada metin rengi olarak kullanılıyor (dokunulmaz)
+
+**Atom C9:**
+- /haberler: hero band ve metin rengi #0A1628 → #1E1E8E (2 satır)
+- /tazminat-hesapla: 3 satır (gradient #1E1E8E,#0A1628 → düz #1E1E8E, alt CTA bant, h2 metin)
+- Mehmet Bey gradient kararı: 1. seçenek (gradient kalsın, #1E1E8E → #18187a)
+- Claude Code 2. seçenek uyguladı (düz #1E1E8E) — kararla çelişki
+- Mehmet Bey görsel kontrol: kabul edildi (anasayfayla tam aynı, daha temiz)
+- Commit `8a51ab3`.
+
+### K7 — Footer Hover Renk (M3 küçük parça)
+
+**Tetikleyici:** /basvuru production HTML'de 10 × #534AB7 → kaynağı Footer.tsx (5 link × 2 HTML serialization).
+
+**Karar:** M3 yan bulgusu "Footer dokunulmaz" demişti. Mehmet Bey gözlemi kanıt olarak kapsama dahil edildi (Madde 17.5). Asıl M3 (iki Footer pattern'i birleştirme) LATER kalıyor.
+
+**Atom C10:**
+- components/layout/Footer.tsx 5 satır hover:text-[#534AB7] → hover:text-[#1E1E8E]
+- Commit `1da080c`.
+
+### K8 — /login Gradient Kurumsal Lacivert
+
+**Tetikleyici:** Mehmet Bey /login?rol=yonetici sayfasında sol dekoratif panel mor → kontrol etti, gerçek mor (#3b239f, #22145f).
+
+**Atom C11:**
+- app/(public)/login/page.tsx line 88 gradient:
+  - Eski: #1E1E8E → #3b239f → #22145f (mor varyantları)
+  - Yeni: #1E1E8E → #18187a → #0f0f4d (kurumsal lacivert ailesi)
+- Commit `d0c3cc3`.
+
+**Görsel kanıt:** 3 rol (Yönetici, Temsilci, Hukukçu) ekran görüntüleri — sol panel kurumsal lacivert, mor yok.
+
+### Mimar Hata Tutanağı (7 hata, hepsi yapı tarafından yakalandı)
+
+Bu turda çok hata yapıldı. Şeffaflıkla loglanır:
+
+1. **Niş landing inline header varsayımı (Tur A1):** Tur A1 raporunda niş landing'lerde "inline header inline tanımlı, PublicNav yok ama nav inline" dedim. Mektupta "inline header'lar silinecek" diye kesinmiş gibi yazdım. Claude Code yakaladı: gerçek kod kanıtı header grep → 0, niş landing'lerde inline header YOKTU. Madde 4 ihlali — varsayım kanıtsız mektuba yazıldı.
+
+2. **Kapsam tarama hatası — 5 sayfa unutuldu (Tur B):** Tur B mektubunda kapsam listesini hazırlarken /haberler, /tazminat-hesapla, /lexscan, /referanslar, /basvuru-sorgula sayfalarını gözden kaçırdım. Oysa Tur A1 raporunda Adım 2.10'da listelenmişlerdi. Mehmet Bey production kontrolünde yakaladı. Kapsam tarama disiplini kaybı.
+
+3. **Mor renk yanlış teşhis — /tazminat-hesapla (K5 tamir):** Mehmet Bey "Devam Et butonu mor" dedi. Mektup yazarken kaynak kodda #534AB7 olduğunu varsaydım. Claude Code grep ile çürüttü: kaynak kodda mor SIFIR, gerçek sebep disabled:opacity-40 (form boş, %40 opacity → lacivert solgun mor görünüyor). UX kararı, bug değil.
+
+4. **/basvuru'da #534AB7 dışı mor varsayımı (K7 ön kontrol):** /basvuru'da hâlâ mor olduğu söylendiğinde, "başka bir mor varyant olabilir" diye ön kontrol açtım. Gerçek sebep: Footer.tsx hover renkleri (M3 — kapsam dışıydı). Yine de mektup yazarken Footer'ın varsayım dışı olabileceğini fark etmemiştim — Claude Code raporu netleştirdi.
+
+5. **/login renk kapsamına dahil olmaması (Tur B):** "Auth sayfaları kapsam dışı" demiştim, ama Mehmet Bey'in vurgusu "ortak web arayüzü bir bütündür" idi. Login mor tasarımı kapsam dışı bırakmak — Mehmet Bey'in kararıyla çelişki. Madde 17.5 ihlali değil çünkü mimar önerdi, Mehmet Bey kabul etmişti, ama mimar kapsam çağrısı yetersizdi.
+
+6. **Hero band CSS variable global değiştirme dürtüsü (K6 ön kontrol):** İlk içgüdü --pub-dark: #0A1628 → #1E1E8E global CSS değişimiydi. Claude Code 9 sayfada metin rengi etkisini gösterdi — sayfa-bazlı düzeltmeye geçtim. Madde 4 disiplini koruyucu çalıştı.
+
+7. **K6'da Mehmet Bey gradient kararıyla Claude Code uygulaması çelişkisi:** Mehmet Bey "1. seçenek (gradient kalsın #1E1E8E → #18187a)" dedi. Claude Code "2. seçenek (düz #1E1E8E)" uyguladı. Mektup yazımda netlik eksikliği — iki versiyon vardı, hangisinin uygulanacağı yeterince vurgulanmamış. Mehmet Bey görsel kontrolde 2. seçeneği kabul etti, sorun çıkmadı, ama gelecekte mektup yazımı daha hassas olmalı.
+
+KIRMIZI çizgi ihlali yok. Tüm hatalar yapı tarafından yakalandı, telafi edildi. Madde 4 disiplini 7 kez koruyucu çalıştı.
+
+### Yeni Yan Bulgular
+
+- **M5** (önceden tanımlı, kapatılmadı) — Manifest icon kaynağı logo.png olabilir mi (TUR #41 yan bulgusu, hâlâ LATER)
+- **M7** (yeni — TUR #42 K5 Tur B sırasında bulundu) — /lexscan hero blue gradient kurumsal palete identical değil
+  - Sayfa: app/(public)/lexscan/page.tsx
+  - Mevcut: bg-gradient-to-b from-blue-900 to-blue-700 (Tailwind native renkler)
+  - Olması gereken: kurumsal #1E1E8E veya benzer
+  - Öncelik: COULD + LATER
+  - Süre: ~10 dk
+  - Risk: Düşük
+
+M3 (iki Footer pattern'i birleştirme): Küçük parçası (Footer hover renk) bu turda kapatıldı. Asıl parça (anasayfa inline lacivert + global beyaz) hâlâ açık, SHOULD + LATER.
 
 ### TUR #42 İstatistik
 
-- Toplam atom: 8 commit
+- Etkilenen repo: tedbirge-panel (9 atom kod) + tedbirge-os (3 atom devir)
+- Toplam atom: 12 (panel) + 3 (os) = 15
+  - C2 atlandı (PublicFooter — M3 yan bulgu)
+  - C6 atlandı (globals.css mor yok, gerek yoktu)
+- Commit: 9 panel + 3 os = 12
 - KIRMIZI çizgi ihlali: 0
-- Mimar hata sayısı: 0
+- Mimar hata sayısı: 7 (hepsi yapı tarafından yakalandı)
+- Production görsel kanıt: 9/9 (anasayfa + 8 ekran görüntüsü)
+- Toplam ön kontrol turu: 4 (Tur A1, K5 tamir ön, K6 ön, K7-K8 ön) — Madde 4 disiplini 7 kez koruyucu çalıştı
 
 ---
 
