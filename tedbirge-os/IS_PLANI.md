@@ -8,9 +8,9 @@
 ## 🎯 AKTİF KESİT
 
 **Faz:** FAZ 4-B Operasyonel Ölçek
-**Son TUR:** #41 — PWA icon altyapısı (K4 + O1 + O2 kapatıldı)
+**Son TUR:** #42 — Kurumsal Kimlik Birleştirme (K5+K6+K7+K8 kapatıldı)
 **Anayasa:** v1.10.0
-**Son güncelleme:** 29 Nisan 2026 (öğleden sonra)
+**Son güncelleme:** 30 Nisan 2026 (gece yarısı)
 
 ### Kesit içi turlar (özet)
 
@@ -21,6 +21,7 @@
 | #39 | (kayıt için OTONOM_RAPOR'a bak) | — |
 | #40 | Blog görünürlük + içerik (K1+K2+K3) | ✅ Lokal + production kapalı (8/8 kanıt) |
 | #41 | PWA icon altyapısı (K4) + GA4/PWA bekleyenleri (O1+O2) | ✅ Lokal + production kapalı |
+| #42 | Kurumsal kimlik birleştirme (K5+K6+K7+K8) | ✅ Lokal + production kapalı |
 
 ### Aktif önceliklendirme (sıradaki tur adayları)
 
@@ -133,6 +134,12 @@
   - Süre: ~30 dk (manifest path değişimi + lokal kanıt + push)
   - Risk: Düşük
   - Tetikleyici: PWA install splash veya Android adaptive icon şikayeti
+- **M7** — /lexscan hero blue gradient kurumsal palette identical değil (TUR #42'de açıldı)
+  - Sayfa: app/(public)/lexscan/page.tsx
+  - Mevcut: bg-gradient-to-b from-blue-900 to-blue-700 (Tailwind native)
+  - Olması gereken: kurumsal #1E1E8E veya benzer
+  - Süre: ~10 dk
+  - Risk: Düşük
 
 ---
 
@@ -218,6 +225,7 @@ CommissionLog + Mali Modülü (LATER)
 
 ## 🔄 GÜNCELLEME TARİHÇESİ
 
+- **2026-04-30 (gece yarısı)** — TUR #42 sonrası: aktif kesit son TUR #41 → #42, M7 (/lexscan blue gradient) COULD+LATER'a eklendi.
 - **2026-04-29 (öğleden sonra)** — TUR #41 sonrası: aktif kesit son TUR #40 → #41, M5 (manifest logo.png) COULD+LATER'a eklendi.
 - **2026-04-29** — TUR #40 sonrası senkronizasyon: aktif kesit FAZ 4-B v1.10.0'a güncellendi (önceden TUR #24 v1.4.0). M2, M3 yan bulguları eklendi.
 - v1.0 — 27 Nisan 2026 (sabah) — başlangıç sürümü (Madde 24 ile birlikte)
