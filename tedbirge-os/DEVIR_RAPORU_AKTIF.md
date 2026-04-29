@@ -1,21 +1,38 @@
 # 🛡️ DEVIR RAPORU (AKTİF) — TEDBİRGE.AI
 
-**Son güncelleme:** 1 Mayıs 2026 (TUR #43 TAM KAPANDI — Tur A + B-1 + B-2)
+**Son güncelleme:** 1 Mayıs 2026 (TUR #44.1 KAPALI — TUR #44.2 ve #44.3 açık)
 **Anayasa:** v1.10.0
 **Aktif kesit:** FAZ 4-B Operasyonel Ölçek
-**Son TUR:** #43 — SEO Meta Disiplini (10 atom B1→B10 kapatıldı)
+**Son TUR:** #44.1 — Motion Altyapı (7 atom A1→A7 kapatıldı, A5-fix dahil)
 
 ---
 
 ## 🔴 AÇIK KRİTİK
 
-YOK. TUR #43 tam kapandı.
+YOK.
 
 ---
 
 ## 🟡 PLANLI / BEKLEYEN
 
-YOK.
+**TUR #44.2** — Sayfa-sayfa yaygınlaştırma + anasayfa zenginleştirme
+- 17+ public sayfa motion=0 → ortak `<Reveal>` ve `<MotionCard>` ile yaygınlaştırma
+- Niş /is-kazasi-tazminat + /sigorta-tazminat-reddedildi (A7 pattern tekrarı)
+- Blog liste + blog detay (server wrapper + client child refactor — TUR #43 B9 pattern)
+- /tazminat-hesapla form mikro etkileşim, /referanslar + /haberler card reveal
+- Anasayfa hero typewriter / word-stagger zenginleştirme (en yüksek risk atom)
+- Hover scale tutarsızlığı düzeltme (1.05/1.03/1.15 → HOVER_SCALE token)
+- Beklenen atom: 8-10, ~3-4 saat
+- Mektup TUR #44.1 production doğrulama sonrası mimar yazar
+
+**TUR #44.3** — Cinematic scroll + gradient choreography
+- useScroll + useTransform progress bar (anasayfa)
+- Anasayfa hero gradient-shift @keyframes
+- Niş landing hero parallax (transform translateY scroll-driven)
+- CTA section magnetic hover (advanced micro-interaction)
+- OPSİYONEL atom GSAP ScrollTrigger ek karar
+- Beklenen atom: 5-7, ~3-5 saat
+- Mehmet Bey görsel onay her atomda zorunlu
 
 ---
 
@@ -57,32 +74,43 @@ YOK.
 
 ## 🎯 SIRADAKİ ÖNERİLEN İŞ
 
-**TUR #43 TAM KAPALI** (Tur A + B-1 + B-2). Mehmet Bey kararı:
+**TUR #44.1 KAPALI** (Motion Altyapı). Mehmet Bey kararı:
 
-**Seçenek A — TUR #44 Animasyon ve Mikro Etkileşimler:**
-- Mehmet Bey'in eski talebi: "muazzam yazı akışları, sayfa kaymaları, canlı yazı ve görsel akışları"
-- Anasayfa zaten framer-motion + SectionReveal + cardVariants kullanıyor; eksikler niş landing, blog detay, /basvuru, /login geçişleri
-- Tur A araştırma gerekli (mevcut animasyon sistemi haritası)
-- Süre tahmini: ~5-8 saat (büyük tur, alt-turlara bölünebilir)
-- SEO meta düzeldikten sonra animasyon zenginliği daha görünür
+**Seçenek A — TUR #44.2 (devam, önerilen):**
+- Sayfa-sayfa yaygınlaştırma + anasayfa zenginleştirme (8-10 atom, ~3-4 saat)
+- A7 demo başarılı; aynı pattern niş /is-kazasi-tazminat + /sigorta-tazminat-reddedildi'ye yayılır
+- Blog liste + blog detay refactor (TUR #43 B9 pattern)
+- Anasayfa hero zenginleştirme (yüksek risk atom — Mehmet Bey görsel onay zorunlu)
+- Hover scale token uyumlandırma (HOVER_SCALE.subtle/base/emphatic)
 
-**Seçenek B — Mola (önerilen):**
-- TUR #40 + #41 + #42 + #43 = ~21 saatte ~38 atom uygulandı
-- Sürdürülebilir değil, mola hak edilmiş
+**Seçenek B — Mola:**
+- TUR #40 + #41 + #42 + #43 + #44.1 = ~25 saatte 45 atom uygulandı
 - Bir sonraki Claude oturumu temiz başlangıç (Madde 26.4 protokol)
-- TUR #44 yarın/öbürgün
+- TUR #44.2 yarın/öbürgün
 
-**Seçenek C — İçerik Turu (yan bulgu B8):**
-- `lib/blog.ts` statik POSTS dizisi (3 post, 2026-04-27 tarihi)
-- Yeni blog post ekleme süreci elle TypeScript düzenleme — DB veya markdown filesystem değil
-- Article schema canlı, içerik artırılabilir (SEO için fark yaratır)
-- Süre: 1-2 saat per post
+**Seçenek C — TUR #44.3 atlamak (önerilmez):**
+- Cinematic scroll TUR #44.2 yaygınlaştırma sonrası anlamlı; tek sayfa cinematic hero ortada anlam taşımaz
+- 44.2 → 44.3 doğal sıra
 
-Mimar önerisi: **Seçenek B — Mola.** SEO altyapısı + anlam katmanı tamam, Google indeksleme ve rich snippet için zaman gerek (1-2 hafta). Bu süre içinde mola, sonra TUR #44 veya içerik turu.
+Mimar önerisi: **Seçenek A** — Tur B-2 momentum'u taze, kapsam dar. A7 pattern'i 2 niş landing'e ve blog'a yayma direkt iş. Anasayfa hero zenginleştirme ayrı atom olarak Mehmet Bey görsel onayla.
 
 ---
 
-## 📊 TUR #43 ÖZETİ (referans — 3 alt-tur)
+## 📊 TUR #44.1 ÖZETİ (referans)
+
+- **Süre:** ~3 saat (Tur A 75 dk keşif + Tur B-1 7 atom + A5-fix refactor)
+- **Atom:** 7 panel (A1+A2+A3+A4+A5+A6+A7) + os güncellemeleri
+- **Commit:** 6 panel (`2269b52 → 7081d29`, A2+A3 birleşik)
+- **Push:** 1 (toplu)
+- **Mimar hata:** 2 (A5 forwardRef polymorphic + A5 whileInView variant collision — ikisi de yapı tarafından yakalandı, A5-fix ek mektupla kapatıldı)
+- **Mehmet Bey görsel onay:** ✅ ALINDI (A5-fix sonrası)
+- **Production kanıt:** Niş trafik landing 200, JSON-LD 4 tip, Reveal SSR initial state 4 translateY(28px), TUR #43 regresyon 0
+
+Detay: OTONOM_RAPOR.md → TUR #44 bloğu. Tur A keşif: docs/TUR44_TUR_A_ANIMATION_KESIF.md.
+
+---
+
+## 📊 TUR #43 ÖZETİ (önceki tur referansı — 3 alt-tur)
 
 - **Süre:** ~3 saat toplam (Tur A keşif + Tur B-1 5 atom + Tur B-2 5 atom)
 - **Atom:** 10 panel (B1→B10) + os güncellemeleri

@@ -1,3 +1,52 @@
+## TUR #44 — Hareket Disiplini (3 alt-tur planı)
+
+**Tarih:** 1 Mayıs 2026
+**Anayasa:** v1.10.0
+**Süre:** Tur A 75 dk + Tur B-1 ~3 saat (A5-fix dahil — Tur B-2 ve B-3 bekliyor)
+**Etkilenen repo:** tedbirge-panel (kod) + tedbirge-os (devir)
+**Toplam commit:** 6 panel (TUR #44.1 A1→A7, A2+A3 birleşik) + os güncellemeleri
+**Durum:** TUR #44.1 ✅ KAPALI, TUR #44.2 ⏳ AÇIK, TUR #44.3 ⏳ AÇIK
+
+### Tur A — Keşif (salt okuma)
+
+- Rapor: `tedbirge-os/docs/TUR44_TUR_A_ANIMATION_KESIF.md` (605+ satır, 24 KN + 6 EK + 7 yan bulgu)
+- Bulgu: 0 KIRMIZI, 5 kritik eksiklik (motion token sıfır, reduced-motion kısmi, ortak component yok, scroll reveal 2 sayfada hapis, hover scale tutarsız)
+- Yazılım altyapısı kararı: **Senaryo 1** (mevcut framer-motion v12.38.0 + CSS @keyframes + globals.css motion tokens, 0 ek paket)
+
+### TUR #44.1 — Motion Altyapı (7 atom, 6 commit)
+
+- **A1** — `lib/motion.ts` (yeni, 92 satır): EASE_STANDARD/OUT_SOFT/IN_OUT, DURATION (fast/base/medium/slow), STAGGER (tight/base/wide), sectionVariants/containerVariants/cardVariants/pageVariants/heroWordVariants, HOVER_SCALE/TAP_SCALE/hoverTransition. — commit `2269b52`
+- **A2+A3** — `app/globals.css`: 11 motion CSS custom property (--ease-*, --duration-*, --hover-scale-*, --tap-scale) + `@media (prefers-reduced-motion: reduce)` global fallback (animation/transition-duration 0.01ms !important). — commit `8f275a0`
+- **A4** — `app/(public)/layout.tsx`: `<MotionConfig reducedMotion="user">` dış sarmal (mevcut AnimatePresence + page transition + FloatingWhatsApp + AiChatWidget korundu). — commit `85c5425`
+- **A5** — `components/ui/Reveal.tsx` (yeni, 82 satır): forwardRef + useReducedMotion + **useInView + explicit animate state** pattern (A5-fix sonrası). polymorphic `as` prop (div/section/article/ul/li), style passthrough, default amount 0.15. — commit `e7e5b92`
+- **A6** — `components/ui/MotionButton.tsx` + `MotionCard.tsx` (yeni, 77 satır): emphasis enum (subtle/base/emphatic), noMotion prop, HOVER_SCALE token kullanımı, forwardRef. — commit `984a35f`
+- **A7** — `app/(public)/trafik-kazasi-tazminat/page.tsx`: Hero hariç 4 section `<Reveal as="section">` ile sarıldı (Tazminat kalemleri + SSS + Blog rehberi banner + CTA). JSON-LD + PublicNav + UtmCapture + import yapısı korundu. — commit `7081d29`
+
+### Mimar hata sayısı: 2
+
+- **Hata 1:** A5 ilk sürümü `forwardRef<HTMLDivElement>` polymorphic `as` prop ile uyumsuz (TypeScript intersection error). Lokal smoke test yakaladı, `forwardRef<HTMLElement>` + `React.ElementType` cast ile fix edildi.
+- **Hata 2:** A5 ilk sürümü `whileInView` Framer Motion v12'de parent variant zinciriyle çakıştı — public layout'taki page transition `<motion.div initial="initial" animate="animate">` Reveal child'larının `initial="hidden"/whileInView="visible"` variant key'lerini propagation üzerinden boğdu. **Reveal HTML'de opacity:0;translateY(28px) initial state'te dondu, animate'e geçmedi.** Mehmet Bey görsel doğrulamada yakaladı, A5-fix mektubu ile `useInView` hook + lokal `shouldAnimate` state pattern'e refactor edildi (variant propagation atlandı, izole çalıştı).
+
+### Mehmet Bey görsel onay: ✅ ALINDI (A5-fix sonrası)
+
+"yumuşak şekilde geliyor 4 bölüm" — niş trafik landing'de 4 Reveal section sırayla scroll-triggered fade-in + slide-up çalışıyor.
+
+### Production kanıt
+
+- Niş trafik landing HTTP 200, animation çalışıyor (Mehmet Bey lokal görsel onay)
+- SSR initial state HTML'de translateY(28px) 4 adet, opacity:0 6 adet — **client hydrate sonrası animate edilen pattern doğru**
+- TUR #43 regresyon: 0 (JSON-LD 4 tip ✓, og:image ✓, sitemap 19 ✓, opengraph-image 200 PNG ✓, robots /musteri/ ✓, anasayfa optimize başlık ✓)
+- WCAG 2.2.3 reduced-motion: 3 katmanlı respect (CSS @media + MotionConfig + useReducedMotion hook)
+
+### KIRMIZI çizgi ihlali: 0
+
+### Sıradaki
+
+**TUR #44.2** — Sayfa-sayfa yaygınlaştırma + anasayfa zenginleştirme (8-10 atom, ~3-4 saat). Mektup TUR #44.1 production doğrulama sonrası mimar yazar.
+**TUR #44.3** — Cinematic scroll + gradient choreography (5-7 atom, ~3-5 saat). Mehmet Bey görsel onay her atomda zorunlu.
+
+---
+
 ## TUR #43 — SEO Meta Disiplini (Tur A keşif + Tur B-1 altyapı + Tur B-2 anlam)
 
 **Tarih:** 30 Nisan 2026 (gece yarısı sonrası) — 1 Mayıs 2026

@@ -815,3 +815,71 @@ Bu yeni gradient lacivertten kendi koyu kuzenine geçer — mor yok, kurumsal ki
 **Mimar:** Claude Opus 4.7 (TUR #43 B10, 1 Mayıs 2026)
 **Onay:** Mehmet Dinç (yazılı — "Mimar onayı: Seçenek A genişletilmiş. B9 og:image fix + B10 atomu (niş landing 3 + blog detay 1 = 4 dosya).")
 **Disiplin:** Madde 4, Madde 6 (DUR şartı), Madde 17.5
+
+---
+
+## 1 Mayıs 2026 — TUR #44.1 Motion Altyapı (7 atom)
+
+### Karar 8: Yazılım Altyapı — Senaryo 1 (mevcut framer-motion v12 + CSS, 0 ek paket)
+
+**Bağlam:** Tur A keşfi 5 senaryo karşılaştırdı (mevcut+CSS, +Lottie, +GSAP, +three.js, +Motion One). Tedbirge'nin **dedicated tasarımcı YOK** — Lottie/Rive/Spline designer asset gerektirdiği için yasaklandı. GSAP framer-motion ile aynı projede iki motion sistemi karmaşası.
+
+**Karar:** Senaryo 1 (mevcut framer-motion v12.38.0 + CSS @keyframes + globals.css motion tokens). 0 ek paket, bundle bütçe sağlam, Linear.app/Framer.com çıtası bu altyapıyla erişilebilir.
+
+**Alternatif (seçilmedi):**
+- Senaryo 3 (GSAP) — sadece TUR #44.3-A6 cinematic scroll için ek karar gereği açılabilir (henüz gerek yok)
+- Lottie/Rive — designer YOK, asset üretemez
+
+**Mimar:** Claude Opus 4.7 (TUR #44 Tur A, 1 Mayıs 2026)
+**Onay:** Mehmet Dinç ("YAZ ORTAK")
+**Disiplin:** Madde 4.5
+
+---
+
+### Karar 9: Reveal Pattern — useInView + Explicit Animate State (whileInView Yerine)
+
+**Bağlam:** A5 ilk sürümü `whileInView="visible"` prop'u kullandı. Production smoke test ve Mehmet Bey görsel doğrulamada animasyon hiç tetiklenmedi — HTML kaynağında 4 section `opacity:0;transform:translateY(28px)` initial state'te dondu.
+
+**Kök sebep:** Framer Motion v12'de variant key propagation parent-to-child geçer. Public layout `<motion.div key={pathname} initial="initial" animate="animate">` page transition wrapper'ı Reveal child'larının `initial="hidden"/whileInView="visible"` variant key'leriyle çakıştı — string-key collision IntersectionObserver tetiklenmesini boğdu.
+
+**Karar:** Reveal.tsx **clean rewrite** — `whileInView` prop'u tamamen kaldırıldı, yerine `useInView` hook + `useEffect` + lokal `shouldAnimate` state pattern. `animate={shouldAnimate ? "visible" : "hidden"}` conditional string ile variant propagation atlandı, Reveal izole çalışıyor.
+
+**Pattern detayı:**
+- `useRef<HTMLElement>` + `useInView(ref, { once, amount })` IO observer
+- `useEffect` ile `isInView` true olunca `setShouldAnimate(true)`
+- `forwardRef` + internal ref birleşimi (`setRefs` fonksiyonu) — dış consumer + IO ikisi birden ref kullanır
+- Default `amount: 0.15` (0.2'den düşürüldü, tetikleme garantisi)
+- `useReducedMotion` kısa devresi korundu
+
+**Niye söz değiştirildi:** Tur B-1 mektubu `whileInView` pattern'i önerdi, mimar Framer Motion v12 variant propagation davranışını öngöremedi. Mehmet Bey görsel doğrulamada hata yakalandı, A5-fix ek mektubuyla refactor uygulandı (Madde 17.5 son söz).
+
+**Mimari öğrenme — TUR #44.x boyunca standart:** Scroll-triggered Reveal/animation component'leri **explicit useInView + state** pattern kullanır, `whileInView` prop'u yasak. Bu kuralı TUR #44.2 yaygınlaştırma + #44.3 cinematic scroll boyunca uygulanır.
+
+**Alternatif (seçilmedi):** Page transition wrapper'ı public layout'tan kaldırma — TUR #43'te kazanılan smooth route transition'ı kaybetmek pahalı.
+
+**Mimar:** Claude Opus 4.7 (TUR #44.1 A5-fix, 1 Mayıs 2026)
+**Onay:** Mehmet Dinç (yazılı — "Mimar onayı: yumuşak şekilde geliyor 4 bölüm. Mektup §5 commit + push + production verify aşamalarına geç.")
+**Disiplin:** Madde 4 (kanıt), Madde 6 (DUR şartı — görsel doğrulamada animasyon yokken durduk), Madde 17.5
+
+---
+
+### Karar 10: components/ui/ Klasörü + forwardRef Pattern Başlatma
+
+**Bağlam:** Tur A KN-10 bulgusu: forwardRef kullanımı **0** (sıfır), `components/ui/` klasörü YOK, shadcn/ui veya Radix UI yok. Yeni motion ekleyince **wrapper cehennemi riski**.
+
+**Karar:** TUR #44.1'de `components/ui/` klasörü kuruldu (shadcn/ui pattern'in Tedbirge başlangıcı). 3 dosya forwardRef ile yazıldı:
+- `Reveal.tsx` (forwardRef<HTMLElement>, polymorphic `as` prop)
+- `MotionButton.tsx` (forwardRef<HTMLButtonElement>, emphasis prop)
+- `MotionCard.tsx` (forwardRef<HTMLDivElement>, emphasis prop)
+
+**Pattern standardı:**
+- Her component `"use client"` directive
+- Her component `useReducedMotion()` ile JS düzeyinde respect (CSS @media + MotionConfig + hook = 3 katmanlı)
+- Tüm motion token'lar `lib/motion.ts`'ten import — magic number YASAK
+- forwardRef tüm yeni motion component'lerde zorunlu
+
+**Alternatif (seçilmedi):** shadcn/ui ekleme — Tedbirge için aşırı (Radix UI ekosistem yok), motion-spesifik component'ler doğrudan yeterli.
+
+**Mimar:** Claude Opus 4.7 (TUR #44.1 A5+A6, 1 Mayıs 2026)
+**Onay:** Mehmet Dinç ("YAZ ORTAK")
+**Disiplin:** Madde 4.5
