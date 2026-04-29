@@ -7,20 +7,26 @@
 
 ## 🎯 AKTİF KESİT
 
-**Kesit adı:** Bulgu Kapatma Fazı (Sağlık Taraması TUR #18 sonrası)
-**Tip:** A (Bulgu Kapatma — atomik turlar)
-**Paydaş etkisi:** ADMIN, LAWYER (öncelikli)
-**Başlama:** 26 Nisan 2026
-**Tahmini bitiş:** 1 hafta içinde (kapasiteye göre)
-**Aktif tur:** TUR #24
+**Faz:** FAZ 4-B Operasyonel Ölçek
+**Son TUR:** #40 — Blog görünürlük + içerik
+**Anayasa:** v1.10.0
+**Son güncelleme:** 29 Nisan 2026
 
-### Kesit içi turlar
-- ✅ TUR #19 STABİLİTE — deadlineChecker + gdprDelete (kapandı, commit `81c99a1`)
-- ✅ TUR #20 ANAYASA TUTARLILIK — 5 PrismaClient singleton (kapandı, commit `36e741d`)
-- ✅ TUR #21 AUTH/YETKİ — JWT + sigortaBasvuru + rate limiter (kapandı, commit `6cbc39e`)
-- ✅ TUR #22 SCHEMA @updatedAt — 7 modele decorator (kapandı, commit `2135e12`)
-- ✅ TUR #23 KVKK PERSISTENCE — compliance DB köprüsü + gdprDelete cascade + AIUsageLog + gdprExport (kapandı, commit `153edc8`)
-- ⏳ TUR #24 BACKUP MİMARİSİ — gerçek pg_dump (Sprint 3)
+### Kesit içi turlar (özet)
+
+| TUR | Konu | Durum |
+|-----|------|-------|
+| #37 | GA4 entegrasyonu | Lokal ✅, production tarayıcı kanıtı bekliyor (O1) |
+| #38 | PWA iOS | Lokal ✅, iPhone Safari kanıtı bekliyor (O2) |
+| #39 | (kayıt için OTONOM_RAPOR'a bak) | — |
+| #40 | Blog görünürlük + içerik (K1+K2+K3) | ✅ Lokal + production kapalı (8/8 kanıt) |
+
+### Aktif önceliklendirme (sıradaki tur adayları)
+
+1. **O1+O2 kapanışı** (Mehmet Bey manuel kontrol — 10 dk)
+2. **NOW kesitinde sıradaki iş** (aşağıdaki MUST+NOW listesi)
+3. **M2 — middleware → proxy migration** (NEXT)
+4. **M3 — Footer birleştirme** (LATER)
 
 ---
 
@@ -76,6 +82,14 @@
 - **Paydaş:** CUSTOMER
 - **Risk:** UX
 - **Süre:** 1 hafta
+
+### SHOULD + NEXT — Yeni eklemeler (TUR #40 yan bulguları)
+
+- **M2** — `middleware.ts` → `proxy.ts` migration (Next.js 16 deprecation)
+  - Tip: Teknik borç
+  - Süre: ~1 saat (1 dosya rename + import güncelleme + build kanıtı)
+  - Risk: Düşük (Next.js dokümantasyonu net)
+  - Tetikleyici: Bir sonraki major Next.js sürümü
 
 ---
 
@@ -186,10 +200,19 @@ UYAP + SBM Entegrasyonları
 CommissionLog + Mali Modülü (LATER)
 ```
 
+### SHOULD + LATER — Yeni eklemeler (TUR #40 yan bulguları)
+
+- **M3** — İki Footer pattern'i birleştirme (anasayfa inline + global root)
+  - Tip: Mimari karar
+  - Süre: 1 mimar tartışma turu + 1 uygulama turu
+  - Risk: Orta (UX değişikliği, Mehmet Bey karar verir)
+  - Bağımlılık: Yok, bağımsız ele alınabilir
+
 ---
 
 ## 🔄 GÜNCELLEME TARİHÇESİ
 
+- **2026-04-29** — TUR #40 sonrası senkronizasyon: aktif kesit FAZ 4-B v1.10.0'a güncellendi (önceden TUR #24 v1.4.0). M2, M3 yan bulguları eklendi.
 - v1.0 — 27 Nisan 2026 (sabah) — başlangıç sürümü (Madde 24 ile birlikte)
 
 ---
