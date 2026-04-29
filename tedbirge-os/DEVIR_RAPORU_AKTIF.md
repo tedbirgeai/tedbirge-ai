@@ -1,9 +1,9 @@
 # 🛡️ DEVIR RAPORU (AKTİF) — TEDBİRGE.AI
 
-**Son güncelleme:** 29 Nisan 2026 (öğleden sonra)
+**Son güncelleme:** 30 Nisan 2026 (gece yarısı)
 **Anayasa:** v1.10.0
 **Aktif kesit:** FAZ 4-B Operasyonel Ölçek
-**Son TUR:** #41 — PWA icon altyapısı (K4 + O1 + O2 kapatıldı)
+**Son TUR:** #42 — Kurumsal Kimlik Birleştirme (K5+K6+K7+K8 kapatıldı)
 
 ---
 
@@ -15,7 +15,7 @@ YOK.
 
 ## 🟡 PLANLI / BEKLEYEN
 
-YOK. TUR #41 sonrası tüm DEVIR bekleyenleri kapandı.
+YOK. TUR #42 sonrası tüm DEVIR bekleyenleri kapandı.
 
 ---
 
@@ -25,64 +25,81 @@ YOK.
 
 ---
 
-## 🟢 YAN BULGULAR (gelecek tur adayları, fonksiyonel acil değil)
-
-### M1 — Vercel edge curl 403 vs browser 404 (ETKİSİZ, takip yok)
-
-**Detay:** TUR #40 K1 araştırması sırasında `/blog` curl ile 403, browser ile 404 dönüyordu. K1 düzeldikten sonra ikisi de 200.
-**Aksiyon:** Şu an etkisiz, takip gerekmez. Cookie/CDN edge davranışı.
+## 🟢 YAN BULGULAR (gelecek tur adayları)
 
 ### M2 — middleware.ts → proxy.ts migration (Next 16 deprecation)
 
-**Detay:** `middleware.ts` Next.js 16'da deprecated, build uyarısı.
+**Detay:** middleware.ts Next.js 16'da deprecated, build uyarısı.
 **Öncelik:** SHOULD + NEXT (3-6 ay)
-**Süre:** ~1 saat (rename + import + build kanıtı)
+**Süre:** ~1 saat
 **Risk:** Düşük
 
-### M3 — İki Footer pattern'i (anasayfa inline + global root)
+### M3 — İki Footer pattern'i birleştirme (KÜÇÜK PARÇA TUR #42'DE KAPATILDI)
 
-**Detay:** Anasayfada inline lacivert tam Footer + tüm sayfalarda global beyaz minimal Footer. İki ayrı kod tabanı, blog linki ikisine ayrı eklendi.
+**Detay:** Anasayfada inline lacivert tam Footer + tüm sayfalarda global beyaz minimal Footer. İki ayrı kod tabanı.
+**TUR #42 ile kapatılan:** Footer.tsx hover rengi #534AB7 → #1E1E8E (5 satır).
+**Hâlâ açık:** İki Footer'ın birleştirilmesi (mimari karar).
 **Öncelik:** SHOULD + LATER (6+ ay)
-**Aksiyon:** Mimari karar gerekli (birleştirme mi, rol ayrımı mı?)
 
-### M5 — Manifest icon kaynağı logo.png olabilir mi (TUR #41'de açıldı)
+### M5 — Manifest icon kaynağı logo.png olabilir mi (TUR #41'de açıldı, hâlâ açık)
 
-**Detay:** `app/manifest.ts` icons array `/icons/icon-192.png` ve `/icons/icon-512.png` kullanıyor (TUR #41 K4 C2 ile doğrultuldu). Ama `public/logo.png` (640×640, Format24bppRgb, kurumsal kaynak) manifest'te kullanılmıyor. Tarayıcılar 640×640 → 192/512 resize yapabilir, kurumsal görsel kalitesi yükselir.
+**Detay:** app/manifest.ts icons array /icons/icon-192.png ve /icons/icon-512.png kullanıyor. public/logo.png (640×640, opak, kurumsal kaynak) manifest'te kullanılmıyor.
 **Öncelik:** COULD + LATER (kozmetik)
-**Tetikleyici:** PWA install splash screen veya Android adaptive icon şikayeti gelirse.
+**Tetikleyici:** PWA install splash veya Android adaptive icon şikayeti
+
+### M7 — /lexscan hero blue gradient kurumsal palette identical değil (TUR #42'de açıldı)
+
+**Detay:** /lexscan sayfası bg-gradient-to-b from-blue-900 to-blue-700 (Tailwind native) kullanıyor. Kurumsal #1E1E8E değil.
+**Öncelik:** COULD + LATER (kozmetik, kurumsal palete yakın ama identical değil)
+**Süre:** ~10 dk
 
 ---
 
 ## 🎯 SIRADAKİ ÖNERİLEN İŞ
 
-**TUR #41 sonrası tertemiz devir.** Mehmet Bey karar:
+**TUR #42 sonrası tertemiz devir.** Mehmet Bey kararı:
 
-**Seçenek A — Yeni FAZ 4-B turu (operasyonel ölçek):**
-- IS_PLANI'da NOW kesitinde sıradaki MUST işi
-- Örn. başvuru formu tamamlama, dava takibi paneli, SEO meta optimizasyonu
+**Seçenek A — TUR #43 SEO Meta:**
+- TUR #42'nin başında SEO meta turu olarak başlamıştı, K5 acil çıkınca ertelendi
+- Tur A raporu hazır (önceki sohbet geçmişinde, 12 SEO kontrol noktası)
+- Tur B mektubu kısa ve hızlı (atom plan: anasayfa metadata + OG image + JSON-LD + canonical + niş landing schema)
+- Süre tahmini: ~2-3 saat
 
-**Seçenek B — Mimari turlardan biri:**
-- M2 (middleware → proxy migration) — küçük teknik borç turu
-- M3 (Footer birleştirme) — tasarım kararı
-- M5 (manifest logo.png) — opsiyonel kalite iyileştirmesi
+**Seçenek B — TUR #44 Animasyon ve Mikro Etkileşimler:**
+- Mehmet Bey'in talebi: "muazzam yazı akışları, sayfa kaymaları, canlı yazı ve görsel akışları"
+- Anasayfa zaten framer-motion + SectionReveal + cardVariants kullanıyor
+- Eksikler: niş landing'ler, blog detay, /basvuru, /login sayfa geçişleri, scroll-triggered effects
+- Tur A araştırma gerek (mevcut animasyon sistemi haritası)
+- Süre tahmini: ~5-8 saat (büyük tur, alt-turlara bölünebilir)
 
 **Seçenek C — Mola:**
-- TUR #40 + TUR #41 yoğun günlerdi
-- Sıfır açık iş ile bir sonraki Claude oturumu temiz başlar
+- TUR #40 + TUR #41 + TUR #42 = ~17 saatte 28 atom uygulandı
+- Sürdürülebilir değil, mola hak edilmiş
+- Bir sonraki Claude oturumu temiz başlangıç (Madde 26.4 protokol)
 
-Mimar (sohbet) önerisi: **Mehmet Bey'in tercihine bağlı**. Disiplin açısından en temiz devir noktası şu an (sıfır açık iş, yan bulgular dökümlü).
+Mimar (sohbet) önerisi: **Seçenek C — mola, sonra TUR #43 SEO** (kısa, hızlı, FAZ 3 trafik/içerik disiplini ile uyumlu). TUR #44 Animasyon **TUR #43 sonrası** olmalı çünkü SEO meta düzeldikten sonra animasyon zenginliği görünür.
 
 ---
 
-## 📊 TUR #41 ÖZETİ (referans)
+## 📊 TUR #42 ÖZETİ (referans)
+
+- **Süre:** ~9 saat, 1 oturum (kapsam keşfedildikçe genişledi)
+- **Atom:** 12 (9 panel + 3 os)
+- **Commit:** 9 panel (`c6d06ee → d0c3cc3`) + 3 os
+- **Push:** 4 (panel), 1 (os)
+- **Mimar hata:** 7 (hepsi yapı tarafından yakalandı, KIRMIZI ihlal yok)
+- **Production görsel kanıt:** 9/9
+
+Detay: OTONOM_RAPOR.md → TUR #42 bloğu.
+
+---
+
+## 📊 TUR #41 ÖZETİ (önceki tur referansı)
 
 - **Süre:** ~2 saat, 1 oturum
 - **Atom:** 7 (4 panel + 3 os)
-- **Commit:** 4 panel (`8020d0a → 1038a6a`) + 3 os
-- **Push:** 2 (panel + os)
 - **Mimar hata:** 0
 - **KIRMIZI çizgi ihlali:** 0
-- **Production görsel kanıt:** 8/8
 
 Detay: OTONOM_RAPOR.md → TUR #41 bloğu.
 
@@ -92,7 +109,6 @@ Detay: OTONOM_RAPOR.md → TUR #41 bloğu.
 
 - **Süre:** ~6 saat, 3 oturum
 - **Atom:** 12 (9 panel + 3 os)
-- **Commit:** 9 panel + 3 os
 - **Mimar hata:** 2 (Madde 4 ihlali, ikisi de yapı tarafından yakalandı)
 - **KIRMIZI çizgi ihlali:** 0
 
