@@ -1,3 +1,42 @@
+## TUR #42 — K5 Kurumsal Kimlik Kesiti
+
+**Tarih:** 29 Nisan 2026
+**Anayasa:** v1.10.0
+**Süre:** ~3 oturum (bağlam sıkışması nedeniyle 3'e bölündü)
+**Etkilenen repo:** tedbirge-panel
+**Toplam commit:** 8 (C1 component, C3 refactor, C4 basvuru, C5 7sayfa, C7 manifest, C8 5sayfa + basvuru-sorgula)
+**Push:** 8
+
+### Kapsam
+
+K5 kurumsal kimlik kesiti — 27 public sayfada NavBar tutarsızlığı + renk paleti sapması kapatıldı.
+
+- **C1:** `components/PublicNav.tsx` bağımsız component oluşturuldu (165 satır, glassmorphism + framer-motion) — commit `c6d06ee`
+- **C3:** `app/(public)/page.tsx` anasayfa — inline PublicNav fonksiyonu silindi, import eklendi — commit `a4b6f6f`
+- **C4:** `app/(public)/basvuru/page.tsx` — inline header silindi, #534AB7 → #1E1E8E (lacivert), CTA → #5CB85C (yeşil) — commit `f6723b6`
+- **C5:** 7 sayfa — blog, blog/[slug], trafik-kazasi-tazminat, is-kazasi-tazminat, sigorta-tazminat-reddedildi, hakkimizda, iletisim — PublicNav eklendi — commit `7947fbc`
+- **C7:** `app/layout.tsx` manifest referansı — `/manifest.json` → `/manifest.webmanifest` — commit `8fa8059`
+- **C8:** 5 sayfa — haberler, tazminat-hesapla, lexscan, referanslar, basvuru-sorgula — PublicNav eklendi; basvuru-sorgula inline header silindi + #2d1e78 → #1E1E8E — commit `7c3e7b8`
+
+### Kanıt
+
+- TypeScript: 0 hata
+- Build: 63/63 sayfa, 0 hata
+- Git push: master → 7c3e7b8
+
+### Yan Bulgular (Ertelenmiş)
+
+- **M3:** `components/layout/Footer.tsx` — 5× `hover:text-[#534AB7]` var. Kapsam dışı, mektup direktifi.
+- **M7:** `/lexscan` hero gradient `from-blue-900 to-blue-700` → kurumsal #1E1E8E. Kapsam dışı.
+
+### TUR #42 İstatistik
+
+- Toplam atom: 8 commit
+- KIRMIZI çizgi ihlali: 0
+- Mimar hata sayısı: 0
+
+---
+
 ## TUR #41 — PWA Icon Altyapısı + DEVIR Bekleyenler
 
 **Tarih:** 29 Nisan 2026 (öğle)
