@@ -1,3 +1,84 @@
+## TUR #41 — PWA Icon Altyapısı + DEVIR Bekleyenler
+
+**Tarih:** 29 Nisan 2026 (öğle)
+**Anayasa:** v1.10.0
+**Süre:** ~2 saat (1 oturum)
+**Etkilenen repo:** tedbirge-panel (kod) + tedbirge-os (devir)
+**Toplam commit:** 4 panel + 3 os = 7
+**Push:** 2 (panel 4 commit toplu, os 3 commit toplu)
+
+### Kapsam
+
+Bir kritik bulgu kapatıldı, iki bekleyen DEVIR doğrulaması tamamlandı:
+- **K4** — Apple touch icon regresyonu (alfa kanal + manifest hijyeni)
+- **O2** — PWA iOS production kanıtı (lacivert "db" ikon + standalone mode)
+- **O1** — GA4 production kanıtı (collect?v=2 → 204)
+
+### K4 — Apple Touch Icon Regresyonu (4 atom)
+
+**Sebep (kanıt zinciri):**
+1. Mehmet Bey iPhone 12'de PWA'yı sildi, Safari Web Sitesi Verilerini Sil yaptı, sıfırdan yeniden yükledi.
+2. Onay ekranında ve ana ekranda **lacivert "db" yerine mavi "T" generic ikon** geldi.
+3. Araştırma turu (Tur A) sonucu üç sorun teşhis edildi:
+   - Sorun 1: `apple-touch-icon.png` 180×180, **Format32bppArgb (alfa kanallı)** — iOS Safari fallback "T"ye düşüyor
+   - Sorun 2: `app/manifest.ts` icons array `/icon.png` (722×399 yatay) referans ediyor; doğru kare iconlar `/icons/` altında ama manifest kullanmıyor
+   - Sorun 3: `theme-color` üç yerde tutarsız (`#1E1E8E` vs `#1317FB`)
+4. Mehmet Bey doğrulamasıyla `public/logo.png` kurumsal kaynak görseli bulundu (640×640, **Format24bppRgb opak**, `/logo.png` 200 dönüyor).
+
+**Atomlar:**
+- C1: `public/apple-touch-icon.png` ← `public/logo.png` kopyası (cp ile, MD5 eşit). Commit `8020d0a`.
+- C2: `app/manifest.ts` icons array düzeltmesi (`/icons/icon-192.png`, `/icons/icon-512.png`, maskable'lar). Commit `2fb25b8`.
+- C3: `public/manifest.json` silindi (atıl ikinci manifest, çakışma riski). Commit `19c6d25`.
+- C4: `theme-color` `#1317FB` → `#1E1E8E` (kurumsal lacivert). Commit `1038a6a`.
+
+**Kanıt:**
+- Lokal: TypeScript 0 hata, build 63/63, apple-touch-icon HTTP 200 + 19611 bytes (logo.png ile MD5 eşit), manifest.webmanifest yeni icon path'leri, HTML theme-color #1E1E8E
+- Production: 5/5 regresyon 200, manifest.json 404 (silindi), apple-touch-icon 200 + 19611 bytes
+- iPhone temiz yeniden yükleme: lacivert "db" ikon paylaş menüsünde + onay ekranında + ana ekranda + standalone mode aktif (üç ekran görüntüsü kanıtlı)
+
+### O2 — PWA iOS Production Kanıtı (manuel doğrulama)
+
+K4 düzeltmesinin yan ürünü olarak iPhone Safari'de tam test yapıldı:
+- "Web Uygulaması Olarak Aç" toggle açık (manifest `display: standalone` okundu) ✅
+- Apple touch icon: lacivert "db" (K4 düzeltmesi sonrası) ✅
+- İsim "Tedbirge" doğru (manifest `short_name`) ✅
+- İkona dokununca standalone mode (üst Safari URL bar yok) ✅
+
+DEVIR'deki O2 ölçütü tamamen karşılandı. KAPANDI.
+
+### O1 — GA4 Production Kanıtı (manuel doğrulama)
+
+Chrome DevTools Network paneli üzerinden tedbirge.ai anasayfada test:
+- `gtag/js?id=G-7MP4HD08T6` → HTTP **200** (script yüklendi, Measurement ID görünür) ✅
+- `collect?v=2&tid=G-7...` → HTTP **204** (GA4 protokolü doğru cevap, "No Content" beklenen) ✅
+- 2 ayrı collect isteği (page_view + ek event) ✅
+
+DEVIR'deki O1 ölçütü tamamen karşılandı. KAPANDI. **TUR #37 GA4 entegrasyon turu da resmi olarak tamamen kapanmış sayılır.**
+
+### Yeni Yan Bulgu (M5)
+
+- **M5** — Manifest icon kaynak hijyeni: `app/manifest.ts` `icons` array'i `/icons/icon-192.png` ve `/icons/icon-512.png` kullanıyor (doğru). Ama `public/logo.png` (640×640, Format24bppRgb, kurumsal kaynak) hâlâ manifest'te kullanılmıyor. Tarayıcılar 640×640 → 192/512 resize yapabilir, kurumsal görsel kalitesi daha yüksek olur. Opsiyonel iyileştirme.
+- **Öncelik:** SHOULD + LATER (kozmetik, fonksiyonel sorun yok).
+- **Tetikleyici:** PWA install splash screen veya Android adaptive icon kalite şikayeti gelirse.
+
+### Mimar Hata Tutanağı
+
+Bu turda mimar hatası yok. Ancak iki disiplin notu:
+
+1. **Mimar sürüm 1 mektubunda `apple-touch-icon` kaynağı `icons/icon-512.png` öneriyordu.** Mehmet Bey "logo.png var mı?" diye sordu, mimar `find` komutu ile doğrulattı, logo.png 640×640 Format24bppRgb opak çıktı. Mektup sürüm 2'ye güncellendi (logo.png kaynak). Bu **doğru disiplin** — mimar varsayım yapmadı, kanıt sordu, kullanıcı doğrulamasıyla daha iyi karara gitti.
+2. **K4 araştırma raporu** apple-touch-icon.png'nin Format32bppArgb (alfa kanallı) olduğunu doğru tespit etti ama "alfa gerçekten şeffaf mı opak mı, doğrulanamadı" notu düştü. Mimar bunu yine de **muhtemel sebep** olarak teşhis etti, kanıt olmadan tahmin yapmaktan kaçındı, çözümün her iki durumda da çalışacağını (logo.png Format24bppRgb opak) garantiledi. Bu **Madde 4 disiplini** ile uyumlu doğru yaklaşım.
+
+### TUR #41 İstatistik
+
+- Etkilenen repo: tedbirge-panel (4 atom kod) + tedbirge-os (3 atom devir)
+- Toplam atom: 7
+- Commit: 4 panel + 3 os
+- KIRMIZI çizgi ihlali: 0
+- Mimar hata sayısı: 0
+- Production görsel kanıt: 8/8 (apple-touch-icon, manifest, theme-color, regresyon, iPhone paylaş, iPhone onay, iPhone ana ekran, GA4 Network)
+
+---
+
 ## TUR #40 — FAZ 4-B Operasyonel Ölçek (Blog Görünürlük + İçerik)
 
 **Tarih:** 28-29 Nisan 2026 (gec gece + sabah)
