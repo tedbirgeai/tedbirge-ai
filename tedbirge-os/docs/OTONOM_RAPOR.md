@@ -1,11 +1,11 @@
-## TUR #44 — Hareket Disiplini (3 alt-tur planı)
+## TUR #44 — Hareket Disiplini (BÜYÜK KAPANIŞ — Tur A + 44.1 + 44.2+44.3 birleşik + C9 son rötuş)
 
-**Tarih:** 1 Mayıs 2026
+**Tarih:** 1 Mayıs 2026 (gece — gece yarısı sonrası)
 **Anayasa:** v1.10.0
-**Süre:** Tur A 75 dk + Tur B-1 ~3 saat (A5-fix dahil — Tur B-2 ve B-3 bekliyor)
+**Süre:** Tur A 75 dk + TUR #44.1 ~3 saat + TUR #44.2+44.3 birleşik ~3-4 saat + C9 rötuş ~15 dk = ~7-8 saat tek gün
 **Etkilenen repo:** tedbirge-panel (kod) + tedbirge-os (devir)
-**Toplam commit:** 6 panel (TUR #44.1 A1→A7, A2+A3 birleşik) + os güncellemeleri
-**Durum:** TUR #44.1 ✅ KAPALI, TUR #44.2 ⏳ AÇIK, TUR #44.3 ⏳ AÇIK
+**Toplam commit:** 6 panel (TUR #44.1) + 4 panel (TUR #44.2+44.3 birleşik C9 dahil) + os güncellemeleri
+**Durum:** ✅ TUR #44 BÜYÜK KAPANIŞ (3 alt-tur tamamlandı)
 
 ### Tur A — Keşif (salt okuma)
 
@@ -40,10 +40,73 @@
 
 ### KIRMIZI çizgi ihlali: 0
 
-### Sıradaki
+### TUR #44.2+44.3 — Birleşik Yaygınlaştırma + Anasayfa Cinematic (CEO direktifi tek mektup, 17 atom)
 
-**TUR #44.2** — Sayfa-sayfa yaygınlaştırma + anasayfa zenginleştirme (8-10 atom, ~3-4 saat). Mektup TUR #44.1 production doğrulama sonrası mimar yazar.
-**TUR #44.3** — Cinematic scroll + gradient choreography (5-7 atom, ~3-5 saat). Mehmet Bey görsel onay her atomda zorunlu.
+**Mehmet Bey direktifi:** "Mimar tavsiyesi C — Tur 44.2 ve 44.3'ü birleştir, tek mektup, tek onay." Atom başına test sürdürülebilir değildi.
+
+**TUR #44.2 atomları (yaygınlaştırma — 9 atom):**
+- A1: iş + sigorta niş Reveal — commit `7cd20a0`
+- A2: blog liste Reveal stagger + MotionCard — commit `7cd20a0`
+- A3: blog detay server/client bölme + Reveal (BlogPostClient.tsx yeni) — commit `7cd20a0`
+- A4: 3 niş + blog görsel onay (5 sayfa onaylandı, kod commit yok)
+- A5: tazminat-hesapla form mikro etkileşim + tedbirge-input class + Step3 sonuç Reveal — commit `7cd20a0`
+- A6: basvuru 3 nav/submit MotionButton (INPUT constant zaten gelişmiş, dokunulmadı) — commit `7cd20a0`
+- A7: referanslar + haberler card Reveal + MotionCard — commit `7cd20a0`
+- A8 atlandı: anasayfa hero zaten 6 staggered element (logo/badge/2 başlık/alt yazı/CTA) — pragmatic karar
+- A9: anasayfa hover scale token (1.15 → token) — sonradan A9 → C6 birleşik refactor
+
+**TUR #44.3 cinematic atomları (8 atom):**
+- C1: lib/motion.ts cinematic genişleme (EASE_CINEMATIC + EASE_MAGNETIC + HERO_TIMING + heroWordCinematic + heroBadgeVariants + heroSubtitleVariants + heroCtaVariants + HOVER_SCALE_V2 + HOVER_GLOW_PRIMARY/ACCENT) — commit `8e6402d`
+- C2+C8: globals.css cinematic CSS (.tedbirge-hero-bg + .tedbirge-hero-highlight + .tedbirge-cta-cinematic + .tedbirge-social-icon + .tedbirge-cta-pulse + @keyframes 3 adet) — commit `8e6402d`
+- C3: Anasayfa hero refactor — section tedbirge-hero-bg, logo+badge heroBadgeVariants, 2 başlık kelime kelime heroWordCinematic (6 kelime), "Zeka" tedbirge-hero-highlight, alt yazı heroSubtitleVariants, CTA grup heroCtaVariants, butonlar tedbirge-cta-cinematic + tedbirge-cta-pulse — commit `6673863`
+- C4: Sosyal medya iconları motion.a → a + tedbirge-social-icon class — commit `6673863`
+- C5 atlandı: section akış zaten Reveal/SectionReveal ile akışkan
+- C6: HomePageClient HOVER_SCALE → HOVER_SCALE_V2 (eski import kaldırıldı) — commit `6673863`
+- C7: MotionButton/MotionCard glow prop + cinematic emphasis (geriye uyumlu) — commit `9555bb8`
+- C9 son rötuş: hidden state yumuşatma (opacity 0 → 0.35-0.4, blur 8px → 4px, hero-highlight scaleX 0 → 0.15 + opacity 0.5). Mehmet Bey Ctrl+Shift+R sonrası "donmuş ekran" gözlemi → cache'siz ilk render UX iyileşti. — commit `8e6402d`
+
+### Mehmet Bey görsel onay: ✅ ALINDI (tek nokta — CEO direktifi)
+
+"güzel olmuş" + C9 rötuş sonrası "muazzam" — toplu commit talimatı.
+
+### Production kanıt (TUR #44.2+44.3)
+
+- Anasayfa hero 2.2sn cinematic akış: badge → kelime stagger (blur 4px→0, opacity 0.35→1) → "Zeka" altı yeşil sweep (scaleX 0.15→1) → alt başlık → CTA dramatik → pulse 3sn sonra
+- 10 public sayfa HTTP 200 (anasayfa + 3 niş + blog liste + blog detay + tazminat-hesapla + basvuru + referanslar + haberler)
+- Production cinematic class kanıtı: tedbirge-hero-highlight + bg + cta-cinematic + pulse + social-icon hepsi mevcut
+- Soft initial state SSR: opacity:0.35 ×6 (hero kelimeleri), opacity:0.4 ×3 (logo+badge+cta grup) — Ctrl+Shift+R cache'siz render'da bile "yarı görünür bulanık" → kayıp hissi yok
+- 3 katmanlı reduced-motion respect (CSS @media + MotionConfig + useReducedMotion)
+- TUR #43 regresyon: 0 (anasayfa başlık template ✓, niş 4 schema tipi ✓, Article 1 ✓, sitemap 19 ✓, OG 200 PNG ✓)
+- TUR #44.1 regresyon: 0 (Reveal aktif 9 sayfada)
+- Auth korumalı rotalar: /dashboard 307 ✓
+
+### Mimar hata sayısı (TUR #44.2+44.3): 1
+
+**Hata:** A8 atlanması ilk başta savunulmuştu ama Mehmet Bey "muazzam" beklentisi için yetersizdi. Birleşik mektup A8 yerine cinematic kelime stagger (heroWordCinematic) uyguladı + hero-highlight sweep + CTA pulse + tedbirge-hero-bg gradient kayma. Bu rota daha disiplinli ve kanıtlanmış sonuç verdi. Hata: "atom atlanabilir" yargısının erken verilmesi — büyük resim için Mehmet Bey CEO disiplini gerekti.
+
+### TUR #44 BÜYÜK İSTATİSTİK (Tur A + 44.1 + 44.2+44.3 birleşik + C9)
+
+- Toplam atom: 7 (TUR #44.1) + 9 (TUR #44.2 yaygın) + 8 (TUR #44.3 cinematic) + 1 (C9 son rötuş) = ~25 atom
+- Toplam commit: 6 (TUR #44.1) + 4 (TUR #44.2+44.3 birleşik) = 10 panel commit
+- KIRMIZI çizgi ihlali: 0
+- Mimar hata: 3 (TUR #44.1: 2 hata + TUR #44.2+44.3: 1 hata — hepsi yapı ve görsel onay yakaladı)
+- Mehmet Bey görsel onay: 3 nokta (TUR #44.1 A7, TUR #44.2 A4 ara onay, birleşik tek onay + C9 onay)
+- Schema/migration/npm/env: 0 değişiklik
+- Yeni paket: 0 (Senaryo 1 başarılı kanıtlandı)
+- Yeni dosya: 4 (lib/motion.ts cinematic genişledi, components/ui/{Reveal+MotionButton+MotionCard}, BlogPostClient.tsx)
+
+### Mimari öğrenmeler (gelecek turlara kayıt)
+
+1. **Framer Motion v12 whileInView parent variant collision** → useInView pattern standart
+2. **components/ui/ klasörü** kuruldu (Reveal + MotionButton + MotionCard + glow extension)
+3. **Cinematic ease/duration token'lar** lib/motion.ts'te HERO_TIMING + EASE_CINEMATIC + EASE_MAGNETIC
+4. **CSS @keyframes + custom properties** globals.css'te (Tailwind 4 CSS-first uyumu)
+5. **"Tek mektup uçtan uca" pattern** (CEO direktifi) — büyük kesitlerde atom başına onay sürdürülebilir değil; mimar tüm atomları tek mektupta tarif eder, Claude Code uçtan uca uygular, Mehmet Bey bir kez onaylar
+6. **Soft hidden state pattern** (C9) — SSR + cache'siz hydrate gecikmesi için opacity 0 yerine 0.35-0.4 ile "kayıp" yerine "yumuşakça beliriyor" UX
+
+### TUR #44 BÜYÜK KAPANIŞ — Sıradaki: MOLA önerilen
+
+10+ saat tek günde 25 atom — sürdürülebilir değil. Bir sonraki Claude oturumu DEVIR'den temiz devralır.
 
 ---
 

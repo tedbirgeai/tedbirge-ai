@@ -883,3 +883,64 @@ Bu yeni gradient lacivertten kendi koyu kuzenine geçer — mor yok, kurumsal ki
 **Mimar:** Claude Opus 4.7 (TUR #44.1 A5+A6, 1 Mayıs 2026)
 **Onay:** Mehmet Dinç ("YAZ ORTAK")
 **Disiplin:** Madde 4.5
+
+---
+
+## 1 Mayıs 2026 (gece geç) — TUR #44 BÜYÜK KAPANIŞ: Hareket Disiplini
+
+### Karar 11: TUR #44.2 ve #44.3 Birleştirme — "Tek Mektup Uçtan Uca" Pattern
+
+**Bağlam:** TUR #44.1 kapandıktan sonra mimar TUR #44.2 (yaygınlaştırma) ve TUR #44.3 (cinematic) için ayrı mektuplar planlamıştı. Mehmet Bey TUR #44.2 mektubunu uygulayıp 5 sayfa görsel onayı verdi (A4), sonra A8 anasayfa hero için Claude Code "atlama" kararı verdi → A10 tek görsel onay durağında "hero zaten yeterince güzeldi" tartışıldı. Mehmet Bey CEO disiplini ile **"Tur 44.2 ve 44.3'ü birleştir, tek mektup, tek onay"** direktifini verdi.
+
+**Karar:** TUR #44.2 (yaygınlaştırma kalan atomları: A8+A9 anasayfa) ve TUR #44.3 (cinematic) **tek birleşik mektupla** uçtan uca uygulandı. Atom başına Mehmet Bey görsel onayı **kaldırıldı** — tek nokta sonu görsel onay. Mevcut working tree (TUR #44.2 A1-A7 zaten yapılmış, 11 dosya commit'siz) **korundu**, üzerine cinematic katman (C1-C8 atomları + C9 son rötuş) eklendi.
+
+**Atomlar:**
+- C1: lib/motion.ts cinematic genişleme (EASE_CINEMATIC, EASE_MAGNETIC, HERO_TIMING, heroWordCinematic, heroBadgeVariants, heroSubtitleVariants, heroCtaVariants, HOVER_SCALE_V2, HOVER_GLOW_*)
+- C2+C8: globals.css cinematic CSS class'ları (.tedbirge-hero-bg + .tedbirge-hero-highlight + .tedbirge-cta-cinematic + .tedbirge-social-icon + .tedbirge-cta-pulse + 3 @keyframes)
+- C3: Anasayfa hero refactor — section tedbirge-hero-bg, başlıklar kelime kelime heroWordCinematic (6 kelime), "Zeka" tedbirge-hero-highlight, alt yazı + CTA grup variant'lar, butonlar tedbirge-cta-cinematic + accent + pulse
+- C4: Sosyal medya iconları motion.a → a + tedbirge-social-icon (CSS class scale+rotate+color)
+- C5 atlandı (section akış zaten Reveal/SectionReveal akışkan)
+- C6: HomePageClient HOVER_SCALE → HOVER_SCALE_V2 (eski import kaldırıldı)
+- C7: MotionButton/MotionCard glow prop + cinematic emphasis (geriye uyumlu)
+- C9 son rötuş: hidden state yumuşatma (Mehmet Bey Ctrl+Shift+R "donmuş ekran" geri bildirimine yanıt)
+
+**Alternatif (seçilmedi):** Atom başına ayrı mektup + ayrı görsel onay (mektup mimar tasarımı). Atom başına test sürdürülebilir değildi — Mehmet Bey CEO yorumuyla doğru.
+
+**Sonuç:**
+- Anasayfa hero 2.2sn cinematic akış (badge → kelime stagger → highlight sweep → alt başlık → CTA + pulse)
+- 9 sayfada Reveal yaygın
+- Hover scale v2 (1.08) + glow (lacivert/yeşil) + magnetic (sosyal icon)
+- prefers-reduced-motion 3 katmanlı respect
+
+**Mimari öğrenme — "tek mektup uçtan uca" pattern (gelecek büyük kesitlerde standart):**
+Büyük kesitlerde CEO disiplini için atom başına onay yerine **tek görsel onay noktası**. Mimar tüm atomları tek mektupta tarif eder, Claude Code uçtan uca uygular, Mehmet Bey **bir kez** bakar, commit kararı verir. Risk: mektup içinde yanlış varsayımlar varsa kapsam patlar. Karşı tedbir: mektup öncesi mevcut working tree açıkça not edilir, varsayımlar görünür yapılır, Claude Code mevcut yapıya uyum sağlama yetkisi verilir (örn variant ismi farklı ise gerçek ismi kullan).
+
+**Mimar:** Claude Opus 4.7 (TUR #44.2+44.3 birleşik + C9, 1 Mayıs 2026 gece — gece yarısı sonrası)
+**Onay:** Mehmet Dinç ("Mimar tavsiyesi C — Tur 44.2 ve 44.3 birleştir, tek mektup, tek onay" + "güzel olmuş" + C9 sonrası "muazzam — toplu commit talimatı")
+**Disiplin:** Madde 4 (atom + kanıt), Madde 17.4 (yarım kesit yasağı — birleşik tek tur), Madde 17.5 son söz, Madde 18.4 yeşil nokta
+
+---
+
+### Karar 12: Soft Hidden State Pattern (C9 — SSR + Cache'siz Hydrate UX)
+
+**Bağlam:** TUR #44.2+44.3 cinematic uygulandıktan sonra Mehmet Bey Ctrl+Shift+R yenileme sonrası ekran görüntüsü gönderdi: "Tazminat Hakkınızı" başlığı opacity:0 + blur(8px) → kayıp gibi, badge bulanık, CTA tek. F5 normal yenilemede sorun yok. Sebep: Ctrl+Shift+R cache temizler → JS bundle yeniden indirilir → server-render HTML hidden state hydrate olana kadar 1-2 sn donmuş bulanık ekran.
+
+**Problem:** Production'da yavaş internet ilk kullanıcısı → "bozuk site" izlenimi.
+
+**Karar:** Hidden state'leri yumuşat:
+- `heroWordCinematic.hidden`: opacity 0 → 0.35, y 24 → 18, blur 8px → 4px
+- `heroBadgeVariants.hidden`: opacity 0 → 0.4, y 10 → 6, scale 0.95 → 0.97
+- `heroSubtitleVariants.hidden`: opacity 0 → 0.3, y 16 → 10
+- `heroCtaVariants.hidden`: opacity 0 → 0.4, y 20 → 12, scale 0.96 → 0.98
+- `.tedbirge-hero-highlight::after`: scaleX 0 → 0.15 + opacity 0.5 (animasyon sonu opacity 1)
+
+**Sonuç:** Donmuş bile olsa "yarı görünür bulanık" hisseder — "kayıp" değil "yumuşakça beliriyor". `visible` state'leri **dokunulmadı** (animasyon nihai sonuç aynı).
+
+**Alternatif (seçilmedi):** opacity:0 başlangıçta tutmak — cache'siz ilk render UX bozuk. Cinematic blur(8px) tutmak — donmuş ekran daha bozuk hisseder.
+
+**Mimari öğrenme — gelecek motion variant'larında standart:**
+SSR + client hydrate gecikmesi kombinasyonunda motion variant'ların `hidden` state'leri **0 değil 0.3-0.4 opacity + minimum geometrik bozulma** olmalı. Bu pattern animasyon "kayıp" yerine "yumuşakça beliriyor" hisseder.
+
+**Mimar:** Claude Opus 4.7 (TUR #44 C9, 1 Mayıs 2026 gece geç)
+**Onay:** Mehmet Dinç (Ctrl+Shift+R ekran görüntüsü + mimar yumuşatma teklifi onayı)
+**Disiplin:** Madde 4 (kanıt — gerçek kullanıcı geri bildirimi), Madde 17.5
