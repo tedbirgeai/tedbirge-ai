@@ -28,6 +28,10 @@ const muhatapAIRoutes = require("./muhatapAI.routes");
 const adminOsRoutes = require("./admin.os.routes");
 const { router: unsubscribeRouter } = require("./unsubscribe.routes");
 const careerApplicationRoutes = require("./career-application.route");
+const kvkkRoutes = require("./kvkk.routes");
+const commissionRoutes = require("./commission.routes");
+const auditRoutes = require("./audit.routes");
+const settingRoutes = require("./setting.routes");
 
 const router = express.Router();
 
@@ -63,6 +67,10 @@ router.use("/os/healer", require("./os.healer.routes"));
 router.use("/", unsubscribeRouter);
 router.use('/', publicRoutes);
 router.use('/', careerApplicationRoutes);
+router.use('/', kvkkRoutes);
+router.use('/', commissionRoutes);
+router.use('/', auditRoutes);
+router.use('/', settingRoutes);
 
 module.exports = router;
 

@@ -627,6 +627,30 @@ router.post("/query-lead", async (req, res) => {
   }
 });
 
+// ─── TUR #52: KVKK m.11 Public Hak Basvurusu ──────────────────────
+const kvkkService = require("../services/kvkk.service");
+router.post("/public/kvkk-request", async (req, res) => {
+  try {
+    const created = await kvkkService.createPublicRequest({
+      requesterTC: req.body.requesterTC,
+      requestType: req.body.requestType,
+      description: req.body.description,
+    });
+    try {
+      await prisma.activityLog.create({
+        data: {
+          action: "KVKK_REQUEST_CREATED",
+          detail: `id:${created.id} type:${created.requestType}`,
+        },
+      });
+    } catch (e) {}
+    return res.status(201).json({ success: true, requestId: created.id });
+  } catch (error) {
+    console.error("[PUBLIC_KVKK_REQUEST]", error);
+    return res.status(400).json({ success: false, message: error.message || "Basvuru hatasi" });
+  }
+});
+
 module.exports = router;
 
 
