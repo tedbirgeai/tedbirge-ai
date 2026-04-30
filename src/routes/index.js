@@ -27,6 +27,7 @@ const sigortaBasvuruRoutes = require("./sigortaBasvuru.routes");
 const muhatapAIRoutes = require("./muhatapAI.routes");
 const adminOsRoutes = require("./admin.os.routes");
 const { router: unsubscribeRouter } = require("./unsubscribe.routes");
+const careerApplicationRoutes = require("./career-application.route");
 
 const router = express.Router();
 
@@ -61,6 +62,7 @@ router.use("/os", require("./os.events.routes"));
 router.use("/os/healer", require("./os.healer.routes"));
 router.use("/", unsubscribeRouter);
 router.use('/', publicRoutes);
+router.use('/', careerApplicationRoutes);
 
 module.exports = router;
 
