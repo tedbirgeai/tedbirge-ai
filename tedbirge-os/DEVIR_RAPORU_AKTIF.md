@@ -1,9 +1,56 @@
 # 🛡️ DEVIR RAPORU (AKTİF) — TEDBİRGE.AI
 
-**Son güncelleme:** 30 Nisan 2026 (TUR #52 — 4 CRM Uçtan Uca Tam Operasyonel)
-**Anayasa:** v1.14.0
+**Son güncelleme:** 30 Nisan 2026 (TUR #51.B — Derin 4 CRM Keşif)
+**Anayasa:** v1.14.0 (sürüm artmadı — keşif turu)
 **Aktif kesit:** FAZ 4-B Operasyonel Ölçek
-**Son TUR:** #52 — 4 CRM (LAWYER + REPRESENTATIVE + ADMIN + CUSTOMER) Tam Operasyonel (KAPALI — KIRMIZI nokta paketi + TUR #47 backend regresyon + 6 admin UI + KVKKSCC altyapı). **TUR #51'in 4 KRİTİK + 9 ORTA bulgusunun çoğu kapatıldı. ~3M+ TL yasal risk ortadan kaldırıldı.**
+**Son TUR:** #51.B — Derin 4 CRM Keşif (KAPALI — T tipi denetim, 0 kod değişikliği). Rapor: `tedbirge-os/docs/TUR51B_DERIN_CRM_KESIF.md`. **Bulgu: 🔴 5, 🟡 8, 🟢 5 = 18 toplam. TUR #55+ için 20 atom listesi hazır.**
+
+---
+
+## 🩺 TUR #51.B — DERİN 4 CRM KEŞİF (30 Nisan 2026 — T tipi denetim)
+
+**Durum:** ✅ Tamamlandı (0 kod değişikliği — Madde 21 disiplini)
+**Tam rapor:** `tedbirge-os/docs/TUR51B_DERIN_CRM_KESIF.md`
+**Girdi:** TUR #52 sonrası kod tabanı durumu
+
+### 🔴 KRİTİK Bulgular (5 adet)
+
+- **L-B1** — TUR #52'de yazılan `lawyerNotifications.service.js` 6 fonksiyonu **HİÇ ÇAĞRILMIYOR**. Ölü kod. Trigger'lar 6 service'ten yapılmalı (upload/analyzer/contract/commission/kvkk/davaSurec).
+- **L-B2** — TahsilatPanel.tsx component yok. Lead.gercekTazminat patch oluyor ama CommissionLog otomatik tetiklenmiyor. TUR #52 KIRMIZI #2 yarım kaldı.
+- **R-B1** — REPRESENTATIVE **53 endpoint**'e erişebiliyor (Madde 24.4 ihlali). 8 endpoint'ten yetki çekilmeli: ihtarname/dava-surec/durusma/bilirkisi/archive (lead+hukuk routes).
+- **R-B2** — User schema'da **IBAN alanı yok**. Komisyon havalesi için zorunlu — schema migration KIRMIZI nokta.
+- **C-B1** — `/musteri/kvkk-haklarim` sayfası yok. TUR #52 mektup planında vardı, yapılmadı. CUSTOMER kendi portalından KVKK başvurusu yapamıyor.
+
+### 🟡 ORTA Bulgular (8 adet)
+
+- **L-B3** — İhtarname/Dava/Duruşma/Bilirkişi backend hazır ama LAWYER UI'sı 4 yer eksik
+- **L-B4** — `muhatapAI` güven skoru 0.7 eşik kontrolü ve avukat onay UI yok (Madde 24.11 ihlali)
+- **R-B3** — `/temsilci/performans` sayfası yok (TUR #52'de planlanmıştı, yapılmadı)
+- **R-B4** — Temsilci profil/IBAN/vergi yönetim sayfası yok
+- **A-B1** — TUR #52 ayarlar sayfası AI confidence slider yapıldı ama `muhatapAI.service.js` SystemSetting'i okumuyor (UI ↔ backend bağ kopuk)
+- **C-B2** — Müvekkil belge yükleme UI yok (sadece görüntüleme)
+- **C-B3** — Müvekkil tahsilat görünümü yok
+- **C-B4** — Müvekkil AI sonuç sade dilde gösterimi yok
+- **Cross X3** — AI eşik kontrolü yok (Madde 24.11)
+- **Cross X4** — Lead.gercekTazminat → CommissionLog auto-trigger yok
+
+### 🟢 DÜŞÜK Bulgular (5 adet)
+
+- **L-B5** — Dashboard widget'ları yeterli derinlik
+- **A-B2** — ADMIN müvekkil-yonetim sayfası yok (zayıf ihtiyaç)
+- **A-B3** — Mali rapor genişletme önerileri (komisyon dağılımı + KVKK metrikler)
+- **A-B4** — SystemSetting tablosu kullanılmıyor (sadece setting.service'in kendisi)
+- **C-B5** — KVKKSCC tablosu KVKK aydınlatma sayfasına entegre değil
+
+### 📋 Tedavi Yol Haritası — TUR #55+ Atom Listesi (20 atom, ~33 saat)
+
+Mimar önerisi: **3 paralel mektup** (TUR #52 paterni "tek mega mektup" yerine):
+
+- **TUR #55 (LAWYER tamamlama):** Atom 1-7 — 12-15 saat, ~10 commit (TahsilatPanel + 4 sub-route UI + AI onay UI + lawyerNotifications trigger zinciri)
+- **TUR #56 (REPRESENTATIVE + CUSTOMER):** Atom 8-15 — 12-14 saat, **KIRMIZI nokta** (User IBAN schema migration)
+- **TUR #57 (ADMIN + Cross):** Atom 16-20 — 6-8 saat (AI confidence backend bağı + mali rapor + bildirim şablon UI + auto-trigger'lar)
+
+Detay: `docs/TUR51B_DERIN_CRM_KESIF.md` Bölüm 6.
 
 ---
 
