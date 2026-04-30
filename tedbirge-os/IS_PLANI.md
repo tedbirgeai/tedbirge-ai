@@ -8,9 +8,9 @@
 ## 🎯 AKTİF KESİT
 
 **Faz:** FAZ 4-B Operasyonel Ölçek
-**Son TUR:** #47 — Yasal Zemin Temizliği (KAPALI — 8 KIRMIZI ihlal kapatıldı, anayasa v1.12.0)
+**Son TUR:** #48 — Kariyer Sayfası + KVKK Çalışan Adayı Aydınlatma (KAPALI — KVKK m.10 ihlal riski ~50K-1M TL ortadan kaldırıldı)
 **Anayasa:** v1.12.0
-**Son güncelleme:** 30 Nisan 2026 (TUR #47 sonu)
+**Son güncelleme:** 30 Nisan 2026 (TUR #48 sonu)
 
 ### Kesit içi turlar (özet)
 
@@ -27,6 +27,7 @@
 | #45 | Yan Bulgu Temizliği (Y4 + M2) | ✅ Kapalı (Y1 ertelendi #45.2'ye, Y5 yeni bulgu eklendi) |
 | #45.2 | Y5 + Y1 Hex Refactor (Tailwind 4 @theme + ~430 referans) | ✅ Kapalı |
 | #47 | Yasal Zemin Temizliği (8 KIRMIZI ihlal: sahte sayılar + /referanslar + uzman + ekip kartları + anayasa v1.12.0) | ✅ Kapalı |
+| #48 | Kariyer Sayfası + KVKK Çalışan Adayı Aydınlatma (/kariyer + /kvkk-calisan-adayi + /api/career-application) | ✅ Kapalı |
 
 ### TUR #44 — Hareket Disiplini ✅ BÜYÜK KAPANIŞ
 

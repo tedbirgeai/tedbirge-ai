@@ -1,3 +1,86 @@
+## TUR #48 — Kariyer Sayfası + KVKK Çalışan Adayı Aydınlatma
+
+**Tarih:** 30 Nisan 2026
+**Anayasa:** v1.12.0 (değişiklik yok)
+**Süre:** ~2-2.5 saat
+**Etkilenen repo:** tedbirge-panel (5 atom commit + 1 hotfix) + tedbirge-os (1 commit)
+**Toplam commit:** 6 panel + 1 os
+**Durum:** ✅ KAPALI
+
+### Kapsam
+
+CEO Mehmet DİNÇ direktifi: "tek seferde uçtan uca mektup işi bitir ORTAK". TUR #47'de aktif edilen kariyer CTA'sı `mailto:kariyer@tedbirge.ai` linkine yönlendiriyordu — bu KVKK m.10 aydınlatma yükümlülüğü ihlali (49.695-993.988 TL idari para cezası riski). Bu turda yasal süreklilik tamamlandı: /kariyer sayfası + KVKK uyumlu form + Çalışan Adayı Aydınlatma Metni eklendi.
+
+### Mimar Hatası / Hotfix
+
+**Hata:** A2'de /kariyer sayfası açıldığında proxy.ts public allowlist güncellenmemiş — /kariyer 307 redirect → /login'e gidiyordu (auth-gate yakalaması). Production smoke testte tespit edildi.
+
+**Düzeltme:** proxy.ts public path listesine `pathname.startsWith("/kariyer")` eklendi (commit `6ac7537`). Re-deploy sonrası /kariyer 200.
+
+**Ders:** Panel'e public sayfa eklenirken proxy.ts allowlist kontrolü atom check-list'inde olmalı. /kvkk-calisan-adayi zaten `/kvkk` startsWith kapsamında olduğu için sorun yaşamadı. Gelecekte yeni public route → proxy.ts revize zorunlu.
+
+### Kapatılan İhlaller / Eklenen Bileşenler (6)
+
+1. **K9** — /kariyer sayfası (server component) açıldı: 2 açık pozisyon (Sözleşmeli Avukat Ortağı + Frontend Mühendis) + KariyerFormClient (client component, useState form, 3 KVKK opt-in kutucuk default işaretsiz: aydınlatma okudum [zorunlu] + açık rıza [zorunlu, KVKK 2018/90 ayrı] + CV havuzu 6 ay [opsiyonel]). Commit `a6e2f37`
+2. **K10** — /kvkk-calisan-adayi aydınlatma metni: KVKK m.10 uyumlu 8 bölüm (Veri Sorumlusu + İşlenen Veriler + Amaç & Hukuki Sebep + Aktarım + Saklama Süresi 6 ay + Toplanma Yöntemi + KVKK m.11 hak listesi + Açık Rıza). Veri Sorumlusu: Mehmet DİNÇ (Tedbirge LegalTech). İletişim: kvkk@tedbirge.ai. Commit `a412001`
+3. **K11** — /api/career-application endpoint (POST): fullName + email + position validasyon + KVKK kanıt izi timestamp'leri (aydinlatmaOnayTimestamp + acikRizaOnayTimestamp) + console log + 200 dönüş. Backend Render'da değil, panel kendi Next.js API route'u (Alternatif A — Lead semantiği uygun değil, kariyer ayrı akış). Commit `054eb6b`
+4. **K12** — /hakkimizda mailto linkleri /kariyer'e yönlendirildi: TUR #47'de eklenen "Pozisyon Açık" kart CTA + bottom "Açık Pozisyonlar" Reveal CTA mailto'dan Link'e dönüştürüldü. Footer kariyer mail linki dokunulmadı (açık iletişim kanalı). Commit `caf6e1a`
+5. **K13** — Sitemap güncel: /kariyer (priority 0.6 monthly) + /kvkk-calisan-adayi (priority 0.3 yearly) eklendi. Commit `15fc4cd`
+6. **K14** — KVKK m.10 ihlali (49.695-993.988 TL idari para cezası riski) ortadan kaldırıldı
+
+### Yasal Kanıt Zemini
+
+- 6698 sayılı KVKK m.10 (Aydınlatma yükümlülüğü)
+- KVKK Kurulu 2018/90 sayılı kararı (aydınlatma + açık rıza ayrı ayrı alınır)
+- Aydınlatma Yükümlülüğünün Yerine Getirilmesinde Uyulacak Usul ve Esaslar Hakkında Tebliğ (R.G. 10/3/2018-30356)
+- KVKK m.5/2-c (sözleşme kurulması) + m.5/2-f (meşru menfaat) — hukuki sebepler
+- KVKK m.7 (silme yükümlülüğü) + Silinme Yönetmeliği — saklama süresi sonu imha
+- KVKK m.11 (ilgili kişi hakları) — 9 madde tam liste
+- Sektör standardı: Saklama 6 ay (Elektra 3 ay, Medistate 3 yıl arası orta yol)
+- İdari para cezası: 49.695-993.988 TL aralığı (aydınlatma) + 4.969.943 TL'ye kadar (veri güvenliği)
+
+### Tasarım Kararları
+
+- Form 3 opt-in kutucuk (default işaretsiz, KVKK 2018/90 uyumlu)
+- Saklama süresi: 6 ay (sektör orta yolu)
+- Veri Sorumlusu: Mehmet DİNÇ (Tedbirge LegalTech) — KVKK aydınlatma + iletişim ile tutarlı
+- Backend: Yeni `/api/career-application` endpoint (Lead API kullanılmadı — semantik ayrılık)
+- KVKK kanıt izi: aydinlatmaOnayTimestamp + acikRizaOnayTimestamp loglara düşürülür (TUR #49'da kalıcı kayıt + e-posta gönderimi)
+- Schema/migration/env/paket: 0
+
+### İstatistik
+
+- Atom: 7 (A0 keşif + A1-A6) — A0 salt okuma
+- Commit: 7 (5 panel atom + 1 panel hotfix + 1 os)
+- Mimar hata: 1 (proxy.ts allowlist atlandı, hotfix commit `6ac7537` ile düzeltildi)
+- Schema/migration/env/paket: 0
+- Yeni paket: 0
+- Yeni sayfa: 2 (/kariyer + /kvkk-calisan-adayi)
+- Yeni client component: 1 (KariyerFormClient)
+- Yeni API endpoint: 1 (/api/career-application)
+- Production regresyon: 0
+- KIRMIZI ihlal kapatılan: 1 (KVKK m.10)
+- Yasal risk azaltılan: ~50.000-1.000.000 TL
+- Tasarım değişikliği: 0 (sadece yeni içerik + form)
+- Build hatası: 0
+
+### Production Kanıt
+
+- /health: 200
+- /kariyer: 200 (yeni — Mehmet DİNÇ + 2 pozisyon + 3 KVKK opt-in form)
+- /kvkk-calisan-adayi: 200 (yeni — 8 bölüm KVKK metni)
+- /api/career-application: POST handler aktif (build dynamic route ƒ)
+- /hakkimizda: 200 (regresyon yok, "Pozisyonları Gör" CTA artık /kariyer'e gidiyor)
+- /referanslar: 404 (TUR #47'den kalan)
+
+### Sonuç
+
+DEVIR yasal açıdan tamamen temiz. KVKK m.10 yükümlülüğü tam karşılandı. Bir sonraki önerilen kesit: TUR #49 (KVKK kanıt izi kalıcı saklama: ActivityLog modeli + e-posta gönderimi resend/nodemailer ile + admin paneli kariyer başvuru görüntüleme) veya TUR #46 (Blog İçerik Üretimi).
+
+— Claude Code, TUR #48 sonu
+
+---
+
 ## TUR #47 — Yasal Zemin Temizliği (8 KIRMIZI İhlal Kapatıldı)
 
 **Tarih:** 30 Nisan 2026

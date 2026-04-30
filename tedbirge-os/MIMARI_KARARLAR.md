@@ -6,6 +6,54 @@
 
 ---
 
+## 30 Nisan 2026 — TUR #48 Kariyer Sayfası + KVKK Aydınlatma (Anayasa v1.12.0 sürdürüldü)
+
+**Karar:** TUR #47'de aktif edilen kariyer CTA'sı KVKK m.10 ihlal riski oluşturuyordu (mailto:kariyer@tedbirge.ai — adaya bilgi vermeden CV alınması). Bu turda /kariyer sayfası + KVKK uyumlu 3 opt-in form + Çalışan Adayı Aydınlatma Metni (8 bölüm) + /api/career-application endpoint eklendi. Yasal süreklilik tamamlandı.
+
+**Sebep — KVKK kanıtları (web search ile doğrulandı):**
+- 6698 sayılı KVKK m.10 (Aydınlatma yükümlülüğü)
+- KVKK Kurulu 2018/90 sayılı kararı (aydınlatma + açık rıza ayrı ayrı alınır — tek kutucuk geçersiz)
+- Aydınlatma Tebliği (R.G. 10/3/2018-30356)
+- KVKK m.5/2-c (sözleşme kurulması) + m.5/2-f (meşru menfaat)
+- KVKK m.7 (silme yükümlülüğü) + Silinme Yönetmeliği — saklama süresi sonu imha
+- KVKK m.11 (ilgili kişi hakları) — 9 madde tam liste
+- İdari para cezası aralığı: 49.695-993.988 TL (aydınlatma) + 4.969.943 TL'ye kadar (veri güvenliği)
+
+**Tasarım Kararları:**
+- **Form yapısı:** 3 opt-in kutucuk (default işaretsiz):
+  1. Aydınlatma metnini okudum (zorunlu, KVKK m.10)
+  2. Açık rıza (zorunlu, KVKK 2018/90 ayrı)
+  3. CV havuzu 6 ay saklama (opsiyonel, ek rıza)
+- **Saklama süresi:** 6 ay (sektör orta yolu — Elektra 3 ay, Medistate 3 yıl)
+- **Veri Sorumlusu:** Mehmet DİNÇ (Tedbirge LegalTech) — mevcut /kvkk-aydinlatma + /iletisim ile tutarlı
+- **Backend:** Yeni panel-side `/api/career-application` endpoint açıldı (Alternatif A). Lead API kullanılmadı çünkü kariyer başvurusu farklı semantik (lead = müvekkil adayı, kariyer = çalışan adayı). Schema migration kapsam dışı.
+- **KVKK kanıt izi:** aydinlatmaOnayTimestamp + acikRizaOnayTimestamp her başvuruda kaydedilir (şimdilik console.log, TUR #49'da kalıcı saklama)
+
+**Alternatif:**
+- B (Lead API'ye bağla `metadata.applicationType: "career"` ile): reddedildi — Lead semantiği farklı, schema kirletmek riski
+- B (Sadece e-posta gönderim + mailto kalsın): reddedildi — KVKK m.10 ihlali aynı (mailto'da aydınlatma yok)
+- B (Form'da single onay kutucuğu): reddedildi — KVKK Kurulu 2018/90 net: ayrı kutu zorunlu
+- B (Saklama süresi 1 yıl): reddedildi — gereksiz uzun, sektör 3-6 ay aralığı
+
+**Etki:**
+- Yeni 2 sayfa: /kariyer + /kvkk-calisan-adayi (sitemap'a eklendi)
+- 1 yeni client component: KariyerFormClient.tsx
+- 1 yeni API endpoint: /api/career-application (POST, console log)
+- /hakkimizda CTA güncellendi (mailto → Link to /kariyer)
+- Schema/migration/env/paket: 0
+- ~50.000-1.000.000 TL idari para cezası riski ortadan kaldırıldı
+- Tasarım değişikliği: 0 (sadece yeni içerik + form)
+
+**CEO direktifi:** "tek seferde uçtan uca mektup işi bitir ORTAK" (Madde 17.5)
+
+**Mimar:** Claude Opus 4.7 (sohbet)
+**Onay:** Mehmet DİNÇ (Kurucu, CEO & CTO)
+
+**Öğrenilen ders:**
+KVKK kanıt izi şimdilik console.log'da. Production'da kayıp riski var — TUR #49'da ActivityLog modeli + e-posta gönderimi (resend/nodemailer) ile kalıcı kayıt yapılmalı. Schema migration gerekecek (KIRMIZI nokta — Mehmet Bey onayı).
+
+---
+
 ## 30 Nisan 2026 — TUR #47 Yasal Zemin Temizliği (Anayasa v1.12.0)
 
 **Karar:** Tedbirge.ai sitesinde tespit edilen 8 KIRMIZI yasal ihlal uçtan uca kapatıldı. Anayasa Madde 25.3 KIRMIZI listesi genişletildi ("uzman avukat" / "[alan] uzmanı" ünvanı + "Türkiye'nin ilk/tek/lider" iddiası + sayısal başarı vaadi alt-örnekleri).

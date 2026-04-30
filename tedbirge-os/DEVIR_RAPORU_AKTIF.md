@@ -1,11 +1,21 @@
 # 🛡️ DEVIR RAPORU (AKTİF) — TEDBİRGE.AI
 
-**Son güncelleme:** 30 Nisan 2026 (TUR #47 Yasal Zemin Temizliği)
+**Son güncelleme:** 30 Nisan 2026 (TUR #48 Kariyer + KVKK)
 **Anayasa:** v1.12.0
 **Aktif kesit:** FAZ 4-B Operasyonel Ölçek
-**Son TUR:** #47 — Yasal Zemin Temizliği (KAPALI — 8 KIRMIZI ihlal kapatıldı, ~1.5M-3M TL ceza riski ortadan kaldırıldı)
+**Son TUR:** #48 — Kariyer Sayfası + KVKK Çalışan Adayı Aydınlatma (KAPALI — KVKK m.10 ihlal riski ~50K-1M TL ortadan kaldırıldı)
 
 ---
+
+## ✅ KAPATILAN YAN BULGULAR (TUR #48 — 30 Nisan 2026)
+
+- **K9** — /kariyer sayfası açıldı (KVKK uyumlu form, 2 açık pozisyon, 3 opt-in kutucuk: aydınlatma + açık rıza + CV havuzu opsiyonel), commit `a6e2f37`
+- **K10** — /kvkk-calisan-adayi aydınlatma metni eklendi (KVKK m.10 + KVKK Kurulu 2018/90 + Aydınlatma Tebliği 30356, 8 bölüm, 6 ay saklama), commit `a412001`
+- **K11** — /api/career-application endpoint açıldı (POST validasyon + console log + KVKK kanıt izi timestamp'leri), commit `054eb6b`
+- **K12** — /hakkimizda Pozisyon Açık CTA + bottom Açık Pozisyonlar Reveal CTA → /kariyer'e yönlendirildi (mailto kaldırıldı), commit `caf6e1a`
+- **K13** — Sitemap güncel: /kariyer + /kvkk-calisan-adayi eklendi, commit `15fc4cd`
+- **K14** — KVKK m.10 aydınlatma yükümlülüğü ihlali (49.695-993.988 TL idari para cezası riski) ortadan kaldırıldı
+- **Hotfix** — proxy.ts public allowlist'e /kariyer eklendi (mimar hatası — A2'de atlandı, production smoke ile tespit edildi), commit `6ac7537`
 
 ## ✅ KAPATILAN YAN BULGULAR (TUR #47 — 30 Nisan 2026)
 
