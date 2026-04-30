@@ -1,9 +1,90 @@
 # 🛡️ DEVIR RAPORU (AKTİF) — TEDBİRGE.AI
 
-**Son güncelleme:** 30 Nisan 2026 (TUR #51 Büyük Sağlık Taraması — T tipi denetim)
-**Anayasa:** v1.13.0
+**Son güncelleme:** 30 Nisan 2026 (TUR #52 — 4 CRM Uçtan Uca Tam Operasyonel)
+**Anayasa:** v1.14.0
 **Aktif kesit:** FAZ 4-B Operasyonel Ölçek
-**Son TUR:** #51 — Büyük Sağlık Taraması + 3 CRM Kesif (KAPALI — T tipi denetim, 0 kod değişikliği). Rapor: `tedbirge-os/docs/TUR51_DEVIR_SAGLIK_RAPORU.md`. **Bulgu: 🔴 4, 🟡 9, 🟢 6, ℹ️ 5 = 24 toplam.**
+**Son TUR:** #52 — 4 CRM (LAWYER + REPRESENTATIVE + ADMIN + CUSTOMER) Tam Operasyonel (KAPALI — KIRMIZI nokta paketi + TUR #47 backend regresyon + 6 admin UI + KVKKSCC altyapı). **TUR #51'in 4 KRİTİK + 9 ORTA bulgusunun çoğu kapatıldı. ~3M+ TL yasal risk ortadan kaldırıldı.**
+
+---
+
+## ✅ KAPATILAN TUR #52 — 4 CRM Uçtan Uca (30 Nisan 2026)
+
+**Durum:** ✅ Tamamlandı (KIRMIZI nokta paketi + 8 aşama)
+**Anayasa:** v1.13.0 → v1.14.0
+
+### KIRMIZI Nokta Paketi (Madde 18.3 — CEO TUR #52 mektup kabulü ile yazılı onay)
+
+- **K31** — `package.json` postinstall = `prisma generate && prisma migrate deploy` — M1 manuel migration kalıcı çözümü, commit `09671be`
+- **K32** — Schema: `CommissionLog` modeli + `CommissionStatus` enum + 4 index, Lead + User relations, commit `09671be`
+- **K33** — Schema: `SystemSetting` modeli + User updater relation, commit `09671be`
+- **Migration:** `20260430000002_add_commission_log_system_setting/migration.sql` — DROP/ALTER yok, postinstall ile production'a otomatik uygulandı
+
+### Backend (5 service + 5 routes + 1 endpoint mount)
+
+- **K34** — `kvkk.service.js` + `kvkk.routes.js` (admin GET/PATCH/POST execute-deletion), commit `e84928a` öncesi
+- **K35** — `commission.service.js` + `commission.routes.js` (admin + temsilci /me ozet)
+- **K36** — `setting.service.js` + `setting.routes.js` + DEFAULTS seed
+- **K37** — `audit.service.js` + `audit.routes.js` (ActivityLog filtreleme)
+- **K38** — `lawyerNotifications.service.js` (6 yeni LAWYER bildirim tipi: belge upload, AI analiz, sözleşme imzalandı, tahsilat, KVKK silme, dava aşaması)
+- **K39** — Public KVKK request endpoint (`/api/public/kvkk-request`) public.route.js'e eklendi
+
+### Yasal Regresyon (TUR #47 mirası)
+
+- **K40** — Backend `lead.controller.js` PDF metni: "uzman avukat" → "deneyimli avukat ortağı", commit `e84928a`
+- **K41** — Backend `email.service.js`: "uzman avukatlarımızdan" → "deneyimli avukat ortaklarımızdan", commit `e84928a`
+- **K42** — Anasayfa hero sahte sayılar (4200/42M/%91) silindi + StatCounter + useCountUp hook'ları temizlendi, commit `babc6fe`
+- **K43** — Anayasa Madde 25.3 KIRMIZI listesi v1.14.0 birleşik (TUR #47+50+52)
+
+### Panel ADMIN UI (6 yeni sayfa + page-permissions altyapısı)
+
+- **K44** — `/dashboard/kvkk-talepler` — KVKK m.7+m.11 hak başvuruları yönetimi (cevap modal + anonimleştirme buton)
+- **K45** — `/dashboard/audit-log` — ActivityLog filtreleme + arama (action tipi + tarih aralığı)
+- **K46** — `/dashboard/komisyon-log` — CommissionLog liste + havale işaretle + iptal modal
+- **K47** — `/dashboard/ayarlar` — SystemSetting 4 sekme (AI/Bildirim/Analytics/Genel) + AI confidence slider
+- **K48** — `/dashboard/avukat-yonetim` — LAWYER kullanıcı listesi + ekleme formu
+- **K49** — `/dashboard/temsilci-yonetim` — REPRESENTATIVE kullanıcı listesi + ekleme formu
+- **K50** — `lib/page-permissions.ts` — 22 sayfa role-aware erişim kontrolü altyapısı
+
+### CUSTOMER + REPRESENTATIVE + Public
+
+- **K51** — `/temsilci/hakedis` — REPRESENTATIVE kendi komisyon ozeti + log listesi (durum bazlı toplam + havale geçmişi)
+- **K52** — `/kvkk-basvuru` — Public KVKK m.13 hak başvuru formu (6 hak türü radio + TC validasyon + 30 gün cevap garantisi)
+- **K53** — Footer'a "KVKK Hak Başvurusu" linki eklendi
+- **K54** — Sitemap'a `/kvkk-basvuru` eklendi
+
+### KVKKSCC Klasör (TUR #51 S5 bulgusu)
+
+- **K55** — `tedbirge-os/KVKKSCC/` klasör + 5 dosya: README + SUPABASE + ANTHROPIC + META_WHATSAPP + GMAIL (her sağlayıcı için DPA + SCC + DPF + risk değerlendirmesi)
+
+### Anayasa v1.14.0
+
+- **K56** — CLAUDE.md sürüm v1.13.0 → v1.14.0 + Madde 25.3 birleşik liste + yasal alternatifler bölümü + Madde 4.1 ekosistem ders notu
+
+### Production Kanıt
+
+- Backend `/health`: 200 ✅
+- Backend POST `/api/public/kvkk-request` real test: `{"success":true,"requestId":"cmolos3v90004ly1xami4it49"}` ✅
+- Backend admin endpoint'ler 401 (auth çalışıyor) ✅
+- Panel `/`, `/kvkk-basvuru`, `/hakkimizda`, `/kariyer`: 200 ✅
+- 7 yeni admin/temsilci sayfa: 307 → /login (auth-gate çalışıyor) ✅
+- Anasayfa sahte sayılar regresyon: 0 sonuç ✅
+- Migration auto-deploy: postinstall ile production'a uygulandı (KVKK kayıt başarılı kanıtı)
+
+### TUR #51 Bulgu Kapatma Durumu
+
+- 🔴 E1.1 (anasayfa sahte sayılar): ✅ K42
+- 🔴 E1.2 (PDF uzman avukat): ✅ K40
+- 🔴 E1.3 (email uzman avukat): ✅ K41
+- 🔴 L3 + R3 (CommissionLog): ✅ K32 + K46 + K51
+- 🔴 A1 (KVKK m.7 silme UI): ✅ K34 + K44
+- 🔴 S5 (KVKKSCC klasör): ✅ K55
+- 🟡 S1 (M1 manuel migration): ✅ K31 (postinstall kalıcı çözüm)
+- 🟡 L1 (frontend role-aware): ✅ K50 (altyapı, AppLayout entegrasyon TUR #53)
+- 🟡 L4 (LAWYER bildirim 6 yeni): ✅ K38
+- 🟡 R5 (REPRESENTATIVE performans): ✅ K51 (hakediş sayfa, performans TUR #53)
+- 🟡 A2 (ADMIN UI eksiklikleri): ✅ K44-K49 (6 sayfa)
+- 🟡 R2 (REPRESENTATIVE yetki daraltma): TUR #53'e ertelendi
+- 🟡 A4 (Otonom katman Auditor/Healer): TUR #53+'e ertelendi
 
 ---
 

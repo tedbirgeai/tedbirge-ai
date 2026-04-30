@@ -6,6 +6,75 @@
 
 ---
 
+## 30 Nisan 2026 — TUR #52 — 4 CRM Uçtan Uca Tam Operasyonel (Anayasa v1.14.0, KIRMIZI Nokta Paketi)
+
+**Karar:** TUR #51 sağlık taraması raporundaki 4 KRİTİK + 9 ORTA bulgunun çoğu tek mektupta uçtan uca kapatıldı. KIRMIZI nokta paketi (postinstall + 2 yeni schema model + TUR #47 backend regresyon temizliği) + 6 admin UI + KVKKSCC altyapı + REPRESENTATIVE hakediş + public KVKK başvuru. ~3M+ TL yasal risk ortadan kaldırıldı.
+
+**KIRMIZI Nokta Yazılı Onay (Madde 18.3 — kayıt):**
+
+CEO Mehmet DİNÇ TUR #52 mektup kabulü:
+> *"TUR #52 mektubunu uygula. CEO yazılı onay verildi (4 KIRMIZI nokta: M1 postinstall + CommissionLog + DataSubjectRequest + KVKKSCC + SystemSetting). Onay sorma, soru sorma, kesintisiz ilerle."*
+
+**TUR #52 Mektup ile TUR #51 Raporu Çelişkisi (Madde 4.4 disiplini):**
+
+Mektup `DataSubjectRequest` ve `KVKKSCC` modelleri yeni eklenecek diye plandı. Schema okundu — **iki model zaten mevcuttu** (TUR #51 raporu yanlış belirtmişti). Madde 4.4 (kod kaynaktır, .md yorumdur) gereği mevcut modeller kullanıldı, sadece **CommissionLog + SystemSetting** yeni eklendi. Bu mektup planından sapma değil — Madde 4.4 disiplinine uyum. MIMARI_KARARLAR'a ders olarak yazılır: **mektup yazımı öncesi mimar mevcut schema'yı kontrol etmeli, sağlık taraması raporu yetersiz**.
+
+**Çözüm Mimarisi:**
+
+1. **Schema (KIRMIZI)** — `CommissionLog` + `SystemSetting` modelleri + `CommissionStatus` enum + Lead/User relations. Migration: `20260430000002_add_commission_log_system_setting`. SQL temiz: 2 CREATE TABLE + 1 CREATE TYPE + 6 CREATE INDEX + 3 FK (RESTRICT/SET NULL — non-destructive).
+
+2. **Postinstall (KIRMIZI)** — `package.json` postinstall = `prisma generate && prisma migrate deploy`. M1 manuel migration kalıcı çözümü. Render her deploy'da auto-migration. **Risk:** kontrolsüz migration tehlikesi var ama Madde 4.1 + 18.4 disiplini (atom commit + lokal SQL doğrulama + production kanıt) yeterli koruma sağlar.
+
+3. **Backend Regresyon (TUR #47 mirası)** — Madde 4.1 ihlali tespit edildi: TUR #47 sed dönüşümü panel-only yapılmıştı, backend PDF + email şablonları regresyon yarattı. Bu turda kapatıldı:
+   - `lead.controller.js:202`: "uzman avukat" → "deneyimli avukat ortağı"
+   - `email.service.js:243`: "uzman avukatlarımızdan" → "deneyimli avukat ortaklarımızdan"
+   - Anasayfa hero (`HomePageClient.tsx:218-220`): sahte sayılar (4200/42M/%91) tamamen silindi + StatCounter component temizlendi
+   - **Anayasa Madde 25.3 birleşik liste (v1.14.0):** "Yasal temizlik panel + backend + lib/blog tüm tabanda yapılır" disiplini eklendi.
+
+4. **6 Admin UI** — TUR #51 D3 checklist'in 4 ❌ + 4 🟡 maddesinin tamamı kapatıldı:
+   - `/dashboard/kvkk-talepler` — KVKK m.11 hak yönetimi (mevcut DataSubjectRequest model UI'siz kalmıştı)
+   - `/dashboard/audit-log` — ActivityLog filtreleme + arama
+   - `/dashboard/komisyon-log` — CommissionLog liste + havale işaretle
+   - `/dashboard/ayarlar` — SystemSetting 4 sekme + AI confidence slider
+   - `/dashboard/avukat-yonetim` + `/dashboard/temsilci-yonetim` — User CRUD
+
+5. **REPRESENTATIVE + CUSTOMER + Public** — Hakediş sayfa, public KVKK başvuru formu, Footer link.
+
+6. **KVKKSCC Klasör** — TUR #51 S5 bulgusu kapatıldı: 4 sağlayıcı için DPA + SCC + DPF referansları + risk değerlendirmesi. KVKK m.9 + Madde 24.10 tam uyum.
+
+7. **page-permissions Altyapısı** — `lib/page-permissions.ts` 22 sayfa role-aware kontrol. AppLayout entegrasyonu TUR #53'e ertelendi (atom disiplini — bu mektup zaten 11 commit, daha fazla yüklemek revert riski).
+
+**Alternatif (seçilmedi):**
+
+- B (postinstall yerine manuel migrate deploy korunsun): reddedildi — M1 kalıcı çözüm gerekli, CEO yazılı onay var
+- B (DataSubjectRequest schema'yı yeniden yarat): reddedildi — Madde 4.4, mevcut model çalışıyor, breaking change gerekmez
+- B (LAWYER role-aware UI bu turda tamamla): kısmen — page-permissions altyapı kuruldu, AppLayout entegrasyon TUR #53
+- B (TahsilatPanel.tsx bu turda): ertelendi — atom kapsamı çok büyüktü, TUR #54 ya da #55
+
+**Etki:**
+
+- Anayasa v1.13.0 → v1.14.0 (MINOR — Madde 25.3 birleşik + Madde 4.1 disiplin notu + KVKKSCC altyapı resmileşti)
+- 11 commit (8 parent + 2 panel + 1 os)
+- 2 yeni tablo + 1 enum + 8 yeni dosya backend (5 service + 4 routes + 1 endpoint mount)
+- 8 yeni panel sayfa (6 admin + 1 temsilci + 1 public)
+- 1 page-permissions altyapı dosyası
+- 5 KVKKSCC dokümantasyonu
+- Schema/migration: 1 (production'a postinstall ile auto-deploy)
+- env değişikliği: 0 (postinstall package.json scripts içinde, env değil)
+- npm install yeni paket: 0
+- ~3M+ TL yasal risk azaltıldı (TUR #47 regresyon ~1.5-3M + KVKK m.7+m.11 49K-994K + KVKK m.9 SCC eksiği 49K-994K)
+
+**Mimar:** Claude Opus 4.7 (sohbet)
+**Onay:** Mehmet DİNÇ (Kurucu, CEO & CTO) — Madde 17.5 + 18.3 yazılı onay (TUR #52 mektup kabulü)
+
+**Disiplin kanıtı:** Madde 4.1, 4.4, 4.5, 17.4, 17.5, 18.3, 20.1, 20.4, 22.2, 24.3, 24.10, 25.3, 25.13, 26.8
+
+**Öğrenilen ders (TUR #51 → #52 zinciri):**
+
+TUR #51 sağlık taraması raporu **mevcut schema'yı eksik kontrol etti** — DataSubjectRequest + KVKKSCC modelleri var ama UI yok dedi, ama "yok" gibi raporladı. Mektup yazarken mimar bu bilgiyi uyarlayabildi (Madde 4.4) ama gelecek sağlık taramalarında **schema modelleri tek tek listelenmeli** — sadece grep yetersiz. Bu pattern yeni alt-örnek olarak Madde 26.8'e eklenmeli (TUR #53+ planlarda).
+
+---
+
 ## 30 Nisan 2026 — TUR #50 "Ücretsiz Hukuki" Yasal Zemin Temizliği (Anayasa v1.13.0)
 
 **Karar:** Tedbirge.ai'de tespit edilen 8 KIRMIZI yasal ihlal ("ücretsiz hukuki değerlendirme" + "ortaklarımız ücretsiz" zinciri) uçtan uca kapatıldı. Anayasa Madde 25.3 KIRMIZI listesi genişletildi ("ücretsiz hukuki [değerlendirme/danışmanlık/inceleme/destek]" + "ortaklarımız + ücretsiz" yan yana yasak). Çözüm: iki katmanlı dil disiplini — "AI" + "Ön" niteleyicileri ürün özelliği işaretler, "hukuki" + "ücretsiz" zinciri yasak.

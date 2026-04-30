@@ -1120,7 +1120,9 @@ Güncelleme **mimar mektubu içinde** yapılır — bağımsız commit değil.
 
 **Temel ilke:** Tedbirge LegalTech şirketidir — hukuki hizmet pazarlamaz, kendi markasını pazarlar. Avukatlık K. m.55 doğrudan bağlamaz; Mehmet Dinç girişimci, avukat değil.
 
-**🔒 KIRMIZI çizgi (m.25.3):** "Kesin tazminat" / sayısal başarı vaadi (X dava, Y tazminat, Z başarı oranı) / avukat isim+foto / sahte yorum / yanıltıcı sigorta rakamı / TBB reklam yasağı ihlali / **"uzman avukat" veya "[alan] uzmanı" ünvanı** / **"Türkiye'nin ilk/tek/lider/1 numarası" iddiası** / **"ücretsiz hukuki [değerlendirme/danışmanlık/inceleme/destek]" zinciri** / **"ortaklarımız" + "ücretsiz" yan yana kullanımı** → DUR.
+**🔒 KIRMIZI çizgi (m.25.3) — TUR #47+50+52 birleşik liste:** "Kesin tazminat" / sayısal başarı vaadi (X dava, Y tazminat, Z başarı oranı, N müvekkil) / avukat isim+foto / sahte yorum-testimonial bloğu / yanıltıcı sigorta rakamı / TBB reklam yasağı ihlali / **"uzman avukat" / "Uzman Avukat" / "uzman hukukçu" / "[alan] uzmanı" / "alanında uzman" ünvanı** / **"Türkiye'nin ilk/tek/lider/1 numarası" iddiası** / **"ücretsiz hukuki [değerlendirme/danışmanlık/inceleme/destek]" zinciri** / **"ortaklarımız" + "ücretsiz" yan yana kullanımı** → DUR.
+
+**Yasal alternatifler:** "deneyimli avukat ortağımız" / "hukuki destek ekibi" / "ücretsiz AI ön değerlendirme" / "ücretsiz AI ön inceleme" / "yapay zeka analizimiz" / "AI destekli süreç yönetimi". Madde 4.1 ekosistem disiplini: yasal temizlik **panel + backend + lib/blog** tüm tabanda yapılır (TUR #51 keşfi — TUR #47 panel-only sed backend regresyon yarattı).
 
 **Pazarlama başlamadan FAZ 1 tamamlanmış olmalı.** Mevcut: FAZ 1+2 TAMAMLANDI (TUR #25/#26), FAZ 3 AKTİF (TUR #27+).
 
@@ -1460,7 +1462,7 @@ Mehmet Bey sahaya çıkabilsin diye bu disiplin var.
 
 ---
 
-**— Tedbirge Mimari Anayasası v1.13.0**  
+**— Tedbirge Mimari Anayasası v1.14.0**  
 **25 Nisan 2026 — başlangıç (Claude Opus 4.7)**  
 **28 Nisan 2026 — v1.7.0 (Madde 26-32 eklendi: otonom devir, sağlık periyodikliği, T tipi onay, migration kanıtı, frontend standardı, ortam izolasyonu, anayasa boyutu)**  
 **28 Nisan 2026 — v1.8.0 (Madde 28 eklendi: Beklemede Özellik Disiplini — AccidentCase TUR #29 dersi; Madde 28 (eski 33) kapanış → 29 (eski 34) olarak yeniden numaralandı)**  
@@ -1470,5 +1472,6 @@ Mehmet Bey sahaya çıkabilsin diye bu disiplin var.
 **1 Mayıs 2026 — v1.11.0 (Madde 29 Hareket Disiplini eklendi → KAPANIŞ Madde 30'a kaydı. TUR #44 büyük kesit sonrası kalıcı prensipler: merkezi motion kaynak, 3 katmanlı reduced-motion, ortak component disiplini, Senaryo 1 paket sınırı, soft initial state, performans bütçesi, "tek mektup uçtan uca" pattern.)**  
 **30 Nisan 2026 — v1.12.0 (Madde 25.3 KIRMIZI listesi genişletildi: "uzman avukat" / "[alan] uzmanı" ünvanı + "Türkiye'nin ilk/tek/lider" iddiası + sayısal başarı vaadi alt-örnekleri eklendi. TUR #47 Yasal Zemin Temizliği — 8 KIRMIZI ihlal kapatıldı, ~1.5M-3M TL ceza riski ortadan kaldırıldı.)**  
 **30 Nisan 2026 — v1.13.0 (Madde 25.3 KIRMIZI listesi genişletildi: "ücretsiz hukuki [değerlendirme/danışmanlık/inceleme/destek]" zinciri + "ortaklarımız" + "ücretsiz" yan yana kullanım yasak. TUR #50 "Ücretsiz Hukuki" Yasal Zemin Temizliği — 8 KIRMIZI ihlal kapatıldı, AI+Ön niteleyicisi ürün dilbilgisi olarak kalıcı hâl aldı.)**  
+**30 Nisan 2026 — v1.14.0 (TUR #52 — 4 CRM uçtan uca tam operasyonel: KIRMIZI nokta paketi (CommissionLog + SystemSetting modelleri + postinstall auto-migration) + TUR #47 backend regresyon temizliği (uzman avukat → deneyimli avukat ortağı PDF/email) + 6 yeni admin UI (kvkk-talepler, audit-log, komisyon-log, ayarlar, avukat-yonetim, temsilci-yonetim) + temsilci hakediş + public KVKK başvuru + KVKKSCC klasör 4 sağlayıcı dosyası. ~3M+ TL yasal risk kapatıldı. Madde 25.3 birleşik liste, Madde 4.1 ekosistem disiplini — yasal temizlik tüm tabanda zorunlu.)**  
 **Versiyon geçmişi: tedbirge-os/MIMARI_KARARLAR.md**  
 **Her major/minor değişiklikte versiyon güncellemesi ZORUNLU (Madde 22)**

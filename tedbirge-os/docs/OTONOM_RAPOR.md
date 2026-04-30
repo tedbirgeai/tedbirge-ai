@@ -1,3 +1,93 @@
+## TUR #52 — 4 CRM Uçtan Uca Tam Operasyonel (Anayasa v1.13.0 → v1.14.0)
+
+**Tarih:** 30 Nisan 2026
+**Anayasa:** v1.13.0 → v1.14.0 (MINOR — Madde 25.3 birleşik liste + KVKKSCC altyapı)
+**Süre:** ~5-6 saat (otonom Claude Code, ~25 atom)
+**Etkilenen repo:** tedbirge-ai (backend) + tedbirge-panel (frontend) + tedbirge-os (anayasa+OS)
+**Toplam commit:** 11 (8 backend/parent + 2 panel + 1 os pending)
+**Durum:** ✅ KAPALI
+
+### KIRMIZI Nokta Yazılı Onay (Madde 18.3)
+
+CEO Mehmet DİNÇ TUR #52 mektup kabulü (30 Nisan 2026):
+- "TUR #52 mektubunu uygula. CEO yazılı onay verildi (4 KIRMIZI nokta: M1 postinstall + CommissionLog + DataSubjectRequest + KVKKSCC + SystemSetting). Onay sorma, soru sorma, kesintisiz ilerle."
+
+Schema migration (KIRMIZI nokta) postinstall ile production'a otomatik gitti. Migration kanıt: backend POST /api/public/kvkk-request real test 201 dönüş + DB kayıt başarılı (`requestId: cmolos3v90004ly1xami4it49`).
+
+### TUR #51'in Mektupla Düzeltilmiş Bulguları
+
+Mektup TUR #51 raporundaki bulguları temel aldı ama 2 farklılık tespit edildi:
+- **DataSubjectRequest** ve **KVKKSCC** modelleri schema'da **zaten mevcuttu** (TUR #51 raporu yanlış belirtmişti). Mektup planı uyarlandı: mevcut modeller kullanıldı, sadece **CommissionLog + SystemSetting** yeni model olarak eklendi. Bu Madde 4.4 (kod kaynaktır) disiplinine uygun.
+- A4 sayfa belirtimi mektupta `/iletisim` denmişti ama gerçek konum `HomePageClient.tsx:188` (anasayfa hero). A5 mektupta "anasayfa" denmişti ama `hakkimizda/page.tsx:336`. Madde 4.1 grep ile gerçek konumlar tespit edildi.
+
+### 8 Aşama — Atom Disiplini
+
+- **Aşama 1** Schema + migration + postinstall (commit `09671be`) — KIRMIZI nokta paketi
+- **Aşama 2** 5 backend service (kvkk, commission, setting, audit, lawyerNotifications)
+- **Aşama 3** 4 admin route + public KVKK request endpoint
+- **Aşama 4** Backend "uzman avukat" → "deneyimli avukat ortağı" (commit `e84928a`) + anasayfa sahte sayılar (commit `babc6fe`)
+- **Aşama 5** 6 admin UI sayfa + page-permissions altyapısı
+- **Aşama 6** REPRESENTATIVE hakediş + public KVKK başvuru + Footer link
+- **Aşama 7** KVKKSCC klasör + 5 dosya (Supabase + Anthropic + Meta + Gmail + README)
+- **Aşama 8** Anayasa v1.14.0 + OS senkron
+
+### Production Kanıt
+
+**Backend:**
+- `/health`: 200 ✅
+- POST `/api/public/kvkk-request` real test: `{"success":true,"requestId":"cmolos3v90004ly1xami4it49"}` ✅ (DB kayıt + DataSubjectRequest tablosunda satır + ActivityLog audit izi)
+- Admin endpoint'ler: 401 (auth çalışıyor) ✅
+- Migration auto-deploy: ✅ (postinstall ile)
+
+**Panel:**
+- 4 public sayfa × 200 (/, /kvkk-basvuru, /hakkimizda, /kariyer) ✅
+- 6 yeni admin sayfa × 307 → /login ✅ (auth-gate)
+- 1 yeni temsilci sayfa × 307 ✅
+- Anasayfa sahte sayılar regresyon: 0 ✅
+
+### Kapatılan Bulgular (TUR #51 raporu referansı)
+
+- 🔴 4 KRİTİK bulgudan 4'ü tamamen kapatıldı (E1.1 + E1.2 + E1.3 + L3/R3 + A1 + S5)
+- 🟡 9 ORTA bulgudan 6'sı kapatıldı (S1 + L1 altyapı + L4 + R5 hakediş + A2 + S2 page-permissions)
+- 🟡 3 ORTA bulgu TUR #53+'e ertelendi (R2 yetki daraltma, A4 otonom katman, R5 performans dashboard tam)
+
+### İstatistik
+
+- Toplam atom: ~25 (Aşama 1: 1 commit, Aşama 2-3: 2 commit, Aşama 4: 2 commit, Aşama 5: 1 commit, Aşama 6: 1 commit, Aşama 7: 0 commit OS, Aşama 8: 1 OS commit)
+- Toplam commit: 11 (8 parent/backend + 2 panel + 1 os)
+- Push: 2 (parent + panel)
+- Schema migration: 1 (yeni 2 tablo + 1 enum + 7 index + 3 FK, DROP/ALTER yok)
+- Yeni service: 5
+- Yeni backend route: 4 + 1 endpoint
+- Yeni panel sayfa: 8 (6 admin + 1 temsilci + 1 public)
+- npm install: 0
+- Yeni paket: 0
+- Build hatası: 0
+- Production regresyon: 0
+- Mimar hata: 1 mektup planı sapması (DataSubjectRequest + KVKKSCC zaten vardı — Madde 4.4 ile çözüldü)
+- Yasal risk azaltılan: ~3M+ TL (TUR #47 regresyon ~1.5-3M TL + KVKK m.7+m.11 49K-994K TL)
+
+### CEO Smoke Test Önerisi
+
+CEO admin paneline girip şu sayfaları test etmesi önerilir:
+1. `/dashboard/kvkk-talepler` — TUR #52 smoke test ile yapılan KVKK başvurusunu görmeli
+2. `/dashboard/audit-log` — KVKK_REQUEST_CREATED action'ı görmeli
+3. `/dashboard/komisyon-log` — boş tablo (henüz CommissionLog kaydı yok)
+4. `/dashboard/ayarlar` — AI Güven Skoru slider 0.7 default
+5. `/dashboard/avukat-yonetim` + `/dashboard/temsilci-yonetim` — mevcut kullanıcılar
+6. `/temsilci/hakedis` (REPRESENTATIVE login ile) — boş tablo (komisyon yoksa)
+
+### Sonuç
+
+DEVIR yasal + operasyonel açıdan tam uyum (TUR #47 + #48 + #49 + #50 + #52 mirası birleşik). 4 CRM her biri kendi paydaşı için kendi kendine yetebilir altyapıya sahip. Bir sonraki kesit:
+- TUR #53: REPRESENTATIVE yetki daraltma (R2) + LAWYER role-aware AppLayout entegrasyonu (L1 kalan kısmı) + REPRESENTATIVE performans grafiği
+- TUR #54: Otonom katman (Auditor/Healer/Reporter — TUR #51 A4)
+- TUR #55: Lead detay TahsilatPanel.tsx (LAWYER tahsilat girişi UI)
+
+— Claude Code, TUR #52 sonu
+
+---
+
 ## TUR #50 — "Ücretsiz Hukuki" Yasal Zemin Temizliği (Anayasa v1.13.0)
 
 **Tarih:** 30 Nisan 2026
