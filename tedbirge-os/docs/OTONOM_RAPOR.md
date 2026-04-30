@@ -1,3 +1,68 @@
+## TUR #45 — Yan Bulgu Temizliği (Y4 + M2 + Y1 Tur A2 keşfi)
+
+**Tarih:** 30 Nisan 2026
+**Anayasa:** v1.11.0
+**Süre:** ~1.5-2 saat
+**Etkilenen repo:** tedbirge.ai (tek repo — panel + os tek tedbirge.ai üst repo'sunda)
+**Toplam commit:** 4 (`f0e33ec` Y4, `5500eff` M2, `7c4541f` Tur A2, + OS güncelleme commit'i)
+**Durum:** ✅ KAPALI
+
+### Kapsam
+
+CEO Mehmet Bey "TEK SEFERDE UÇTAN UCA YAP BİTİR" direktifi (Madde 17.5) gereği üç DEVIR yan bulgusu tek mektupta:
+- **Y4** — OS untracked 11 keşif raporu arşivleme ✅
+- **M2** — middleware.ts → proxy.ts (Next 16 codemod) ✅
+- **Y1** — Hex hardcoding (Tur A2 keşfi yapıldı, TUR #45.2'ye ertelendi)
+
+### Y4 — OS Arşivleme
+
+- `docs/arsiv/` klasörü oluşturuldu
+- 11 dosya taşındı (DOGRULAMA_RAPORU + 10 docs/* keşif raporu)
+- README.md eklendi (içerik tablosu + disiplin notu)
+- Commit: `f0e33ec` — docs(arsiv): TUR #45 - 11 eski kesif raporu arsivlendi
+- 4424 satır eklendi (12 dosya)
+
+### M2 — middleware → proxy
+
+- Resmi `npx @next/codemod@16.2.4 middleware-to-proxy .` çalıştırıldı
+- middleware.ts → proxy.ts rename (98% benzerlik)
+- export function middleware → export function proxy
+- Build deprecation uyarısı **kalktı** ("ƒ Proxy (Middleware)" satırı çıkıyor)
+- Lokal smoke test 4/4: /blog 200, /sitemap 200, /dashboard 307→/login, /trafik-kazasi 200
+- Commit: `5500eff` — refactor(proxy): TUR #45 - middleware.ts -> proxy.ts (Next 16 deprecation - codemod)
+
+**Production smoke test:**
+- Backend `/health`: 200 ✅
+- Frontend www.tedbirge.ai: curl 403 (Vercel `X-Vercel-Mitigated: challenge` — bot mitigation curl'u bot olarak işaretledi). **Regresyon değil** — gerçek browser etkilenmez. Mehmet Bey tarayıcı kanıtı verir.
+
+### Y1 Tur A2 Keşfi
+
+- `tedbirge-os/docs/TUR45_TUR_A2_HEX_REFACTOR_KESIF.md` (219 satır) yazıldı
+- **Önemli mektup düzeltmesi:** Mektup Y5 olarak "tailwind.config.ts brand renk eksik" dedi. Tur A2 doğruladı: **tailwind.config.ts/js/mjs YOK** (Tailwind 4 CSS-first config). Doğru Y5: globals.css'te `@theme` directive bloğu eksik.
+- Pattern dağılımı: 240 Tailwind arbitrary + 181 inline style + 9 globals.css = ~430 refactor hedefi (140 var(--brand-primary) zaten doğru kullanılıyor)
+- TUR #45.2 mektubu için 5 atom önerildi (~2 saat)
+- Commit: `7c4541f` — docs(kesif): TUR #45 Tur A2 - Y1 hex refactor on sart kesfi (Tailwind 4 @theme bulgu)
+
+### İstatistik
+
+- Atom: 3 (Y4 + M2 + Y1 Tur A2)
+- Commit: 4 (Y4 + M2 + Tur A2 raporu + OS kapanış güncellemesi)
+- Schema/migration/env: 0
+- Yeni paket: 0 (codemod tek seferlik npx, kalıcı eklenme yok)
+- Build hatası: 0
+- Lokal smoke test: 4/4 ✅
+- Production smoke test: backend 200, frontend Vercel mitigation engellendi (regresyon değil)
+- Mimar hata: 1 (mektup Y5 yanlış varsayım — `tailwind.config.ts` yok, Tailwind 4 CSS-first; Tur A2 raporda düzeltildi)
+- KIRMIZI çizgi ihlali: 0
+
+### Disiplin Notu
+
+CEO Mehmet Bey "uçtan uca tek mektup, parça parça soru sorma" direktifi (Madde 17.5) gereği üç bulgu birleşik mektupta tamamlandı. Y1 ertelemesi web kanıtı (Tailwind 4 mimarisi) ile gerekçeli. Atom disiplini (Madde 4.4 yamalı bohça yasağı) Y1'i ayrı turda tutarak korundu.
+
+— Claude Code, TUR #45 sonu
+
+---
+
 ## TUR #44 — Hareket Disiplini (BÜYÜK KAPANIŞ — Tur A + 44.1 + 44.2+44.3 birleşik + C9 son rötuş)
 
 **Tarih:** 1 Mayıs 2026 (gece — gece yarısı sonrası)

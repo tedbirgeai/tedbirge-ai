@@ -8,9 +8,9 @@
 ## 🎯 AKTİF KESİT
 
 **Faz:** FAZ 4-B Operasyonel Ölçek
-**Son TUR:** #44 — Hareket Disiplini (BÜYÜK KAPANIŞ — 25 atom, ~10 saat tek gün)
+**Son TUR:** #45 — Yan Bulgu Temizliği (Y4 + M2 kapalı, Y1 ertelendi #45.2'ye)
 **Anayasa:** v1.11.0
-**Son güncelleme:** 1 Mayıs 2026 (gece geç)
+**Son güncelleme:** 30 Nisan 2026 (TUR #45 sonu)
 
 ### Kesit içi turlar (özet)
 
@@ -24,6 +24,7 @@
 | #42 | Kurumsal kimlik birleştirme (K5+K6+K7+K8) | ✅ Lokal + production kapalı |
 | #43 | SEO Meta Disiplini (Tur A keşif + B-1 altyapı + B-2 anlam) | ✅ 10 atom, 4 schema tipi (Org/WebSite/LegalService/Article) |
 | #44 | Hareket Disiplini (Tur A + 44.1 + 44.2+44.3 birleşik + C9) | ✅ 25 atom, anasayfa cinematic 2.2sn, 9 sayfa Reveal, anayasa Madde 29 eklendi |
+| #45 | Yan Bulgu Temizliği (Y4 + M2) | ✅ Kapalı (Y1 ertelendi #45.2'ye, Y5 yeni bulgu eklendi) |
 
 ### TUR #44 — Hareket Disiplini ✅ BÜYÜK KAPANIŞ
 
@@ -242,6 +243,7 @@ CommissionLog + Mali Modülü (LATER)
 
 ## 🔄 GÜNCELLEME TARİHÇESİ
 
+- **2026-04-30** — TUR #45 sonrası: Y4 (OS arşivleme) + M2 (middleware → proxy.ts) kapatıldı. Y1 erteleme TUR #45.2'ye, Y5 yeni eklendi (Tailwind 4 @theme directive eksik — Y1'in ön şartı).
 - **2026-05-01 (gece geç)** — TUR #44 BÜYÜK KAPANIŞ sonrası: aktif kesit son TUR #42 → #44, anayasa v1.10.0 → v1.11.0 (Madde 29 Hareket Disiplini), TUR #43 + #44 satırları ve TUR #44 detay bloğu eklendi, Y1/Y2/Y3/Y4 yan bulgular DEVIR'e geçti.
 - **2026-04-30 (gece yarısı)** — TUR #42 sonrası: aktif kesit son TUR #41 → #42, M7 (/lexscan blue gradient) COULD+LATER'a eklendi.
 - **2026-04-29 (öğleden sonra)** — TUR #41 sonrası: aktif kesit son TUR #40 → #41, M5 (manifest logo.png) COULD+LATER'a eklendi.

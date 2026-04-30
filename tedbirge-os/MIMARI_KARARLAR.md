@@ -6,6 +6,57 @@
 
 ---
 
+## 30 Nisan 2026 — TUR #45 Y1 Erteleme + Y5 Yeni Bulgu (Tailwind 4 @theme)
+
+**Karar:** Y1 (hex hardcoding refactor) TUR #45.2'ye ertelendi. Y5 (Tailwind 4 `@theme` directive eksik — globals.css'te `@theme` bloğu yok) yeni yan bulgu olarak DEVIR'e eklendi, Y1'in ön şartı oldu.
+
+**Sebep — Tur A kanıtları (script `tur45_tur_a_kesif.sh` çıktısı):**
+- Gerçek hex sayısı 2376 (DEVIR iddiası 555'in 4× üstü)
+- ~%80'i `.next/dev/` build artifacts (refactor dışı, otomatik üretilir)
+- Gerçek kaynak dosya hedefi ~430: 240 Tailwind arbitrary (`bg-[#1E1E8E]`) + 181 inline style (`"#1E1E8E"`) + 9 globals.css inline hex
+- 140 yerde `var(--brand-primary)` zaten doğru kullanılıyor (referans)
+
+**Sebep — Tur A2 mimari bulgu (mektup düzeltmesi):**
+Mektup yanlış varsayım yaptı: "tailwind.config.ts'te theme.extend.colors.brand TANIMSIZ". Tur A2 doğruladı: **`tailwind.config.ts/js/mjs` YOK** — proje Tailwind 4 CSS-first config kullanıyor (sadece `postcss.config.mjs` mevcut). Tailwind 4'te brand renkler `@theme` directive ile globals.css'te tanımlanır (JavaScript config'de değil).
+
+Mevcut globals.css'te `:root` bloğu var (`--brand-primary: #1E1E8E` vb.) ama `@theme` bloğu yok → Tailwind utility class (`bg-brand-primary`) üretmiyor → geliştirici `bg-[#1E1E8E]` arbitrary kullanmak zorunda kalmış.
+
+**Y5 doğru formülasyon (TUR #45.2 Atom 1):**
+```css
+/* globals.css'e eklenecek */
+@theme {
+  --color-brand-primary: #1E1E8E;
+  --color-brand-primary-hover: #18187a;
+  --color-brand-primary-soft: #edeafb;
+  --color-brand-accent: #5CB85C;
+  --color-brand-accent-soft: #eef9e7;
+  --color-pub-dark: #0A1628;
+}
+```
+
+**Sebep — Atom disiplini (Madde 4.4):**
+Y1+M2+Y4 tek mektupta toplanırsa: 5-6 saat tek tur, Y1 yarıda kalırsa kötü ara durum. CEO direktifi "uçtan uca" + atom disiplini "yamalı bohça yasak" iki kıskacında doğru karar: Y1'i ayrı tur (TUR #45.2), M2+Y4'ü birleşik bu turda.
+
+**Web kanıtı (M2 için):**
+- Resmi `@next/codemod@16.2.4 middleware-to-proxy` çalıştı
+- proxy.ts runtime nodejs (middleware Edge'di) — Render'da davranış farkı muhtemel YOK
+- Aciliyet düşük (deprecation uyarı, build kırılması yok) — erken yapılması önerilir
+- Lokal smoke test 4/4 ✅
+
+**Etki:**
+- DEVIR'e Y5 eklendi
+- IS_PLANI'a TUR #45 satırı + tarihçe satırı eklendi
+- TUR #45.2 mektubu için Tur A2 keşif raporu hazır (`docs/TUR45_TUR_A2_HEX_REFACTOR_KESIF.md`, 219 satır)
+- TUR #45.2 önerilen 5 atom, ~2 saat (Y5 + Y1 birleşik): @theme ekleme + Tailwind arbitrary refactor + inline style refactor + globals.css temizliği + production smoke test
+
+**Mimar:** Claude Opus 4.7 (sohbet, mektup yazan) + Claude Code (uygulama, Tur A2 kanıt toplayan)
+**Onay:** Mehmet Dinç — "BANA SORU SORMA TEK SEFERDE BİZ UÇTAN UCA KOD YAPIMIZA GÖRE ANAYASAMIZA BAĞLI OLARAK İLERLİYORUZ YAP BİTİR" (Madde 17.5 son söz)
+**Disiplin:** Madde 4 (atom + kanıt + önce oku), Madde 4.4 (yamalı bohça yasak), Madde 17.5 (CEO son söz)
+
+---
+
+---
+
 ## 28 Nisan 2026 — v1.10.0 Anayasa Sadeleştirme + Modülasyon (TUR #39)
 
 **Karar:** CLAUDE.md 74K → 50K karaktere indirildi. Madde 25 ayrı dosyaya modüle edildi. Dört madde mevcut maddeler içine gömüldü. İki madde birleştirildi.

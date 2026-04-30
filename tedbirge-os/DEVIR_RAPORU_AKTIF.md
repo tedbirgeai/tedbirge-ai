@@ -1,9 +1,16 @@
 # 🛡️ DEVIR RAPORU (AKTİF) — TEDBİRGE.AI
 
-**Son güncelleme:** 1 Mayıs 2026 (gece geç — TUR #44 BÜYÜK KAPANIŞ)
+**Son güncelleme:** 30 Nisan 2026 (TUR #45 yan bulgu temizliği)
 **Anayasa:** v1.11.0
 **Aktif kesit:** FAZ 4-B Operasyonel Ölçek
-**Son TUR:** #44 — Hareket Disiplini (KAPALI — büyük kesit, ~25 atom, ~10 saat tek gün)
+**Son TUR:** #45 — Yan Bulgu Temizliği (KAPALI — Y4 + M2, Y1 ertelendi TUR #45.2'ye)
+
+---
+
+## ✅ KAPATILAN YAN BULGULAR (TUR #45 — 30 Nisan 2026)
+
+- **Y4** — OS untracked 11 keşif raporu → `docs/arsiv/` altına taşındı, README.md eklendi, commit `f0e33ec`
+- **M2** — middleware.ts → proxy.ts (Next 16 codemod migration), build deprecation uyarısı kalktı, lokal smoke test 4/4 ✅, commit `5500eff`. Production smoke test Vercel bot mitigation tarafından engellendi (X-Vercel-Mitigated: challenge — curl bot olarak işaretlendi, gerçek browser etkilenmez)
 
 ---
 
@@ -27,13 +34,6 @@ YOK.
 
 ## 🟢 YAN BULGULAR (gelecek tur adayları)
 
-### M2 — middleware.ts → proxy.ts migration (Next 16 deprecation)
-
-**Detay:** middleware.ts Next.js 16'da deprecated, build uyarısı.
-**Öncelik:** SHOULD + NEXT (3-6 ay)
-**Süre:** ~1 saat
-**Risk:** Düşük
-
 ### M3 — İki Footer pattern'i birleştirme (KÜÇÜK PARÇA TUR #42'DE KAPATILDI)
 
 **Detay:** Anasayfada inline lacivert tam Footer + tüm sayfalarda global beyaz minimal Footer. İki ayrı kod tabanı.
@@ -53,12 +53,31 @@ YOK.
 **Öncelik:** COULD + LATER (kozmetik, kurumsal palete yakın ama identical değil)
 **Süre:** ~10 dk
 
-### Y1 — Hex hardcoding refactor (TUR #44 yan bulgu)
+### Y1 — Hex hardcoding refactor (TUR #45 Tur A2 keşfi yapıldı)
 
-**Detay:** #1E1E8E hex 555 yerde hardcoded, --brand-primary CSS variable varken DRY ihlali. Tur A KN-7'de tespit edildi.
+**Detay:** Tur A2 kanıtı (docs/TUR45_TUR_A2_HEX_REFACTOR_KESIF.md):
+- Toplam refactor hedef: ~430 (240 Tailwind arbitrary + 181 inline + 9 globals.css)
+- Mevcut doğru kullanım: 140 var(--brand-primary)
+- TUR A toplam 2376 → ~%80 .next/dev artifacts (refactor dışı, otomatik üretilir)
+
+**Bağımlılık (Y5):** Tailwind 4 CSS-first config — `tailwind.config.*` YOK. globals.css'te `:root` var ama `@theme` directive bloğu YOK → Tailwind utility (`bg-brand-primary`) üretmiyor, geliştirici `bg-[#1E1E8E]` arbitrary kullanmak zorunda kalıyor.
+
+**Pattern stratejisi:**
+- Tailwind arbitrary → `@theme` ekle, sonra utility class refactor (sed)
+- Inline style → `var(--brand-primary)` mekanik replace (sed)
+- CSS file → manuel düzeltme (9 yer)
+
 **Öncelik:** SHOULD + LATER
-**Süre:** ~2-3 saat (sed + manuel kontrol)
+**Süre tahmini:** TUR #45.2 ~2 saat (Y5 + Y1 birleşik, 5 atom)
 **Risk:** Düşük (renkler aynı, sadece referans değişimi)
+**Tetikleyici:** CEO direktifi (kozmetik, gerçekten gerekli olduğunda)
+
+### Y5 — Tailwind 4 @theme directive eksik (TUR #45 yeni bulgu, Y1 ön şartı)
+
+**Detay:** globals.css'te `@theme` bloğu yok → Tailwind utility class brand renk üretilmiyor. Y1'in ön koşulu.
+**Çözüm:** TUR #45.2 Atom 1 (5 dk) — `@theme { --color-brand-primary: ...; ... }` ekle.
+**Öncelik:** SHOULD + LATER (Y1 ile birleşik)
+**Süre:** ~5 dk
 
 ### Y2 — Anasayfa typewriter karakter bazlı stagger (TUR #44 yan bulgu)
 
@@ -72,17 +91,7 @@ YOK.
 **Öncelik:** COULD + LATER
 **Süre:** ~1-2 saat
 
-### Y4 — 11 untracked eski keşif raporu (Madde 26.6 ihlali)
-
-**Detay:** OS repo'da `git status` 11 untracked dosya gösteriyor: DOGRULAMA_RAPORU_27_NISAN_GECE.md + docs/BACKUP_MIMARISI_KESIF.md + docs/FAZ_4_A_KESIF.md + docs/KVKK_PERSISTENCE_KESIF.md + docs/MADDE_25_TAM_METIN.md + docs/MALI_AKIS_KESIF.md + docs/PAZARLAMA_FIZIBILITE.md + docs/PUBLIC_FORM_DOCUMENT_BUG_KESIF.md + docs/RENDER_DRIFT_TESHIS.md + docs/RESMI_MUHATAP_HARITASI_KESIF.md + docs/SAGLIK_TARAMASI_TUR18.md.
-
-Eski turlardan (TUR #18 sağlık taraması, KVKK/Backup/FAZ 4-A/Mali Akış/Pazarlama/Render Drift/Resmi Muhatap keşifleri) kalmış raporlar. Mehmet Bey'in lokal disk'te tutuğu ama git'e eklenmemiş — anayasa Madde 26.6 (DEVIR canlı dosya disiplini) ihlali çünkü tarihsel kayıt git'te yoksa gelecek devirlerde bu raporlar Claude oturumlarına ulaşamaz.
-
-**Öncelik:** SHOULD + LATER (kritik değil, ama tarihsel kayıt için gerekli)
-**Çözüm:** Tek tur ile arşivleme — `docs/arsiv/` klasörü oluştur, 11 dosyayı oraya taşı, tek commit ile git'e ekle (örn: `docs(arsiv): TUR #18 öncesi eski keşif raporları arşivlendi`).
-**Süre:** ~15-30 dk
-**Risk:** Düşük (sadece dosya taşıma + git add + commit, içerik değişmez)
-**Tetikleyici:** TUR #45 yan bulgu temizliği veya gelecek herhangi bir Mehmet Bey direktifi
+<!-- Y4 KAPATILDI — TUR #45'te (commit f0e33ec). Ayrıntı için ✅ KAPATILAN YAN BULGULAR bölümüne bak. -->
 
 ---
 
