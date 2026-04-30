@@ -337,6 +337,47 @@ async function sendStatuteLimitWarningEmail(lead, lawyer, daysRemaining) {
   });
 }
 
+// ─── TUR #49: Kariyer basvurusu bildirimi ─────────────────────
+async function sendCareerApplicationNotification(application) {
+  const adminEmail = process.env.ADMIN_EMAIL
+    || process.env.KARIYER_EMAIL
+    || process.env.SMTP_USER
+    || "kariyer@tedbirge.ai";
+
+  const subject = `Yeni Kariyer Basvurusu: ${application.position}`;
+
+  const html = `
+    <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
+      <h2 style="color: #1E1E8E;">Yeni Kariyer Başvurusu</h2>
+      <p>Tedbirge.ai kariyer formu üzerinden yeni bir başvuru aldınız.</p>
+      <table style="width: 100%; border-collapse: collapse; margin: 20px 0;">
+        <tr><td style="padding: 8px; border-bottom: 1px solid #eee; width: 30%;"><strong>Ad Soyad:</strong></td><td style="padding: 8px; border-bottom: 1px solid #eee;">${application.fullName}</td></tr>
+        <tr><td style="padding: 8px; border-bottom: 1px solid #eee;"><strong>E-posta:</strong></td><td style="padding: 8px; border-bottom: 1px solid #eee;"><a href="mailto:${application.email}">${application.email}</a></td></tr>
+        ${application.phone ? `<tr><td style="padding: 8px; border-bottom: 1px solid #eee;"><strong>Telefon:</strong></td><td style="padding: 8px; border-bottom: 1px solid #eee;">${application.phone}</td></tr>` : ""}
+        <tr><td style="padding: 8px; border-bottom: 1px solid #eee;"><strong>Pozisyon:</strong></td><td style="padding: 8px; border-bottom: 1px solid #eee;">${application.position}</td></tr>
+        ${application.cvLink ? `<tr><td style="padding: 8px; border-bottom: 1px solid #eee;"><strong>CV:</strong></td><td style="padding: 8px; border-bottom: 1px solid #eee;"><a href="${application.cvLink}" target="_blank">${application.cvLink}</a></td></tr>` : ""}
+        ${application.message ? `<tr><td style="padding: 8px; border-bottom: 1px solid #eee; vertical-align: top;"><strong>Mesaj:</strong></td><td style="padding: 8px; border-bottom: 1px solid #eee; white-space: pre-wrap;">${application.message}</td></tr>` : ""}
+        <tr><td style="padding: 8px; border-bottom: 1px solid #eee;"><strong>CV Havuzu:</strong></td><td style="padding: 8px; border-bottom: 1px solid #eee;">${application.cvHavuzuOnay ? "Evet (6 ay)" : "Hayır"}</td></tr>
+        <tr><td style="padding: 8px; border-bottom: 1px solid #eee;"><strong>Tarih:</strong></td><td style="padding: 8px; border-bottom: 1px solid #eee;">${new Date(application.createdAt).toLocaleString("tr-TR")}</td></tr>
+        <tr><td style="padding: 8px; border-bottom: 1px solid #eee;"><strong>ID:</strong></td><td style="padding: 8px; border-bottom: 1px solid #eee; font-family: monospace; font-size: 11px;">${application.id}</td></tr>
+      </table>
+      <div style="background: #f8faff; padding: 15px; border-radius: 8px; margin: 20px 0;">
+        <p style="margin: 0; font-size: 12px; color: #475569;">
+          <strong>KVKK Kanıt İzi:</strong><br>
+          Aydınlatma: ${new Date(application.aydinlatmaOnayTimestamp).toLocaleString("tr-TR")}<br>
+          Açık Rıza: ${new Date(application.acikRizaOnayTimestamp).toLocaleString("tr-TR")}<br>
+          IP: ${application.ipAddress || "kayıtsız"}
+        </p>
+      </div>
+      <p style="color: #64748b; font-size: 13px;">
+        Admin panel: <a href="https://tedbirge.ai/dashboard/career-applications" style="color: #1E1E8E;">Kariyer Başvuruları</a>
+      </p>
+    </div>
+  `;
+
+  return sendEmail({ to: adminEmail, subject, html });
+}
+
 module.exports = {
   sendEmail,
   verifyConnection,
@@ -344,4 +385,5 @@ module.exports = {
   sendLawyerAssignedEmail,
   sendContractCreatedEmail,
   sendStatuteLimitWarningEmail,
+  sendCareerApplicationNotification,
 };
