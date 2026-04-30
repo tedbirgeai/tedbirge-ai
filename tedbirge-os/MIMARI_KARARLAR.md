@@ -6,6 +6,58 @@
 
 ---
 
+## 30 Nisan 2026 — TUR #50 "Ücretsiz Hukuki" Yasal Zemin Temizliği (Anayasa v1.13.0)
+
+**Karar:** Tedbirge.ai'de tespit edilen 8 KIRMIZI yasal ihlal ("ücretsiz hukuki değerlendirme" + "ortaklarımız ücretsiz" zinciri) uçtan uca kapatıldı. Anayasa Madde 25.3 KIRMIZI listesi genişletildi ("ücretsiz hukuki [değerlendirme/danışmanlık/inceleme/destek]" + "ortaklarımız + ücretsiz" yan yana yasak). Çözüm: iki katmanlı dil disiplini — "AI" + "Ön" niteleyicileri ürün özelliği işaretler, "hukuki" + "ücretsiz" zinciri yasak.
+
+**Sebep — Mehmet Bey curl çıktısı kanıt:**
+- 3 niş landing sayfası title+meta+OG: "Ücretsiz Hukuki Değerlendirme"
+- /sigorta-tazminat-reddedildi: hero+bottom CTA "Ücretsiz İtiraz Değerlendirmesi"
+- Anasayfa hero altyazı: "ortaklarımız ve yapay zeka... Ücretsiz, hızlı, güvenli" (avukat sıfat sızıntısı)
+- /hakkimizda CTA bantı: "İlk değerlendirme ücretsiz... ekibimiz 24 saat..."
+- 5 body cümle "ücretsiz ön değerlendirme" / "ücretsiz değerlendirme"
+
+**Sebep — Mevzuat zemini:**
+- Avukatlık K. m.35 (hukuki tekel) + m.55 (reklam yasağı)
+- TBB Reklam Yön. m.6-7 (R.G. 9/8/2024-32627 — uyarı süreci kaldırıldı)
+- 6502 m.61 (yanıltıcı reklam) + Tic. Reklam Yön. m.7
+- Reklam Kurulu 2024 emsalleri 550K-1.2M TL ceza aralığı
+
+**Çözüm Kararları:**
+1. **A1-A3 niş landing:** title + meta + OG + body "Ücretsiz Hukuki" → "Ücretsiz AI Ön Değerlendirme/İnceleme"
+2. **A4 anasayfa hero:** "ortaklarımız ve yapay zeka" → "yapay zeka analizimiz" (avukat sıfat çıkar) — mektupta /iletisim belirtilmişti, gerçek konum HomePageClient.tsx:188 (Madde 4.1 ekosistem ile tespit)
+3. **A5 /hakkimizda CTA bant:** "ekibimiz 24 saat" → "24 saat içinde dönüş alın" — mektupta anasayfa belirtilmişti, gerçek konum hakkimizda/page.tsx:336
+4. **A6 ekosistem tarama:** KIRMIZI 0 + SARI 0 → NO-OP, kalıntı yok
+5. **A7 Anayasa:** Madde 25.3 KIRMIZI listesi v1.13.0 genişletildi
+6. **CTA butonları korundu:** "Ücretsiz Başvur" (13 yer) + "Ücretsiz Ön İnceleme Başlat" (1 yer) — CEO kararı A
+
+**Alternatif (seçilmedi):**
+- B (CTA butonlardan da "Ücretsiz" çıkarmak): reddedildi — CEO kararı A, conversion etkisi belirsiz, yasal zorunluluk yok
+- B (Tüm "değerlendirme" → "inceleme"): reddedildi — gereksiz uniform kayıp
+- B (Niş landing'leri silmek): reddedildi — SEO kaybı
+
+**Etki:**
+- Anayasa v1.12.0 → v1.13.0 (MINOR — Madde 25.3 genişletildi, Madde 22.2)
+- 5 panel sayfası dil temizliği (3 niş + HomePageClient + /hakkimizda)
+- 8 KIRMIZI yasal ihlal kapatıldı
+- ~1.5-3M TL idari para cezası riski ortadan kaldırıldı
+- Schema/migration/env/paket: 0
+- Tasarım değişikliği: 0
+- CTA buton metni: 0 değişiklik (CEO kararı A)
+- SEO: title değiştiği için Google reindex 1-2 hafta (Mehmet Bey GSC sitemap submit ile hızlandırabilir)
+
+**CEO direktifi:** "uçtan uca kod kanıtlı tek komutla işi bitir" (Madde 17.5 + TUR #44 + TUR #47 birleşik pattern devamı)
+
+**Mimar:** Claude Opus 4.7 (sohbet)
+**Onay:** Mehmet DİNÇ (Kurucu, CEO & CTO — yazılı: "A — KORU (mimar önerisi)")
+
+**Disiplin:** Madde 4.1, 4.4, 17.4, 17.5, 20.1, 20.4, 22.2, 25.3, 25.13
+
+**Öğrenilen ders:**
+TUR #47 yasal zemin temizliği "uzman avukat" ifadelerini kapattı, TUR #50 "ücretsiz hukuki" zincirini kapattı. Madde 25.3 KIRMIZI listesi iki büyük genişleme yaşadı. Bu pattern: **her büyük yasal tarama yeni KIRMIZI kategorisi ortaya çıkarır.** Sıradaki tarama önerisi: pazarlama içeriği "garanti", "kazanırsınız", "%100" zinciri (varsa). Mektup sayfa belirtimi sapması (A4/A5) Madde 4.1 grep ile çözüldü — gelecek mektuplarda **kanıt kaynağı tam path olarak yazılmalı**, sadece "anasayfa" / "/iletisim" gibi belirsiz konumlandırma yetersiz.
+
+---
+
 ## 30 Nisan 2026 — TUR #49 KVKK Kanıt İzi Kalıcı Saklama (KIRMIZI Nokta — Anayasa v1.12.0 sürdürüldü)
 
 **Karar:** Kariyer başvuruları için kalıcı DB kayıt + admin panel + e-posta + KVKK m.7 silme arayüzü. TUR #48'deki console.log yerine production-ready KVKK uyumlu altyapı.

@@ -1,3 +1,79 @@
+## TUR #50 — "Ücretsiz Hukuki" Yasal Zemin Temizliği (Anayasa v1.13.0)
+
+**Tarih:** 30 Nisan 2026
+**Anayasa:** v1.12.0 → v1.13.0 (MINOR — Madde 25.3 KIRMIZI listesi genişletildi)
+**Süre:** ~1.5-2 saat
+**Etkilenen repo:** tedbirge-panel (5 atom commit) + tedbirge-os (1 commit)
+**Toplam commit:** 6 (5 panel + 1 os)
+**Durum:** ✅ KAPALI
+
+### Kapsam
+
+CEO direktifi: *"tek komutla işi bitir uçtan uca kod kanıtlı"*. CEO onayı: **A — "Ücretsiz Başvur" CTA butonları KORUNUR**. Production'da 5 pazarlama sayfasında tespit edilen 8 KIRMIZI yasal ihlal ("ücretsiz hukuki değerlendirme" + "ortaklarımız ücretsiz" zinciri) Avukatlık K. m.35 + m.55 + TBB Reklam Yön. m.7 ihlal eder. İki katmanlı dil disiplini ile çözüldü: "AI" + "Ön" niteleyicileri ürün özelliği işaretler, "hukuki" + "ücretsiz" zinciri yasak.
+
+### Atomlar (6 + OS)
+
+- **A1** /trafik-kazasi-tazminat title + meta + OG + bottom-CTA — commit `8772841`
+- **A2** /is-kazasi-tazminat title + meta + OG + bottom-CTA — commit `5a0a448`
+- **A3** /sigorta-tazminat-reddedildi description + OG + 2 CTA buton + bottom-CTA — commit `0d4c8df`
+- **A4** Anasayfa HomePageClient hero altyazı: "ortaklarımız + yapay zeka + Ücretsiz" → "yapay zeka analizimiz" — commit `1084bf7`
+- **A5** /hakkimizda CTA bant: "İlk değerlendirme ücretsiz... ekibimiz 24 saat" → "İlk AI ön değerlendirme... 24 saat içinde dönüş alın" — commit `0d781e9`
+- **A6** Ekosistem grep: KIRMIZI 0 + SARI 0, "Ücretsiz Başvur" 13 yerde korundu — NO-OP
+- **A7+A8** OS senkron: CLAUDE.md Madde 25.3 + DETAY 25.3.1 + DEVIR + IS_PLANI + OTONOM_RAPOR + MIMARI_KARARLAR + sürüm v1.13.0
+
+### Mektup Sapması
+
+A4 mektupta "/iletisim" sayfası belirtildi ancak grep o sayfada 0 sonuç döndürdü. Gerçek konum: `app/(public)/HomePageClient.tsx:188-190` (anasayfa hero altyazısı). A5 mektupta "anasayfa" belirtildi ancak gerçek konum `app/(public)/hakkimizda/page.tsx:336` (CTA bantı). İki sapma da Madde 4.1 ekosistem haritası disiplini ile gerçek konum tespit edildi, yasal hedef korundu.
+
+### Eşleştirme Tablosu
+
+| Eski (KIRMIZI) | Yeni (yasal güvenli) |
+|---|---|
+| Ücretsiz Hukuki Değerlendirme | Ücretsiz AI Ön Değerlendirme |
+| ücretsiz ön değerlendirme | ücretsiz AI ön değerlendirme |
+| Ücretsiz İtiraz Değerlendirmesi | Ücretsiz AI İtiraz Ön İncelemesi |
+| ücretsiz değerlendirme alın | ücretsiz AI ön inceleme alın |
+| ortaklarımız ve yapay zeka analizi ile... | yapay zeka analizimiz ile... |
+| ekibimiz 24 saat içinde sizinle iletişime | 24 saat içinde dönüş alın |
+| ücretsiz öğrenin | yapay zeka ön incelemesiyle değerlendirin |
+
+### Yasal Kanıt Zemini
+
+- Avukatlık K. m.35 (hukuki tekel) + m.55 (reklam yasağı, 1136 sayılı)
+- TBB Reklam Yön. m.6-7 (R.G. 9/8/2024-32627 — uyarı süreci kaldırıldı)
+- 6502 m.61 (yanıltıcı reklam) + Tic. Reklam Yön. m.7 + m.13
+- Reklam Kurulu 2024 emsalleri: 550.059 TL — 1.200.000 TL
+- Eşik: avukatların ücretsiz hukuki danışmanlık sunması mümkün değildir; "ücretsiz hukuki" + "ortaklarımız" zinciri Tedbirge'i dolaylı m.55 ihlaline sokar.
+
+### Production Kanıt
+
+- /, /trafik-kazasi-tazminat, /is-kazasi-tazminat, /sigorta-tazminat-reddedildi, /hakkimizda, /basvuru, /iletisim, /kariyer: 8 sayfa × 200 ✅
+- 3 niş sayfada KIRMIZI kalıntı: 0 ✅
+- `<title>` doğrulama: "Trafik Kazası Tazminatı — Ücretsiz AI Ön Değerlendirme | Tedbirge.ai" ✅
+- Anasayfa "Ücretsiz Başvur" CTA: 1 (hero korundu) ✅
+- Backend /health: 200 ✅
+
+### İstatistik
+
+- Atom: 6 panel + 1 os
+- Commit: 6 (5 panel + 1 os)
+- Push: 2 (panel + os)
+- Schema/migration/env/paket: 0
+- Yeni paket: 0
+- KIRMIZI ihlal kapatılan: 8
+- CTA buton metni değişikliği: 0 (CEO kararı A — "Ücretsiz Başvur" 13 yerde korundu)
+- Mimar hata: 2 mektup sayfa sapması (A4 /iletisim → HomePageClient, A5 anasayfa → /hakkimizda) — Madde 4.1 ile çözüldü
+- Production regresyon: 0
+- Tasarım değişikliği: 0
+
+### Sonuç
+
+DEVIR yasal açıdan tam uyum (TUR #47 + #48 + #49 + #50 mirası). ~1.5-3M TL idari para cezası riski ortadan kaldırıldı. Sıradaki tarama önerisi: "garanti", "kazanırsınız", "%100" zinciri (varsa) veya TUR #51 (M1 manuel migration auto-deploy KIRMIZI nokta).
+
+— Claude Code, TUR #50 sonu
+
+---
+
 ## TUR #49 — KVKK Kanıt İzi Kalıcı Saklama (KIRMIZI Nokta)
 
 **Tarih:** 30 Nisan 2026

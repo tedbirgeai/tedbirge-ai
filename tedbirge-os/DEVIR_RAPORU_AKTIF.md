@@ -1,11 +1,22 @@
 # 🛡️ DEVIR RAPORU (AKTİF) — TEDBİRGE.AI
 
-**Son güncelleme:** 30 Nisan 2026 (TUR #49 KVKK Kanıt İzi Kalıcı Saklama)
-**Anayasa:** v1.12.0
+**Son güncelleme:** 30 Nisan 2026 (TUR #50 "Ücretsiz Hukuki" Yasal Zemin Temizliği)
+**Anayasa:** v1.13.0
 **Aktif kesit:** FAZ 4-B Operasyonel Ölçek
-**Son TUR:** #49 — KVKK Kanıt İzi Kalıcı Saklama (KAPALI — schema migration + admin panel + KVKK m.7 + m.10 + m.11 tam uyum)
+**Son TUR:** #50 — "Ücretsiz Hukuki" Yasal Zemin Temizliği (KAPALI — 8 KIRMIZI ihlal kapatıldı, Madde 25.3 v1.13.0 genişletildi)
 
 ---
+
+## ✅ KAPATILAN YAN BULGULAR (TUR #50 — 30 Nisan 2026)
+
+- **K23** — /trafik-kazasi-tazminat title + meta description + OG description: "Ücretsiz Hukuki Değerlendirme/ön değerlendirme" → "Ücretsiz AI Ön Değerlendirme/yapay zeka ön incelemesi", commit `8772841`
+- **K24** — /is-kazasi-tazminat title + meta + OG + body: aynı dönüşüm, commit `5a0a448`
+- **K25** — /sigorta-tazminat-reddedildi description + OG + 2 CTA buton + bottom-CTA cümlesi: "Ücretsiz İtiraz Değerlendirmesi" → "Ücretsiz AI İtiraz Ön İncelemesi", commit `0d4c8df`
+- **K26** — Anasayfa hero altyazı: "ortaklarımız ve yapay zeka ... Ücretsiz" → "yapay zeka analizimiz ile ... Ücretsiz" (avukat sıfatı sızıntısı kaldırıldı), commit `1084bf7`
+- **K27** — /hakkimizda CTA bant: "İlk değerlendirme ücretsiz... ekibimiz 24 saat" → "İlk AI ön değerlendirme ücretsiz... 24 saat içinde dönüş alın", commit `0d781e9`
+- **K28** — Anayasa Madde 25.3 KIRMIZI listesi v1.13.0: "ücretsiz hukuki [değerlendirme/danışmanlık/inceleme/destek]" + "ortaklarımız + ücretsiz" yan yana yasak. CLAUDE.md + CLAUDE_MADDE_25_DETAY.md güncel.
+- **K29** — A6 ekosistem grep tarama: KIRMIZI 0 + SARI 0, "Ücretsiz Başvur" CTA 13 yerde korundu (CEO kararı A)
+- **K30** — Production kanıt: 8 sayfa × 200, 3 niş × 0 KIRMIZI kalıntı, title yeni hâli canlı, /health 200
 
 ## ✅ KAPATILAN YAN BULGULAR (TUR #49 — 30 Nisan 2026)
 

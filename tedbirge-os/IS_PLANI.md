@@ -8,9 +8,9 @@
 ## 🎯 AKTİF KESİT
 
 **Faz:** FAZ 4-B Operasyonel Ölçek
-**Son TUR:** #49 — KVKK Kanıt İzi Kalıcı Saklama (KAPALI — schema migration + admin panel + KVKK m.7/m.10/m.11 tam uyum)
-**Anayasa:** v1.12.0
-**Son güncelleme:** 30 Nisan 2026 (TUR #49 sonu)
+**Son TUR:** #50 — "Ücretsiz Hukuki" Yasal Zemin Temizliği (KAPALI — 8 KIRMIZI ihlal kapatıldı, Madde 25.3 v1.13.0)
+**Anayasa:** v1.13.0
+**Son güncelleme:** 30 Nisan 2026 (TUR #50 sonu)
 
 ### Kesit içi turlar (özet)
 
@@ -29,6 +29,7 @@
 | #47 | Yasal Zemin Temizliği (8 KIRMIZI ihlal: sahte sayılar + /referanslar + uzman + ekip kartları + anayasa v1.12.0) | ✅ Kapalı |
 | #48 | Kariyer Sayfası + KVKK Çalışan Adayı Aydınlatma (/kariyer + /kvkk-calisan-adayi + /api/career-application) | ✅ Kapalı |
 | #49 | KVKK Kanıt İzi Kalıcı Saklama (CareerApplication schema migration + admin panel — 🔴 KIRMIZI nokta) | ✅ Kapalı |
+| #50 | "Ücretsiz Hukuki" Yasal Zemin Temizliği (8 KIRMIZI: 3 niş title+meta+OG + anasayfa hero + /hakkimizda CTA + Madde 25.3 v1.13.0) | ✅ Kapalı |
 
 ### TUR #44 — Hareket Disiplini ✅ BÜYÜK KAPANIŞ
 

@@ -40,6 +40,29 @@ Tüketicinin Korunması K. (6502) ve Reklam Kurulu mevzuatı gereği YASAK:
 - Sahte yorum / değerlendirme / referans
 - Tıbbi tanı/tedavi vaadi (sağlık verisi alanı için)
 
+### 25.3.1 "Ücretsiz Hukuki" Zinciri (TUR #50, 30 Nisan 2026)
+
+🔴 **YASAK:**
+- "Ücretsiz hukuki değerlendirme"
+- "Ücretsiz hukuki danışmanlık"
+- "Ücretsiz hukuki inceleme"
+- "Ücretsiz hukuki destek"
+- "Ücretsiz avukat görüşmesi"
+- "Ücretsiz dava değerlendirmesi"
+- "Ücretsiz itiraz değerlendirmesi" (tek başına — "AI" niteleyicisi olmadan)
+- "ortaklarımız" + "ücretsiz" aynı cümlede (avukat sıfatı sızıntısı)
+
+🟢 **GÜVENLİ (ürün dilbilgisi):**
+- "Ücretsiz AI ön değerlendirme"
+- "Ücretsiz AI ön inceleme"
+- "Ücretsiz AI itiraz ön incelemesi"
+- "Ücretsiz tazminat hesaplama" (kalkülatör — yazılım)
+- "Ücretsiz Başvur" / "Ücretsiz Ön İnceleme Başlat" (form CTA — veri girişi)
+
+**Kanıt:** Avukatlık K. m.35 (hukuki tekel) + m.55 (reklam yasağı) + TBB Reklam Yön. m.6-7 + 6502 m.61. Avukatların ücretsiz hukuki danışmanlık sunması mümkün değildir, ücretsiz danışmanlık avukatlar için disiplin suçu oluşturabilir.
+
+**Sınır kuralı:** "AI" + "Ön" niteleyicileri birlikte kullanıldığında ifade ürün özelliği olur, hukuki tavsiye sayılmaz. "Hukuki" kelimesi "ücretsiz" ile aynı cümlede asla geçmez.
+
 ---
 
 ## 25.4 İzinli Mesaj Çerçevesi
