@@ -127,6 +127,25 @@ Her schema kesit (KIRMIZI nokta) sonrasında kolon varlığı SELECT ile doğrul
 
 **Yasak:** `migrate resolve --applied` kullanıp ALTER TABLE çıktısı almamak · sessiz drift'i geçiştirmek · schema dosyasındaki alanı "uygulandı kanıtı" saymak.
 
+### 📜 Madde 4.3 Örnek — TUR #49 Shadow DB Tıkanması (30 Nisan 2026)
+
+**Senaryo:** TUR #49 A1.2 atomunda `npx prisma migrate dev --create-only` komutu çalıştırıldı. Beklenen davranış: shadow DB üzerinde mevcut migration zinciri replay edilir, sonra yeni migration üretilir.
+
+**Sorun:** Shadow DB `20260427000001_add_updatedat_7_models` migration'ında **P3006 hatası** verdi: *"The underlying table for model `Bilirkisi` does not exist."* Mevcut migration zincirinde **sıralama tutarsızlığı** vardı (TUR #49'dan önceki yapısal sorun).
+
+**Claude Code disiplini:** Madde 4.3 ("şüphede DUR") gereği **A1.2 yarım bırakıldı**, mimara döndü. Anayasanın doğrudan uygulanması — schema değişikliği uncommitted, production'a dokunulmamış, geri dönüş kolay.
+
+**Mimar değerlendirmesi:** 4 seçenek sunuldu (manuel migrate diff / zincir onarımı / lokal DB reset / revert). CEO Madde 17.5 son sözüyle Seçenek A onayladı.
+
+**Çözüm:** `prisma migrate diff --from-schema-datamodel HEAD --to-schema-datamodel new` ile **DB'siz** SQL üretildi. Sadece dosya karşılaştırması, shadow DB hiç kullanılmadı. Production'a Render Shell üzerinden manuel `prisma migrate deploy` komutuyla uygulanır.
+
+**Ders (kalıcı kayıt):**
+1. Mektup yazımında **shadow DB varsayımı tehlikeli** — gelecek turlarda backend Prisma migration için mektupta `migrate diff` alternatif yolu **default** olmalı veya keşif aşamasında shadow DB testi yapılmalı.
+2. **Migration zinciri tutarsızlığı** Tedbirge'de mevcut yapısal borç — bir sonraki bakım turunda (TUR #50+) onarılmalı.
+3. Atom kırıldığında **mektubun ÖNGÖRMEDİĞİ** alternatif yolu Claude Code uygulamadan **CEO onayı** almak doğru disiplin (Madde 4.3 + Madde 18.3 birlikte).
+
+**Anayasa etki:** Yeni madde önerilmez, mevcut Madde 4.3 zaten doğru çalıştı.
+
 ---
 
 ## 5. ONAY DİSİPLİNİ — READ-ONLY VS YAZMA OPERASYONLARI
@@ -516,6 +535,19 @@ Aşağıdaki durumlardan biri varsa o tur **otomatik akamaz**, Mehmet Bey'in sö
 - Geri alınamaz iş (DELETE, hard reset, vb.)
 
 Mimar bu turları **mektup başlığında "🔴 KIRMIZI NOKTA — MEHMET BEY ONAYI ŞART"** olarak işaretler. Claude Code mektubu okuyunca bu uyarıyı görür, tur'a başlamadan önce Mehmet Bey'in onayını sohbette ister.
+
+### 📜 Madde 18.3 Örnek — TUR #49 KIRMIZI Nokta Yazılı Onay (30 Nisan 2026)
+
+**KIRMIZI nokta:** Schema migration (Prisma `CareerApplication` modeli + production DB'ye yansıma).
+
+**CEO Mehmet DİNÇ yazılı onay (sohbet kaydı):**
+1. *"KAHVEMİ YAPARKEN UCTAN UCA TUR #49 — KVKK Kanıt İzi Kalıcı Saklama BAŞLA BİTİR"*
+2. *"DOSYAYI İNDİRDİM KAHVEYİ YAPTIM CLAUDE CODE YES NO SORMASIN"*
+3. (A1 shadow DB tıkanması sonrası) *"A BİTİR"*
+
+Bu üç mesaj **birlikte** Madde 18.3 standardındaki yazılı onay sayıldı. Schema migration uygulandı, ~4.97M TL veri güvenliği ceza riski kapatıldı.
+
+**Emsal değer:** Gelecek KIRMIZI nokta turlarında **CEO'nun direkt mesajı yeterli** — formal onay metni gerekmez. Önemli olan: (a) onayın net olması, (b) sohbet kaydında kalması, (c) MIMARI_KARARLAR.md'ye yazılı kayıt geçmesi.
 
 ### 18.4 Yeşil Nokta Turları (Otomatik Akar)
 

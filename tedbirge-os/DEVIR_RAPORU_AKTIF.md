@@ -18,15 +18,13 @@
 - **K21** — Admin panel `/dashboard/career-applications` (liste + filtre + detay modal + status butonları + KVKK m.7 silme), commit `8e8080d`
 - **K22** — KVKK m.7 + m.10 + m.11 tam uyum (~4.97M TL veri güvenliği ihlali ceza riski ortadan kaldırıldı)
 
-## 📋 MEHMET BEY MANUEL İŞ (TUR #49 sonrası zorunlu)
+## 📋 MEHMET BEY MANUEL İŞLERİ (30 Nisan 2026 — TUR #49 sonrası)
 
-**Render Shell migration:** `start` script `prisma migrate deploy` içermiyor. Yeni `CareerApplication` tablosu production DB'de yaratılması için Mehmet Bey Render Dashboard üzerinden manuel komut çalıştırır:
-
-```
-Render Dashboard → tedbirge-ai service → Shell → npx prisma migrate deploy
-```
-
-Beklenen çıktı: `Applied 1 migration: 20260430000001_add_career_application`. Migration uygulanmadan önce POST `/api/public-career-application` 500 dönecek (relation "CareerApplication" does not exist).
+- 🟡 **M1 (acil değil ama önemli):** Render Dashboard → tedbirge-ai service → Shell → `npx prisma migrate deploy` çalıştır
+  - Beklenen çıktı: `Applied 1 migration: 20260430000001_add_career_application`
+  - Etki: `/api/public-career-application` POST 500 → 201 olur, kariyer formu kalıcı kayıt yapmaya başlar
+  - Sebep: `package.json` `start` script `node src/server.js` — auto-migration yok
+  - Kalıcı çözüm: TUR #50 (postinstall'a `prisma migrate deploy` ekleme — KIRMIZI nokta)
 
 ## ✅ KAPATILAN YAN BULGULAR (TUR #48 — 30 Nisan 2026)
 

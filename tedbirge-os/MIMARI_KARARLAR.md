@@ -72,6 +72,33 @@ Gelecek tur (TUR #50 öneri): `package.json` `postinstall` veya `start` script'i
 **Mimar:** Claude Opus 4.7 (sohbet)
 **Onay:** Mehmet DİNÇ (Kurucu, CEO & CTO) — Madde 17.5 + 18.3 yazılı onay
 
+### TUR #49 Yöntem Sapması Detayı (Madde 4.3 + 18.3 birlikte uygulandı)
+
+**Mektup planı:** `npx prisma migrate dev --name add_career_application --create-only` — Prisma'nın varsayılan migration üretim komutu.
+
+**Gerçek uygulama:** Shadow DB P3006 hatası nedeniyle mektup komutu başarısız oldu. Claude Code Madde 4.3 ("şüphede DUR") gereği yarım bıraktı, mimara döndü. Mimar 4 seçenek sundu, CEO Madde 17.5 + 18.3 ile **Seçenek A (manuel migrate diff)** onayladı.
+
+**Uygulanan komut:**
+
+```bash
+git show HEAD:prisma/schema.prisma > /tmp/schema-old.prisma
+npx prisma migrate diff \
+  --from-schema-datamodel /tmp/schema-old.prisma \
+  --to-schema-datamodel prisma/schema.prisma \
+  --script > prisma/migrations/20260430000001_add_career_application/migration.sql
+```
+
+**Karşılaştırma:**
+
+| Aspek | `migrate dev --create-only` (mektup) | `migrate diff` (uygulanan) |
+|---|---|---|
+| Shadow DB | Kullanır (zincir replay) | Kullanmaz |
+| Mevcut zincir tutarlılığı | Gerektirir | Gerektirmez |
+| Production'a uygulama | Render postinstall/start | Render Shell manuel |
+| Risk | Shadow DB başarısızlığı | Manuel adım unutulması |
+
+**Karar:** Bundan sonraki backend migration turlarında **mektup şablonunda `migrate diff` default**, `migrate dev` opsiyonel. Shadow DB testini A0 keşifte yap (`npx prisma migrate status` veya benzeri).
+
 ---
 
 ## 30 Nisan 2026 — TUR #48 Kariyer Sayfası + KVKK Aydınlatma (Anayasa v1.12.0 sürdürüldü)
