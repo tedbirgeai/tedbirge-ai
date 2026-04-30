@@ -8,9 +8,9 @@
 ## 🎯 AKTİF KESİT
 
 **Faz:** FAZ 4-B Operasyonel Ölçek
-**Son TUR:** #50 — "Ücretsiz Hukuki" Yasal Zemin Temizliği (KAPALI — 8 KIRMIZI ihlal kapatıldı, Madde 25.3 v1.13.0)
+**Son TUR:** #51 — Büyük Sağlık Taraması + 3 CRM Kesif (KAPALI — T tipi denetim, 24 bulgu, 0 kod değişikliği)
 **Anayasa:** v1.13.0
-**Son güncelleme:** 30 Nisan 2026 (TUR #50 sonu)
+**Son güncelleme:** 30 Nisan 2026 (TUR #51 sonu)
 
 ### Kesit içi turlar (özet)
 
@@ -30,6 +30,7 @@
 | #48 | Kariyer Sayfası + KVKK Çalışan Adayı Aydınlatma (/kariyer + /kvkk-calisan-adayi + /api/career-application) | ✅ Kapalı |
 | #49 | KVKK Kanıt İzi Kalıcı Saklama (CareerApplication schema migration + admin panel — 🔴 KIRMIZI nokta) | ✅ Kapalı |
 | #50 | "Ücretsiz Hukuki" Yasal Zemin Temizliği (8 KIRMIZI: 3 niş title+meta+OG + anasayfa hero + /hakkimizda CTA + Madde 25.3 v1.13.0) | ✅ Kapalı |
+| #51 | Büyük Sağlık Taraması + 3 CRM Kesif (T tipi denetim — 24 bulgu: 🔴 4, 🟡 9, 🟢 6, ℹ️ 5; rapor: docs/TUR51_DEVIR_SAGLIK_RAPORU.md) | ✅ Kapalı |
 
 ### TUR #44 — Hareket Disiplini ✅ BÜYÜK KAPANIŞ
 

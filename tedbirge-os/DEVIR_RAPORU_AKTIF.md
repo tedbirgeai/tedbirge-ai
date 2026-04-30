@@ -1,9 +1,62 @@
 # 🛡️ DEVIR RAPORU (AKTİF) — TEDBİRGE.AI
 
-**Son güncelleme:** 30 Nisan 2026 (TUR #50 "Ücretsiz Hukuki" Yasal Zemin Temizliği)
+**Son güncelleme:** 30 Nisan 2026 (TUR #51 Büyük Sağlık Taraması — T tipi denetim)
 **Anayasa:** v1.13.0
 **Aktif kesit:** FAZ 4-B Operasyonel Ölçek
-**Son TUR:** #50 — "Ücretsiz Hukuki" Yasal Zemin Temizliği (KAPALI — 8 KIRMIZI ihlal kapatıldı, Madde 25.3 v1.13.0 genişletildi)
+**Son TUR:** #51 — Büyük Sağlık Taraması + 3 CRM Kesif (KAPALI — T tipi denetim, 0 kod değişikliği). Rapor: `tedbirge-os/docs/TUR51_DEVIR_SAGLIK_RAPORU.md`. **Bulgu: 🔴 4, 🟡 9, 🟢 6, ℹ️ 5 = 24 toplam.**
+
+---
+
+## 🩺 TUR #51 — BÜYÜK SAĞLIK TARAMASI (30 Nisan 2026 — T tipi denetim)
+
+**Durum:** ✅ Tamamlandı (0 kod değişikliği — Madde 21 disiplini)
+**Tam rapor:** `tedbirge-os/docs/TUR51_DEVIR_SAGLIK_RAPORU.md`
+
+### 🔴 KRİTİK Bulgular (4 adet — acil tedavi)
+
+- **E1.1** — Anasayfa hero (HomePageClient.tsx:218-220) **TUR #47 regresyonu**: sahte sayılar (`4200+`, `42M+`, `%91`) hâlâ duruyor. /hakkimizda'dan silindi ama anasayfa atlandı. Madde 25.3 KIRMIZI ihlali — **~1.5-3M TL Reklam Kurulu cezası riski**.
+- **E1.2 + E1.3** — Backend regresyon: `lead.controller.js:202` PDF + `email.service.js:243` e-posta şablonunda "uzman avukat" hâlâ var. TUR #47 panel-only sed'i atladı.
+- **L3 + R3** — **CommissionLog modeli YOK**. Tahsilat olunca temsilciye otomatik bildirim/komisyon log zinciri eksik. Sözleşme template'i "HAK_EDILDI" status'u tarif ediyor ama UI yok. Gelir motoru yarım — **gelir kaybı + sözleşme yükümlülük ihlali**.
+- **A1** — KVKK m.7 silme talebi **admin UI yok**. DataSubjectRequest schema'da var ama dashboard sayfası yok. **49K-994K TL KVKK cezası riski**.
+- **S5** — `tedbirge-os/KVKKSCC/` klasörü yok. 4 yurt dışı sağlayıcı (Supabase, Anthropic, Meta, Google) için SCC PDF kayıtları boş. Madde 24.10 + KVKK m.9 ihlali.
+
+### 🟡 ORTA Bulgular (9 adet)
+
+- **S1** — M1 manuel migration hâlâ açık (TUR #49 mirası)
+- **S2** — Backend rol-spesifik endpoint ayrımı yok (hep çoklu rol)
+- **S4** — IS_PLANI.md başlığında anayasa sürüm v1.4.0 (eskiden kalma, v1.13.0 olmalı)
+- **L1** — Frontend role-aware sayfa gizleme yetersiz
+- **L4** — LAWYER bildirimleri eksik (sadece atama, belge/AI/duruşma yok)
+- **R2** — REPRESENTATIVE hukuk endpoint'lerine erişebilir (yetki genişliği — Madde 24.4 sorumluluk dağılımı çelişiyor)
+- **R5** — Temsilci kendi performans dashboard'u yok
+- **A2** — ADMIN UI eksiklikleri (CEO checklist 4/15 tam yok)
+- **A4** — Otonom katman (Auditor/Healer/Reporter) henüz başlamadı
+
+### 🟢 DÜŞÜK Bulgular (6 adet)
+
+- **L2** — LAWYER kendi dashboard data endpoint'i yok
+- **L5** — leads/[id]/page.tsx:1822 "Yakında" konumu belirsiz
+- **R1** — Temsilci paneli "Bekleyen Hakediş Yakında" placeholder
+- **R4** — Temsilci self-register sözleşme onay akışı doğrulama gerekli
+- **S3** — 11 yerde panel raw fetch (Madde 13.2 — çoğu public form istisna ama comment yok)
+- **E2** — Yeni KIRMIZI kategori adayı yok (TUR #47 + #50 sonrası temiz)
+
+### ℹ️ NOTLAR (5 adet)
+
+- **A3** — M1 manuel migration TUR #51 sonrası tedavi
+- **A9** — Env keys listesi rapor referansı (~30 key)
+- **D5 sistem durumu** — UI mevcut ama otonom event üretici yok
+- **Anayasa sürüm uyumu** — CLAUDE.md + DEVIR senkron, IS_PLANI eskiden kalma
+- **`.env.example`** — Mevcut, kullanım için güncel
+
+### 📋 Tedavi Yol Haritası — TUR #52+ Mektup Adayları
+
+1. **TUR #52** (acil) — TUR #47 regresyon onarımı (E1.1+E1.2+E1.3) + KVKK m.7 silme UI (A1) + M1 migration. Süre ~3-4 saat, **CEO yazılı onay şart** (KVKK silme UI + M1 postinstall KIRMIZI nokta).
+2. **TUR #53** — KVKK SCC klasör + kayıt (S5). ~2-3 saat.
+3. **TUR #54** (yüksek öncelik) — CommissionLog modeli + UI (L3+R3). KIRMIZI nokta — schema migration. ~5-6 saat.
+4. **TUR #55** — ADMIN CEO UI tamamlama (A2 — checklist 4 eksik). ~6-8 saat.
+5. **TUR #56** — LAWYER bildirimleri + role-aware UI (L1+L4). ~3-4 saat.
+6. **TUR #57** — REPRESENTATIVE performans dashboard (R5). ~2-3 saat.
 
 ---
 
