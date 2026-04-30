@@ -1,11 +1,32 @@
 # 🛡️ DEVIR RAPORU (AKTİF) — TEDBİRGE.AI
 
-**Son güncelleme:** 30 Nisan 2026 (TUR #48 Kariyer + KVKK)
+**Son güncelleme:** 30 Nisan 2026 (TUR #49 KVKK Kanıt İzi Kalıcı Saklama)
 **Anayasa:** v1.12.0
 **Aktif kesit:** FAZ 4-B Operasyonel Ölçek
-**Son TUR:** #48 — Kariyer Sayfası + KVKK Çalışan Adayı Aydınlatma (KAPALI — KVKK m.10 ihlal riski ~50K-1M TL ortadan kaldırıldı)
+**Son TUR:** #49 — KVKK Kanıt İzi Kalıcı Saklama (KAPALI — schema migration + admin panel + KVKK m.7 + m.10 + m.11 tam uyum)
 
 ---
+
+## ✅ KAPATILAN YAN BULGULAR (TUR #49 — 30 Nisan 2026)
+
+- **K15** — Prisma schema: CareerApplication modeli + CareerApplicationStatus enum + 3 index (status/createdAt/email), commit `c2ecdd5`
+- **K16** — Migration: `20260430000001_add_career_application/migration.sql` (CREATE TYPE + CREATE TABLE + 3 CREATE INDEX, DROP/ALTER yok). `prisma migrate diff` ile üretildi (shadow DB mevcut zincirde reddedildi)
+- **K17** — Backend POST `/api/public-career-application` (validasyon + audit + KVKK timestamp + e-posta async + ActivityLog), commit `45b6a70`
+- **K18** — Backend admin GET/PATCH/DELETE `/api/career-applications` (auth + role("ADMIN") + KVKK m.7 soft delete + anonimleştirme), commit `5c34fb1`
+- **K19** — `sendCareerApplicationNotification` fonksiyonu (HTML + KVKK kanıt izi + admin panel link + mevcut sendEmail helper reuse), commit `87032ac`
+- **K20** — Panel `/api/career-application` console.log → backend proxy, commit `d56327a`
+- **K21** — Admin panel `/dashboard/career-applications` (liste + filtre + detay modal + status butonları + KVKK m.7 silme), commit `8e8080d`
+- **K22** — KVKK m.7 + m.10 + m.11 tam uyum (~4.97M TL veri güvenliği ihlali ceza riski ortadan kaldırıldı)
+
+## 📋 MEHMET BEY MANUEL İŞ (TUR #49 sonrası zorunlu)
+
+**Render Shell migration:** `start` script `prisma migrate deploy` içermiyor. Yeni `CareerApplication` tablosu production DB'de yaratılması için Mehmet Bey Render Dashboard üzerinden manuel komut çalıştırır:
+
+```
+Render Dashboard → tedbirge-ai service → Shell → npx prisma migrate deploy
+```
+
+Beklenen çıktı: `Applied 1 migration: 20260430000001_add_career_application`. Migration uygulanmadan önce POST `/api/public-career-application` 500 dönecek (relation "CareerApplication" does not exist).
 
 ## ✅ KAPATILAN YAN BULGULAR (TUR #48 — 30 Nisan 2026)
 

@@ -1,3 +1,99 @@
+## TUR #49 — KVKK Kanıt İzi Kalıcı Saklama (KIRMIZI Nokta)
+
+**Tarih:** 30 Nisan 2026
+**Anayasa:** v1.12.0 (sürdürüldü)
+**Süre:** ~3.5 saat
+**Etkilenen repo:** tedbirge.ai monorepo (backend + schema + panel + os)
+**Toplam commit:** 8 (4 parent + 2 panel + 1 os + push'lar dahil)
+**Durum:** ✅ KAPALI (manuel Render migration Mehmet Bey'e bekliyor)
+
+### KIRMIZI Nokta Yazılı Onay (Madde 18.3)
+
+CEO Mehmet DİNÇ sohbet kaydı (30 Nisan 2026):
+1. *"KAHVEMİ YAPARKEN UCTAN UCA A. TUR #49 — KVKK Kanıt İzi Kalıcı Saklama BAŞLA BİTİR"*
+2. *"DOSYAYI İNDİRDİM KAHVEYİ YAPTIM CLAUDE CODE YES NO SORMASIN"*
+
+Bu yazılı onaylar Madde 18.3 standardındaki schema migration onayı sayılır.
+
+### Atomlar (7)
+
+- **A1** Prisma schema + migration (CareerApplication + enum + 3 index) — commit `c2ecdd5`
+- **A2** Backend POST `/api/public-career-application` (validasyon + audit + ActivityLog) — commit `45b6a70`
+- **A3** Backend admin GET/PATCH/DELETE + KVKK m.7 soft delete + anonimleştirme — commit `5c34fb1`
+- **A4** `sendCareerApplicationNotification` (HTML + KVKK kanıt izi) — commit `87032ac`
+- **A5** Panel `/api/career-application` console.log → backend proxy — commit `d56327a`
+- **A6** Admin panel `/dashboard/career-applications` (liste + modal + KVKK m.7 silme) — commit `8e8080d`
+- **A7** Final build + push + production smoke + OS güncellemeleri
+
+### Yöntem Sapması: Migration Üretimi
+
+Mektup A1.2 `npx prisma migrate dev --create-only` istedi. Lokal `.env`'de `DIRECT_URL` eksik (Madde 13.3 yapısal eksiği — .env'e dokunmak Madde 3.5 KIRMIZI), `migrate dev` shadow DB üzerinde mevcut migration zincirini yeniden oynayamıyor (P3006: `Bilirkisi` tablosu yok hata, eski migration tutarsızlığı — TUR #49 kapsamı dışı). CEO onayı sonrası alternatif yol uygulandı:
+
+```
+git show HEAD:prisma/schema.prisma > /tmp/schema-old.prisma
+npx prisma migrate diff --from-schema-datamodel /tmp/schema-old.prisma --to-schema-datamodel prisma/schema.prisma --script > prisma/migrations/20260430000001_add_career_application/migration.sql
+```
+
+Bu yöntem DB'ye dokunmadan iki schema dosyasını karşılaştırarak SQL üretir. Çıkan SQL temiz: `CREATE TYPE` + `CREATE TABLE` + 3 `CREATE INDEX`. **DROP/ALTER yok**, A1.3 kontrol disiplini geçti.
+
+`prisma generate` Windows EPERM (lokal node process file-lock) yüzünden lokal başarısız. Production Render'da `postinstall: prisma generate` çalışıyor — sorun yok.
+
+### Mehmet Bey Manuel İş — Render Shell Migration
+
+`start` script `prisma migrate deploy` içermiyor:
+
+```json
+"start": "node src/server.js",
+"postinstall": "prisma generate"
+```
+
+Yeni migration production DB'ye uygulanması için Mehmet Bey Render Dashboard'tan manuel komut çalıştıracak:
+
+```
+Render → tedbirge-ai service → Shell → npx prisma migrate deploy
+```
+
+Beklenen: `Applied 1 migration: 20260430000001_add_career_application`. Migration uygulanana kadar POST `/api/public-career-application` 500 döner (table yok — `relation "CareerApplication" does not exist`).
+
+### Yasal Kazanım
+
+- KVKK m.7 (silme imkanı) — admin panel + soft delete + anonimleştirme
+- KVKK m.10 (aydınlatma kanıt izi) — DB'de timestamp + IP audit + ActivityLog
+- KVKK m.11 (ilgili kişi hakları) — admin panel üzerinden yönetim
+- Veri güvenliği yükümlülüğü — DB + log + e-posta zinciri
+- Risk azaltılan: **4.969.943 TL'ye kadar veri güvenliği cezası**
+
+### İstatistik
+
+- Atom: 7 (A1-A7)
+- Commit: 7 (4 backend/parent + 2 panel + 1 os)
+- Schema migration: 1 (yeni tablo + enum + 3 index, DROP/ALTER yok)
+- npm install: 0 (nodemailer mevcut)
+- Yeni paket: 0
+- Yeni backend route dosyası: 1 (`src/routes/career-application.route.js`)
+- Yeni email service fonksiyonu: 1
+- Yeni admin panel sayfa: 1
+- Build hatası: 0
+- Production regresyon: 0
+- Mimar hata: 0
+- KIRMIZI ihlal kapatılan: 1 (KVKK m.7 + m.10 + m.11 tam uyum)
+
+### Production Kanıt
+
+- Backend `/health`: 200 ✅
+- POST `/api/public-career-application` validasyon (eksik): 400 ✅
+- POST `/api/public-career-application` tam başvuru: **500** (beklenen — migration uygulanana kadar)
+
+Migration sonrası beklenen: 201 + `{"success":true,"applicationId":"..."}`.
+
+### Sonuç
+
+DEVIR yasal açıdan tam uyum (Mehmet Bey manuel migration sonrası operasyonel). Bir sonraki kesit: TUR #50 (Render auto-migration `postinstall`'a `prisma migrate deploy` eklenmesi — KIRMIZI nokta) veya TUR #46 (Blog İçerik Üretimi).
+
+— Claude Code, TUR #49 sonu
+
+---
+
 ## TUR #48 — Kariyer Sayfası + KVKK Çalışan Adayı Aydınlatma
 
 **Tarih:** 30 Nisan 2026

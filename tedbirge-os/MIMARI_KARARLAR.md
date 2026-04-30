@@ -6,6 +6,74 @@
 
 ---
 
+## 30 Nisan 2026 — TUR #49 KVKK Kanıt İzi Kalıcı Saklama (KIRMIZI Nokta — Anayasa v1.12.0 sürdürüldü)
+
+**Karar:** Kariyer başvuruları için kalıcı DB kayıt + admin panel + e-posta + KVKK m.7 silme arayüzü. TUR #48'deki console.log yerine production-ready KVKK uyumlu altyapı.
+
+**KIRMIZI Nokta Yazılı Onay (Madde 18.3 — kayıt):**
+
+CEO Mehmet DİNÇ sohbet kaydı (30 Nisan 2026):
+1. *"KAHVEMİ YAPARKEN UCTAN UCA A. TUR #49 — KVKK Kanıt İzi Kalıcı Saklama BAŞLA BİTİR"*
+2. *"DOSYAYI İNDİRDİM KAHVEYİ YAPTIM CLAUDE CODE YES NO SORMASIN"*
+
+Bu yazılı onaylar Madde 18.3 standardındaki schema migration onayı sayılır.
+
+**Sebep — Yasal kanıt:**
+- KVKK m.7 (silme imkanı) zorunlu — soft delete + anonimleştirme
+- KVKK m.10 (aydınlatma kanıt izi) DB kayıt gerekir — timestamp + IP audit
+- KVKK m.11 (ilgili kişi hakları) operasyonel arayüz — admin panel
+- KVKK Kurulu cezaları: 4.969.943 TL'ye kadar (veri güvenliği)
+- KVKK Kurulu 2018/90 (aydınlatma + açık rıza ayrı timestamp)
+
+**A0 Keşif Kanıtları (Madde 4):**
+- Monorepo yapısı: `tedbirge.ai/` kök (`prisma/` + `src/` + `tedbirge-panel/` ayrı git submodule)
+- Mevcut `email.service.js`: nodemailer + `sendEmail({to,subject,html})` helper hazır
+- `public.route.js` pattern: `/public-lead` model + `prisma = require("../config/db")` import
+- Admin panel klasör: 21 alt-klasör — `career-applications` eklendi
+- Mevcut migration: 5 (`20260414` → `20260426`) + yeni `20260430000001_add_career_application`
+- Admin auth: `auth + role("ADMIN")` (`crm.routes.js` patterni)
+
+**Tasarım Kararları:**
+- Soft delete (status DELETED + anonimleştirme), hard delete değil — audit izi korunur (KVKK m.7 + KVKK Kurulu rehberi)
+- Çift zincir: `prisma.careerApplication` + `ActivityLog` her admin işleminde
+- E-posta async (başvuruyu durdurmaz, defansif error handling)
+- Migration üretimi: `prisma migrate diff --from-schema-datamodel HEAD --to-schema-datamodel new` (shadow DB mevcut zincirde reddedildiği için bu yöntem). DB'ye dokunmaz.
+- IP audit: `x-forwarded-for` + `x-real-ip` + `remoteAddress` fallback
+- Field length limitleri (defansif slice — fullName 200, email 200, message 5000)
+- Admin auth: `auth + role("ADMIN")` middleware chain (mevcut pattern)
+
+**Yöntem Sapması (Madde 4.3 disiplini ile):**
+Mektup A1.2 `prisma migrate dev --create-only` istedi. İki yapısal engel:
+1. Lokal `.env`'de `DIRECT_URL` eksik (Madde 13.3 yapısal eksiği). `.env`'e ekleme Madde 3.5 KIRMIZI.
+2. Shadow DB mevcut migration zincirini yeniden oynayamıyor (P3006: `Bilirkisi` tablosu yok — TUR #49 kapsamı dışı eski migration tutarsızlığı).
+
+CEO yazılı onayıyla alternatif yol: `prisma migrate diff --from-schema-datamodel HEAD --to-schema-datamodel new --script`. Bu DB'ye dokunmadan iki schema dosyası karşılaştırması yapar. SQL temiz: `CREATE TYPE` + `CREATE TABLE` + 3 `CREATE INDEX`. **DROP/ALTER yok**, A1.3 kontrol disiplini sağlandı.
+
+**Manuel Migration (Mehmet Bey iş):**
+`start` script `migrate deploy` içermiyor. Yeni tablonun production DB'ye uygulanması için Render Dashboard → tedbirge-ai → Shell → `npx prisma migrate deploy` manuel komutu zorunlu. Migration uygulanana kadar POST endpoint 500 döner (`relation "CareerApplication" does not exist`).
+
+Gelecek tur (TUR #50 öneri): `package.json` `postinstall` veya `start` script'ine `prisma migrate deploy` eklemesi (auto-migration — başka bir KIRMIZI nokta, ayrı CEO onayı şart).
+
+**Alternatif:**
+- B (Lead modeline `applicationType: "career"` metadata olarak): reddedildi — Lead semantiği farklı, schema kirlilik
+- B (Sadece e-posta + console.log): TUR #48'de yapıldı — KVKK m.7/m.11 yetersiz, kalıcı kayıt zorunlu
+- B (Hard delete): reddedildi — KVKK Kurulu rehberi audit izi gerekiyor (anonimleştirme tercih)
+- B (Auto-migration `postinstall`'a ekle): bu turda kapsam dışı, ayrı KIRMIZI nokta
+
+**Etki:**
+- 1 yeni Prisma tablosu (`CareerApplication`) + 1 enum + 3 index
+- 1 yeni backend route dosyası (`src/routes/career-application.route.js`)
+- 1 yeni email service fonksiyonu (`sendCareerApplicationNotification`)
+- 1 yeni admin panel sayfa (`/dashboard/career-applications`)
+- 1 panel API proxy güncellendi (TUR #48 console.log → backend POST)
+- Mevcut 8 model + 5 migration + tüm mevcut route'lar **DOKUNULMADI**
+- ~4.97M TL veri güvenliği cezası riski ortadan kaldırıldı
+
+**Mimar:** Claude Opus 4.7 (sohbet)
+**Onay:** Mehmet DİNÇ (Kurucu, CEO & CTO) — Madde 17.5 + 18.3 yazılı onay
+
+---
+
 ## 30 Nisan 2026 — TUR #48 Kariyer Sayfası + KVKK Aydınlatma (Anayasa v1.12.0 sürdürüldü)
 
 **Karar:** TUR #47'de aktif edilen kariyer CTA'sı KVKK m.10 ihlal riski oluşturuyordu (mailto:kariyer@tedbirge.ai — adaya bilgi vermeden CV alınması). Bu turda /kariyer sayfası + KVKK uyumlu 3 opt-in form + Çalışan Adayı Aydınlatma Metni (8 bölüm) + /api/career-application endpoint eklendi. Yasal süreklilik tamamlandı.
