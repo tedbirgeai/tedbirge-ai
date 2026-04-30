@@ -1,11 +1,20 @@
 # 🛡️ DEVIR RAPORU (AKTİF) — TEDBİRGE.AI
 
-**Son güncelleme:** 30 Nisan 2026 (TUR #45.2 hex refactor)
-**Anayasa:** v1.11.0
+**Son güncelleme:** 30 Nisan 2026 (TUR #47 Yasal Zemin Temizliği)
+**Anayasa:** v1.12.0
 **Aktif kesit:** FAZ 4-B Operasyonel Ölçek
-**Son TUR:** #45.2 — Y5 + Y1 Hex Refactor (KAPALI — Tailwind 4 @theme + ~430 referans dönüşümü)
+**Son TUR:** #47 — Yasal Zemin Temizliği (KAPALI — 8 KIRMIZI ihlal kapatıldı, ~1.5M-3M TL ceza riski ortadan kaldırıldı)
 
 ---
+
+## ✅ KAPATILAN YAN BULGULAR (TUR #47 — 30 Nisan 2026)
+
+- **K1** — 4 sahte istatistik (4200 dava + 42M tazminat + %91 başarı + 500 müvekkil) /hakkimizda sayfasından kaldırıldı + Sayılar section + AnimCounter silindi, commit `d0e9a5f`
+- **K2** — /referanslar sayfası tamamen silindi (4 sahte yorum + "Türkiye'nin ilk" iddiası), sitemap güncellendi, PublicNav linki kaldırıldı, HomePageClient TestimonialsSection (6 sahte yorum) silindi, commit `b5aabfe`
+- **K3** — "Türkiye'nin ilk/lider/tek" iddiası site genelinde 0 sonuç (K2 ile zaten silindi), NO-OP
+- **K4** — 11 sed dönüşümü ile "uzman avukat" türevleri yasal alternatiflere çevrildi: deneyimli avukat ortağımız / hukuki destek / ekibimiz / Hukukçu İncelesin / Bilirkişi raporu. KVKK aydınlatma + kullanım koşulları + 5 sayfa metadata güncel, commit `323522c`
+- **K5** — Ekip kartları yeniden yapılandırıldı: CEO=Mehmet DİNÇ Kurucu/CEO/CTO birleşik + Hukuk Müşaviri=Pozisyon Açık (Başvur CTA) + Teknoloji Direktörü silindi (CEO ile birleşti). Grid 3→2 ortalanmış, commit `4e7af25`
+- **K6** — Anayasa v1.11.0 → v1.12.0: Madde 25.3 KIRMIZI listesi genişletildi (uzman + Türkiye'nin ilk + sayısal başarı vaadi alt-örnekleri eklendi)
 
 ## ✅ KAPATILAN YAN BULGULAR (TUR #45 + #45.2 — 30 Nisan 2026)
 

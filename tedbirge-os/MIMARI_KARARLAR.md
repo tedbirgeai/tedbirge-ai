@@ -6,6 +6,51 @@
 
 ---
 
+## 30 Nisan 2026 — TUR #47 Yasal Zemin Temizliği (Anayasa v1.12.0)
+
+**Karar:** Tedbirge.ai sitesinde tespit edilen 8 KIRMIZI yasal ihlal uçtan uca kapatıldı. Anayasa Madde 25.3 KIRMIZI listesi genişletildi ("uzman avukat" / "[alan] uzmanı" ünvanı + "Türkiye'nin ilk/tek/lider" iddiası + sayısal başarı vaadi alt-örnekleri).
+
+**Sebep — Tur A0 kanıtları (472 satır ham veri, kanıt: `tur47_ciktisi.txt`):**
+- 4 sahte istatistik (anasayfa /hakkimizda — 4200 dava, 42M tazminat, %91 başarı, 500 müvekkil)
+- 4 sahte müvekkil yorumu (/referanslar) + 6 sahte yorum (HomePageClient TestimonialsSection)
+- 1 "Türkiye'nin ilk" iddiası (/referanslar)
+- 11 "uzman avukat" türevi ifade (5+ sayfa)
+- 3 sahte ekip kartı ünvanı (/hakkimizda — Baş Hukuk Müşaviri / Trafik & İş Kazası Uzmanı / Teknoloji Direktörü)
+- 1 KVKK aydınlatma metnindeki "Uzman" ifadesi
+- 1 kullanım koşulları "uzman raporu" + "insan uzman incelemesi"
+
+**Sebep — Mevzuat zemini (web search ile doğrulandı):**
+- TBB Reklam Yasağı Yön. R.G. 9/8/2024-32627 son hâli (uyarı süreci kaldırıldı, doğrudan disiplin işlemi başlıyor)
+- Avukatlık K. m.55 (reklam yasağı), m.35 (avukat tanımı)
+- 6502 sayılı Tüketici K. m.61 (yanıltıcı reklam) + m.63 (Reklam Kurulu yetkisi) + m.77/12 (idari para cezası)
+- Reklam Kurulu Ağustos-Aralık 2024 emsalleri: 550.059 TL — 1.200.000 TL ceza aralığı
+- T.C. Anayasası m.36 (hak arama hürriyeti) + m.48-49 (girişim özgürlüğü) + m.135 (TBB)
+- TBB Disiplin Kurulu emsali 1976/42641 (alan + uzman kombinasyonu yasak)
+
+**CEO direktifi:** Mehmet Bey "T.C. ANAYASASINA GÖRE derin fizibilite + ikisi birlikte uçtan uca" Madde 17.5 yazılı onay verdi. Mimar 5 derin fizibilite raporu yazdı (TUR47_FIZIBILITE_RAPORU.md). CEO 4 karara A onayı verdi (mimar önerisi).
+
+**Alternatif:**
+- B (CEO profili tam): reddedildi — Mehmet Bey minimal kart istedi
+- B (CEO ve CTO ayrı): reddedildi — Mehmet Bey aynı kişi, birleşik kart istedi
+- B (Referanslar boşaltılıp kalsın): reddedildi — sayfa tamamen silindi (gerçek yorum geldiğinde TUR #50+ ile geri açılabilir)
+- B (Anayasa dokunulmadan kalsın): reddedildi — Madde 25.3 KIRMIZI listesi genişletilerek gelecekte regresyon önlendi
+
+**Etki:**
+- Anayasa v1.11.0 → v1.12.0 (Madde 25.3 KIRMIZI listesi genişletildi)
+- /referanslar sayfası tamamen silindi (sayfa + sitemap + nav + HomePageClient bölümü)
+- 4 panel commit (`d0e9a5f → 4e7af25`) + 1 OS commit
+- ~1.5M-3M TL idari para cezası riski ortadan kaldırıldı
+- Tasarım değişikliği: 0 (sadece içerik temizliği)
+- Schema/migration/env/paket: 0
+
+**Öğrenilen ders:**
+Mimar TUR #47'ye kadar /hakkimizda + /referanslar yasal riskini DEVIR'de tespit etmemişti. Madde 26.4 protokolünde production HTML tarama eklenmeli (gelecek sağlık taraması yan bulgusu — TUR #48+ veya periyodik T tipi tarama).
+
+**Mimar:** Claude Opus 4.7 (sohbet)
+**Onay:** Mehmet DİNÇ (Kurucu, CEO & CTO) — "ikisi birlikte" + 4 karar A onayı (Madde 17.5)
+
+---
+
 ## 30 Nisan 2026 — TUR #45.2 Y5 + Y1 Hex Refactor (Tailwind 4 CSS-first)
 
 **Karar:** Tedbirge.ai marka renk paleti Tailwind 4 `@theme` directive ile kanonik hale getirildi. Tüm hardcoded `#1E1E8E` referansları (Tailwind arbitrary + inline style + globals.css doğrudan kullanım) `bg-brand-primary` utility class veya `var(--brand-primary)` CSS variable üzerinden tek kaynaktan beslenir.

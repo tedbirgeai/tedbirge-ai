@@ -31,9 +31,11 @@ Tedbirge LegalTech şirketidir. Hukuki hizmet sağlayıcısı değildir. Pazarla
 
 Tüketicinin Korunması K. (6502) ve Reklam Kurulu mevzuatı gereği YASAK:
 - "Kesin tazminat alacaksınız" / "X TL garantili"
-- "En iyi platform" / "Türkiye'nin 1 numaralı"
+- "En iyi platform" / **"Türkiye'nin ilk/tek/lider/1 numaralı"** (TUR #47 — superlatives 6502 m.61 ihlali)
+- **Sayısal başarı vaadi alt-örnekleri** (TUR #47): "X dava tamamlandı" / "Y TL tazminat kazandırıldı" / "Z başarı oranı" / "N mutlu müvekkil" — somut sayı + başarı iddiası kombinasyonu YASAK
 - Sayısal başarı oranı vaadi ("%95 kazandık")
 - Belirli avukatın isim/fotoğraf/başarı oranı (TBB Reklam Yasağı koruması)
+- **"Uzman avukat" / "[alan] uzmanı avukat" ünvanı** (TUR #47 — TBB Reklam Yasağı Yön. m.6 + Disiplin Kurulu 1976/42641 emsali). Yasal alternatif: "deneyimli avukat ortağımız", "[alan] alanında çalışan avukat", "hukuki destek".
 - Yanıltıcı sigorta tazminat rakamı (gerçek SBM tablosuna aykırı vaatler)
 - Sahte yorum / değerlendirme / referans
 - Tıbbi tanı/tedavi vaadi (sağlık verisi alanı için)

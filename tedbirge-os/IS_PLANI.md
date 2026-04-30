@@ -8,9 +8,9 @@
 ## 🎯 AKTİF KESİT
 
 **Faz:** FAZ 4-B Operasyonel Ölçek
-**Son TUR:** #45.2 — Y5 + Y1 Hex Refactor (KAPALI — DEVIR temiz, açık 🔴 0 / 🟡 0)
-**Anayasa:** v1.11.0
-**Son güncelleme:** 30 Nisan 2026 (TUR #45.2 sonu)
+**Son TUR:** #47 — Yasal Zemin Temizliği (KAPALI — 8 KIRMIZI ihlal kapatıldı, anayasa v1.12.0)
+**Anayasa:** v1.12.0
+**Son güncelleme:** 30 Nisan 2026 (TUR #47 sonu)
 
 ### Kesit içi turlar (özet)
 
@@ -26,6 +26,7 @@
 | #44 | Hareket Disiplini (Tur A + 44.1 + 44.2+44.3 birleşik + C9) | ✅ 25 atom, anasayfa cinematic 2.2sn, 9 sayfa Reveal, anayasa Madde 29 eklendi |
 | #45 | Yan Bulgu Temizliği (Y4 + M2) | ✅ Kapalı (Y1 ertelendi #45.2'ye, Y5 yeni bulgu eklendi) |
 | #45.2 | Y5 + Y1 Hex Refactor (Tailwind 4 @theme + ~430 referans) | ✅ Kapalı |
+| #47 | Yasal Zemin Temizliği (8 KIRMIZI ihlal: sahte sayılar + /referanslar + uzman + ekip kartları + anayasa v1.12.0) | ✅ Kapalı |
 
 ### TUR #44 — Hareket Disiplini ✅ BÜYÜK KAPANIŞ
 

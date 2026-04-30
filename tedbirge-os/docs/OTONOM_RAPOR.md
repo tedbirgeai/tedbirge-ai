@@ -1,3 +1,73 @@
+## TUR #47 — Yasal Zemin Temizliği (8 KIRMIZI İhlal Kapatıldı)
+
+**Tarih:** 30 Nisan 2026
+**Anayasa:** v1.11.0 → v1.12.0
+**Süre:** ~2-2.5 saat
+**Etkilenen repo:** tedbirge-panel (4 atom commit) + tedbirge-os (1 commit)
+**Toplam commit:** 4 panel + 1 os
+**Durum:** ✅ KAPALI
+
+### Kapsam
+
+CEO Mehmet DİNÇ direktifi: "T.C. ANAYASASINA GÖRE derin fizibilite + ikisi birlikte uçtan uca". Tur A0 keşif (24 sorgu, 472 satır) ile site genelinde 8 KIRMIZI yasal ihlal tespit edildi. Mimar 5 derin fizibilite raporu yazdı (TUR47_FIZIBILITE_RAPORU.md). CEO 4 karara A onayı verdi. Bu uygulama mektubu uçtan uca temizliği yaptı.
+
+### Kapatılan KIRMIZI İhlaller (8)
+
+1. **K1** — Sahte istatistikler (4200 dava + 42M tazminat + %91 başarı + 500 müvekkil) /hakkimizda sayfasından kaldırıldı, Sayılar section + AnimCounter component silindi (commit `d0e9a5f`)
+2. **K2** — /referanslar sayfası tamamen silindi (4 sahte yorum + "Türkiye'nin ilk" iddiası), HomePageClient TestimonialsSection (6 sahte yorum), sitemap referansı, PublicNav linki kaldırıldı (commit `b5aabfe`)
+3. **K3** — "Türkiye'nin ilk/lider/tek" iddiası site genelinde 0 sonuç (K2 ile zaten silindi), NO-OP
+4. **K4** — "Uzman avukat" ifadeleri 11 sed dönüşümü ile yasal alternatiflere çevrildi: deneyimli avukat ortağımız / hukuki destek / ekibimiz / Hukukçu İncelesin / Bilirkişi raporu. KVKK aydınlatma + kullanım koşulları + 5 sayfa metadata güncel (commit `323522c`)
+5. **K5** — Ekip kartları yeniden yapılandırıldı:
+   - CEO kartı: "Mehmet DİNÇ — Kurucu, CEO & CTO" (birleşik, gerçek isim)
+   - Hukuk Müşaviri kartı: "Pozisyon Açık" + Başvur CTA (sözleşmeli avukat ortağı aranıyor)
+   - Teknoloji Direktörü kartı silindi (CEO ile birleşti — Karar 2)
+   - Grid 3 → 2 sütun (max-w-3xl mx-auto ortalandı)
+   - Boş placeholder div kaldırıldı (commit `4e7af25`)
+6. **K6** — Anayasa Madde 25.3 KIRMIZI listesi genişletildi: "uzman avukat" / "[alan] uzmanı" ünvanı + "Türkiye'nin ilk/tek/lider" iddiası + sayısal başarı vaadi alt-örnekleri (X dava, Y TL, Z %, N müvekkil) eklendi. CLAUDE.md + CLAUDE_MADDE_25_DETAY.md güncel
+7. **K7** — Kariyer mailto: A6 NO-OP (mevcut footer mail linki + /hakkimizda Pozisyon Açık kartı yeterli, ek CTA bulunamadı)
+8. **K8** — DEVIR + IS_PLANI + OTONOM_RAPOR + MIMARI_KARARLAR senkron, anayasa v1.12.0 yürürlükte
+
+### Yasal Kanıt Zemini
+
+- T.C. Anayasası m.36, m.48, m.49, m.50, m.135
+- Avukatlık Kanunu m.35, m.55 (1136 sayılı)
+- TBB Reklam Yasağı Yönetmeliği m.6, m.7 (R.G. 9/8/2024-32627 son hâli — uyarı süreci kaldırıldı)
+- 6502 sayılı Tüketici Kanunu m.61, m.63, m.77/12
+- Ticari Reklam ve Haksız Ticari Uygulamalar Yönetmeliği m.7, m.13
+- Reklam Kurulu 2024 emsalleri (550.059 TL — 1.200.000 TL ceza aralığı)
+- KVKK m.5/2-a, m.10
+- TBB Disiplin Kurulu emsali 1976/42641 (alan + uzman kombinasyonu yasak)
+
+### İstatistik
+
+- Atom: 7 (A1-A7) — A3 ve A6 NO-OP
+- Commit: 5 (4 panel + 1 os)
+- Schema/migration/env/paket: 0
+- Yeni paket: 0
+- Build hatası: 0
+- Production regresyon: 0
+- KIRMIZI ihlal kapatılan: 8
+- Mimar hata: 0
+- Tasarım değişikliği: 0 (sadece içerik temizliği)
+- Sayfa silme: 1 dizin (/referanslar)
+- Component silme: 2 (AnimCounter + TestimonialsSection)
+
+### Production Kanıt
+
+- /health: 200
+- /hakkimizda: 200 (yeni içerikle — Mehmet DİNÇ + Pozisyon Açık + Kurucu CEO görünüyor, sahte sayılar yok)
+- /referanslar: 404 (silindi, doğrulandı)
+- /: 200
+- /blog: 200
+
+### Sonuç
+
+DEVIR yasal açıdan tamamen temiz. ~1.5M-3M TL idari para cezası riski ortadan kaldırıldı. FAZ 4-B Operasyonel Ölçek devam edebilir. Bir sonraki önerilen kesit: TUR #48 — /kariyer sayfası (KVKK uyumlu form) veya TUR #46 (Blog İçerik Üretimi — askıdan döndürülebilir).
+
+— Claude Code, TUR #47 sonu
+
+---
+
 ## TUR #45.2 — Y5 + Y1 Hex Refactor (Tailwind 4 CSS-first)
 
 **Tarih:** 30 Nisan 2026
