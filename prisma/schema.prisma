@@ -280,6 +280,7 @@ model Lead {
   Masraf                Masraf[]
   Petition              Petition[]
   uyapDosyaSyncs        UYAPDosyaSync[]  @relation("UYAPDosyaSyncs")
+  commissionLogs        CommissionLog[]
 }
 
 model Masraf {
@@ -371,6 +372,10 @@ model User {
   sbmSorgular                SBMSorgu[]           @relation("SBMSorgular")
   aiUsageLogs                AIUsageLog[]         @relation("AIUsageLogs")
   dataSubjectRequestsHandled DataSubjectRequest[] @relation("DataSubjectRequestsHandled")
+
+  // TUR #52 — Komisyon + sistem ayarı izleme
+  temsilciKomisyonlari       CommissionLog[]      @relation("TemsilciKomisyon")
+  settingsUpdated            SystemSetting[]      @relation("SettingsUpdater")
 }
 
 model VerificationToken {
@@ -734,4 +739,53 @@ enum CareerApplicationStatus {
   HIRED
   REJECTED
   DELETED
+}
+
+// ─── Madde 24.3 + Madde 18.3 (TUR #52, 30 Nisan 2026) ───────────────
+// CommissionLog — Tahsilat → komisyon kayıt zinciri
+// CEO Mehmet DINC yazili onay (Madde 18.3): TUR #52 mektubu kabulu
+model CommissionLog {
+  id              String           @id @default(cuid())
+  leadId          String
+  lead            Lead             @relation(fields: [leadId], references: [id])
+  tahsilatBrut    Decimal          @db.Decimal(12, 2)
+  tedbirgeOrani   Decimal          @default(20.00) @db.Decimal(5, 2)
+  tedbirgeNet     Decimal          @db.Decimal(12, 2)
+  temsilciId      String?
+  temsilci        User?            @relation("TemsilciKomisyon", fields: [temsilciId], references: [id])
+  temsilciNet     Decimal?         @db.Decimal(12, 2)
+  durum           CommissionStatus @default(BEKLIYOR)
+  havaleAt        DateTime?
+  havaleReferans  String?
+  notes           String?          @db.Text
+  createdAt       DateTime         @default(now())
+  updatedAt       DateTime         @updatedAt
+
+  @@index([leadId])
+  @@index([temsilciId])
+  @@index([durum])
+  @@index([createdAt])
+}
+
+enum CommissionStatus {
+  BEKLIYOR
+  HESAPLANDI
+  HAVALE_EDILDI
+  IPTAL
+}
+
+// SystemSetting — ADMIN UI'dan ayarlanabilir sistem konfigürasyonu (TUR #52)
+// AI guven skoru, bildirim sablonlari, GA4/Cookie ayar referanslari
+model SystemSetting {
+  id          String   @id @default(cuid())
+  key         String   @unique
+  value       String   @db.Text
+  category    String
+  description String?  @db.Text
+  updatedBy   String?
+  updater     User?    @relation("SettingsUpdater", fields: [updatedBy], references: [id])
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@index([category])
 }
