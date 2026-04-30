@@ -1,6 +1,8 @@
 const express = require("express");
 const router = express.Router();
 const prisma = require("../config/db");
+const auth = require("../middlewares/authMiddleware");
+const role = require("../middlewares/roleMiddleware");
 
 let sendCareerApplicationNotification;
 try {
@@ -69,6 +71,123 @@ router.post("/public-career-application", async (req, res) => {
   } catch (error) {
     console.error("[CAREER] Public POST hatasi:", error);
     return res.status(500).json({ error: "Basvuru kayit edilirken hata olustu" });
+  }
+});
+
+// ─── GET /api/career-applications (ADMIN) ──────────────────────
+router.get("/career-applications", auth, role("ADMIN"), async (req, res) => {
+  try {
+    const { status, limit = "50", offset = "0" } = req.query;
+    const where = {};
+    if (status === "DELETED") {
+      where.status = "DELETED";
+    } else if (status) {
+      where.status = status;
+      where.deletedAt = null;
+    } else {
+      where.deletedAt = null;
+    }
+
+    const [applications, total] = await Promise.all([
+      prisma.careerApplication.findMany({
+        where,
+        orderBy: { createdAt: "desc" },
+        take: Math.min(parseInt(limit) || 50, 100),
+        skip: Math.max(parseInt(offset) || 0, 0),
+      }),
+      prisma.careerApplication.count({ where }),
+    ]);
+
+    return res.json({ applications, total });
+  } catch (error) {
+    console.error("[CAREER] Admin GET hatasi:", error);
+    return res.status(500).json({ error: "Veriler yuklenirken hata olustu" });
+  }
+});
+
+// ─── GET /api/career-applications/:id (ADMIN) ──────────────────
+router.get("/career-applications/:id", auth, role("ADMIN"), async (req, res) => {
+  try {
+    const application = await prisma.careerApplication.findUnique({
+      where: { id: req.params.id },
+    });
+    if (!application) {
+      return res.status(404).json({ error: "Basvuru bulunamadi" });
+    }
+    return res.json(application);
+  } catch (error) {
+    console.error("[CAREER] Admin detay hatasi:", error);
+    return res.status(500).json({ error: "Detay yuklenirken hata olustu" });
+  }
+});
+
+// ─── PATCH /api/career-applications/:id/status (ADMIN) ─────────
+router.patch("/career-applications/:id/status", auth, role("ADMIN"), async (req, res) => {
+  try {
+    const { status, reviewNote } = req.body;
+    const validStatuses = ["NEW", "REVIEWED", "CONTACTED", "HIRED", "REJECTED"];
+    if (!validStatuses.includes(status)) {
+      return res.status(400).json({ error: "Gecersiz durum" });
+    }
+
+    const application = await prisma.careerApplication.update({
+      where: { id: req.params.id },
+      data: {
+        status,
+        reviewNote: reviewNote ? reviewNote.slice(0, 2000) : undefined,
+        reviewedAt: new Date(),
+      },
+    });
+
+    try {
+      await prisma.activityLog.create({
+        data: {
+          action: "CAREER_APPLICATION_STATUS_UPDATE",
+          detail: `${application.id} -> ${status}`,
+        },
+      });
+    } catch (e) {}
+
+    return res.json(application);
+  } catch (error) {
+    console.error("[CAREER] Status update hatasi:", error);
+    return res.status(500).json({ error: "Guncelleme hatasi" });
+  }
+});
+
+// ─── DELETE /api/career-applications/:id (ADMIN - KVKK m.7) ────
+router.delete("/career-applications/:id", auth, role("ADMIN"), async (req, res) => {
+  try {
+    const application = await prisma.careerApplication.update({
+      where: { id: req.params.id },
+      data: {
+        status: "DELETED",
+        deletedAt: new Date(),
+        deletionRequestedAt: new Date(),
+        // KVKK anonimlestirme (audit izi korunur)
+        fullName: "[SILINDI]",
+        email: "[SILINDI]",
+        phone: null,
+        cvLink: null,
+        message: null,
+        ipAddress: null,
+        userAgent: null,
+      },
+    });
+
+    try {
+      await prisma.activityLog.create({
+        data: {
+          action: "CAREER_APPLICATION_DELETED_KVKK",
+          detail: `${application.id} silindi (KVKK m.7)`,
+        },
+      });
+    } catch (e) {}
+
+    return res.json({ success: true, deletedAt: application.deletedAt });
+  } catch (error) {
+    console.error("[CAREER] DELETE hatasi:", error);
+    return res.status(500).json({ error: "Silme hatasi" });
   }
 });
 
