@@ -199,7 +199,7 @@ function streamTextPdf(res, filename, title, text) {
   doc.moveDown(0.5);
 
   doc.font("Helvetica").fontSize(11)
-     .text("Dosyanizin hukuki takibi icin uzman avukat destegi alabilirsiniz.", { align: "left" });
+     .text("Dosyanizin hukuki takibi icin deneyimli avukat ortagimizdan destek alabilirsiniz.", { align: "left" });
 
   doc.moveDown(0.5);
 

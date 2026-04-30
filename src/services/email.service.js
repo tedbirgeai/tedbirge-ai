@@ -240,7 +240,7 @@ async function sendLawyerAssignedEmail(lead, lawyer) {
       "Avukatınız Atandı",
       `<h2>Avukatınız Atandı</h2>
       <p>Sayın <strong>${lead.customerName || "Değerli Müvekkil"}</strong>,</p>
-      <p>Dosyanız uzman avukatlarımızdan birine atanmıştır. Avukatınız en kısa sürede sizinle iletişime geçecektir.</p>
+      <p>Dosyanız deneyimli avukat ortaklarımızdan birine atanmıştır. Avukatınız en kısa sürede sizinle iletişime geçecektir.</p>
       <div class="info-box">
         <div class="info-row"><span class="info-label">Dosya No</span><span class="info-value">${lead.leadCode || "—"}</span></div>
         <div class="info-row"><span class="info-label">Atanan Avukat</span><span class="info-value">Av. ${lawyer?.fullName || "—"}</span></div>
