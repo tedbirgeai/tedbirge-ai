@@ -687,3 +687,51 @@ model DataSubjectRequest {
   @@index([status, receivedAt])
   @@index([requesterTC])
 }
+
+// ─── KVKK m.10 + m.7 + m.11 — Madde 25.7 + Madde 18.3 ───────────────
+// TUR #49 (30 Nisan 2026) — Calisan Adayi Basvurusu kalici kayit
+// CEO Mehmet DINC yazili onay (Madde 18.3):
+//   "KAHVEMI YAPARKEN UCTAN UCA TUR #49 BASLA BITIR"
+//   "DOSYAYI INDIRDIM KAHVEYI YAPTIM CLAUDE CODE YES NO SORMASIN"
+model CareerApplication {
+  id                          String              @id @default(cuid())
+  fullName                    String
+  email                       String
+  phone                       String?
+  position                    String
+  cvLink                      String?
+  message                     String?
+
+  // KVKK kanit izi (m.10 aydinlatma + 2018/90 ayri timestamp)
+  aydinlatmaOnayTimestamp     DateTime
+  acikRizaOnayTimestamp       DateTime
+  cvHavuzuOnay                Boolean             @default(false)
+
+  // Operasyonel
+  status                      CareerApplicationStatus @default(NEW)
+  reviewNote                  String?
+  reviewedAt                  DateTime?
+
+  // Audit
+  ipAddress                   String?
+  userAgent                   String?
+  createdAt                   DateTime            @default(now())
+  updatedAt                   DateTime            @updatedAt
+
+  // KVKK m.7 silme talebi (soft delete)
+  deletionRequestedAt         DateTime?
+  deletedAt                   DateTime?
+
+  @@index([status])
+  @@index([createdAt])
+  @@index([email])
+}
+
+enum CareerApplicationStatus {
+  NEW
+  REVIEWED
+  CONTACTED
+  HIRED
+  REJECTED
+  DELETED
+}
