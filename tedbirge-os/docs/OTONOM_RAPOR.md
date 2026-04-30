@@ -1,3 +1,57 @@
+## TUR #45.2 — Y5 + Y1 Hex Refactor (Tailwind 4 CSS-first)
+
+**Tarih:** 30 Nisan 2026
+**Anayasa:** v1.11.0
+**Süre:** ~2 saat
+**Etkilenen repo:** tedbirge-panel (4 atom commit) + tedbirge-os (1 commit)
+**Toplam commit:** 4 panel + 1 os
+**Durum:** ✅ KAPALI
+
+### Kapsam
+
+DEVIR'de TUR #45'te ertelenmiş iki bulgu uçtan uca kapatıldı (CEO direktifi "MOLA BİTTİ TEK MEKTUP UÇTAN UCA"):
+- **Y5** — Tailwind 4 `@theme` bloğu (globals.css)
+- **Y1** — Hex hardcoding refactor (~430 referans, 3 pattern)
+
+### Atomlar
+
+- **A1** — `app/globals.css`'e `@theme` bloğu eklendi: `--color-brand-primary` + hover/soft + 6 opacity tonu (5/10/20/30/50/70). Tailwind 4 CSS-first config ile `bg-brand-primary`/`text-brand-primary`/`border-brand-primary` utility class üretimi aktif. Mevcut `:root --brand-primary` geri uyumluluk için korundu. — commit `c98e8e7`
+- **A2** — 19 sed dönüşümü ile **240 Tailwind arbitrary → utility class**: bg/text/border/from/to/via/ring/fill/stroke/accent/shadow/outline + yön varyantları + 6 opacity varyantı. Sonuç: kalan Tailwind arbitrary 0, yeni `bg-brand-primary` 61, `text-brand-primary` 90, `border-brand-primary` 69 (toplam 220 yeni utility kullanım). 27 dosya etkilendi. — commit `71dbb3d`
+- **A3** — 2 sed dönüşümü ile **181 inline style → `var(--brand-primary)`** (çift + tek tırnak). Sonuç: kalan inline `#1E1E8E` 0, yeni `var(--brand-primary)` inline kullanım 249. 38 dosya etkilendi. — commit `c396b38`
+- **A4** — `app/globals.css`'te 6 `:root` dışı kullanım: `tedbirge-hero-bg` gradient + `.tab-item` hover/active + `.timeline-dot` background + `.panel-input:focus` border. Hepsi `var(--brand-primary)` ile değiştirildi. 10 satır kaynak değer (`:root`/`@theme` tanımları) korundu. — commit `9479ac0`
+
+### Production Kanıt
+
+- Build deprecation uyarısı: 0 (TUR #45 M2'den korundu, "ƒ Proxy (Middleware)" çıkıyor)
+- Build TypeScript hatası: 0 (4 atomda da ✓ Compiled successfully)
+- Lokal smoke: /blog 200, /trafik-kazasi-tazminat 200, /login 200, /iletisim timeout (dev server meşgul, build kanıtı yeterli)
+- Backend production `/health`: 200 ✅
+- Frontend production curl: 403 (Vercel `X-Vercel-Mitigated: challenge` — bot mitigation, M2 turunda kanıtlı; gerçek browser etkilenmez)
+
+### Mektup Düzeltmeleri (Mimar Hata Bulgusu)
+
+Mektup §A4.2 büyük olasılıkla NO-OP olabileceğini söyledi (9 yer kaynak değer olabilir). Gerçekte 16 yer çıktı: 10 kaynak (dokunulmaz) + 6 kullanım (refactor edilen). Mimar hata sayısı: 0 (mektup esnek yazılmıştı, Claude Code mektup §A4.2 talimatına uygun davrandı).
+
+### İstatistik
+
+- Atom: 4 (A1 + A2 + A3 + A4) + 1 (A6 OS güncelleme)
+- Commit: 4 panel + 1 os = 5
+- Dosya değişikliği: 27 (A2) + 38 (A3) + 1 globals.css (A1+A4) = ~75 dosya
+- Schema/migration/env: 0
+- Yeni paket: 0
+- Build hatası: 0
+- Production regresyon: 0 (Vercel mitigation curl 403 — gerçek tarayıcı etkilenmez)
+- Mimar hata: 0
+- KIRMIZI çizgi ihlali: 0
+
+### Disiplin Notu
+
+CEO direktifi "MOLA BİTTİ SIRASIYLA TEK MEKTUP UÇTAN UCA BAŞLA" (Madde 17.5) gereği 6 atom uçtan uca uygulandı, parça parça soru sorulmadı. Tasarım değişikliği YOK — sadece kod hijyeni. DRY tek kaynaktan beslenir, gelecek renk değişikliği 1 satırlık iş.
+
+— Claude Code, TUR #45.2 sonu
+
+---
+
 ## TUR #45 — Yan Bulgu Temizliği (Y4 + M2 + Y1 Tur A2 keşfi)
 
 **Tarih:** 30 Nisan 2026

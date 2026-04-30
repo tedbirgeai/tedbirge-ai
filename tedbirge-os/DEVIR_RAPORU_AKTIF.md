@@ -1,16 +1,18 @@
 # 🛡️ DEVIR RAPORU (AKTİF) — TEDBİRGE.AI
 
-**Son güncelleme:** 30 Nisan 2026 (TUR #45 yan bulgu temizliği)
+**Son güncelleme:** 30 Nisan 2026 (TUR #45.2 hex refactor)
 **Anayasa:** v1.11.0
 **Aktif kesit:** FAZ 4-B Operasyonel Ölçek
-**Son TUR:** #45 — Yan Bulgu Temizliği (KAPALI — Y4 + M2, Y1 ertelendi TUR #45.2'ye)
+**Son TUR:** #45.2 — Y5 + Y1 Hex Refactor (KAPALI — Tailwind 4 @theme + ~430 referans dönüşümü)
 
 ---
 
-## ✅ KAPATILAN YAN BULGULAR (TUR #45 — 30 Nisan 2026)
+## ✅ KAPATILAN YAN BULGULAR (TUR #45 + #45.2 — 30 Nisan 2026)
 
 - **Y4** — OS untracked 11 keşif raporu → `docs/arsiv/` altına taşındı, README.md eklendi, commit `f0e33ec`
 - **M2** — middleware.ts → proxy.ts (Next 16 codemod migration), build deprecation uyarısı kalktı, lokal smoke test 4/4 ✅, commit `5500eff`. Production smoke test Vercel bot mitigation tarafından engellendi (X-Vercel-Mitigated: challenge — curl bot olarak işaretlendi, gerçek browser etkilenmez)
+- **Y5** — globals.css `@theme` bloğu eklendi (Tailwind 4 CSS-first config) → `bg-brand-primary`/`text-brand-primary`/`border-brand-primary` utility class üretimi aktif, commit `c98e8e7`
+- **Y1** — Hex hardcoding refactor tamamlandı: 240 Tailwind arbitrary → utility class (commit `71dbb3d`), 181 inline style → `var(--brand-primary)` (commit `c396b38`), 6 globals.css doğrudan kullanım `var()` ile değiştirildi (commit `9479ac0`). Kalan globals.css 10 satır kaynak değer (`:root`/`@theme` tanımları). 0 tasarım değişikliği — sadece kod referans dönüşümü.
 
 ---
 
@@ -53,31 +55,7 @@ YOK.
 **Öncelik:** COULD + LATER (kozmetik, kurumsal palete yakın ama identical değil)
 **Süre:** ~10 dk
 
-### Y1 — Hex hardcoding refactor (TUR #45 Tur A2 keşfi yapıldı)
-
-**Detay:** Tur A2 kanıtı (docs/TUR45_TUR_A2_HEX_REFACTOR_KESIF.md):
-- Toplam refactor hedef: ~430 (240 Tailwind arbitrary + 181 inline + 9 globals.css)
-- Mevcut doğru kullanım: 140 var(--brand-primary)
-- TUR A toplam 2376 → ~%80 .next/dev artifacts (refactor dışı, otomatik üretilir)
-
-**Bağımlılık (Y5):** Tailwind 4 CSS-first config — `tailwind.config.*` YOK. globals.css'te `:root` var ama `@theme` directive bloğu YOK → Tailwind utility (`bg-brand-primary`) üretmiyor, geliştirici `bg-[#1E1E8E]` arbitrary kullanmak zorunda kalıyor.
-
-**Pattern stratejisi:**
-- Tailwind arbitrary → `@theme` ekle, sonra utility class refactor (sed)
-- Inline style → `var(--brand-primary)` mekanik replace (sed)
-- CSS file → manuel düzeltme (9 yer)
-
-**Öncelik:** SHOULD + LATER
-**Süre tahmini:** TUR #45.2 ~2 saat (Y5 + Y1 birleşik, 5 atom)
-**Risk:** Düşük (renkler aynı, sadece referans değişimi)
-**Tetikleyici:** CEO direktifi (kozmetik, gerçekten gerekli olduğunda)
-
-### Y5 — Tailwind 4 @theme directive eksik (TUR #45 yeni bulgu, Y1 ön şartı)
-
-**Detay:** globals.css'te `@theme` bloğu yok → Tailwind utility class brand renk üretilmiyor. Y1'in ön koşulu.
-**Çözüm:** TUR #45.2 Atom 1 (5 dk) — `@theme { --color-brand-primary: ...; ... }` ekle.
-**Öncelik:** SHOULD + LATER (Y1 ile birleşik)
-**Süre:** ~5 dk
+<!-- Y1 + Y5 KAPATILDI — TUR #45.2'de (commit c98e8e7 + 71dbb3d + c396b38 + 9479ac0). Ayrıntı için ✅ KAPATILAN YAN BULGULAR bölümüne bak. -->
 
 ### Y2 — Anasayfa typewriter karakter bazlı stagger (TUR #44 yan bulgu)
 

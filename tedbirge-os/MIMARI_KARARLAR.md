@@ -6,6 +6,46 @@
 
 ---
 
+## 30 Nisan 2026 — TUR #45.2 Y5 + Y1 Hex Refactor (Tailwind 4 CSS-first)
+
+**Karar:** Tedbirge.ai marka renk paleti Tailwind 4 `@theme` directive ile kanonik hale getirildi. Tüm hardcoded `#1E1E8E` referansları (Tailwind arbitrary + inline style + globals.css doğrudan kullanım) `bg-brand-primary` utility class veya `var(--brand-primary)` CSS variable üzerinden tek kaynaktan beslenir.
+
+**Sebep — Tur A2 kanıtları (`docs/TUR45_TUR_A2_HEX_REFACTOR_KESIF.md`):**
+- Tedbirge Tailwind 4 CSS-first config kullanıyor (`tailwind.config.ts/js/mjs` YOK, sadece `postcss.config.mjs`)
+- 240 Tailwind arbitrary + 181 inline style + 6 globals.css doğrudan = 427 referans hedef (10 globals.css kaynak değer dokunulmadı)
+- DRY ihlali: aynı renk 3 farklı şekilde yazılmıştı (#1E1E8E, var(--brand-primary), brand-primary class — sonuncu eksikti)
+- `@theme` ile Tailwind 4 utility class üretimi otomatikleşti
+
+**Atom sıralaması:**
+1. A1: globals.css `@theme` bloğu eklendi (Y5)
+2. A2: 19 sed ile 240 Tailwind arbitrary → utility class (Y1.1)
+3. A3: 2 sed ile 181 inline style → var(--brand-primary) (Y1.2)
+4. A4: 6 globals.css doğrudan kullanım → var() (Y1.3)
+5. Final build + lokal smoke + production verify
+
+**Etki:**
+- DRY tek kaynaktan: `--color-brand-primary` (Tailwind 4 @theme) + `--brand-primary` (geri uyumluluk için :root'ta korundu)
+- Yeni renk değişikliği gerekirse: 1 yer (@theme bloğu), 427 yer değil
+- Tasarım değişikliği YOK (sayısal değer #1E1E8E aynı)
+- Kalan globals.css 10 satır kaynak değer (CSS variable tanımları) — DRY için merkez
+
+**Öğrenilen ders:**
+TUR #45 mektup yazımında Tailwind config dosyası varsayıldı (`tailwind.config.ts` beklenmişti) ama Tailwind 4 CSS-first config'i kullanıldığı Tur A2'de kanıtlandı. Mimari düzeltme Tur A2 raporunda yapıldı, TUR #45.2 mektubu doğru pattern'le yazıldı. Dersli kayıt: **kanıt önce, varsayım sonra** (Madde 4 atom + kanıt + önce oku).
+
+**Kanıt commit zinciri:**
+- `c98e8e7` — A1 Y5 @theme bloğu
+- `71dbb3d` — A2 Y1.1 240 Tailwind arbitrary refactor
+- `c396b38` — A3 Y1.2 181 inline style refactor
+- `9479ac0` — A4 Y1.3 6 globals.css refactor
+
+**Mimar:** Claude Opus 4.7 (sohbet, mektup yazan) + Claude Code (uygulayan, 4 atom uçtan uca)
+**Onay:** Mehmet Dinç — "MOLA BİTTİ SIRASIYLA TEK MEKTUP UÇTAN UCA BAŞLA" (Madde 17.5 son söz)
+**Disiplin:** Madde 4 (atom + kanıt + önce oku), Madde 17.5 (CEO son söz)
+
+---
+
+---
+
 ## 30 Nisan 2026 — TUR #45 Y1 Erteleme + Y5 Yeni Bulgu (Tailwind 4 @theme)
 
 **Karar:** Y1 (hex hardcoding refactor) TUR #45.2'ye ertelendi. Y5 (Tailwind 4 `@theme` directive eksik — globals.css'te `@theme` bloğu yok) yeni yan bulgu olarak DEVIR'e eklendi, Y1'in ön şartı oldu.
