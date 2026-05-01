@@ -1447,7 +1447,109 @@ Risk: yanlış varsayım kapsam patlatır. Karşı tedbir: mektup öncesi mevcut
 
 ---
 
-## 30. KAPANIŞ — NİYE BU ANAYASA VAR
+## 30. OTONOM KATMAN DİSİPLİNİ — Auditor + Healer + Reporter
+
+### 30.1 İlke
+
+Tedbirge.ai'nin operasyonel sürekliliği 3 otonom agent ile sağlanır. Bu agent'lar **server boot zamanı çalışmaya başlar** (`src/agents/runner.js` → `startAgents()`), `AgentEvent` tablosuna her tick sonrası kayıt yazar, ADMIN paneline `RealtimeEvent` üzerinden canlı bildirim gönderir.
+
+### 30.2 Üç Agent
+
+- **Auditor** (5 dk periyot) — sistem sağlığı kontrolleri: eski KRITIK lead, AI onay bekleyen, KVKK 30 gün riski, atanmamış lead, WON ama tazminat yok, eski commission.
+- **Healer** (10 dk periyot) — otomatik küçük düzeltmeler: eksik CommissionLog auto-create, zamanaşımı yaklaşan trafik kazaları aciliyet KRITIK, eski RealtimeEvent purge, eski INFO AgentEvent purge.
+- **Reporter** (1 saat periyot, günde 1 yazım) — günlük özet (yeni lead + tahsilat toplam + KVKK + kariyer + auditor bulgu sayısı).
+
+### 30.3 AgentEvent Disiplini
+
+Her agent tick'i kayıt yazar (`AgentEvent` tablosu, `severity`: INFO/WARNING/ERROR/CRITICAL). 30 gün INFO event'leri Healer tarafından otomatik temizlenir. ERROR/CRITICAL kalıcı.
+
+### 30.4 ADMIN UI
+
+`/dashboard/sistem-durumu/agent-feed` sayfası:
+- 3 agent durum kartları (lastRunAt + running pulse)
+- Manuel tetikleme butonları (`POST /api/agents/:name/tick`)
+- Son 50 olay listesi (severity filtreli)
+
+### 30.5 RealtimeEvent + SSE
+
+Auditor/Healer/Reporter ADMIN'e bildirim göndermek için `RealtimeEvent` tablosuna kayıt yazar (channel: `ADMIN_FEED`). Frontend `/api/realtime/notifications` SSE endpoint'inden tüketilir.
+
+### 30.6 Yasaklı Davranış
+
+- ❌ Agent içinde production DB'ye SQL execute (KIRMIZI nokta)
+- ❌ Agent içinde external API çağrısı (rate limit ihlali)
+- ❌ Agent tick içinde 30 saniyeyi geçen iş (`SLOW_TICK` WARNING)
+- ❌ Healer `force=true` parametresi olmadan idempotent olmayan işlem
+
+---
+
+## 31. TASARIM DİSİPLİNİ — Tedbirge Design System v1.0
+
+### 31.1 İlke
+
+Her CRM modülü Linear + Notion + Stripe Dashboard + Salesforce Lightning seviyesinde profesyonel görsel disiplin korur. Çalışanlar bu sistemi **tercih etmeli** — hız, güven, profesyonellik tasarımdan geçer.
+
+### 31.2 Tipografi (4 font ailesi — TUR #55)
+
+- **Display:** Crimson Pro — başlık, hero metin (hukuki ciddiyet + okunaklılık)
+- **Body:** Inter Tight — UI metni
+- **Mono:** JetBrains Mono — lead kodları, tarih, sayılar
+- **Feature:** Cabinet Grotesk (eklenirse) — vurgu metinleri, statik etiketler
+
+CSS variables: `--font-display`, `--font-body`, `--font-mono`. Sabit `font-family` yasak.
+
+### 31.3 Renk Paleti — CSS Variables Zorunlu
+
+`globals.css` `:root` altında tanımlı:
+- Brand: `--brand-primary`, `--brand-accent`
+- Ink scale: `--ink-100` → `--ink-900`
+- Semantic: `--success-fg/bg`, `--danger-fg/bg`, `--warning-fg/bg`, `--info-fg/bg`
+- Glass: `--glass-bg`, `--glass-border`
+- Shadow: `--shadow-sm/md/lg/glow`
+- Spring: `--spring-ios` = `cubic-bezier(0.16, 1, 0.3, 1)` (Apple iOS)
+
+**Yasak:** Sayfa içinde sabit hex (`#1e40af` gibi) — CSS variable üzerinden referans.
+
+### 31.4 Hareket Disiplini
+
+Apple iOS spring (`cubic-bezier(0.16, 1, 0.3, 1)`). **Framer Motion zorunlu**. 60fps minimum. Her interaktif öğede:
+- Hover: `whileHover={{ y: -1 }}` veya `translateY(-1px)`
+- Click: `whileTap={{ scale: 0.98 }}`
+- Focus: ring 4px ring-opacity-12
+
+Reduced-motion (Madde 29.2) korunur — `useReducedMotion()` hook ile.
+
+### 31.5 12 Component Library (`components/ds/`)
+
+Üretim seviyesi 12 temel bileşen — yeni sayfa bunları kullanır, yeniden yazmaz:
+
+Button · Card · Input · Badge · Avatar · Tooltip · Dialog · Toast · Skeleton · EmptyState · Tabs · CommandPalette
+
+Tek yerden değişiklik = tüm sayfada yansıma. **Yeni component eklemek isterse mimar onayı gerek** (atomik etki kontrolü).
+
+### 31.6 Real-Time Feed (TUR #55)
+
+Tüm canlı feed SSE üstünden (`/api/realtime/notifications`). Client `EventSource` ile bağlanır, kanal bazlı dinler (`ADMIN_FEED`, `LAWYER_<id>`, `TEMSILCI_<id>`, `USER_<id>`). Optimistic UI updates default.
+
+### 31.7 Mikro-etkileşimler — Zorunlu
+
+- Skeleton loaders (boş ekran yasak)
+- Toast notifications (her yazma işleminde başarı/hata)
+- Hover/focus state tüm tıklanabilir öğelerde
+- Loading state asenkron işlemlerde
+
+### 31.8 Yasak
+
+- ❌ Generic AI aesthetics (Roboto, mor gradient, vb.)
+- ❌ Flat design without depth (en az 1 shadow seviyesi)
+- ❌ Boş ekran (loading + empty state zorunlu)
+- ❌ Hover/focus state yok
+- ❌ Cookie-cutter layout (her sayfa ayrı düşünülür)
+- ❌ Sabit hex/rgb değerler (CSS variable zorunlu)
+
+---
+
+## 32. KAPANIŞ — NİYE BU ANAYASA VAR
 
 Tedbirge.ai 20 bin satır iş kalitesi backend kodu olan, **Türkiye'de rakipsiz mimariye** sahip bir LegalTech projesi.  
 3 avukat canlıda kullanıyor.  
@@ -1462,7 +1564,7 @@ Mehmet Bey sahaya çıkabilsin diye bu disiplin var.
 
 ---
 
-**— Tedbirge Mimari Anayasası v1.14.0**  
+**— Tedbirge Mimari Anayasası v1.15.0**  
 **25 Nisan 2026 — başlangıç (Claude Opus 4.7)**  
 **28 Nisan 2026 — v1.7.0 (Madde 26-32 eklendi: otonom devir, sağlık periyodikliği, T tipi onay, migration kanıtı, frontend standardı, ortam izolasyonu, anayasa boyutu)**  
 **28 Nisan 2026 — v1.8.0 (Madde 28 eklendi: Beklemede Özellik Disiplini — AccidentCase TUR #29 dersi; Madde 28 (eski 33) kapanış → 29 (eski 34) olarak yeniden numaralandı)**  
@@ -1473,5 +1575,6 @@ Mehmet Bey sahaya çıkabilsin diye bu disiplin var.
 **30 Nisan 2026 — v1.12.0 (Madde 25.3 KIRMIZI listesi genişletildi: "uzman avukat" / "[alan] uzmanı" ünvanı + "Türkiye'nin ilk/tek/lider" iddiası + sayısal başarı vaadi alt-örnekleri eklendi. TUR #47 Yasal Zemin Temizliği — 8 KIRMIZI ihlal kapatıldı, ~1.5M-3M TL ceza riski ortadan kaldırıldı.)**  
 **30 Nisan 2026 — v1.13.0 (Madde 25.3 KIRMIZI listesi genişletildi: "ücretsiz hukuki [değerlendirme/danışmanlık/inceleme/destek]" zinciri + "ortaklarımız" + "ücretsiz" yan yana kullanım yasak. TUR #50 "Ücretsiz Hukuki" Yasal Zemin Temizliği — 8 KIRMIZI ihlal kapatıldı, AI+Ön niteleyicisi ürün dilbilgisi olarak kalıcı hâl aldı.)**  
 **30 Nisan 2026 — v1.14.0 (TUR #52 — 4 CRM uçtan uca tam operasyonel: KIRMIZI nokta paketi (CommissionLog + SystemSetting modelleri + postinstall auto-migration) + TUR #47 backend regresyon temizliği (uzman avukat → deneyimli avukat ortağı PDF/email) + 6 yeni admin UI (kvkk-talepler, audit-log, komisyon-log, ayarlar, avukat-yonetim, temsilci-yonetim) + temsilci hakediş + public KVKK başvuru + KVKKSCC klasör 4 sağlayıcı dosyası. ~3M+ TL yasal risk kapatıldı. Madde 25.3 birleşik liste, Madde 4.1 ekosistem disiplini — yasal temizlik tüm tabanda zorunlu.)**  
+**1 Mayıs 2026 — v1.15.0 (TUR #55 — 4 CRM Anahtar Teslim: KIRMIZI nokta 5'lı paket (User IBAN+vergi+preferences, Lead aiAnalizOnay+aciliyet+publicSummary, AgentEvent, RealtimeEvent + 8 npm paketi). Madde 30 Otonom Katman Disiplini eklendi: Auditor (5 dk) + Healer (10 dk) + Reporter (1 saat) — server boot ile başlar, AgentEvent yazar, ADMIN_FEED RealtimeEvent gönderir. Madde 31 Tasarım Disiplini eklendi: Tedbirge Design System v1.0 — 4 font (Crimson Pro + Inter Tight + JetBrains Mono + Cabinet Grotesk), 30+ CSS variable, Framer Motion + spring eğrisi, 12 production-grade component (`components/ds/`). REPRESENTATIVE yetki 53→39 endpoint (Madde 24.4). CommissionLog auto-trigger (Lead.gercekTazminat → otomatik). Public lead → ADMIN feed bildirim. SSE backend (`/api/realtime/notifications`). KAPANIŞ Madde 32'ye kaydı.)**  
 **Versiyon geçmişi: tedbirge-os/MIMARI_KARARLAR.md**  
 **Her major/minor değişiklikte versiyon güncellemesi ZORUNLU (Madde 22)**

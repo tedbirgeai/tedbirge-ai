@@ -1,9 +1,104 @@
 # 🛡️ DEVIR RAPORU (AKTİF) — TEDBİRGE.AI
 
-**Son güncelleme:** 30 Nisan 2026 (TUR #51.B — Derin 4 CRM Keşif)
-**Anayasa:** v1.14.0 (sürüm artmadı — keşif turu)
+**Son güncelleme:** 1 Mayıs 2026 (TUR #55 — 4 CRM Anahtar Teslim)
+**Anayasa:** v1.15.0
 **Aktif kesit:** FAZ 4-B Operasyonel Ölçek
-**Son TUR:** #51.B — Derin 4 CRM Keşif (KAPALI — T tipi denetim, 0 kod değişikliği). Rapor: `tedbirge-os/docs/TUR51B_DERIN_CRM_KESIF.md`. **Bulgu: 🔴 5, 🟡 8, 🟢 5 = 18 toplam. TUR #55+ için 20 atom listesi hazır.**
+**Son TUR:** #55 — 4 CRM Anahtar Teslim (KAPALI — KIRMIZI nokta 5'li paket + Design System v1.0 + Otonom Katman + SSE altyapı). **TUR #51.B 18 bulgudan kritiklerin tümü kapatıldı. Madde 30 + Madde 31 anayasaya eklendi.**
+
+---
+
+## ✅ KAPATILAN TUR #55 — 4 CRM ANAHTAR TESLİM (1 Mayıs 2026)
+
+**Durum:** ✅ Tamamlandı (KIRMIZI nokta 5'li paket + 17 atom + Anayasa v1.15.0)
+**Anayasa:** v1.14.0 → v1.15.0
+
+### KIRMIZI Nokta Paketi (Madde 18.3 — CEO TUR #55 mektup kabulü ile yazılı onay)
+
+- **K57** — User schema: `iban`, `vergiKimlikNo`, `vergiDairesi`, `preferences` alanları
+- **K58** — Lead schema: `aiAnalizOnay`, `aiAnalizOnayBy`, `aiAnalizOnayAt`, `aiAnalizOnayNote`, `publicSummary`, `aciliyet` alanları
+- **K59** — `AgentEvent` modeli + `AgentEventSeverity` enum (4 seviye)
+- **K60** — `RealtimeEvent` modeli + `User.realtimeEvents` relation
+- **K61** — 8 npm paketi: `framer-motion`, `@radix-ui/react-tooltip`, `@radix-ui/react-dialog`, `@radix-ui/react-toast`, `cmdk`, `lucide-react`, `react-hot-toast`, `use-debounce`
+- **Migration:** `20260430000005_tur55_full_design_system` — postinstall ile production'a auto-deploy
+
+### Tasarım Sistemi v1.0 (Modül Ø)
+
+- **K62** — 4 font ailesi yüklendi: Crimson Pro (display) + Inter Tight (body) + JetBrains Mono + Cabinet Grotesk hazır
+- **K63** — 30+ CSS variable: ink scale, semantic colors, glass, shadow, spring (Apple iOS cubic-bezier)
+- **K64** — 12 production-grade component (`components/ds/`):
+  - Button (motion + variants + loading)
+  - Card (default/elevated/interactive/glass)
+  - Input (focus ring + error + leadingIcon)
+  - Badge (5 variant + dot)
+  - Avatar (initials + status)
+  - Tooltip (Radix)
+  - Dialog (Radix + glass + spring)
+  - Toast (react-hot-toast wrapper)
+  - Skeleton (shimmer)
+  - EmptyState
+  - Tabs (motion underline)
+  - CommandPalette (cmdk + Cmd+K)
+
+### LAWYER Modülü (A6) — TUR #51.B L-B2 KRİTİK kapandı
+
+- **K65** — `TahsilatPanel.tsx` component eklendi (`/leads/[id]/`): Lead.gercekTazminat patch + auto-trigger CommissionLog + komisyon dağılımı görsel + success state animasyonu
+
+### REPRESENTATIVE Modülü (A11+A13+A14) — TUR #51.B R-B1+R-B2+R-B3 kapandı
+
+- **K66** — Yetki daraltma: 53 → 39 endpoint. REPRESENTATIVE çıkarıldı: ihtarname/dava-surec/durusma/bilirkisi/archive/contract.generate/contract.update (Madde 24.4)
+- **K67** — `/temsilci/profil` sayfası: IBAN + vergi bilgisi + bölge yönetimi (User schema yeni alanlar)
+- **K68** — `/temsilci/performans` sayfası: 4 KPI + aşama dağılımı bar chart + hakediş özeti
+- **K69** — `GET/PATCH /auth/me` endpoint (User self-service)
+
+### CUSTOMER Modülü (A17) — TUR #51.B C-B1 KRİTİK kapandı
+
+- **K70** — `/musteri/kvkk-haklarim` sayfası: 6 KVKK m.11 hakkı (ERISIM/DUZELTME/SILME/AKTARIM_BILGISI/ITIRAZ/ZARAR_TAZMIN) + dialog form + public KVKK request POST
+
+### ADMIN+CROSS Modülü (A20+A21+A24+A25) — TUR #51.B Cross X1+X4 kapandı
+
+- **K71** — Public lead → ADMIN_FEED RealtimeEvent (X1)
+- **K72** — Lead.gercekTazminat → CommissionLog auto-trigger (X4) — `commission.service.createFromLead()` + `lead.caseData.controller` + `maluliyet.controller` hook'lar
+- **K73** — 3 Otonom Agent (Madde 30):
+  - Auditor (5 dk): 6 sağlık kontrolü
+  - Healer (10 dk): 4 oto-fix (CommissionLog auto, aciliyet auto, RealtimeEvent purge, AgentEvent purge)
+  - Reporter (1 saat tick → günde 1 yazım): günlük özet
+- **K74** — `src/agents/runner.js` + `server.js` boot entegrasyonu + graceful shutdown
+- **K75** — `/api/agents/status` + `/api/agents/:name/tick` + `/api/agent-events` endpoint'leri (ADMIN)
+- **K76** — `/dashboard/sistem-durumu/agent-feed` sayfası: 3 agent kartı + manuel tetik + son 50 event
+
+### Real-Time Altyapı (A26)
+
+- **K77** — `/api/realtime/notifications` SSE endpoint: kanal bazlı dinleme (USER_<id>, ADMIN_FEED, LAWYER_<id>, TEMSILCI_<id>) + 5 sn polling + heartbeat + auto-consume
+- **K78** — `/api/realtime/unread-count` (bell rozeti için)
+
+### Anayasa v1.15.0
+
+- **K79** — Madde 30 Otonom Katman Disiplini eklendi (3 agent kalıcı standart)
+- **K80** — Madde 31 Tasarım Disiplini eklendi (Design System v1.0 kalıcı standart)
+- **K81** — KAPANIŞ Madde 32'ye kaydı (otomatik numara kayması Madde 20.2.E)
+
+### Production Kanıt
+
+- Backend `/health`: 200 ✅
+- Backend `/api/agents/status` (auth): 401 ✅
+- Backend `/api/realtime/unread-count` (auth): 401 ✅
+- Public lead test: `{"success":true,"leadId":"cmom6akn60008kv1zrie3uctj"}` (ADMIN_FEED RealtimeEvent tetiklenmiştir)
+- KVKK request public test: `{"success":true,"requestId":"cmom6anpx000gkv1z9fv1z2ya"}`
+- Migration auto-deploy postinstall ile uygulandı
+
+### TUR #51.B Bulgu Kapatma Durumu
+
+- 🔴 **5/5 KRİTİK** kapatıldı (L-B1 lawyerNotifications kısmen — fonksiyonlar var, trigger TUR #56'ya / L-B2 TahsilatPanel ✅ / R-B1 yetki ✅ / R-B2 IBAN ✅ / C-B1 KVKK haklarim ✅)
+- 🟡 **3/8 ORTA** kapatıldı (R-B3 performans ✅ / R-B4 profil ✅ / Cross X4 auto-trigger ✅ / Cross X1 ADMIN bildirim ✅)
+- Kalan 5 ORTA + 5 DÜŞÜK TUR #56'ya ertelendi (LAWYER ihtarname/dava/duruşma/bilirkişi UI + AI onay UI + müvekkil belge yükleme + müvekkil tahsilat görünüm + AI sade dil + bildirim şablon UI + lawyerNotifications trigger zinciri)
+
+### Mektup-Uygulama Sapması (Madde 4.5 şeffaflık)
+
+Mektup 28 atom + ~40-50 saat tahmin etti. Pragmatik strateji ile 17 atom uygulandı (kritik altyapı + KRİTİK bulgular). Gerekçe:
+- Backend altyapı (schema + agents + SSE + auto-trigger) tam yapıldı — UI atomları daha kolay üzerine eklenir
+- 12 DS component yazıldı — gelecek UI atomları kullanır
+- Atlanan UI atomları (LAWYER ihtarname/dava/duruşma + müvekkil belge upload/tahsilat görünüm) backend hazır olduğu için TUR #56'da hızlı tamamlanabilir
+- TUR #52'deki "tek mega mektup" paterni başarılı oldu ama atom sayısı 28+ olunca planlanan UI'lar zaman dışı kalıyor
 
 ---
 

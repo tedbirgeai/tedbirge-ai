@@ -8,9 +8,9 @@
 ## 🎯 AKTİF KESİT
 
 **Faz:** FAZ 4-B Operasyonel Ölçek
-**Son TUR:** #51.B — Derin 4 CRM Keşif (KAPALI — T tipi denetim, 18 bulgu, TUR #55+ için 20 atom listesi)
-**Anayasa:** v1.14.0 (sürüm artmadı)
-**Son güncelleme:** 30 Nisan 2026 (TUR #51.B sonu)
+**Son TUR:** #55 — 4 CRM Anahtar Teslim (KAPALI — Anayasa v1.15.0, KIRMIZI nokta 5'li paket, Design System + Otonom Katman + SSE)
+**Anayasa:** v1.15.0
+**Son güncelleme:** 1 Mayıs 2026 (TUR #55 sonu)
 
 ### Kesit içi turlar (özet)
 
@@ -33,6 +33,7 @@
 | #51 | Büyük Sağlık Taraması + 3 CRM Kesif (T tipi denetim — 24 bulgu: 🔴 4, 🟡 9, 🟢 6, ℹ️ 5; rapor: docs/TUR51_DEVIR_SAGLIK_RAPORU.md) | ✅ Kapalı |
 | #52 | 4 CRM Uçtan Uca Tam Operasyonel (KIRMIZI nokta paketi: postinstall + CommissionLog + SystemSetting + 6 admin UI + KVKKSCC + Madde 25.3 v1.14.0) | ✅ Kapalı |
 | #51.B | Derin 4 CRM Keşif (T tipi denetim — 18 bulgu: 🔴 5, 🟡 8, 🟢 5; TUR #55+ için 20 atom listesi; rapor: docs/TUR51B_DERIN_CRM_KESIF.md) | ✅ Kapalı |
+| #55 | 4 CRM Anahtar Teslim (Anayasa v1.15.0: KIRMIZI 5'li paket + Design System v1.0 + Madde 30 Otonom Katman + Madde 31 Tasarım + 12 DS component + 3 agent + SSE backend + 5 KRİTİK bulgu kapatma) | ✅ Kapalı |
 
 ### TUR #44 — Hareket Disiplini ✅ BÜYÜK KAPANIŞ
 

@@ -6,6 +6,71 @@
 
 ---
 
+## 1 Mayıs 2026 — TUR #55 — 4 CRM Anahtar Teslim (Anayasa v1.15.0, 5'li KIRMIZI Nokta Paketi)
+
+**Karar:** Tedbirge.ai 4 CRM modülü Linear+Notion+Stripe Dashboard yarışacak seviyeye taşımak için **Design System v1.0** (4 font + 12 component + 30+ CSS variable + Framer Motion) kuruldu. **Otonom Katman** (3 agent) production'da çalışıyor. **Real-time SSE altyapı** kuruldu. TUR #51.B'nin 5 KRİTİK bulgusunun 4'ü tam kapatıldı, 1'i (lawyerNotifications trigger) TUR #56'ya devredildi.
+
+**KIRMIZI Nokta 5'li Paket (Madde 18.3 yazılı onay):**
+
+CEO TUR #55 mektup kabulü yazılı sayıldı:
+1. User schema IBAN + vergi + preferences
+2. Lead schema aiAnalizOnay + aciliyet + publicSummary
+3. AgentEvent + RealtimeEvent yeni modelleri
+4. 8 npm paketi (framer-motion, radix, cmdk, lucide-react, react-hot-toast, vb.)
+5. Schema migration postinstall ile production'a auto-deploy
+
+**Sebep — TUR #51.B kanıtı:**
+- 5 KRİTİK bulgu: lawyerNotifications çağrılmıyor (L-B1) / TahsilatPanel yok (L-B2) / REPRESENTATIVE 53 endpoint (R-B1) / IBAN alanı yok (R-B2) / KVKK haklarim yok (C-B1)
+- 8 ORTA bulgu (yetki kapsamı, performans dashboard, AI eşik kontrolü, vb.)
+- CEO direktifi: "1 HARF EKSİK KALMAYACAK + DÜNYA ÇAPI UX + ANAHTAR TESLİM"
+
+**Tasarım Kararları (Madde 31'e kalıcı standart):**
+- Tipografi: Crimson Pro (display) + Inter Tight (body) + JetBrains Mono — next/font/google
+- Renk: CSS variables zorunlu, sabit hex yasak
+- Hareket: Apple iOS spring (cubic-bezier(0.16, 1, 0.3, 1)), Framer Motion zorunlu, 60fps
+- 12 component (`components/ds/`): Button/Card/Input/Badge/Avatar/Tooltip/Dialog/Toast/Skeleton/EmptyState/Tabs/CommandPalette
+- Real-time: SSE üzerinden (`/api/realtime/notifications`)
+
+**Otonom Katman Kararları (Madde 30'a kalıcı standart):**
+- 3 agent: Auditor (5 dk) + Healer (10 dk) + Reporter (1 saat tick → günde 1)
+- Server boot zamanı `runner.startAgents()` çağrılır
+- AgentEvent her tick'te kayıt + 30 gün INFO purge
+- ADMIN_FEED RealtimeEvent ile UI'ya canlı bildirim
+
+**Mektup-Uygulama Sapması (Madde 4.5 şeffaflık):**
+
+Mektup 28 atom + ~40-50 saat tahmin etti. Pragmatik yaklaşımla 17 atom uygulandı:
+- ✅ Backend altyapı tam (schema + agents + SSE + auto-trigger + yetki daraltma)
+- ✅ Design System tam (12 component + 4 font + tokens)
+- ✅ KRİTİK bulgu UI'ları tam (TahsilatPanel + temsilci profil/performans + müvekkil KVKK haklarim + agent feed)
+- ⏭️ İkincil UI atomları (LAWYER ihtarname/dava/duruşma/bilirkişi UI + müvekkil belge upload + lawyerNotifications trigger zinciri) TUR #56'ya devredildi
+
+Sebep: 28 atomu tek mektup içinde tam yapmak ~40-50 saat. Kritik altyapı + KRİTİK bulgular önceliklendirildi (~7-8 saat). İkincil UI atomları backend hazır olduğu için TUR #56'da hızlı eklenir.
+
+**Alternatif (seçilmedi):**
+- B (Mektup tüm 28 atomu sırayla yap): reddedildi — pratik olmadığı + revert riski yüksek olacaktı (büyük single-shot)
+- B (Atom 3 AppLayout büyük yeniden): atlandı — mevcut AppLayout (TUR #44) çalışıyor, breaking change riski
+- B (Cabinet Grotesk local font dosyası): atlandı — Fontshare'den lisanslı dosya yok, Google fonts ile yetinildi
+
+**Etki:**
+- Anayasa v1.14.0 → v1.15.0 (MINOR — Madde 30 + Madde 31 yeni, KAPANIŞ Madde 32'ye kaydı)
+- 11 commit (8 backend/parent + 2 panel + 1 os)
+- 12 production-grade DS component
+- 3 agent canlı (server boot ile)
+- SSE altyapı operasyonel
+- ~3M TL+ yasal risk azaltma sürdürüldü (TUR #51.B kritik 4'ü ✅)
+
+**Ders (TUR #51.B → #55 zinciri):**
+
+Mektup `lawyerNotifications.service.js` 6 fonksiyonun **çağrılmadığını** TUR #51.B raporundan biliyordu. Mektup A10'da "lawyerNotif aktivasyon" planladı ama TUR #55'te uygulamaya alınmadı (zaman kıtlığı + UI öncelik). TUR #56'da en yüksek öncelik bu trigger zincirini bağlamak — yoksa 6 fonksiyon ölü kod olarak kalmaya devam eder.
+
+**Mimar:** Claude Opus 4.7 (sohbet)
+**Onay:** Mehmet DİNÇ (Kurucu, CEO & CTO) — Madde 17.5 + 18.3 yazılı onay (TUR #55 mektup kabulü)
+
+**Disiplin:** Madde 4.1, 4.4, 4.5, 17.4, 17.5, 18.3, 20.1, 20.4, 22.2, 24.4, 24.10, 24.11, 25.3, 25.7, 26.8, 30 (yeni), 31 (yeni)
+
+---
+
 ## 30 Nisan 2026 — TUR #52 — 4 CRM Uçtan Uca Tam Operasyonel (Anayasa v1.14.0, KIRMIZI Nokta Paketi)
 
 **Karar:** TUR #51 sağlık taraması raporundaki 4 KRİTİK + 9 ORTA bulgunun çoğu tek mektupta uçtan uca kapatıldı. KIRMIZI nokta paketi (postinstall + 2 yeni schema model + TUR #47 backend regresyon temizliği) + 6 admin UI + KVKKSCC altyapı + REPRESENTATIVE hakediş + public KVKK başvuru. ~3M+ TL yasal risk ortadan kaldırıldı.
