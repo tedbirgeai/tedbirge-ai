@@ -7,6 +7,7 @@ const logger = require("./config/logger");
 const { startDeadlineChecker } = require("./jobs/deadlineChecker.job");
 const { verifyConnection: verifySmtp } = require("./services/email.service");
 const tedbirgeOS = require("./os");
+const tur55Agents = require("./agents/runner");
 
 let workerProcess = null;
 
@@ -79,6 +80,10 @@ selfHealDatabase()
         if (ok) logger.info("[SMTP] Bağlantı doğrulandı");
         else     logger.warn("[SMTP] Mock mod aktif (SMTP_PASS eksik veya bağlantı başarısız)");
       });
+
+      // TUR #55 A24 — Otonom katman (Auditor + Healer + Reporter)
+      try { tur55Agents.startAgents(); }
+      catch (e) { logger.error(`[AGENTS] start fail: ${e.message}`); }
     });
   });
 
@@ -92,6 +97,7 @@ function shutdown(signal) {
     if (err) logger.error(`[SERVER] Error during close: ${err.message}`);
 
     try { tedbirgeOS.stopReconciler(); logger.info("[OS] Reconciler stopped"); } catch(e) { logger.error(`[OS] Shutdown: ${e.message}`); }
+    try { tur55Agents.stopAgents(); logger.info("[AGENTS] stopped"); } catch(e) { logger.error(`[AGENTS] stop: ${e.message}`); }
 
     // Kill OCR worker child process
     if (workerProcess) {

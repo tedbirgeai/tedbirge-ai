@@ -106,6 +106,24 @@ router.post("/public-lead", upload.single("file"), supabaseUploadMiddleware, asy
       }
     });
 
+    // TUR #55 A20 — ADMIN'lere yeni başvuru push (RealtimeEvent ADMIN_FEED)
+    try {
+      await prisma.realtimeEvent.create({
+        data: {
+          channel: "ADMIN_FEED",
+          eventType: "NEW_PUBLIC_LEAD",
+          payload: {
+            leadId: lead.id,
+            leadCode: lead.leadCode,
+            customerName: lead.customerName,
+            city: lead.city || null,
+          },
+        },
+      });
+    } catch (e) {
+      console.warn("[PUBLIC_LEAD] realtime event hata:", e.message);
+    }
+
     return res.status(201).json({
       success: true,
       message: "Basvuru olusturuldu.",

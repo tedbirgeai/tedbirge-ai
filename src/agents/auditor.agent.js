@@ -1,0 +1,87 @@
+// TUR #55 A24 — Auditor: sistem sağlığı periyodik denetim (her 5 dk)
+
+const BaseAgent = require("./base.agent");
+const prisma = require("../config/db");
+
+class AuditorAgent extends BaseAgent {
+  constructor() {
+    super("Auditor", { intervalMs: 5 * 60_000 });
+  }
+
+  async run() {
+    const checks = [];
+
+    // 1. Aciliyet KRITIK olan + 7 günden eski
+    const eskiKritik = await prisma.lead.count({
+      where: { aciliyet: "KRITIK", updatedAt: { lt: new Date(Date.now() - 7 * 86_400_000) } },
+    });
+    if (eskiKritik > 0) {
+      checks.push({ key: "ESKI_KRITIK_LEAD", count: eskiKritik, severity: "WARNING" });
+    }
+
+    // 2. AI guven skoru < 0.7 ve onay BEKLIYOR
+    const aiOnayBekleyen = await prisma.lead.count({
+      where: { aiAnalizOnay: "BEKLIYOR", muhatapGuvenSkoru: { lt: 0.7 } },
+    });
+    if (aiOnayBekleyen > 0) {
+      checks.push({ key: "AI_ONAY_BEKLEYEN", count: aiOnayBekleyen, severity: "INFO" });
+    }
+
+    // 3. KVKK PENDING + 25 günden eski (30 gün cevap zorunlu)
+    const kvkkRiski = await prisma.dataSubjectRequest.count({
+      where: { status: "PENDING", receivedAt: { lt: new Date(Date.now() - 25 * 86_400_000) } },
+    });
+    if (kvkkRiski > 0) {
+      checks.push({ key: "KVKK_30GUN_RISK", count: kvkkRiski, severity: "CRITICAL" });
+    }
+
+    // 4. CommissionLog BEKLIYOR + 14 günden eski
+    const commBekleyen = await prisma.commissionLog.count({
+      where: { durum: "BEKLIYOR", createdAt: { lt: new Date(Date.now() - 14 * 86_400_000) } },
+    });
+    if (commBekleyen > 0) {
+      checks.push({ key: "COMMISSION_GECIKME", count: commBekleyen, severity: "WARNING" });
+    }
+
+    // 5. Atanmamis aktif lead
+    const atanmamis = await prisma.lead.count({
+      where: {
+        status: { in: ["NEW", "CONTACTED", "DOCS_PENDING", "ANALYZED"] },
+        assignments: { none: {} },
+        createdAt: { lt: new Date(Date.now() - 3 * 86_400_000) },
+      },
+    });
+    if (atanmamis > 0) {
+      checks.push({ key: "ATANMAMIS_LEAD", count: atanmamis, severity: "WARNING" });
+    }
+
+    // 6. Boş gercekTazminat ama WON status
+    const wonAmaTazminatYok = await prisma.lead.count({
+      where: { status: "WON", gercekTazminat: null },
+    });
+    if (wonAmaTazminatYok > 0) {
+      checks.push({ key: "WON_TAZMINAT_YOK", count: wonAmaTazminatYok, severity: "WARNING" });
+    }
+
+    if (checks.length === 0) {
+      await this.log("AUDIT_OK", "INFO", { message: "Tum kontroller temiz" });
+    } else {
+      const maxSev = checks.some(c => c.severity === "CRITICAL") ? "CRITICAL"
+        : checks.some(c => c.severity === "WARNING") ? "WARNING" : "INFO";
+      await this.log("AUDIT_FINDINGS", maxSev, { findings: checks });
+
+      // ADMIN feed event
+      try {
+        await prisma.realtimeEvent.create({
+          data: {
+            channel: "ADMIN_FEED",
+            eventType: "AUDITOR_FINDINGS",
+            payload: { findings: checks, severity: maxSev },
+          },
+        });
+      } catch (e) {}
+    }
+  }
+}
+
+module.exports = AuditorAgent;

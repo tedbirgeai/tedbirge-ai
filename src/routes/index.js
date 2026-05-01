@@ -32,6 +32,8 @@ const kvkkRoutes = require("./kvkk.routes");
 const commissionRoutes = require("./commission.routes");
 const auditRoutes = require("./audit.routes");
 const settingRoutes = require("./setting.routes");
+const realtimeRoutes = require("./realtime.routes");
+const agentRoutes = require("./agent.routes");
 
 const router = express.Router();
 
@@ -71,6 +73,8 @@ router.use('/', kvkkRoutes);
 router.use('/', commissionRoutes);
 router.use('/', auditRoutes);
 router.use('/', settingRoutes);
+router.use('/', realtimeRoutes);
+router.use('/', agentRoutes);
 
 module.exports = router;
 
