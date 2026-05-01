@@ -1547,6 +1547,39 @@ Tüm canlı feed SSE üstünden (`/api/realtime/notifications`). Client `EventSo
 - ❌ Cookie-cutter layout (her sayfa ayrı düşünülür)
 - ❌ Sabit hex/rgb değerler (CSS variable zorunlu)
 
+### 31.9 Rol-Ruh Tasarım Prensibi (TUR #57 ile resmileşecek)
+
+**İlke:** Tedbirge'de 4 ayrı CRM modülü vardır — her biri **kendi paydaşının iş ruhunu** yansıtır. Aynı Tedbirge Design System v1.0 token'larını paylaşırlar (renk + font + spring eğrisi), ama **kompozisyon, yoğunluk, ritim, etkileşim mantığı** farklıdır.
+
+**Niş Emsaller (kanıta dayalı, dünya çapı):**
+
+| CRM | Paydaş | Ruh | Niş Emsal | Karakter |
+|---|---|---|---|---|
+| **CEO Dashboard** | Mehmet Bey (sahip + CTO) | Komuta köprüsü — sistemi izler, müdahale eder | Stripe Dashboard + Linear Insights + Vercel Analytics | Yoğun bilgi + canlı veri akışı + çabuk karar UI |
+| **LAWYER CRM** | 3 avukat (Ramazan / Zeliha / Muzaffer) | Dosya yöneten profesyonel — disiplin + odaklanma | Clio Manage + MyCase + LawPay | Sade case-based liste + dokunulmaz iş akışı + dosya odaklı |
+| **REPRESENTATIVE CRM** | Temsilciler (lead getirenler) | Saha satışçısı — hız + komisyon görünürlüğü | HubSpot Sales Hub + Pipedrive + Salesforce Lightning Sales | Pipeline + funnel + kişisel kazanç ön planda |
+| **CUSTOMER Portal** | Müvekkil (zarar görmüş bireysel kullanıcı) | Endişeli, dosya sürecini merak eden — şeffaf, sade, güven veren | Stripe Customer Portal + Apple Mail + Linear Public Status | Vertical timeline + sade dil + AI özet + duyguya hitap |
+
+**Tasarım Karar Matrisi:**
+
+| Boyut | CEO | LAWYER | REPRESENTATIVE | CUSTOMER |
+|---|---|---|---|---|
+| **Layout yoğunluk** | Yüksek (8+ widget) | Orta (4-6 widget) | Orta (5-7 widget) | Düşük (1-3 ana widget) |
+| **Veri tipi** | Toplam metrik + trend | Görev + dosya + takvim | Pipeline + funnel + komisyon | Durum + zaman çizelgesi |
+| **Renk yoğunluğu** | Çok renkli (KPI farklılaşması) | Mono + accent (odak) | Pipeline-renk-kodu (aşama) | Yumuşak (güven veren) |
+| **Hareket** | Canlı feed + sayı tıkırtısı | Minimal (dosyaya odak) | Ödül kutlama (confetti) | Yumuşak geçiş + duygu |
+| **Tipografi** | Cabinet Grotesk vurgulu | Inter Tight saf | Crimson Pro başlıklı | Crimson Pro + Inter Tight (ferah) |
+| **Etkileşim hızı** | Hızlı (klavye shortcut) | Stabil (dosya bütünlüğü) | Hızlı (mobil-first) | Yavaş (anlama süresi) |
+| **Bilgi yoğunluğu** | Maksimum | Görev için seçili | Pipeline odaklı | Minimum (KVKK m.4) |
+
+**Yasak (TUR #57'de uygulanacak):**
+- ❌ 4 CRM aynı dashboard layout'ı kullanmaz
+- ❌ Müvekkilin gördüğü "tahsilat" sayısı ile temsilcinin gördüğü farklı paketlenir
+- ❌ Avukatın iş akışı pipeline-funnel olarak gösterilmez (yanlış metafor)
+- ❌ CEO'nun komuta paneli müvekkil portal'ın sadelik dilinde olmaz
+
+**Bu prensip TUR #57'de uygulanacak — bu madde TUR #57'nin tohumudur.**
+
 ---
 
 ## 32. KAPANIŞ — NİYE BU ANAYASA VAR
@@ -1576,5 +1609,6 @@ Mehmet Bey sahaya çıkabilsin diye bu disiplin var.
 **30 Nisan 2026 — v1.13.0 (Madde 25.3 KIRMIZI listesi genişletildi: "ücretsiz hukuki [değerlendirme/danışmanlık/inceleme/destek]" zinciri + "ortaklarımız" + "ücretsiz" yan yana kullanım yasak. TUR #50 "Ücretsiz Hukuki" Yasal Zemin Temizliği — 8 KIRMIZI ihlal kapatıldı, AI+Ön niteleyicisi ürün dilbilgisi olarak kalıcı hâl aldı.)**  
 **30 Nisan 2026 — v1.14.0 (TUR #52 — 4 CRM uçtan uca tam operasyonel: KIRMIZI nokta paketi (CommissionLog + SystemSetting modelleri + postinstall auto-migration) + TUR #47 backend regresyon temizliği (uzman avukat → deneyimli avukat ortağı PDF/email) + 6 yeni admin UI (kvkk-talepler, audit-log, komisyon-log, ayarlar, avukat-yonetim, temsilci-yonetim) + temsilci hakediş + public KVKK başvuru + KVKKSCC klasör 4 sağlayıcı dosyası. ~3M+ TL yasal risk kapatıldı. Madde 25.3 birleşik liste, Madde 4.1 ekosistem disiplini — yasal temizlik tüm tabanda zorunlu.)**  
 **1 Mayıs 2026 — v1.15.0 (TUR #55 — 4 CRM Anahtar Teslim: KIRMIZI nokta 5'lı paket (User IBAN+vergi+preferences, Lead aiAnalizOnay+aciliyet+publicSummary, AgentEvent, RealtimeEvent + 8 npm paketi). Madde 30 Otonom Katman Disiplini eklendi: Auditor (5 dk) + Healer (10 dk) + Reporter (1 saat) — server boot ile başlar, AgentEvent yazar, ADMIN_FEED RealtimeEvent gönderir. Madde 31 Tasarım Disiplini eklendi: Tedbirge Design System v1.0 — 4 font (Crimson Pro + Inter Tight + JetBrains Mono + Cabinet Grotesk), 30+ CSS variable, Framer Motion + spring eğrisi, 12 production-grade component (`components/ds/`). REPRESENTATIVE yetki 53→39 endpoint (Madde 24.4). CommissionLog auto-trigger (Lead.gercekTazminat → otomatik). Public lead → ADMIN feed bildirim. SSE backend (`/api/realtime/notifications`). KAPANIŞ Madde 32'ye kaydı.)**  
+**1 Mayıs 2026 — v1.15.0 alt-genişleme (TUR #56 KAPANIŞ + TUR #57 tohum: TUR #56 ile TUR #51.B 18/18 bulgu kapatıldı (12/12 atom sapma 0, kalibrasyon 1.6× doğrulandı, L-B1 lawyerNotifications 6 trigger zinciri canlı, Madde 24.11 üretim disiplini canlı). Madde 31.9 Rol-Ruh Tasarım Prensibi tohum olarak eklendi (Madde 22.2 alt-genişleme — sürüm artmaz): 4 CRM kendi paydaş ruhuna göre niş emsallerle (CEO↔Stripe Dashboard, LAWYER↔Clio/MyCase, REPRESENTATIVE↔HubSpot/Pipedrive, CUSTOMER↔Stripe Customer Portal/Apple Mail) farklılaşır. TUR #57'de uygulanacak — bu madde TUR #57'nin tohumudur. CEO direktifi 1 Mayıs 2026: "HER CRM KENDİ RUHUNA VE KENDİ ALANINA GÖRE ANALİZ EDİLMELİ".)**  
 **Versiyon geçmişi: tedbirge-os/MIMARI_KARARLAR.md**  
 **Her major/minor değişiklikte versiyon güncellemesi ZORUNLU (Madde 22)**
