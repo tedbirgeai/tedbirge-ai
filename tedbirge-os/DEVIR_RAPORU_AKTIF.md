@@ -1,108 +1,94 @@
 # 🛡️ TEDBIRGE.AI — DEVİR RAPORU AKTİF
 
-**Son güncelleme:** 1 Mayıs 2026 (TUR #59 KAPALI — FAZ 5 İçerik Üretimi tamamlandı)
-**Anayasa:** v1.18.0 (33 madde — Madde 33.2 düzeltildi: Madde 25.3 KIRMIZI kontrol yeterli)
-**Aktif kesit:** FAZ 5 İçerik Üretimi KAPALI ✅
-**Son TUR:** #59 — 10 atom + 50 makale + 3 pillar refactor + iç linking audit (KAPALI ✅)
+**Son güncelleme:** 1 Mayıs 2026 (gece — TUR #62 KAPALI, TUR #60+#61 dahil)
+**Anayasa:** v1.18.0 (33 madde)
+**Aktif kesit:** Sağlık Taraması KAPALI ✅
+**Son TUR:** #62 — Kapsamlı sağlık taraması (T tipi, 0 değişiklik)
+**Son düzeltme TUR'u:** #60 (anasayfa kriz) + #61 (Instagram URL env)
 
 ---
 
-## 🔴 AÇIK KRİTİK: 0
+## 🔴 AÇIK KRİTİK: 1 adet
 
-TUR #59'da 50 makale Madde 25.3 KIRMIZI temiz çıktı; iç linking 150 cross-link (0 bozuk).
-
----
-
-## 🟡 PLANLI: 4
-
-1. **TUR #60 — Teknik SEO + Core Web Vitals + Monitoring** (~10-12 saat)
-   - Lighthouse skor optimizasyonu (LCP, CLS, FID)
-   - İç link gücü (PageRank dağılımı)
-   - Structured data zenginleştirme
-   - Search Console monitoring
-2. **TUR #65+ — FAZ 6 Public AI Chat Widget** (FAZ 5 trafik 2-3 ay sonra)
-3. **Sağlık Taraması (T tipi)** — KVKK denetim hazırlığı (Madde 21)
-4. **TUR #58.B — Temsilci Sözleşme SMS OTP backend** (mini, ertelenmiş)
+1. **B4.7 — Backend Body Limit ↔ Upload Sınır Çelişkisi** (TUR #62 raporu)
+   - `src/app.js:41`: `express.json({ limit: "5mb" })` (JSON body 5 MB)
+   - `src/controllers/upload.controller.js:47`: `if (fileSize > 50 * 1024 * 1024)` (50 MB ret)
+   - Sonuç: 5+ MB dosya yükleme reddediliyor; CEO'nun "20 MB hata" deneyimi büyük olasılıkla bu sınırın varyasyonu
+   - Çözüm: TUR #63 — Yol A (Direkt Supabase upload) + Yol B (Browser sıkıştırma)
 
 ---
 
-## 📋 MEHMET BEY MANUEL İŞLER
+## 🟡 PLANLI: 6 adet
 
-1. **Google Search Console + Bing Webmaster:** Sitemap re-submit (51 makale URL ile)
-2. **Rich Results Test:** 5 random makale + 3 pillar + tazminat-rehberi (FAQPage/HowTo/BreadcrumbList tanıma)
-3. **(Opsiyonel) 2-3 ay sonra:** ChatGPT / Perplexity / Gemini Türkçe niş test (Tedbirge.ai bulunabilirlik)
-4. **30 SSS ve 50 makale taslağı:** Madde 33.2 düzeltme sonrası avukat ön onayı zorunlu değil; ancak CEO Mehmet Bey son metin onayı (Madde 17.5)
+1. **TUR #63 — 20 MB Upload Limit Kaldırma + KRİTİK çözüm** (öncelik 🔴)
+   - Kapsam: B4.7 KRİTİK + B4.6 Yol A+B uygulama
+   - Süre: 3-4 atom (~4 saat)
+   - Kapsam dahili: anasayfa JsonLd ≥2 hedefi (B8.3)
+
+2. **Render Cold Start Çözümü** (B5.3 Yol B — UptimeRobot)
+   - 14 dk aralıklı /health ping kurulumu (CEO manuel)
+   - Süre: 5 dk
+
+3. **Search Console Sitemap Submit** (B8.5)
+   - 72 URL (sitemap zaten yayında)
+   - Süre: 5 dk (CEO manuel)
+
+4. **2 @deferred Schema İncelemesi** (B3.3 — Madde 28)
+   - Hangi modeller? Üç koşul (badge + yorum + IS_PLANI) tamam mı?
+
+5. **4 Yakında Etiketi Kararı** (B2.6 — Madde 28)
+   - dashboard/hukukcu, leads/[id], musteri, blog — hangileri canlıya?
+
+6. **TUR #65+ — FAZ 6 Public AI Chat Widget**
+   - Trafik 2-3 ay sonra başlayınca
 
 ---
 
-## ✅ TUR #59 KAPANIŞ — FAZ 5 İçerik Üretimi
+## 📋 MEHMET BEY MANUEL İŞLER (5 dk toplam)
 
-### 10/10 Atom Sapma 0 (Kalibrasyon 1.6× Dördüncü Kez Doğrulandı)
+1. **Google Search Console** → Sitemap submit (72 URL)
+2. **Bing Webmaster** → Sitemap submit
+3. **UptimeRobot kurulumu** → 14 dk aralıklı `https://tedbirge-ai.onrender.com/health` ping
+4. **Vercel Dashboard** → Son 5 deploy "Ready" yeşil mi?
+5. **Render Dashboard** → Build log "Migration applied" var mı?
+6. **Supabase Dashboard** → User tablosu rol dağılımı (`SELECT role, COUNT(*) FROM "User" GROUP BY role`)
 
-| # | Atom | Commit |
-|---|---|---|
-| A0 | BlogPost type genişletme + Madde 33.2 düzeltme | `91d3b9f` (panel) |
-| A1.1 | Trafik küme makale 1-10 | `88407ae` |
-| A1.2 | Trafik küme tam (15 makale daha → 20 toplam) | `8bac916` |
-| A1.3 | İş Kazası küme tam (15) | `e1c6171` |
-| A1.4+A1.5 | Sigorta+Genel küme tam (15) + lib/blog.ts merge | `e99834f` |
-| A2 | Blog detay FAQPage + BreadcrumbList JsonLd + SSS render | `c2e29fd` |
-| A3+A4+A5 | 3 pillar cluster grid (20+15+15) | `9c3cd25` |
-| A6 | Sitemap auto-update + iç linking audit (0 bozuk) | `b98e327` |
-| A7 | Production smoke test | (sadece doğrulama) |
-| A8 | OS senkron + Anayasa v1.18.0 | (bu commit) |
+---
 
-### Metrik
+## ✅ TUR #62 KAPANIŞ — Kapsamlı Sağlık Taraması
 
-- **9 commit** (8 panel + 1 OS)
-- **51 makale toplam** (1 mevcut + 50 yeni)
-- **150 cross-link** (her makale 3 relatedSlugs)
-- **0 schema migration**
-- **0 npm install** (MDX altyapısı reddedildi, mevcut POSTS array genişletildi)
-- **0 build hatası** (her atom sonrası `tsc --noEmit` 0)
-- **0 bozuk iç link**
-- **0 production regresyon**
-- **TUR #56+57+58+59 = 43/43 atom sapma 0** — kalibrasyon faktörü 1.6× kalıcı pattern
+**Süre:** ~30 dk otonom (mektup öngörüsü 4-6 saatti — daha hızlı bitti)
+**Tip:** T tipi (0 kod değişikliği)
+**Çıktı:** `docs/TUR62_KAPSAMLI_SAGLIK_RAPORU.md` (~860 satır)
+**Bulgular:** 1 KRİTİK + 3 ORTA + 7 İYİ + 6 CEO MANUEL
 
-### Operasyonel Kazanım
+**Genel Sağlık: 8.25/10**
 
-**51 makale + 4 pillar yapısı:**
+### TUR #60 + TUR #61 (aynı gün, kriz çözümü)
+- TUR #60: Anasayfa beyaz kriz → SectionReveal soft state + featured 3 (commit 2691169)
+- TUR #61: Footer Instagram URL kurumsal hesap (Vercel deploy 3EgBeZ9UN)
 
-| Kategori | Makale | Pillar | Cross-link |
-|---|---|---|---|
-| Trafik kazası | 20 | /trafik-kazasi-tazminat | 60 |
-| İş kazası | 15 | /is-kazasi-tazminat | 45 |
-| Sigorta + Genel | 15 | /sigorta-tazminat-reddedildi | 45 |
-| Mevcut blog | 1 | /blog | — |
-
-**Schema kapsamı:**
-- Article schema: 51/51 makale ✓
-- FAQPage schema: 50/50 yeni makale (+ 4 pillar) ✓
-- BreadcrumbList schema: 51/51 + 4 pillar + tazminat-rehberi ✓
-- HowTo schema: tazminat-rehberi (TUR #58 A6) ✓
-
-**Madde 33.2 Düzeltme (Anayasa v1.18.0):**
-- Avukat onayı yerine Madde 25.3 KIRMIZI listesi kontrolü yeterli
-- TUR #47 fizibilite raporları anayasal düzeyde önceden kurmuştu
-- AI taslak + KIRMIZI kontrol + CEO onayı yayın koşulu
-
-### Beklenen Sonuç (3-6 Ay)
-
-Aylık 100-500 organik AI-yönlendirmeli ziyaretçi (ChatGPT/Perplexity/Gemini/AI Overview). 51 makale + 3 pillar + iç linking grafı ile niş topical authority kuruldu.
+**Pattern:** TUR #56+57+58+59+60 = 53/53 atom sapma 0 — kalibrasyon faktörü 1.6× **beşinci kez** kalıcı pattern (TUR #62 T tipi olduğu için sapma sayımına dahil değil; commit içermez).
 
 ---
 
 ## 🎯 SIRADAKİ ÖNERİLEN İŞ
 
-**TUR #60 — Teknik SEO + Core Web Vitals + Monitoring** (mini-orta, ~10-12 saat)
+**TUR #63 — Belge/Storage 20 MB Limit Kaldırma** (KRİTİK, B4.7'ye dayalı)
 
-Veya **2-3 ay trafik izleme** + Search Console verisine göre TUR #61 içerik genişletme.
+**Mimari öneri:**
+- Yol A (Direkt Supabase upload, frontend → Supabase Storage SDK) — 1-2 atom
+- Yol B (Browser PDF/resim sıkıştırma) — 2-3 atom (npm onayı şart)
+- Kombinasyon = %80-90 vakada 50 MB limiti zorlanmaz
 
-Mehmet Bey karar verir.
+**Mehmet Bey karar verir** (Madde 17.5):
+- TUR #63 hemen mi açılsın?
+- npm paketi onayı (`pdf-lib`, `browser-image-compression` veya benzeri) verilecek mi?
+- Search Console + UptimeRobot manuel işleri TUR #63'ten önce mi sonra mı?
 
 ---
 
 **— Tedbirge.ai mimarı**
-**TUR #59 KAPANDI · 1 Mayıs 2026**
-**Anayasa v1.18.0 yürürlükte (Madde 33.2 düzeltildi)**
-**FAZ 5 İçerik Üretimi ✅ — TUR #60 (Teknik SEO) sıradaki**
+**TUR #62 KAPANDI · 1 Mayıs 2026 (gece)**
+**Anayasa v1.18.0 yürürlükte**
+**TUR #60+#61+#62 üçü birden bu turda mühürlendi**

@@ -1,3 +1,88 @@
+## TUR #62 — Kapsamlı Sağlık Taraması (T tipi)
+
+**Tarih:** 1 Mayıs 2026 (gece, otonom)
+**Anayasa:** v1.18.0
+**Tip:** T tipi (salt okuma, 0 değişiklik)
+**Süre:** ~30 dk otonom Claude Code (mektup öngörüsü 4-6 saatti — daha hızlı bitti)
+**Atom:** 9 parça (B1-B8 + yönetici özeti)
+**Commit:** 1 (rapor + 3 OS dosyası — kod commit YOK)
+**Schema/migration/env/npm:** 0
+**KIRMIZI ihlal:** 0
+**Çıktı:** `docs/TUR62_KAPSAMLI_SAGLIK_RAPORU.md` (~860 satır)
+
+**CEO Direktifi:** "Otonom uçtan uca tara, yes/no sormadan, ben CEO'yum kod yarı değilim, anlaşılır rapor yaz."
+
+**Bulgular özet:**
+- 🔴 KRİTİK 1 adet: Backend body limit 5 MB ↔ Upload controller 50 MB sınır çelişkisi (B4.7)
+- 🟡 ORTA 3 adet: Anasayfa JsonLd ≥2 hedef (1 var), 2 @deferred schema, 4 Yakında etiketi
+- 🟢 İYİ 7 adet: TUR #60+#61 onaylı, KVKK 4 SCC, audit log 53 nokta, DS 13/12 + 11/9, sitemap 72 URL
+- ⏭️ CEO MANUEL 6 adet: Search Console + Bing + UptimeRobot + Vercel/Render/Supabase dashboard
+
+**Mektup düzeltmesi (Madde 4.4 — kod kaynaktır):**
+- `~/tedbirge/tedbirge-backend` → repo kökü `C:\Users\WIN10\desktop\tedbirge.ai` (monorepo, src/)
+- `tedbirge-api.onrender.com` (404) → `tedbirge-ai.onrender.com` (200) — CLAUDE.md doğru, mektup yanlış
+- Tarama bu düzeltmelere göre yürütüldü, rapora not düşüldü
+
+**Pattern:** TUR #56+57+58+59+60+62 = T tipi turlar dahil sapma 0 zinciri sürüyor.
+
+---
+
+## TUR #61 — Footer Instagram URL Kurumsal Hesap (env redeploy)
+
+**Tarih:** 1 Mayıs 2026 (akşam)
+**Anayasa:** v1.18.0
+**Atom:** A0 tanı + A1 smoke (kod commit YOK)
+**Vercel deploy:** 3EgBeZ9UN (manuel redeploy)
+**Schema/migration/npm:** 0
+**Env değişikliği:** `NEXT_PUBLIC_INSTAGRAM_URL` (CEO manuel — Madde 3.5)
+**KIRMIZI ihlal:** 0
+**Süre:** ~10 dk
+
+**Kanıt zinciri:**
+- A0 tanı: kaynak kod fallback `https://www.instagram.com/tedbirge.ai/`
+  production HTML `https://instagram.com/tedbirge` → env override
+- A1 smoke: eski URL count = 0, yeni URL count = 1 ✅
+- Görsel: kurumsal "db" logo Instagram hesabı açıldı
+
+**Sebep:** Eski hesap (instagram.com/tedbirge "Deneme Osman") mail şifre kayıp → kurumsal kontrol dışı.
+
+**Mimari ders:**
+- Madde 4.4 (kod kaynaktır) — naive str_replace yapsaydık env override işe yaramayacaktı. Tanı turu kurtardı.
+- Madde 3.5 (env yasak) — mimar ve Claude Code dokunmadı, CEO manuel yaptı.
+- Madde 13 (hardcode yasak) — env üzerinden mimari pattern korundu.
+
+---
+
+## TUR #60 — Anasayfa SectionReveal Soft State + Featured 3 Makale
+
+**Tarih:** 1 Mayıs 2026 (akşam, kriz turu)
+**Anayasa:** v1.18.0
+**Atom:** A1.A.0 + A1.A + A1.B (birleşik)
+**Commit:** 2691169
+**Schema/migration/env/npm:** 0
+**KIRMIZI ihlal:** 0
+**Süre:** ~30 dk (tanı T0-T8 + uygulama + smoke)
+
+**Kanıt zinciri:**
+- T6: production HTML literal `opacity:0;translateY(30px)` bulundu
+- T8: 6 yerde `<SectionReveal>` sarmalı section'lar hidden hard
+- A1.A.0: ekosistem grep — sectionVariants:22 + cardVariants:32
+  (cardVariants tek başına yamalı bohça olurdu, ekosistem disiplini koruyucu çalıştı)
+- A1.D lokal smoke: hard count = 0, soft state opacity:0.4 izleri
+- A1.F production smoke: hard count = 0, blog kart = 3
+- Görsel: anasayfa Footer + 4 sütun + Hukuki Rehberler tam render
+
+**Yan bulgu (TUR #63'e):**
+- Y_TUR60_1: Anasayfa featured 3 kronolojik — pillar dengesi (1 trafik + 1 iş kazası + 1 sigorta) iyileştirilebilir
+
+**Mimari ders:**
+- Madde 29.5 (soft initial state) — TUR #44'te tam bu senaryo için yazılmıştı. Bugün anayasal pattern uygulanmış oldu.
+- Madde 4.1 (ekosistem) A1.A.0 ön kontrolünde cardVariants'ı yakaladı — yamalı bohçayı önledi.
+- Madde 4.4 (kod kaynaktır) — Mehmet Bey'in "git revert" içgüdüsü kanıtla çürütüldü (HomePageClient TUR #59'da değişmedi, kök sebep input verisi 1→51 makale).
+- TUR #56+57+58+59+60 = 53/53 atom sapma 0 — kalibrasyon 1.6× beşinci kez doğrulandı.
+
+---
+
 ## TUR #60 — A0 Manifest Hex + A1 Anasayfa SectionReveal Soft State + Featured 3 Makale
 
 **Tarih:** 1 Mayıs 2026 (gece, kriz sonrası)

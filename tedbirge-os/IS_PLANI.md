@@ -7,11 +7,12 @@
 
 ## 🎯 AKTİF KESİT
 
-**Faz:** FAZ 5 İçerik Üretimi KAPALI ✅ (FAZ 5 ana blokları tamam — TUR #58 altyapı + TUR #59 içerik)
-**Son TUR:** #59 — FAZ 5 İçerik Üretimi (KAPALI — Anayasa v1.18.0, 50 makale + 3 pillar + iç linking, Madde 33.2 düzeltildi)
-**Önerilen sıradaki:** TUR #60 — Teknik SEO + Core Web Vitals + Monitoring (~10-12 saat) veya 2-3 ay trafik izleme
+**Faz:** Sağlık Taraması KAPALI ✅ + FAZ 5 İçerik Üretimi KAPALI ✅
+**Son TUR:** #62 — Kapsamlı sağlık taraması (T tipi, KAPALI — 1 KRİTİK + 3 ORTA + 7 İYİ bulgu)
+**Son düzeltme TUR'u:** #60 (anasayfa kriz, commit 2691169) + #61 (Instagram URL env redeploy)
+**Önerilen sıradaki:** TUR #63 — Belge/Storage 20 MB Limit Kaldırma (B4.7 KRİTİK çözümü, Yol A+B)
 **Anayasa:** v1.18.0 (MINOR — Madde 33.2 düzeltildi: KIRMIZI kontrol yeterli)
-**Son güncelleme:** 1 Mayıs 2026 (TUR #59 KAPANIŞ)
+**Son güncelleme:** 1 Mayıs 2026 (TUR #62 KAPANIŞ — gece)
 
 ### Kesit içi turlar (özet)
 
