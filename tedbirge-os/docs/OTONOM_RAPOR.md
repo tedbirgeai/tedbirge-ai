@@ -1,3 +1,81 @@
+## TUR #60 — A0 Manifest Hex + A1 Anasayfa SectionReveal Soft State + Featured 3 Makale
+
+**Tarih:** 1 Mayıs 2026 (gece, kriz sonrası)
+**Anayasa:** v1.18.0 (sürüm artmadı — hotfix turu)
+**Atomlar:** A0 (manifest hex) + A1 (motion soft + helper) = 2 commit
+**Commit'ler:** `f2f33ad` (A0) + `2691169` (A1)
+**Schema/migration/env/npm:** 0
+**KIRMIZI ihlal:** 0
+**Süre:** ~25 dk (A0 + tanı 9 sohbet turu + A1 10 dk)
+**Durum:** ✅ KAPALI
+
+### Kriz Bağlamı
+TUR #59 kapanışı sonrası Mehmet Bey raporu: "tedbirge.ai açıldığında ÜST kısım var (logo, nav, hero), AŞAĞI inince BEYAZ". 9 önceki sohbet turu boyunca read-only tanı yapıldı:
+- Vercel deploy doğru (apex = Vercel direkt, byte tutarlı)
+- TUR #58 + #59 değişiklikleri canlı (llms.txt 200, /blog/* 200)
+- Manifest `theme_color: var(--brand-primary)` console hatası
+- Production HTML literal kanıt: `style="opacity:0;transform:translateY(30px)"` — sectionVariants.hidden serialize edilmiş
+
+### A0 — Manifest Hex (önceki commit f2f33ad)
+`app/manifest.ts` satır 12: `theme_color: "var(--brand-primary)"` → `"#1E1E8E"` (hex). Console uyarısı kapandı, PWA manifest geçerli. Sayfa render'ına etki etmiyor; ayrı sorun.
+
+### A1 — Kök Sebep (anasayfa altı beyaz)
+HomePageClient.tsx satır 22 + 32 inline variant'lar:
+```ts
+sectionVariants.hidden = { opacity: 0, y: 30 }
+cardVariants.hidden = { opacity: 0, y: 30 }
+```
+TUR #59'da BlogSection `getAllPosts()` 1 → 51 makale döndürmeye başladı. Anasayfada 51 motion kartı + 6 SectionReveal'lı section → React render kuyruğu uzadı, IntersectionObserver tetiklenmedi → section'lar `opacity:0` hidden state'inde HAPSOLDU.
+
+### A1 Çözüm (2 atom birleşik)
+
+**A1.A — Soft initial state (Madde 29.5):**
+```ts
+sectionVariants.hidden = { opacity: 0.4, y: 12, filter: "blur(2px)" }
+cardVariants.hidden    = { opacity: 0.4, y: 12, filter: "blur(2px)" }
+```
+Hydration başarısız olsa bile section %40 görünür kalır. TUR #44 anayasal pattern.
+
+**A1.B — Render kuyruğu kısaltma:**
+```ts
+// lib/blog.ts
+export function getFeaturedPosts(limit: number = 3): BlogPost[] {
+  return getAllPosts().slice(0, limit);
+}
+// HomePageClient.tsx BlogSection
+const posts = getFeaturedPosts(3);  // 51 → 3
+```
+
+### Kanıt Zinciri
+
+**Lokal smoke (.next/server/app/index.html):**
+- `opacity:0;translateY(30px)` count = **0** ✓
+- `opacity:0.4;filter:blur(2px);translateY(12px)` izi VAR ✓
+- Blog kart sayısı = **3** ✓
+- "Hukuki Rehberler" section render edildi ✓
+
+**Production smoke (cache-busting curl):**
+- Hard hidden count = **0** ✓
+- Blog kart linki = **3** (olumlu-trafik + yaralanmali + hesaplama-2026) ✓
+- Soft state izleri var ✓
+- CDN edge cache temiz ✓
+
+### Yan Bulgular (TUR #61'e devir)
+- **Y_TUR60_1:** Anasayfa featured 3 kronolojik (en yeni 3 = 3'ü de trafik kümesi) — pillar dengesi (1 trafik + 1 iş kazası + 1 sigorta) iyileştirilebilir. Şu an: getFeaturedPosts kronolojik slice, kategori dengesi yok.
+- **Y_TUR60_2:** lib/motion.ts'te 5 hard `opacity: 0` variant (satır 23, 44, 56, 65, 69) — bu turun kapsamı dışındaydı (HomePageClient kendi inline kullanıyor). Sağlık taramasında değerlendirilecek.
+
+### Disiplin Kanıtı
+✅ Madde 4 + 4.1 (ekosistem grep) + 4.3 (DUR sinyalleri tetiklenmedi) + 17.5 (CEO onayı) + 22 (sürüm artmadı, hotfix) + 29 (hareket disiplini) + 29.5 (soft initial state) + 33 (içerik korundu)
+
+### Pattern Sayacı
+TUR #56+57+58+59+60(A0+A1) = **45/45 atom sapma 0** — kalibrasyon 1.6× **beşinci kez** kalıcı.
+
+— Claude Opus 4.7, mimar
+— Claude Code (autonomous)
+— 1 Mayıs 2026
+
+---
+
 ## TUR #59 — FAZ 5 İÇERİK ÜRETİMİ KAPANIŞ (Anayasa v1.17.0 → v1.18.0)
 
 **Tarih:** 1 Mayıs 2026
