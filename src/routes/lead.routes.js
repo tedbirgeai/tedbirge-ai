@@ -29,8 +29,9 @@ router.get("/verify/:id", controller.verifyLead);
 router.get("/:id/document-draft", auth, controller.getDocumentDraft);
 router.get("/:id/document-draft/contract-pdf", controller.downloadContractPdf);
 router.get("/:id/document-draft/power-of-attorney-pdf", controller.downloadPowerOfAttorneyPdf);
-router.patch("/:id/archive",   auth, role("ADMIN", "SALES", "REPRESENTATIVE"), controller.archiveLead);
-router.patch("/:id/unarchive", auth, role("ADMIN", "SALES", "REPRESENTATIVE"), controller.unarchiveLead);
+// TUR #55 A11 — REPRESENTATIVE archive yetkisi kaldırıldı (Madde 24.4 — sadece ADMIN+SALES+LAWYER)
+router.patch("/:id/archive",   auth, role("ADMIN", "SALES", "LAWYER"), controller.archiveLead);
+router.patch("/:id/unarchive", auth, role("ADMIN", "SALES", "LAWYER"), controller.unarchiveLead);
 router.patch("/:id/restore",   auth, role("ADMIN"), controller.restoreLead);
 router.delete("/:id",          auth, role("ADMIN"), controller.softDeleteLead);
 router.delete("/:id/gdpr-delete", auth, controller.gdprDelete);
