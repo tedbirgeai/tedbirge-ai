@@ -6,6 +6,93 @@
 
 ---
 
+## 1 Mayıs 2026 — TUR #57 KAPANIŞ — 4 CRM Rol-Ruh Karakter Farklılaştırma (Anayasa v1.16.0)
+
+**Karar:** TUR #57 mektubu 12/12 atom uygulandı (sapma 0). 4 CRM artık niş emsal seviyesinde: CEO ↔ Stripe Dashboard+Linear Insights · LAWYER ↔ Clio Manage+MyCase · REPRESENTATIVE ↔ HubSpot Sales+Pipedrive · CUSTOMER ↔ Stripe Customer Portal+Apple HIG. Anayasa v1.15.0 → **v1.16.0** (MINOR — Madde 31.9 tohumdan resmileşti).
+
+### Kanıt — 9 yeni DS komponenti (`components/ds/role-specific/`)
+
+| Komponent | Hedef CRM | Niş Emsal İlhamı |
+|---|---|---|
+| `KPICardEnhanced` | CEO | Stripe Dashboard sparkline KPI |
+| `Sparkline` | CEO | Linear Insights mini grafik |
+| `AnomalyStrip` | CEO | Vercel Analytics anomali bandı |
+| `KanbanBoard` | REPRESENTATIVE | HubSpot Sales pipeline |
+| `DealCard` | REPRESENTATIVE | Pipedrive deal card + rotting border |
+| `ActivityCounter` | REPRESENTATIVE | HubSpot haftalık aktivite |
+| `CaseFolderCard` | LAWYER | Clio matter folder metaforu |
+| `LawyerHealthTriad` | LAWYER | Clio Util/Real/Coll → Türk piyasa uyarlama |
+| `TimelineDot` | CUSTOMER | Apple HIG depth + Linear Public Status |
+| `TrustBadge` | CUSTOMER | Stripe Customer Portal güven simgesi + Apple Mail başlık |
+| `KeyboardShortcutsHelp` | CEO | Linear ? help modal |
+
+### Kanıt — 2 yeni route + 2 utility + 2 endpoint
+
+- `/dashboard/komuta` (CEO): 6 KPI üst şerit + AnomalyStrip + canlı SSE feed + mali önizleme
+- `/temsilci/pipeline` (REP): KanbanBoard + ActivityCounter
+- `lib/sadelestir.ts`: 30 hukuki terim → sade Türkçe (CUSTOMER ekranlarında)
+- `lib/keyboardNav.ts`: Linear-stili G+harf hook
+- `GET /api/admin/anomalies`: 3 anomali tespit (AI/KVKK/komisyon)
+- `POST /api/representative/leads/:id/asama`: Kanban drag-drop state machine
+
+### 0-Paket Disiplini Zaferi (Madde 4 ekonomi)
+
+3 npm paket adayı native alternatifle **reddedildi**:
+
+| Reddedilen | Native Alternatif | Gerekçe |
+|---|---|---|
+| `react-beautiful-dnd` | HTML5 DragEvent API | 2022'de deprecated, modern tarayıcılar zaten destekliyor |
+| `canvas-confetti` | CSS keyframe `confetti-fall` | 30 partikül CSS yeter, paket bütçesi gereksiz |
+| `lottie-react` | Inline SVG illüstrasyon | 4 basit SVG yeter, runtime player yükü gereksiz |
+
+**Etki:** Dependency bütçesi sabit, security surface artmadı, bundle boyutu büyümedi.
+
+### Sebep — CEO Direktifi (1 Mayıs 2026)
+
+> "TUR #55 + TUR #56 4 CRM modülü kendi niş sınıfında dünya ortalamasında Tedbirge.ai'yi bir yere getirmez. HER CRM KENDİ RUHUNA VE KENDİ ALANINA GÖRE ANALİZ EDİLMELİ."
+
+TUR #56 sonu mimar tespiti onayladı: **fonksiyonel tamamlık ≠ ruhsal tamamlık**. TUR #57 ile rol bazlı karakter farklılaştırması uygulandı.
+
+### Alternatifler (uygulamadan önce düşünüldü)
+
+- **A. Tek CRM seç önce ayır, diğerleri TUR #58+'a** → reddedildi: parçalı uygulama tasarım birliğini zedeler
+- **B. Yeni design system v2.0 yaz** → reddedildi: v1.0 sağlam, sorun rol farklılaştırma değil sistem
+- **C. 3 paket eklenip hızlı yapılsın** → reddedildi: Madde 4 ekonomi prensibi + bağımlılık riski
+- **D. Schema değişikliği gerekirse** → reddedildi: TUR #57 kapsamı zero-schema (mektup direktifi)
+
+**Seçilen:** Tek mektup içinde 12 atom + 0-paket disiplini + KRİTİK önce sıralama + kalibrasyon 1.6×.
+
+### Etki
+
+- **Anayasa**: v1.15.0 → v1.16.0, Madde 31.9 tohumdan resmî oldu
+- **Kullanıcı deneyimi**: 4 CRM rol bazında ayrı karakter
+- **Performans**: 0 ek paket, 0 schema, build süresi değişmedi
+- **Operasyonel**: Avukat/temsilci/müvekkil/CEO her biri kendi iş ruhuna uygun arayüze sahip
+
+### Mimar Dersi (Pattern: TUR #58+ İçin Kalıcı)
+
+1. **Kalibrasyon faktörü 1.6× tekrar doğrulandı** (TUR #56 + TUR #57 = 24/24 atom sapma 0). Mimar mektubu yazarken plan ÷ 1.6 gerçekçi tahmin verir.
+2. **KIRMIZI nokta YOK direktifi disiplin yaratır**: Claude Code paket reddetmeyi öğrendi, native alternatif kararı veriyor.
+3. **KRİTİK önce sıralama (Madde 4.5) çalışıyor**: A3 + A5 + A11 ilk 3 atom uygulandıktan sonra geri kalan 9 atom ardışık aktı.
+4. **CEO direktif keskinliği** ("hiçbir harf geride kalmayacak") otonom akışı stabilize ediyor — 13 commit kesintisiz, 0 build hatası.
+5. **0-paket disiplini sürdürülebilir**: Bölüm B'de 3 paket adayı zaten native alternatifle planlanmıştı; uygulamada hiçbir sürpriz çıkmadı.
+
+### Pattern (TUR #58+ için)
+
+1. Schema + altyapı turu (büyük, KIRMIZI nokta paketli) — TUR #55
+2. Fonksiyonel UI tamamlama turu (orta, schema sabit) — TUR #56
+3. **Rol-ruh karakter farklılaştırma turu** (büyük, kompozisyon değişimi) — **TUR #57 ✅**
+4. Sürdürülebilirlik turu (sağlık taraması + drift kontrol) — TUR #58 (önerilen) veya T tipi sağlık
+
+**CEO direktifi (1 Mayıs 2026):** "HİÇBİR HARF GERİDE KALMAYACAK" — uygulandı.
+
+**Mimar:** Claude Opus 4.7 (sohbet) + Claude Code (otonom uygulama)
+**Onay:** Mehmet DİNÇ (Kurucu, CEO & CTO) — TUR #57 mektubu A onayı + KIRMIZI nokta YOK direktifi
+
+**Disiplin Kanıtı:** Madde 4 (atom + kanıt + ekonomi + KRİTİK önce) + 17.4 + 17.5 + 21 + 22 (MINOR) + 22.4 (OS senkron) + 24.11 (AI onay korunur) + 29 (hareket) + 31 (Tasarım v1.0) + 31.9 (Rol-Ruh resmî)
+
+---
+
 ## 1 Mayıs 2026 — TUR #56 KAPANIŞ Kararı + TUR #57 Rol-Ruh Tohumu (Anayasa v1.15.0)
 
 **Karar 1 — TUR #56 KAPALI (12/12 atom, sapma 0):**

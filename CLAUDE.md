@@ -1547,7 +1547,7 @@ Tüm canlı feed SSE üstünden (`/api/realtime/notifications`). Client `EventSo
 - ❌ Cookie-cutter layout (her sayfa ayrı düşünülür)
 - ❌ Sabit hex/rgb değerler (CSS variable zorunlu)
 
-### 31.9 Rol-Ruh Tasarım Prensibi (TUR #57 ile resmileşecek)
+### 31.9 Rol-Ruh Tasarım Prensibi (TUR #57'de uygulandı)
 
 **İlke:** Tedbirge'de 4 ayrı CRM modülü vardır — her biri **kendi paydaşının iş ruhunu** yansıtır. Aynı Tedbirge Design System v1.0 token'larını paylaşırlar (renk + font + spring eğrisi), ama **kompozisyon, yoğunluk, ritim, etkileşim mantığı** farklıdır.
 
@@ -1578,7 +1578,7 @@ Tüm canlı feed SSE üstünden (`/api/realtime/notifications`). Client `EventSo
 - ❌ Avukatın iş akışı pipeline-funnel olarak gösterilmez (yanlış metafor)
 - ❌ CEO'nun komuta paneli müvekkil portal'ın sadelik dilinde olmaz
 
-**Bu prensip TUR #57'de uygulanacak — bu madde TUR #57'nin tohumudur.**
+**Bu prensip TUR #57'de uygulandı:** 9 yeni DS komponenti (`components/ds/role-specific/`) + 4 mevcut komponent genişletmesi + 2 yeni route (`/dashboard/komuta` + `/temsilci/pipeline`) + 2 yeni utility (`lib/sadelestir` 30 terim + `lib/keyboardNav` G+harf) + 2 mini endpoint (anomaly + lead aşama). 0 schema, 0 npm, 3 paket adayı native alternatifle reddedildi.
 
 ---
 
@@ -1597,7 +1597,7 @@ Mehmet Bey sahaya çıkabilsin diye bu disiplin var.
 
 ---
 
-**— Tedbirge Mimari Anayasası v1.15.0**  
+**— Tedbirge Mimari Anayasası v1.16.0**  
 **25 Nisan 2026 — başlangıç (Claude Opus 4.7)**  
 **28 Nisan 2026 — v1.7.0 (Madde 26-32 eklendi: otonom devir, sağlık periyodikliği, T tipi onay, migration kanıtı, frontend standardı, ortam izolasyonu, anayasa boyutu)**  
 **28 Nisan 2026 — v1.8.0 (Madde 28 eklendi: Beklemede Özellik Disiplini — AccidentCase TUR #29 dersi; Madde 28 (eski 33) kapanış → 29 (eski 34) olarak yeniden numaralandı)**  
@@ -1610,5 +1610,6 @@ Mehmet Bey sahaya çıkabilsin diye bu disiplin var.
 **30 Nisan 2026 — v1.14.0 (TUR #52 — 4 CRM uçtan uca tam operasyonel: KIRMIZI nokta paketi (CommissionLog + SystemSetting modelleri + postinstall auto-migration) + TUR #47 backend regresyon temizliği (uzman avukat → deneyimli avukat ortağı PDF/email) + 6 yeni admin UI (kvkk-talepler, audit-log, komisyon-log, ayarlar, avukat-yonetim, temsilci-yonetim) + temsilci hakediş + public KVKK başvuru + KVKKSCC klasör 4 sağlayıcı dosyası. ~3M+ TL yasal risk kapatıldı. Madde 25.3 birleşik liste, Madde 4.1 ekosistem disiplini — yasal temizlik tüm tabanda zorunlu.)**  
 **1 Mayıs 2026 — v1.15.0 (TUR #55 — 4 CRM Anahtar Teslim: KIRMIZI nokta 5'lı paket (User IBAN+vergi+preferences, Lead aiAnalizOnay+aciliyet+publicSummary, AgentEvent, RealtimeEvent + 8 npm paketi). Madde 30 Otonom Katman Disiplini eklendi: Auditor (5 dk) + Healer (10 dk) + Reporter (1 saat) — server boot ile başlar, AgentEvent yazar, ADMIN_FEED RealtimeEvent gönderir. Madde 31 Tasarım Disiplini eklendi: Tedbirge Design System v1.0 — 4 font (Crimson Pro + Inter Tight + JetBrains Mono + Cabinet Grotesk), 30+ CSS variable, Framer Motion + spring eğrisi, 12 production-grade component (`components/ds/`). REPRESENTATIVE yetki 53→39 endpoint (Madde 24.4). CommissionLog auto-trigger (Lead.gercekTazminat → otomatik). Public lead → ADMIN feed bildirim. SSE backend (`/api/realtime/notifications`). KAPANIŞ Madde 32'ye kaydı.)**  
 **1 Mayıs 2026 — v1.15.0 alt-genişleme (TUR #56 KAPANIŞ + TUR #57 tohum: TUR #56 ile TUR #51.B 18/18 bulgu kapatıldı (12/12 atom sapma 0, kalibrasyon 1.6× doğrulandı, L-B1 lawyerNotifications 6 trigger zinciri canlı, Madde 24.11 üretim disiplini canlı). Madde 31.9 Rol-Ruh Tasarım Prensibi tohum olarak eklendi (Madde 22.2 alt-genişleme — sürüm artmaz): 4 CRM kendi paydaş ruhuna göre niş emsallerle (CEO↔Stripe Dashboard, LAWYER↔Clio/MyCase, REPRESENTATIVE↔HubSpot/Pipedrive, CUSTOMER↔Stripe Customer Portal/Apple Mail) farklılaşır. TUR #57'de uygulanacak — bu madde TUR #57'nin tohumudur. CEO direktifi 1 Mayıs 2026: "HER CRM KENDİ RUHUNA VE KENDİ ALANINA GÖRE ANALİZ EDİLMELİ".)**  
+**1 Mayıs 2026 — v1.16.0 (TUR #57 — 4 CRM Rol-Ruh Karakter Farklılaştırma: 12 atom (3 KRİTİK + 9 ORTA) ile 9 yeni DS komponenti (AnomalyStrip + KPICardEnhanced + Sparkline + CaseFolderCard + LawyerHealthTriad + KanbanBoard + DealCard + ActivityCounter + TimelineDot + TrustBadge + KeyboardShortcutsHelp), 2 yeni route (/dashboard/komuta + /temsilci/pipeline), 2 yeni utility (lib/sadelestir 30 terim + lib/keyboardNav G+harf), 2 mini endpoint (anomalies + lead aşama). Madde 31.9 Rol-Ruh Tasarım Prensibi tohumdan resmileşmeye geçti. 0 schema migration, 0 npm paket (3 paket adayı native alternatifle reddedildi: react-beautiful-dnd → HTML5 DragEvent, canvas-confetti → CSS keyframe, lottie-react → inline SVG). 4 CRM artık niş emsal seviyesinde (Stripe Dashboard+Linear, Clio+MyCase, HubSpot+Pipedrive, Stripe Customer Portal+Apple HIG). KAPANIŞ Madde 32'ye kaydı.)**  
 **Versiyon geçmişi: tedbirge-os/MIMARI_KARARLAR.md**  
 **Her major/minor değişiklikte versiyon güncellemesi ZORUNLU (Madde 22)**

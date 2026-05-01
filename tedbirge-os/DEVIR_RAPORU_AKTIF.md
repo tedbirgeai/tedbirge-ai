@@ -1,29 +1,21 @@
 # 🛡️ TEDBIRGE.AI — DEVİR RAPORU AKTİF
 
-**Son güncelleme:** 1 Mayıs 2026 (TUR #56 KAPALI — TUR #57 önerildi)
-**Anayasa:** v1.15.0 (33 madde + KAPANIŞ — Madde 30 Otonom + Madde 31 Tasarım + 31.9 Rol-Ruh prensibi tohum)
+**Son güncelleme:** 1 Mayıs 2026 (TUR #57 KAPALI — Anayasa v1.16.0)
+**Anayasa:** v1.16.0 (32 madde + KAPANIŞ — Madde 31.9 Rol-Ruh Tasarım Prensibi resmileşti)
 **Aktif kesit:** FAZ 4-B Operasyonel Ölçek
-**Son TUR:** #56 — 11 ertelenen atom + L-B1 KRİTİK kapatma + 4 CRM Notion/Linear/Stripe seviyesi (KAPALI ✅)
+**Son TUR:** #57 — 4 CRM Rol-Ruh Karakter Farklılaştırma (KAPALI ✅)
 
 ---
 
 ## 🔴 AÇIK KRİTİK: 0 ⭐
 
-TUR #51.B raporu **18/18 bulgu kapatıldı** (5/5 KRİTİK + 8/8 ORTA + 5/5 DÜŞÜK).
+TUR #57 ile 3 KRİTİK atom kapatıldı (A3 REP Kanban + A5 CEO Cmd+K + A11 CUSTOMER sade dil).
 
 ---
 
-## 🟡 PLANLI: 2
+## 🟡 PLANLI: 1
 
-1. **TUR #57 — 4 CRM Rol-Ruh Karakter Farklılaştırma (CEO direktifi)**
-   - **CEO sözleri (1 Mayıs 2026):** "TUR #55 + TUR #56 4 CRM modülü kendi niş sınıfında dünya ortalamasında Tedbirge.ai'yi bir yere getirmez. HER CRM KENDİ RUHUNA VE KENDİ ALANINA GÖRE ANALİZ EDİLMELİ."
-   - **Tip:** B tipi büyük stratejik kesit (~30-40 saat)
-   - **İçerik:** CEO Dashboard (Stripe+Linear ruhu) + LAWYER CRM (Clio+MyCase ruhu) + REPRESENTATIVE CRM (HubSpot+Pipedrive ruhu) + CUSTOMER Portal (Apple+Stripe Customer ruhu)
-   - **Önce mimar oturumu:** Niş emsaller derinlemesine analiz + her CRM için **tasarım karar matrisi** oluştur
-   - **Sonra atom mektup:** Her CRM için yeniden kompoze edilmiş layout + komponent + içerik akışı
-   - **CEO onay:** Tek mektup A/B kararı (önce mimar derin analiz raporu sunar)
-
-2. **TUR #58 — Temsilci Sözleşme SMS OTP Backend (mini)**
+1. **TUR #58 — Temsilci Sözleşme SMS OTP Backend (mini)**
    - TUR #56'da UI hazır, backend stub. `/api/representative/sozlesme/sms-otp` + `/imzala` endpoint'leri yazılacak.
    - Süre: ~2-3 saat
    - Risk: Düşük (mevcut SMS OTP zinciri var, müvekkil için, temsilci için adapte edilir)
@@ -32,120 +24,70 @@ TUR #51.B raporu **18/18 bulgu kapatıldı** (5/5 KRİTİK + 8/8 ORTA + 5/5 DÜ�
 
 ## 📋 MEHMET BEY MANUEL İŞLER: 0 KIRMIZI
 
-✅ M1 KAPANDI (TUR #52 postinstall — her deploy migration auto-uygular)
-✅ TUR #56 schema değişikliği yok (sadece UI tamamlama)
+✅ TUR #57 schema değişikliği yok (sadece UI + 2 mini endpoint)
+✅ npm install yok (3 paket adayı native alternatifle reddedildi)
+✅ Postinstall (TUR #52'den beri): her Render deploy migration auto-uygular
 
 ---
 
-## ✅ TUR #56 KAPANIŞ — HİÇBİR HARF GERİDE KALMADI
+## ✅ TUR #57 KAPANIŞ — 4 CRM Rol-Ruh Karakter Farklılaştırma
 
-### 12/12 Atom Sapma 0 (kalibrasyon doğrulandı)
+### 12/12 Atom Sapma 0 (kalibrasyon faktörü 1.6× tekrar doğrulandı)
 
-| # | Atom | Commit |
-|---|---|---|
-| A1 | lawyerNotifications 6 trigger (KRİTİK L-B1) | b76b040 |
-| A2 | AI Onay Modal + Endpoint + Gate (KRİTİK Madde 24.11) | aa5f0c7 + 4590112 |
-| A3 | LAWYER Dashboard Stripe + SSE feed | 34f3b5f + 4626085 |
-| A4 | Lead detay 8-tab Notion+Linear | 5b59eac |
-| A5 | Dava UI 24 alan + stepper + countdown | f26f198 |
-| A6 | İhtarname split-pane editor + timeline | bfa76fe |
-| A7 | Duruşma takvim + Bilirkişi UI | 41a8cd5 |
-| A8 | REPRESENTATIVE 3-in-1 (Dashboard + Hakediş + Sözleşme SMS OTP UI) | 25d6214 |
-| A9 | CUSTOMER timeline 8 aşama + AI sade özet | 583a621 |
-| A10 | CUSTOMER drag-drop belge + 3-step AI | 1e7d55b |
-| A11 | Tahsilat + Bildirim Şablon + Mali Rapor dönem+top5 | 23195ec |
-| A12 | OS senkron (mektup içi) | 9fc08d9 |
+| # | Atom | Repo | Commit |
+|---|---|---|---|
+| A1 | Rol-ruh CSS tokens + 4 SVG illüstrasyon | panel | 8012a0e |
+| A2 | Anomaly + REP pipeline aşama endpoint | backend | a2d2fda |
+| A3 🔴 | KanbanBoard + DealCard + drag-drop + confetti | panel | 901c7cc |
+| A4 | ActivityCounter + /temsilci/pipeline route | panel | 075ac23 |
+| A5 🔴 | lib/commands + CommandPalette mount + ? help | panel | a5f9506 |
+| A6 | lib/keyboardNav + admin G+harf navigation | panel | 32f7e83 |
+| A7 | KPICardEnhanced + AnomalyStrip + Sparkline | panel | ca86710 |
+| A8 | /dashboard/komuta route + composition | panel | f0303eb |
+| A9 | CaseFolderCard + LAWYER 3-sekme refactor | panel | 0a0dc0a |
+| A10 | LawyerHealthTriad + GlobalSearch | panel | cb51587 |
+| A11 🔴 | lib/sadelestir + 30 terim + müvekkil uygulama | panel | 64ca939 |
+| A12 | TimelineDot + TrustBadge + Crimson 40px hero | panel | 460bfeb |
+| A13 | OS senkron (bu commit) | parent | (tba) |
 
 ### Operasyonel Kazanım
-- ✅ Avukat 6 olayda canlı bildirim (belge / AI / sözleşme / komisyon / KVKK / dava-aşama)
-- ✅ Madde 24.11 üretim disiplini canlı (AI <0.7 → 409 ile akış kilit)
-- ✅ TUR #55 ölü kodu (SSE + RealtimeEvent + lawyerNotifications) bu turda canlandı
-- ✅ 4 CRM fonksiyonel olarak Linear/Notion/Stripe seviyesinde
+
+- ✅ **CEO Komuta Köprüsü** (`/dashboard/komuta`): 6 KPI sparkline + AnomalyStrip + canlı SSE feed + mali önizleme
+- ✅ **Cmd+K + ? + G+harf** klavye hakimiyeti (Linear ruhu)
+- ✅ **REPRESENTATIVE Kanban** (`/temsilci/pipeline`): 5 aşama drag-drop + günlük confetti (HubSpot+Pipedrive ruhu)
+- ✅ **LAWYER 3-sekme dashboard**: Dosyalar (CaseFolderCard) / Yaklaşan / Son Belgeler + LawyerHealthTriad mali sayaç + GlobalSearch (Clio+MyCase ruhu)
+- ✅ **CUSTOMER sade dil** (30 terim): "tebliğ edildi" → "karşı tarafa gönderildi" + TrustBadge sticky + Crimson 40px hero (Apple HIG ruhu)
 
 ### İstatistik
-- 13 commit (3 backend + 9 panel + 1 os)
+
+- 13 commit (2 backend + 11 panel + 1 OS)
 - 0 schema migration
-- 0 npm install (KIRMIZI nokta YOK direktifi tutuldu — react-dropzone yerine native, react-countup yerine custom RAF)
-- 0 build hatası
+- 0 npm install (KIRMIZI nokta YOK direktifi tutuldu — react-beautiful-dnd / canvas-confetti / lottie-react reddedildi)
+- 0 build hatası (her atom sonrası `tsc --noEmit` 0)
 - 0 production regresyon
-- Plan × Gerçek sapması: 0 (kalibrasyon faktörü 1.6× doğrulandı)
+- Plan × Gerçek sapması: 0 (kalibrasyon faktörü 1.6× tekrar doğrulandı — TUR #56 dersi pattern oldu)
+
+### Anayasa v1.15.0 → v1.16.0 (MINOR)
+
+- Madde 31.9 Rol-Ruh Tasarım Prensibi **tohumdan resmileşmeye geçti**
+- 9 yeni DS komponenti (`components/ds/role-specific/`)
+- Madde 22.2 disiplini: yeni madde eklenmedi, mevcut madde alt-genişleme; ama uygulanma turu MINOR sayılır
 
 ---
 
-## 🎯 SIRADAKİ ÖNERİLEN İŞ — TUR #57
+## 🎯 SIRADAKİ ÖNERİLEN İŞ
 
-### Niye TUR #57 büyük (CEO direktif gerekçesi)
+**TUR #58 — Temsilci Sözleşme SMS OTP Backend** (mini, ~2-3 saat)
+- TUR #56 A8'de UI hazır, endpoint stub graceful 404
+- POST `/api/representative/sozlesme/sms-otp` + POST `/api/representative/sozlesme/imzala`
+- Mevcut müvekkil SMS OTP pattern'inden adapte (musteri.controller.verifyApproval)
 
-**Mevcut durum (TUR #56 sonu):** 4 CRM **fonksiyonel** ama **karakter olarak benzer**:
-- Hepsi aynı Card komponenti kullanıyor
-- Hepsi aynı dashboard layout deseni
-- Müvekkilin gördüğü tasarım dili = avukatın gördüğü = temsilcinin gördüğü = CEO'nun gördüğü
+Veya **Sağlık taraması (T tipi tur)** — KVKK denetim hazırlığı (Madde 21 — 3 günde bir periyodik).
 
-**CEO'nun haklı tespiti:** Niş emsaller **rol bazında** farklı:
-- **MyCase / Clio** (Avukat CRM) — "case-centric" UI, klasör metaforu, takvim önde, e-imza
-- **HubSpot Sales / Pipedrive** (Sales Rep CRM) — pipeline + drag-drop kart, deal value vurgulu, gamification
-- **Stripe Customer Portal / Apple Mail** (Customer Portal) — sade, duygu hitabı, transparency
-- **Stripe Dashboard / Linear Insights** (CEO) — yoğun veri, çoklu KPI, anomali alarmı, drill-down
-
-**TUR #57 = bu farklılaşmayı uygulamak.**
-
-### TUR #57 Mektup İskeleti (yeni sohbette mimar yazacak)
-
-#### Bölüm A — Niş Emsaller Derinlemesine Analiz (read-only mimar oturumu, ~3-4 saat)
-- 4 dünya çapı CRM'in **görsel anatomisi** çıkarılır (ekran görüntüleri tarif + tasarım kararları)
-- Her birine ait 5-7 ayırt edici özellik listelenir
-- Tedbirge'in mevcut UI ile kıyaslanır (boşluk haritası)
-
-#### Bölüm B — 4 CRM için Karakter Tasarımı (~5-6 saat)
-- CEO Dashboard ruhu: yoğun + drill-down + anomali alarm + Cmd+K hakim
-- LAWYER CRM ruhu: case folder metaforu + takvim odaklı + dosya bütünlüğü dokunulmaz
-- REPRESENTATIVE CRM ruhu: pipeline kart drag-drop + deal value vurgulu + gamification mikro
-- CUSTOMER Portal ruhu: vertical timeline hakim + duygu hitabı + AI sade özet + minimum bilgi
-
-#### Bölüm C — Atom Mektup (~25-30 saat uygulama)
-- Her CRM için **layout yeniden kompozisyon** (mevcut sayfaları silmez, yeniden düzenler)
-- Her CRM için **karakter komponentleri** (ör. LAWYER için CaseFolderCard, REPRESENTATIVE için DealCard, CUSTOMER için TimelineDot)
-- Her CRM için **mikro-etkileşim ruhu** (CEO drill-down hover, LAWYER dosya hover-detail, REPRESENTATIVE confetti, CUSTOMER sade fade)
-- Her CRM için **boş durum (empty state)** karakteri (her birinde farklı illüstrasyon + ses)
-
-#### Bölüm D — Mobil Uyum + Erişilebilirlik (~3-4 saat)
-- 4 CRM ayrı ayrı mobil breakpoint'leri (TUR #55 + #56'da kısmen)
-- WCAG AA uyumu (renk kontrast, klavye nav, ARIA)
-- "Sayfa dışarı kaymamalı" — overflow disiplini, scroll restoration
-
-### TUR #57 Tahmini
-- **Mimar derin analiz mektubu:** ~600-800 satır (Bölüm A + B + C atom planı)
-- **Claude Code süre:** ~30-40 saat
-- **Atom sayısı:** ~18-22 (kalibrasyon 1.6× ile mektupta 12-14 atom yazılmalı)
-- **Schema/migration:** 0 (sadece UI yeniden kompozisyon)
-- **npm:** Belki 2-3 yeni paket (lottie-react illüstrasyon için, react-beautiful-dnd pipeline drag-drop için)
-- **Risk:** Orta (büyük UI değişiklik ama veri/akış değişmiyor)
-- **CEO onay:** Tek mektup A/B kararı (kanıt + mimar önerisi sonra)
-
----
-
-## ⏭️ Yeni Sohbet Açılış Talimatı (Madde 26.4)
-
-Yeni sohbette mimar şu sırayla okur:
-1. **Bu DEVIR_RAPORU_AKTIF.md** — TUR #56 kapalı, TUR #57 önerildi (rol-ruh karakter farklılaştırma)
-2. CLAUDE.md — Anayasa v1.15.0 + Madde 31.9 rol-ruh prensibi tohumu
-3. IS_PLANI.md — son TUR satırları
-4. OTONOM_RAPOR.md — TUR #56 ile TUR #57 hazırlık notu (son 50 satır yeter)
-5. MIMARI_KARARLAR.md — son 5 karar
-
-**Mimar açılış mesajında diyecek:**
-> 🛡️ DEVİR ALINDI — TEDBİRGE.AI
-> 📋 ANAYASA: v1.15.0
-> 📂 AKTİF KESİT: FAZ 4-B Operasyonel Ölçek
->    Son TUR: #56 — 11 ertelenen atom + L-B1 + 18/18 bulgu kapandı
-> 🔴 AÇIK KRİTİK: 0
-> 🟡 PLANLI: 2 (TUR #57 büyük + TUR #58 mini)
-> 📋 MEHMET BEY MANUEL: 0
-> 🎯 SIRADAKİ ÖNERİLEN İŞ: TUR #57 — 4 CRM Rol-Ruh Karakter Farklılaştırma (CEO direktifi)
->    Önce mimar derin analiz oturumu (Bölüm A niş emsaller), sonra atom mektup, sonra Claude Code uygulama.
+Mehmet Bey karar verir.
 
 ---
 
 **— Tedbirge.ai mimarı**
-**TUR #56 KAPANDI · TUR #57 ÖNERİLDİ · 1 Mayıs 2026**
-**Anayasa v1.15.0 yürürlükte (33 madde + Madde 31.9 Rol-Ruh tohum)**
+**TUR #57 KAPANDI · 1 Mayıs 2026**
+**Anayasa v1.16.0 yürürlükte (32 madde + KAPANIŞ — Madde 31.9 resmî)**

@@ -8,10 +8,10 @@
 ## 🎯 AKTİF KESİT
 
 **Faz:** FAZ 4-B Operasyonel Ölçek
-**Son TUR:** #56 — 11 atom eksik tamamlama + L-B1 KRİTİK + Madde 24.11 (KAPALI — TUR #51.B 18/18 bulgu kapandı, 4 CRM Linear/Notion/Stripe seviyesi)
-**Önerilen sıradaki:** TUR #57 — 4 CRM Rol-Ruh Karakter Farklılaştırma (Madde 31.9 uygulanma turu, CEO direktifi 1 Mayıs 2026)
-**Anayasa:** v1.15.0 (sürüm artmadı — Madde 31.9 alt-genişleme tohum, Madde 22.2)
-**Son güncelleme:** 1 Mayıs 2026 (TUR #56 KAPANIŞ + TUR #57 önerildi)
+**Son TUR:** #57 — 4 CRM Rol-Ruh Karakter Farklılaştırma (KAPALI — Anayasa v1.16.0, 9 yeni DS komponenti, Madde 31.9 tohumdan resmî oldu, 0 schema/0 npm)
+**Önerilen sıradaki:** TUR #58 — Temsilci Sözleşme SMS OTP Backend (mini, ~2-3 saat) veya Sağlık Taraması (T tipi)
+**Anayasa:** v1.16.0 (MINOR — TUR #57 uygulanma turu)
+**Son güncelleme:** 1 Mayıs 2026 (TUR #57 KAPANIŞ)
 
 ### Kesit içi turlar (özet)
 
@@ -36,7 +36,7 @@
 | #51.B | Derin 4 CRM Keşif (T tipi denetim — 18 bulgu: 🔴 5, 🟡 8, 🟢 5; TUR #55+ için 20 atom listesi; rapor: docs/TUR51B_DERIN_CRM_KESIF.md) | ✅ Kapalı |
 | #55 | 4 CRM Anahtar Teslim (Anayasa v1.15.0: KIRMIZI 5'li paket + Design System v1.0 + Madde 30 Otonom Katman + Madde 31 Tasarım + 12 DS component + 3 agent + SSE backend + 5 KRİTİK bulgu kapatma) | ✅ Kapalı (Madde 4.5: 17/28 atom, 11 TUR #56'ya) |
 | #56 | TUR #55 Eksik 11 Atom Tamamlama (L-B1 KRİTİK ilk + Madde 24.11 üretim + LAWYER UI derinleştirme + REPRESENTATIVE 3-in-1 + CUSTOMER timeline+drag-drop + ADMIN şablon+mali rapor) | ✅ Kapalı (12 atom + OS, 13 commit, 0 KIRMIZI nokta, kalibrasyon 12/12 doğrulandı, TUR #51.B 18/18 bulgu kapandı) |
-| #57 | 4 CRM Rol-Ruh Karakter Farklılaştırma — CEO Dashboard (Stripe+Linear) + LAWYER (Clio+MyCase) + REPRESENTATIVE (HubSpot+Pipedrive) + CUSTOMER (Apple+Stripe Customer) niş emsalleri ile dünya seviyesi yarış (Madde 31.9 uygulanma turu) | 🟡 Açık — yeni sohbette mimar derin analiz oturumu sonra atom mektup |
+| #57 | 4 CRM Rol-Ruh Karakter Farklılaştırma — CEO Dashboard (Stripe+Linear) + LAWYER (Clio+MyCase) + REPRESENTATIVE (HubSpot+Pipedrive) + CUSTOMER (Apple+Stripe Customer) niş emsalleri ile dünya seviyesi yarış (Madde 31.9 uygulanma turu) | ✅ Kapalı (12 atom + OS, 13 commit, 0 KIRMIZI nokta, 9 yeni DS komponenti, Anayasa v1.15.0 → v1.16.0, kalibrasyon 12/12 tekrar doğrulandı) |
 | #58 | Temsilci Sözleşme SMS OTP backend (mini, ~2-3 saat) — TUR #56 A8'de UI hazır, endpoint stub | 🟡 Açık |
 
 ### TUR #44 — Hareket Disiplini ✅ BÜYÜK KAPANIŞ
