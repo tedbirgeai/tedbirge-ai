@@ -1,6 +1,7 @@
 const asyncHandler = require("../utils/asyncHandler");
 const prisma = require("../config/db");
 const { sendOtpSms } = require("../services/sms.service");
+const lawyerNotif = require("../services/lawyerNotifications.service");
 
 // ─── Dashboard ─────────────────────────────────────────────────────────────
 
@@ -223,6 +224,13 @@ exports.verifyApproval = asyncHandler(async (req, res) => {
       detail: `Müvekkil ${contract.title} sözleşmesini dijital olarak onayladı.`,
     },
   });
+
+  // TUR #56 A1.3 — L-B1 KRITIK: avukata sozlesme imzalandi bildirimi
+  try {
+    await lawyerNotif.notifyContractSigned(lead.id, { title: contract.title, type: contract.type });
+  } catch (notifErr) {
+    console.warn("[LAWYER NOTIF] notifyContractSigned fail:", notifErr.message);
+  }
 
   res.json({ success: true, data: updated, message: "Sözleşme başarıyla onaylandı." });
 });

@@ -173,6 +173,14 @@ async function createFromLead(leadId, opts = {}) {
     });
   } catch (e) {}
 
+  // TUR #56 A1.4 — L-B1 KRITIK: avukata tahsilat kaydedildi bildirimi
+  try {
+    const lawyerNotif = require("./lawyerNotifications.service");
+    await lawyerNotif.notifyCommissionLogCreated(leadId, log);
+  } catch (notifErr) {
+    console.warn("[LAWYER NOTIF] notifyCommissionLogCreated fail:", notifErr.message);
+  }
+
   return log;
 }
 

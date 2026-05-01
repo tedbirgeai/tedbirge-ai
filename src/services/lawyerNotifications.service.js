@@ -45,14 +45,19 @@ async function notifyDocumentUploaded(leadId, document) {
   }
 }
 
-async function notifyAiAnalysisCompleted(leadId, summary) {
+async function notifyAiAnalysisCompleted(leadId, summary, requiresReview = false) {
   const lawyers = await getLawyersForLead(leadId);
+  const reviewMark = requiresReview ? " [ONAY GEREKLI - Madde 24.11]" : "";
   for (const lawyer of lawyers) {
     await sendCombo({
       lawyer,
-      subject: `AI muhatap analizi tamamlandi - Dosya ${leadId}`,
-      body: `<p>Sayin Av. ${lawyer.fullName || ""},</p><p>AI muhatap analizi tamamlandi.</p><p>Ozet: ${summary || ""}</p>`,
-      pushPayload: { title: "AI analizi hazir", body: "Muhatap analizi inceleyin", url: `/leads/${leadId}/360` },
+      subject: `AI muhatap analizi tamamlandi - Dosya ${leadId}${reviewMark}`,
+      body: `<p>Sayin Av. ${lawyer.fullName || ""},</p><p>AI muhatap analizi tamamlandi.${requiresReview ? " <strong>Guven skoru esik altinda - manuel onay zorunlu (Madde 24.11).</strong>" : ""}</p><p>Ozet: ${summary || ""}</p>`,
+      pushPayload: {
+        title: requiresReview ? "AI analizi - ONAY BEKLIYOR" : "AI analizi hazir",
+        body: requiresReview ? "Dusuk guven, manuel onay gerek (Madde 24.11)" : "Muhatap analizi inceleyin",
+        url: `/leads/${leadId}/360`
+      },
     });
   }
 }

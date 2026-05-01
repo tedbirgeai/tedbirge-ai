@@ -2,6 +2,7 @@ const asyncHandler = require("../utils/asyncHandler");
 const { uploadDocument } = require("../services/upload.service");
 const prisma = require("../config/db");
 const { analyzeDocumentById } = require("../services/uploadAnalysis.bridge");
+const lawyerNotif = require("../services/lawyerNotifications.service");
 
 exports.uploadLeadDocument = asyncHandler(async (req, res) => {
   const files = req.files;
@@ -103,6 +104,13 @@ async function completeUpload(req, res) {
         status: "UPLOADED",
       },
     });
+
+    // TUR #56 A1.1 — L-B1 KRITIK: avukata belge yuklendi bildirimi (signed URL akisi)
+    try {
+      await lawyerNotif.notifyDocumentUploaded(leadId, document);
+    } catch (notifErr) {
+      console.warn("[LAWYER NOTIF] notifyDocumentUploaded fail:", notifErr.message);
+    }
 
     // AI Analyzer fire-and-forget — kullanıcı yanıtı beklemez, analiz arka planda çalışır
     setImmediate(async () => {

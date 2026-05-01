@@ -4,6 +4,7 @@ const prisma = require("../config/db");
 const ApiError = require("../utils/ApiError");
 // saveAiSummary import bypass edildi; lead update dogrudan prisma ile yapiliyor
 const { analyzeUploadedDocument } = require("./uploadAnalysis.bridge");
+const lawyerNotif = require("./lawyerNotifications.service");
 
 function inferDocumentType(originalName) {
   const lower = String(originalName || "").toLowerCase();
@@ -97,6 +98,22 @@ async function uploadDocument({ leadId, file, uploadedById = null }) {
         detail: file.originalname + " analiz edildi (" + result.extractionMethod + ")"
       }
     });
+
+    // TUR #56 A1.1 — L-B1 KRITIK: avukata belge yuklendi bildirimi
+    try {
+      await lawyerNotif.notifyDocumentUploaded(leadId, document);
+    } catch (notifErr) {
+      console.warn("[LAWYER NOTIF] notifyDocumentUploaded fail:", notifErr.message);
+    }
+
+    // TUR #56 A1.2 — L-B1 KRITIK: AI analiz tamamlandi bildirimi (Madde 24.11 esigi)
+    try {
+      const guvenSkoru = Number(result.analysis?.guvenSkoru ?? result.analysis?.confidence ?? 1);
+      const requiresReview = Number.isFinite(guvenSkoru) && guvenSkoru < 0.7;
+      await lawyerNotif.notifyAiAnalysisCompleted(leadId, safeSummary, requiresReview);
+    } catch (notifErr) {
+      console.warn("[LAWYER NOTIF] notifyAiAnalysisCompleted fail:", notifErr.message);
+    }
   } catch (error) {
     console.error("[UPLOAD_DOCUMENT_ERROR]", error);
     await prisma.document.update({

@@ -48,11 +48,26 @@ async function upsertDavaSurec(leadId, data) {
 }
 
 async function updateAsama(leadId, asama) {
-  return prisma.davaSurec.upsert({
+  const existing = await prisma.davaSurec.findUnique({ where: { leadId } });
+  const oldAsama = existing?.asama || null;
+
+  const updated = await prisma.davaSurec.upsert({
     where: { leadId },
     create: { leadId, asama },
     update: { asama },
   });
+
+  // TUR #56 A1.6 — L-B1 KRITIK: dava asamasi degistiyse avukata bildirim
+  if (oldAsama !== asama) {
+    try {
+      const lawyerNotif = require("./lawyerNotifications.service");
+      await lawyerNotif.notifyDavaAsamaIlerleme(leadId, asama);
+    } catch (notifErr) {
+      console.warn("[LAWYER NOTIF] notifyDavaAsamaIlerleme fail:", notifErr.message);
+    }
+  }
+
+  return updated;
 }
 
 module.exports = { getDavaSurec, upsertDavaSurec, updateAsama };

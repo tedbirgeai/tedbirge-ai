@@ -46,7 +46,7 @@ async function createPublicRequest({ requesterTC, requestType, description }) {
   if (!REQUEST_TYPES.includes(requestType)) {
     throw new Error("Gecersiz requestType");
   }
-  return prisma.dataSubjectRequest.create({
+  const request = await prisma.dataSubjectRequest.create({
     data: {
       requesterTC: String(requesterTC).trim().slice(0, 11),
       requestType,
@@ -54,6 +54,32 @@ async function createPublicRequest({ requesterTC, requestType, description }) {
       status: "PENDING",
     },
   });
+
+  // TUR #56 A1.5 — L-B1 KRITIK: SILME talebi ise atanmis avukat(lar)a bildirim
+  if (requestType === "SILME") {
+    try {
+      const user = await prisma.user.findFirst({
+        where: { OR: [{ email: { contains: request.requesterTC } }] },
+        select: { id: true },
+      });
+      if (user) {
+        const userLeads = await prisma.lead.findMany({
+          where: { ownerId: user.id },
+          select: { id: true },
+        });
+        const lawyerNotif = require("./lawyerNotifications.service");
+        for (const lead of userLeads) {
+          await lawyerNotif.notifyKvkkDeletionRequest(lead.id, request).catch((e) =>
+            console.warn("[LAWYER NOTIF] notifyKvkkDeletionRequest fail:", e.message)
+          );
+        }
+      }
+    } catch (err) {
+      console.warn("[KVKK] SILME notif zinciri hata:", err.message);
+    }
+  }
+
+  return request;
 }
 
 async function respondToRequest(id, { status, responseNote, handlerId }) {
