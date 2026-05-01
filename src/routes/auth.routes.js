@@ -38,6 +38,47 @@ router.post("/admin-create-user",      auth, role("ADMIN"), controller.adminCrea
 router.post("/send-email-verification", auth, controller.sendEmailVerification);
 router.post("/verify-email",            controller.verifyEmail);
 
+// TUR #55 A13 — Kendi profili (me)
+router.get("/me", auth, async (req, res) => {
+  try {
+    const prisma = require("../config/db");
+    const user = await prisma.user.findUnique({
+      where: { id: req.user.id },
+      select: {
+        id: true, fullName: true, email: true, phone: true, role: true, bolge: true,
+        baroSicilNo: true, uzmanlik: true, isActive: true,
+        iban: true, vergiKimlikNo: true, vergiDairesi: true, preferences: true,
+      },
+    });
+    if (!user) return res.status(404).json({ error: "Kullanici bulunamadi" });
+    res.json({ user });
+  } catch (e) {
+    res.status(500).json({ error: e.message });
+  }
+});
+
+router.patch("/me", auth, async (req, res) => {
+  try {
+    const prisma = require("../config/db");
+    const allowed = ["phone", "bolge", "iban", "vergiKimlikNo", "vergiDairesi", "preferences"];
+    const data = {};
+    for (const key of allowed) {
+      if (req.body[key] !== undefined) data[key] = req.body[key];
+    }
+    if (data.iban) data.iban = String(data.iban).replace(/\s+/g, "").toUpperCase().slice(0, 32);
+    if (data.vergiKimlikNo) data.vergiKimlikNo = String(data.vergiKimlikNo).slice(0, 11);
+
+    const updated = await prisma.user.update({
+      where: { id: req.user.id },
+      data,
+      select: { id: true, iban: true, vergiKimlikNo: true, vergiDairesi: true, phone: true, bolge: true },
+    });
+    res.json({ user: updated });
+  } catch (e) {
+    res.status(400).json({ error: e.message });
+  }
+});
+
 module.exports = router;
 
 
