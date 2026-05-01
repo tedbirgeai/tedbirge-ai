@@ -1,9 +1,36 @@
 # 🛡️ DEVIR RAPORU (AKTİF) — TEDBİRGE.AI
 
-**Son güncelleme:** 1 Mayıs 2026 (TUR #55 — 4 CRM Anahtar Teslim)
-**Anayasa:** v1.15.0
+**Son güncelleme:** 1 Mayıs 2026 (TUR #55 ANAHTAR TESLİM — sonrası senkron)
+**Anayasa:** v1.15.0 (32 madde — Madde 30 Otonom + Madde 31 Tasarım eklendi)
 **Aktif kesit:** FAZ 4-B Operasyonel Ölçek
-**Son TUR:** #55 — 4 CRM Anahtar Teslim (KAPALI — KIRMIZI nokta 5'li paket + Design System v1.0 + Otonom Katman + SSE altyapı). **TUR #51.B 18 bulgudan kritiklerin tümü kapatıldı. Madde 30 + Madde 31 anayasaya eklendi.**
+**Son TUR:** #55 — 4 CRM Anahtar Teslim (KAPALI — Madde 4.5 şeffaflık: 17/28 atom uygulandı, 11 atom TUR #56'ya ertelendi)
+
+---
+
+## 🔴 AÇIK KRİTİK: 1
+
+### L-B1 — lawyerNotifications Trigger Zinciri (TUR #55'ten ertelendi → TUR #56)
+
+**Durum:** 6 lawyerNotifications fonksiyonu TUR #52'de yazıldı (`notifyDocumentUploaded`, `notifyAiAnalysisCompleted`, `notifyContractSigned`, `notifyCommissionLogCreated`, `notifyKvkkDeletionRequest`, `notifyDavaAsamaIlerleme`).
+**Eksik:** Tetikleyici servislerden çağrı zincirine bağlanmadı (`upload.service` / `analyzer.service` / `contract.service` / `commission.service` / `kvkk.service` / `davaSurec.service`).
+**Etki:** Avukat 6 kritik olayda bildirim alamıyor (TUR #51.B L-B1 KRİTİK). Ölü kod — fonksiyonlar mevcut ama hiç çağrılmıyor.
+**Tedavi:** **TUR #56 ilk atom** — 6 service hook + production test (~1.5 saat).
+
+---
+
+## 🟡 PLANLI: 4 (TUR #56 kesite alınacak)
+
+1. **A10 — AI Onay Modal (Madde 24.11):** `Lead.aiAnalizOnay` schema TUR #55'te eklendi, UI yok. Düşük güven (<0.7) AI önerilerini avukatın onaylama/reddetme arayüzü.
+2. **A22 — Bildirim Şablonları UI:** SystemSetting tablosu TUR #52'de eklendi, ADMIN UI'da SMS/email/WhatsApp şablon düzenleme alanı eksik.
+3. **A18 — Müvekkil Belge Yükleme:** `/musteri` Belgeler tab'ı drag-drop yükleme yok (TUR #51.B C-B2 ORTA).
+4. **A19 — Müvekkil Tahsilat Görünümü:** `/musteri` Ödemeler tab'ı CommissionLog'tan kendi tahsilat görünümü yok (TUR #51.B C-B3 ORTA).
+
+---
+
+## 📋 MEHMET BEY MANUEL İŞLER: 0
+
+✅ **M1 KAPANDI** (TUR #52 postinstall ile — her deploy migration auto-uygular)
+✅ **TUR #55 schema migration** auto-deploy edildi (postinstall sayesinde — manuel Render Shell adımı yok)
 
 ---
 

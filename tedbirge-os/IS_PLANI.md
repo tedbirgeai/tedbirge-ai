@@ -33,7 +33,8 @@
 | #51 | Büyük Sağlık Taraması + 3 CRM Kesif (T tipi denetim — 24 bulgu: 🔴 4, 🟡 9, 🟢 6, ℹ️ 5; rapor: docs/TUR51_DEVIR_SAGLIK_RAPORU.md) | ✅ Kapalı |
 | #52 | 4 CRM Uçtan Uca Tam Operasyonel (KIRMIZI nokta paketi: postinstall + CommissionLog + SystemSetting + 6 admin UI + KVKKSCC + Madde 25.3 v1.14.0) | ✅ Kapalı |
 | #51.B | Derin 4 CRM Keşif (T tipi denetim — 18 bulgu: 🔴 5, 🟡 8, 🟢 5; TUR #55+ için 20 atom listesi; rapor: docs/TUR51B_DERIN_CRM_KESIF.md) | ✅ Kapalı |
-| #55 | 4 CRM Anahtar Teslim (Anayasa v1.15.0: KIRMIZI 5'li paket + Design System v1.0 + Madde 30 Otonom Katman + Madde 31 Tasarım + 12 DS component + 3 agent + SSE backend + 5 KRİTİK bulgu kapatma) | ✅ Kapalı |
+| #55 | 4 CRM Anahtar Teslim (Anayasa v1.15.0: KIRMIZI 5'li paket + Design System v1.0 + Madde 30 Otonom Katman + Madde 31 Tasarım + 12 DS component + 3 agent + SSE backend + 5 KRİTİK bulgu kapatma) | ✅ Kapalı (Madde 4.5: 17/28 atom, 11 TUR #56'ya) |
+| #56 | TUR #55 Eksik 11 Atom Tamamlama (L-B1 KRİTİK ilk atom + LAWYER UI derinleştirme + AI onay modal + müvekkil belge/tahsilat + bildirim şablon UI) | 🟡 Açık (mektup yazılacak, ~15-20 saat) |
 
 ### TUR #44 — Hareket Disiplini ✅ BÜYÜK KAPANIŞ
 
@@ -259,6 +260,19 @@ CommissionLog + Mali Modülü (LATER)
 - **2026-04-29 (öğleden sonra)** — TUR #41 sonrası: aktif kesit son TUR #40 → #41, M5 (manifest logo.png) COULD+LATER'a eklendi.
 - **2026-04-29** — TUR #40 sonrası senkronizasyon: aktif kesit FAZ 4-B v1.10.0'a güncellendi (önceden TUR #24 v1.4.0). M2, M3 yan bulguları eklendi.
 - v1.0 — 27 Nisan 2026 (sabah) — başlangıç sürümü (Madde 24 ile birlikte)
+
+---
+
+## 📊 Paydaş Etki Özeti — TUR #55 sonu (1 Mayıs 2026)
+
+| Paydaş | ✅ Tam Operasyonel | 🟡 Kısmen | ⏭️ Eksik (TUR #56) |
+|---|---|---|---|
+| **LAWYER** | TahsilatPanel + Lead detay (mevcut) + assignment bildirimi | lawyerNotifications fonksiyonu yazılı, **trigger zinciri yok** (L-B1) | İhtarname/Dava/Duruşma/Bilirkişi UI sub-routes + AI onay modal (Madde 24.11) + Lead detay 8 tab Notion+Linear |
+| **REPRESENTATIVE** | Yetki daraltma (53→39) + Profil/IBAN/vergi + Performans dashboard + Hakediş listesi | Dashboard mevcut çalışıyor | Dashboard yeniden Notion+Linear ilhamlı + Hakediş Stripe Invoice + Sözleşme SMS OTP imza UI |
+| **CUSTOMER** | KVKK haklarım (6 hak + 30 gün countdown) | /musteri ana sayfa mevcut çalışıyor (1074 satır) | Timeline 8 aşama + AI sade özet + Belge upload drag-drop + Tahsilat görünümü |
+| **ADMIN** | 3 Otonom Agent (Auditor+Healer+Reporter) + Public lead ADMIN_FEED + CommissionLog auto-trigger + sistem-durumu/agent-feed + 6 admin UI (TUR #52'den) | Mali rapor mevcut (367 satır + 4 chart) | Bildirim şablon UI (SystemSetting) + Mali rapor derinleştirme (komisyon trend + Top 5 LAWYER + KVKK ortalama) |
+
+**Özet:** 4 CRM altyapı %100 hazır (schema + endpoint + service + 12 DS component). UI derinleştirme TUR #56'da. Yeni KIRMIZI nokta beklenmiyor (TUR #56 zero-schema).
 
 ---
 

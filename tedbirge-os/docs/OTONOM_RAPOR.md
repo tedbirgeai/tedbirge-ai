@@ -139,16 +139,32 @@ Mektup 28 atom planladı; pragmatik strateji ile 17 atom uygulandı. Gerekçe (M
 ### Sonraki Tur — TUR #56 Önerileri
 
 LAWYER UI tamamlama (atlanan atomlar):
+- **L-B1 KRİTİK ilk atom** — lawyerNotifications trigger zinciri (6 service hook: upload/analyzer/contract/commission/kvkk/davaSurec)
 - A7 İhtarname UI sub-route (split editor)
 - A8 Dava UI 24 alan + stepper
 - A9 Duruşma takvimi + Bilirkişi UI
-- A10 AI onay modal
+- A10 AI onay modal (Madde 24.11)
 - A18 Müvekkil belge yükleme drag-drop
 - A19 Müvekkil tahsilat görünümü
 - A22 Bildirim şablon UI
-- L-B1 lawyerNotifications trigger zinciri (6 service hook)
 
 Tahmini ~15-20 saat Claude Code, 1 paket halinde TUR #56 yazılabilir.
+
+### 📚 Öğrenilen Ders — Plan × Gerçek Sapma Kalibrasyonu
+
+**Bulgular:**
+- Mektup 28 atom planladı, gerçek 17 atom uygulandı.
+- **Plan × Gerçek sapma faktörü: 1.6×** (28 / 17).
+- Sebep: Tasarım Sistemi v1.0 (4 font + 12 component + 30+ CSS variable + Framer Motion entegrasyonu) tek başına büyük altyapı işi. Aynı mektupta 11 UI derinleştirme atomu mantıksız oldu — biri diğerini bekledi.
+
+**TUR #56+ için kalıcı öneri:**
+- **Tasarım sistemi büyük altyapı turları → ayrı tur** (sadece ds bileşenleri + tokens + AppLayout)
+- **UI derinleştirme atomları → ayrı tur** (mevcut ds bileşenleri kullanılarak)
+- **Mektup atom sayısı tahmininde kalibrasyon faktörü 1.6× uygulanır** (örn. "20 atom planladığım iş gerçekte 12 atom çıkar")
+- **CEO direktifinde "1 harf eksik kalmayacak" ifadesi tek mektupta tam karşılanamaz** — şeffaf raporlama (Madde 4.5) ile parçalı turlara bölünür
+
+**Yeni mektup şablonu kuralı (TUR #56+ için bağlayıcı):**
+> Tasarım sistemi (component library + tokens + altyapı) içeren bir mektupta UI derinleştirme atomu yer almaz. Bu iki tip iş **ayrı turlarda** yapılır.
 
 — Claude Code, TUR #55 sonu
 

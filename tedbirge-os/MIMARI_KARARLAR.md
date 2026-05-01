@@ -64,6 +64,19 @@ Sebep: 28 atomu tek mektup içinde tam yapmak ~40-50 saat. Kritik altyapı + KR�
 
 Mektup `lawyerNotifications.service.js` 6 fonksiyonun **çağrılmadığını** TUR #51.B raporundan biliyordu. Mektup A10'da "lawyerNotif aktivasyon" planladı ama TUR #55'te uygulamaya alınmadı (zaman kıtlığı + UI öncelik). TUR #56'da en yüksek öncelik bu trigger zincirini bağlamak — yoksa 6 fonksiyon ölü kod olarak kalmaya devam eder.
 
+**Mimar Hata Kabulü (Madde 4.5 şeffaflık):**
+
+**Plan × Gerçek sapma kalibrasyonu:** Mektup 28 atom planladı, gerçek 17 atom uygulandı. **Sapma faktörü 1.6×.**
+
+Sebep: **Tasarım Sistemi v1.0 tek başına büyük altyapı işi** — 4 font + 12 component + 30+ CSS variable + Framer Motion entegrasyonu yaklaşık 25 saat. Aynı mektupta 11 UI derinleştirme atomu (LAWYER ihtarname/dava/duruşma/bilirkişi/AI onay + müvekkil belge/tahsilat + bildirim şablon UI) eklemek mantıksızdı — biri diğerini bekledi, sırasız oldu.
+
+**TUR #56+ için bağlayıcı kural (yeni mektup şablonu disiplini):**
+> Tasarım sistemi (component library + tokens + altyapı) içeren bir mektup, UI derinleştirme atomu **içeremez**. Bu iki tip iş **ayrı turlarda** yapılır.
+
+**Atom sayısı tahmin kalibrasyonu:** Mektup yazımında "20 atom" planlanan iş gerçekte 12 atom (1.6× faktör) çıkar. Mimar bu faktörü mektup şablonunda göz önünde bulunduracak.
+
+**CEO direktif yorumu (Madde 4.5):** "1 harf eksik kalmayacak + anahtar teslim" ifadesi tek mektupta tam karşılanamaz — şeffaf raporlama ile parçalı turlara bölünür. CEO bilgilendirildi, kabul gördü.
+
 **Mimar:** Claude Opus 4.7 (sohbet)
 **Onay:** Mehmet DİNÇ (Kurucu, CEO & CTO) — Madde 17.5 + 18.3 yazılı onay (TUR #55 mektup kabulü)
 
