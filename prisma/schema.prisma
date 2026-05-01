@@ -281,6 +281,14 @@ model Lead {
   Petition              Petition[]
   uyapDosyaSyncs        UYAPDosyaSync[]  @relation("UYAPDosyaSyncs")
   commissionLogs        CommissionLog[]
+
+  // TUR #55 — KIRMIZI #3 AI onay + aciliyet + sade ozet
+  aiAnalizOnay          AiAnalizOnay?
+  aiAnalizOnayBy        String?
+  aiAnalizOnayAt        DateTime?
+  aiAnalizOnayNote      String?          @db.Text
+  publicSummary         String?          @db.Text
+  aciliyet              AciliyetSeviye   @default(NORMAL)
 }
 
 model Masraf {
@@ -376,6 +384,15 @@ model User {
   // TUR #52 — Komisyon + sistem ayarı izleme
   temsilciKomisyonlari       CommissionLog[]      @relation("TemsilciKomisyon")
   settingsUpdated            SystemSetting[]      @relation("SettingsUpdater")
+
+  // TUR #55 — KIRMIZI #1 IBAN + vergi + tasarım tercihleri
+  iban             String?
+  vergiKimlikNo    String?
+  vergiDairesi     String?
+  preferences      Json?
+
+  // TUR #55 — Real-time hedef
+  realtimeEvents   RealtimeEvent[]  @relation("RealtimeEventTarget")
 }
 
 model VerificationToken {
@@ -788,4 +805,55 @@ model SystemSetting {
   updatedAt   DateTime @updatedAt
 
   @@index([category])
+}
+
+// ─── TUR #55 — KIRMIZI #3 + #4 ───────────────
+enum AiAnalizOnay {
+  BEKLIYOR
+  ONAYLI
+  REDDEDILDI
+  GEREKLI_DEGIL
+}
+
+enum AciliyetSeviye {
+  DUSUK
+  NORMAL
+  ACIL
+  KRITIK
+}
+
+// Otonom Katman (Auditor + Healer + Reporter) olay kayıdı
+model AgentEvent {
+  id          String              @id @default(cuid())
+  agentName   String
+  eventType   String
+  severity    AgentEventSeverity  @default(INFO)
+  payload     Json
+  createdAt   DateTime            @default(now())
+
+  @@index([agentName, createdAt])
+  @@index([severity])
+  @@index([createdAt])
+}
+
+enum AgentEventSeverity {
+  INFO
+  WARNING
+  ERROR
+  CRITICAL
+}
+
+// Real-time canlı feed (SSE)
+model RealtimeEvent {
+  id          String   @id @default(cuid())
+  channel     String
+  eventType   String
+  payload     Json
+  userId      String?
+  user        User?    @relation("RealtimeEventTarget", fields: [userId], references: [id])
+  createdAt   DateTime @default(now())
+  consumed    Boolean  @default(false)
+
+  @@index([channel, createdAt])
+  @@index([userId, consumed])
 }
