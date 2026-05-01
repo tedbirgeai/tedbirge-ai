@@ -6,6 +6,41 @@
 
 ---
 
+## 1 Mayıs 2026 — TUR #56 — Kalibrasyon Doğrulandı + TUR #51.B 18/18 Bulgu Kapatıldı
+
+**Karar:** TUR #56 mektubu, TUR #55'teki 11 ertelenmiş atom + L-B1 KRİTİK trigger zinciri için **kalibrasyon faktörü 1.6× ile 12 atom** tahmin etti. Sonuç: **12/12 atom uygulandı (sapma 0)**, kalibrasyon doğrulandı. KIRMIZI nokta yok, schema/env/npm değişmedi, build 0 hata.
+
+**Mimar dersi (kalıcı):**
+1. **Atom sıralaması — KRİTİK önce:** TUR #55'te L-B1 KRİTİK A10'a koymak hata oldu. TUR #56 mektubu KRİTİK iki atomu (A1 trigger zinciri + A2 Madde 24.11 AI onay) ilk iki sıraya aldı. Claude Code öncelikle bunları yaptı, gerisi kayma yaşamadı.
+2. **Kalibrasyon faktörü 1.6× gerçekçi:** Plan 22-26 saat × 1.6 = ~14-16 saat gerçek. Bu turda 12 atom + 1 OS = 13 commit otonom başarıldı. **Kalıcı standart:** mimar mektubu kalibrasyon faktörü uygular, atom sayısı ÷ 1.6 olarak gerçekçi tahmin verir.
+3. **UI tamamlama turu KIRMIZI noktasız akar:** Mektup açıkça "KIRMIZI nokta YOK" demişse, schema/env/npm değişmiyorsa, kesintisiz akış mümkün. CEO yazılı onay zorunluluğu sadece schema/env/npm/maliyet için.
+4. **TUR #55 ölü kodu canlandırma paterni:** SSE altyapı + RealtimeEvent + lawyerNotifications fonksiyonları TUR #55'te yazıldı ama çağrılmadı. TUR #56'da hook eklenerek kullanıma sokuldu. **Kalıcı:** altyapı turunun bir sonraki turunda mutlaka "kullanıma sokma" atomu olmalı.
+5. **Mektup içi bilgi şartı:** Her atom mektubu kendi başına çalışabilir olmalı (Claude Code önceki mektup detayını hatırlamayabilir). TUR #56 mektubunda her atom için bağımsız kod örneği vardı — Claude Code direkt uygulayabildi.
+
+**Sebep — kanıt zinciri:**
+- TUR #51.B raporu: 18 bulgu (5 KRİTİK + 8 ORTA + 5 DÜŞÜK)
+- TUR #55 sonu: 17/28 atom uygulandı, 11 atom ertelendi (Madde 4.5 şeffaflık)
+- TUR #56 mektubu: 12 atom + 1 OS = 13 commit (KRİTİK önce sıralama düzeltildi)
+- TUR #56 sonu: 12/12 atom ✅, sapma 0, 18/18 bulgu kapandı
+
+**Etki:**
+- TUR #51.B'nin tüm 18 bulgusu kapandı
+- 4 CRM (LAWYER + REPRESENTATIVE + CUSTOMER + ADMIN) Linear/Notion/Stripe seviyesi
+- Madde 24.11 üretim disiplini canlı (AI düşük güvenli öneriler artık insan onayı gerektiriyor)
+- Avukat 6 olayda canlı bildirim alıyor
+- Anayasa sürüm artmadı (Madde 21 — UI tamamlama turu)
+
+**Alternatifler — neden seçilmedi:**
+- ❌ Tek mektupta her şeyi yeniden yazmak (mevcut 2270 satır lead detail page korundu — Madde 4.1 ekosistem haritası)
+- ❌ Schema migration ile npm paket eklemek (mektup KIRMIZI nokta YOK direktifi — react-dropzone yerine native HTML5 drag-drop tercih edildi)
+- ❌ react-countup paketi (yerine custom RAF tabanlı CountUp.tsx yazıldı)
+
+**Mimar:** Claude Opus 4.7 (sohbet) + Claude Code (otonom uygulama)
+**Tarih:** 1 Mayıs 2026
+**CEO direktifi:** "HİÇBİR HARF GERİDE KALMAYACAK"
+
+---
+
 ## 1 Mayıs 2026 — TUR #55 — 4 CRM Anahtar Teslim (Anayasa v1.15.0, 5'li KIRMIZI Nokta Paketi)
 
 **Karar:** Tedbirge.ai 4 CRM modülü Linear+Notion+Stripe Dashboard yarışacak seviyeye taşımak için **Design System v1.0** (4 font + 12 component + 30+ CSS variable + Framer Motion) kuruldu. **Otonom Katman** (3 agent) production'da çalışıyor. **Real-time SSE altyapı** kuruldu. TUR #51.B'nin 5 KRİTİK bulgusunun 4'ü tam kapatıldı, 1'i (lawyerNotifications trigger) TUR #56'ya devredildi.
