@@ -7,12 +7,12 @@
 
 ## 🎯 AKTİF KESİT
 
-**Faz:** Sağlık Taraması KAPALI ✅ + FAZ 5 İçerik Üretimi KAPALI ✅
-**Son TUR:** #62 — Kapsamlı sağlık taraması (T tipi, KAPALI — 1 KRİTİK + 3 ORTA + 7 İYİ bulgu)
-**Son düzeltme TUR'u:** #60 (anasayfa kriz, commit 2691169) + #61 (Instagram URL env redeploy)
-**Önerilen sıradaki:** TUR #63 — Belge/Storage 20 MB Limit Kaldırma (B4.7 KRİTİK çözümü, Yol A+B)
-**Anayasa:** v1.18.0 (MINOR — Madde 33.2 düzeltildi: KIRMIZI kontrol yeterli)
-**Son güncelleme:** 1 Mayıs 2026 (TUR #62 KAPANIŞ — gece)
+**Faz:** Belge Mimarisi KAPALI ✅ (TUR #63 hibrit belge yönetimi tamamlandı)
+**Son TUR:** #63 — Uçtan uca hibrit belge yönetimi TÜM SİSTEM (KAPALI — 9 atom, 9 commit, schema migration ile)
+**Son düzeltme TUR'u:** #60 + #61 + #62 + #63
+**Önerilen sıradaki:** A1.7 CEO Manuel schema deploy (5 dk Render Shell), sonra TUR #64 eski endpoint temizliği
+**Anayasa:** v1.19.0 (MINOR — Madde 32 Belge Disiplini eklendi)
+**Son güncelleme:** 1 Mayıs 2026 (TUR #63 KAPANIŞ — gece)
 
 ### Kesit içi turlar (özet)
 

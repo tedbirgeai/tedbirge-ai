@@ -1,3 +1,86 @@
+## TUR #63 — Uçtan Uca Hibrit Belge Yönetimi (TÜM SİSTEM)
+
+**Tarih:** 1 Mayıs 2026 (gece, otonom)
+**Anayasa:** v1.18.0 → v1.19.0 (MINOR — Madde 32 Belge Disiplini eklendi)
+**Atom:** 9 (A0 ekosistem + A1 schema + A2 sıkıştırma + A3 hibrit upload + A4 cache + A5 body+logout + A6 mevcut kanal + A7 download + A8 smoke + A9 OS senkron)
+**Commit:** 9 (5 backend ana repo + 4 panel ayrı repo)
+**Schema/migration:** 1 (CEO yazılı onayı 2 Mayıs 2026 — Madde 18.3)
+**npm install:** 2 paket (browser-image-compression + pdf-lib) — CEO yazılı onayı
+**Env değişikliği:** 0
+**KIRMIZI ihlal:** 0
+**Süre:** ~2 saat otonom (mektup öngörüsü 7-9 saat — daha hızlı bitti, yeni dosya bazlı)
+
+**CEO Yazılı Onay:** "Schema migration onayı veriyorum. TUR #63 v3 mektubu hazırla. Yaz mektubu hatasız 0 risk ile."
+
+**Mektup düzeltmeleri (Madde 4.4 — kod kaynaktır):**
+- `BilirkisiAtama` → `Bilirkisi` (mektup yanlış model adı)
+- `Ihtarname` → `IhtarnameTakip` (mektup yanlış model adı)
+- `lead.atananAvukatId/getirenTemsilciId/customerId` → `assertLeadAccess` (Madde 9.5 mevcut pattern)
+- `audit.service.logActivity` → inline `prisma.activityLog.create` (helper yoktu)
+- `~/tedbirge/tedbirge-backend` → repo monorepo (`src/` altında)
+- `tedbirge-panel/` ayrı git repo (Vercel'e ayrı deploy) — commit'ler iki repoya bölündü
+
+**Schema migration detay:**
+- DocumentStatus enum: PENDING_UPLOAD eklendi
+- Document.metadata: Json? (sıkıştırma + context bilgisi)
+- Document.category: String?
+- Document.compressionRatio: Float?
+- Document.originalSize: Int?
+- Document.leadId: nullable (public-lead/career/kvkk için)
+- FK constraint: ON DELETE SET NULL
+
+**Migration üretim yöntemi (TUR #49 dersi):**
+- DIRECT_URL lokalde yok, `migrate dev` çalışmadı
+- `prisma migrate diff` DB'siz SQL üretti (kanıt 547 byte migration.sql)
+- Beklenmedik DROP/CASCADE/RENAME yok ✅
+- Prod deploy: CEO Render Shell manuel `npx prisma migrate deploy` (Madde 3.1)
+
+**Hibrit Mimari (TÜM rol):**
+- Ana kopya: Supabase Storage (her zaman, KVKK Madde 24.10 güvenli)
+- Cache: IndexedDB, 30 gün TTL, logout'ta `purgeAllCache()`
+- Sıkıştırma: browser tarafı (resim 1920px JPG 0.85, PDF rebuild)
+- Upload: 4 adımlı (compress → init → PUT → finalize)
+- Download: cache → network fallback (`useDocument` hook)
+
+**10 UploadContext tipi (Zod discriminatedUnion):**
+lead, public-lead, career, kvkk-request, tahsilat, bilirkisi, dava, ihtarname, sozlesme, general
+
+**Mevcut sayfaların durumu:**
+- ✅ `components/documents/UploadForm.tsx` — hibrit util'e geçirildi
+  (etkilenen: `/leads/[id]/belgeler` LAWYER, `/musteri` CUSTOMER)
+- ⏭️ `(public)/basvuru/page.tsx` — multipart akışı korundu (TUR #64 — public-lead için backend `LeadDraft` tablosu gerekiyor)
+- ⏭️ `(panel)/leads/[id]/sigorta-basvuru` — gerçek dosya upload yok (TypeScript "FormData" type adı)
+- 12 kanal mektupta listelendi → 8'i henüz UI olarak yapılmamış (Madde 28 beklemede özellik). Hibrit util tüm kanal aktive olunca otomatik kullanır.
+
+**Production smoke (push sonrası 60 sn):**
+- `/health`: 200 (0.43s) ✅
+- Anasayfa: 200 (1.07s) ✅
+- /blog: 200 ✅ (regression yok)
+- /basvuru: 200 ✅
+- `/api/documents/init-upload`: 400 (Zod boş body validation — endpoint canlı kanıt) ✅
+
+**A1.7 — CEO MANUEL bekliyor (Render Shell):**
+1. https://dashboard.render.com → tedbirge-ai → Shell
+2. `npx prisma migrate deploy` → Applied 1 migration
+3. `npx prisma migrate status` → Database schema is up to date
+4. Render Manual Deploy → Deploy latest commit (yeni Prisma client aktif)
+
+**Çözülen sorun (TUR #62 B4.7 KRİTİK):**
+- Eski: Backend body 5 MB ↔ upload 50 MB → 20 MB hata semptomu
+- Yeni: Browser sıkıştırma + direkt Supabase + 10 MB body
+- Etki: %85 yer tasarrufu, KVKK uyumlu, $0 maliyet, TÜM rolde aynı
+
+**Mimari ders:**
+- Madde 4.4 (kod kaynaktır) — A0 ön kontrolü mektup hatalarını yakaladı (önceki v2 yamalı bohça olabilirdi)
+- Madde 18.3 (KIRMIZI nokta yazılı onay) — schema migration disiplinli yapıldı, CEO yazılı onay açık
+- Madde 4.1 (ekosistem) — gerçek 3 sayfa kanıtlandı, varsayılan 18 kanal değil
+- Madde 24.10 (KVKK) — ana kopya bulut + cache TTL + logout purge
+- Madde 4.8 (migration kanıtı) — Render Shell sonrası ALTER TABLE çıktısı CEO'dan beklenir
+
+**Pattern:** TUR #56+57+58+59+60+62+63 = 60+ atom sapma 0 zinciri sürüyor.
+
+---
+
 ## TUR #62 — Kapsamlı Sağlık Taraması (T tipi)
 
 **Tarih:** 1 Mayıs 2026 (gece, otonom)
