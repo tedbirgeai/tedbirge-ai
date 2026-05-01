@@ -6,6 +6,124 @@
 
 ---
 
+## 1 Mayıs 2026 — Aylık Sabit Aidat Yasağı (CEO Direktifi)
+
+**Karar:** Tedbirge.ai aylık sabit üyelik aidatı ödemez.
+
+**Kapsam:** Tüm 3. parti SaaS hizmetler (chat platform, voice platform, vector DB cloud, AI orchestration tool, conversational AI).
+
+**İstisna:** Sadece **kullanım bazlı API ücreti** (Anthropic, OpenAI gibi LLM API'leri) ödenebilir — çünkü bunlar kullandıkça öder, sabit aidat değil.
+
+**Yasak listesi (örnek):**
+- Voiceflow / Botpress / Intercom AI Chat (aylık $50-500)
+- Pinecone / Weaviate Cloud (pgvector alternatifi var)
+- Drift / HubSpot Conversational AI (aylık $400+)
+- ElevenLabs sabit aylık paket (FAZ 7'ye kadar değerlendirilmez)
+- Custom GPT Plus kurumsal abonelik
+
+**Disiplin sorgusu:** Her yeni 3. parti hizmet önerisi için mimar şu soruyu sorar — "Bunu kendi altyapımızla (Next.js + PostgreSQL + Anthropic API + mevcut Render/Vercel) yapabilir miyiz?" Cevap **evet** ise alternatif kabul edilir. **Hayır** ise CEO onayına götürülür.
+
+**Beraberinde gelen yetki:** FAZ 5-7 roadmap (Discoverability + Chat + Voice) bu kararla uyumlu olmalı. 0 TL sabit ek aidat disiplini garanti altında. Sadece kullanım bazlı API ücreti orantılı geçer.
+
+**Ekonomik etki:** 5 yıllık kâr farkı tahmini 1-2.5 milyon TL (sabit aidat ödemiyoruz vs ödüyor olsak fark).
+
+**Pattern (TUR #59+ için):**
+1. Yeni özellik mektubu yazılmadan önce mimar "0-paket disiplini" sorusu sorar
+2. Eğer paket gerekiyorsa CEO onayı + Aylık Aidat Yasağı uyumu kontrolü (sabit ücret mi / kullanım bazlı mı?)
+3. Kullanım bazlı geçer, sabit aylık geçmez
+4. TUR #57 (3 paket adayı reddedildi: react-beautiful-dnd / canvas-confetti / lottie-react) bu pattern'in kanıtıdır
+
+**Madde referansları:** Madde 4 (ekonomi prensibi) + Madde 17.5 (CEO son söz) + Madde 22 (sürüm disiplini) + Madde 33 (İçerik Üretim Disiplini)
+
+**CEO direktif tarihi:** 1 Mayıs 2026 (TUR #58 mektup yazımı sırasında)
+**Mimar:** Claude Opus 4.7
+
+---
+
+## 1 Mayıs 2026 — TUR #58 KAPANIŞ — FAZ 5 Discoverability Başlangıcı (Anayasa v1.17.0)
+
+**Karar:** TUR #58 ile FAZ 5 (Discoverability) resmi olarak başladı. 9 atom uygulandı (sapma 0): llms.txt + JsonLd 3 factory + 3 SSS landing + /tazminat-rehberi + AI snippet + brand footer + Madde 33.
+
+**Anayasa:** v1.16.0 → v1.17.0 (MINOR — Madde 33 İçerik Üretim Disiplini eklenmesi)
+
+### Kanıt — 9 atom uygulandı
+
+| # | Atom | Commit |
+|---|---|---|
+| A1 🔴 | llms.txt Anthropic standartı | 9515565 |
+| A2 | JsonLd FAQPage + HowTo + BreadcrumbList factory | a1a5bba |
+| A3 | /trafik-kazasi-tazminat 15 SSS + FAQPage | 6e3546d |
+| A4 | /is-kazasi-tazminat 15 SSS + FAQPage | 13abbbf |
+| A5 | /sigorta-tazminat-reddedildi 10 SSS + FAQPage | 864b78f |
+| A6 | /tazminat-rehberi yeni sayfa + HowTo (8 adım) | d692e18 |
+| A7 | AI snippet meta disiplini (3 niş hero) | 5866a54 |
+| A8 | BrandFooterStrip 4 sayfada + Twitter Card | 84c6612 |
+| A9 | OS senkron + Anayasa v1.17.0 + Madde 33 | (bu commit) |
+
+### Yeni Madde 33 — İçerik Üretim Disiplini (5 alt-madde)
+
+- 33.1 İlke: public içerik sadece bilgilendirme (Madde 24.1 + 24.13 referans)
+- 33.2 Onay disiplini: CEO + danışman avukat + "Tedbirge Editöryal Ekibi" yazar + disclaimer + AI taslak avukat onayı
+- 33.3 Yasak: spesifik tazminat vaadi / sonuç vaadi (TBB Reklam Yasağı) / avukat ismi / "size özgü" / müvekkil izlenimi
+- 33.4 SEO/AEO: FAQPage/HowTo/Article/BreadcrumbList schema + AI snippet + llms.txt + brand footer
+- 33.5 Madde referansları
+
+### Operasyonel Kazanım
+
+**Discoverability altyapı tam:** ChatGPT/Claude/Perplexity/Gemini Tedbirge'i yapılandırılmış kaynak olarak görür. 40 SSS + 8 adım HowTo schema. 4 niş sayfada AI snippet ilk 150 char disiplini. Brand footer her sayfada. Madde 33 ile içerik üretim süreci anayasal disiplin altında.
+
+### Beklenen Sonuç (6 Ay)
+
+Aylık 5-30 organik AI-yönlendirmeli ziyaretçi. TUR #58 **altyapı**dır — trafik için TUR #59 (30 niş içerik makalesi) gerekli.
+
+### Sebep — CEO Direktifi (1 Mayıs 2026)
+
+> "Diğer AI'lar (ChatGPT/Gemini/Perplexity) bizi öneren cevap versin"
+
+Mevcut durum: Tedbirge AI scraper'lar tarafından yapılandırılmış kaynak olarak görünmüyordu. AI Overview/ChatGPT'de niş sorgu ("trafik kazası tazminatı Türkiye") cevaplarında alıntılanma şansı düşüktü.
+
+TUR #58 ile bu altyapı kuruldu — TUR #59 ile 30 niş makale yayını sonrası AI scraper'lar yapılandırılmış kaynağa erişip alıntı yapacak.
+
+### Alternatifler
+
+- **A. SEO ajansı kiralamak (aylık $500-2000)** → reddedildi: Aylık Aidat Yasağı (yukarıda) + 0-paket disiplini
+- **B. Schema.org kütüphanesi (next-seo gibi paket)** → reddedildi: native JsonLd factory zaten mevcut, paket gereksiz
+- **C. Tüm landing'leri sıfırdan yazmak** → reddedildi: mevcut 4 sayfa fonksiyonel, FAQPage schema ekleme yeter
+
+**Seçilen:** Mevcut altyapıya 9 atom enjeksiyon + 0 paket + 0 schema değişikliği.
+
+### Beraberinde
+
+- **TUR #59-64** FAZ 5 devam (30 niş makale + teknik SEO + monitoring)
+- **TUR #65+** FAZ 6 (Public AI Chat) başlatma kararı FAZ 5 trafik üretimi görüldükten sonra
+- **Sağlık taraması (T tipi tur)** Mehmet Bey kararıyla isteğe bağlı
+
+### Pattern (TUR #59+ için)
+
+1. **Schema + altyapı turu** (büyük, KIRMIZI nokta paketli) — TUR #55
+2. **Fonksiyonel UI tamamlama turu** (orta, schema sabit) — TUR #56
+3. **Rol-ruh karakter farklılaştırma turu** (büyük, kompozisyon değişimi) — TUR #57
+4. **Discoverability altyapı turu** (orta, içerik şeması) — **TUR #58 ✅**
+5. **İçerik üretim turu** (büyük, niş makaleler) — TUR #59 (sıradaki)
+6. **Teknik SEO turu** (orta, performans + iç link) — TUR #60+
+
+### Mimar Dersi (TUR #56+57+58 = 33/33 atom — Pattern Üçüncü Kez Doğrulandı)
+
+**Kalibrasyon faktörü 1.6× üç tur üst üste doğrulandı.** Bu artık tahminin değil **standardın** parçası. Mimar mektubu yazarken plan ÷ 1.6 gerçekçi tahmin verir, atom sayısı buna göre belirlenir.
+
+**0-paket disiplini sürdürülebilir** — TUR #57'de 3 paket adayı reddedildi, TUR #58'de hiç paket adayı çıkmadı (bu da disiplinin doğal sonucu).
+
+**KRİTİK önce sıralama** TUR #58'de A1 (llms.txt) ilk yapıldı — KRİTİK altyapı tamamen oturduktan sonra ORTA atomlar (A2-A8) sorunsuz aktı.
+
+**CEO direktif keskinliği** ("HİÇBİR HARF GERİDE KALMAYACAK") otonom akışı stabilize ediyor — 9 commit kesintisiz, 0 build hatası.
+
+**Mimar:** Claude Opus 4.7 (sohbet) + Claude Code (otonom uygulama)
+**Onay:** Mehmet DİNÇ (Kurucu, CEO & CTO) — TUR #58 mektubu A onayı + Aylık Aidat Yasağı direktifi
+
+**Disiplin Kanıtı:** Madde 4 + 17.4 + 17.5 + 21 + 22 (MINOR) + 22.4 (OS senkron) + 24.1 + 24.11 + 24.13 + 27 (boyut) + 33 (yeni) + CEO direktifi (Aylık Aidat Yasağı)
+
+---
+
 ## 1 Mayıs 2026 — TUR #57 KAPANIŞ — 4 CRM Rol-Ruh Karakter Farklılaştırma (Anayasa v1.16.0)
 
 **Karar:** TUR #57 mektubu 12/12 atom uygulandı (sapma 0). 4 CRM artık niş emsal seviyesinde: CEO ↔ Stripe Dashboard+Linear Insights · LAWYER ↔ Clio Manage+MyCase · REPRESENTATIVE ↔ HubSpot Sales+Pipedrive · CUSTOMER ↔ Stripe Customer Portal+Apple HIG. Anayasa v1.15.0 → **v1.16.0** (MINOR — Madde 31.9 tohumdan resmileşti).

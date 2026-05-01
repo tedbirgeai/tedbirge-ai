@@ -1582,6 +1582,55 @@ Tüm canlı feed SSE üstünden (`/api/realtime/notifications`). Client `EventSo
 
 ---
 
+## 33. İÇERİK ÜRETİM DİSİPLİNİ — Niş Bilgilendirme
+
+> Tedbirge'in `/blog`, `/trafik-kazasi-tazminat`, `/is-kazasi-tazminat`,
+> `/tazminat-rehberi` ve gelecekteki tüm public bilgilendirme içerikleri
+> bu maddeye uyar.
+
+### 33.1 İlke
+
+Tedbirge'in public içerik üretimi **sadece bilgilendirme** amaçlıdır.
+Avukatlık hizmeti sunmaz (Madde 24.1 + 24.13).
+
+### 33.2 İçerik Onay Disiplini
+
+Her public bilgilendirme içerik (makale, SSS, rehber):
+1. **Mehmet Bey (CEO) ön onayı** — konu seçimi
+2. **Danışman avukat onayı** — hukuki doğruluk + reklam yasağı uyumu (TBB Yön.)
+3. **Yazar:** "Tedbirge Editöryal Ekibi (Avukat onaylı)" — kişisel avukat ismi yok
+4. **Disclaimer:** Her içerik altında *"Bu içerik genel bilgilendirme amaçlıdır.
+   Hukuki tavsiye değildir. Sizin durumunuza özgü değerlendirme için bir
+   avukatınızla görüşün."*
+5. **AI taslak:** AI içerik taslağı çıkarabilir, **avukat son halini onaylar.**
+
+### 33.3 Yasaklı İçerik
+
+- ❌ Spesifik tazminat hesabı vaat etme ("X TL alabilirsiniz")
+- ❌ Sonuç vaadi (TBB Reklam Yasağı Yönetmeliği m.4 ihlali)
+- ❌ Belirli avukat ismi/baro tanıtımı
+- ❌ "Sizin durumunuzda" / "size özgü" kalıbı (vakaya özel tavsiye)
+- ❌ Müvekkil olduğu izlenimi veren ifadeler
+
+### 33.4 SEO/AEO Disiplini
+
+Public içerik **AI Overview, ChatGPT, Perplexity, Gemini** gibi araçlarda
+çıkmak üzere optimize edilir:
+- FAQPage / HowTo / Article / BreadcrumbList schema zorunlu
+- İlk 150 karakter AI-friendly özet
+- llms.txt güncel
+- Brand consistency footer her sayfada
+
+### 33.5 Madde Referansları
+
+- Madde 4 (atom + kanıt + ekonomi)
+- Madde 24.1 (Tedbirge konumu)
+- Madde 24.11 (AI onay disiplini)
+- Madde 24.13 (yasaklı davranış)
+- CEO direktifi 1 Mayıs 2026 (Aylık Aidat Yasağı)
+
+---
+
 ## 32. KAPANIŞ — NİYE BU ANAYASA VAR
 
 Tedbirge.ai 20 bin satır iş kalitesi backend kodu olan, **Türkiye'de rakipsiz mimariye** sahip bir LegalTech projesi.  
@@ -1597,7 +1646,7 @@ Mehmet Bey sahaya çıkabilsin diye bu disiplin var.
 
 ---
 
-**— Tedbirge Mimari Anayasası v1.16.0**  
+**— Tedbirge Mimari Anayasası v1.17.0**  
 **25 Nisan 2026 — başlangıç (Claude Opus 4.7)**  
 **28 Nisan 2026 — v1.7.0 (Madde 26-32 eklendi: otonom devir, sağlık periyodikliği, T tipi onay, migration kanıtı, frontend standardı, ortam izolasyonu, anayasa boyutu)**  
 **28 Nisan 2026 — v1.8.0 (Madde 28 eklendi: Beklemede Özellik Disiplini — AccidentCase TUR #29 dersi; Madde 28 (eski 33) kapanış → 29 (eski 34) olarak yeniden numaralandı)**  
@@ -1611,5 +1660,6 @@ Mehmet Bey sahaya çıkabilsin diye bu disiplin var.
 **1 Mayıs 2026 — v1.15.0 (TUR #55 — 4 CRM Anahtar Teslim: KIRMIZI nokta 5'lı paket (User IBAN+vergi+preferences, Lead aiAnalizOnay+aciliyet+publicSummary, AgentEvent, RealtimeEvent + 8 npm paketi). Madde 30 Otonom Katman Disiplini eklendi: Auditor (5 dk) + Healer (10 dk) + Reporter (1 saat) — server boot ile başlar, AgentEvent yazar, ADMIN_FEED RealtimeEvent gönderir. Madde 31 Tasarım Disiplini eklendi: Tedbirge Design System v1.0 — 4 font (Crimson Pro + Inter Tight + JetBrains Mono + Cabinet Grotesk), 30+ CSS variable, Framer Motion + spring eğrisi, 12 production-grade component (`components/ds/`). REPRESENTATIVE yetki 53→39 endpoint (Madde 24.4). CommissionLog auto-trigger (Lead.gercekTazminat → otomatik). Public lead → ADMIN feed bildirim. SSE backend (`/api/realtime/notifications`). KAPANIŞ Madde 32'ye kaydı.)**  
 **1 Mayıs 2026 — v1.15.0 alt-genişleme (TUR #56 KAPANIŞ + TUR #57 tohum: TUR #56 ile TUR #51.B 18/18 bulgu kapatıldı (12/12 atom sapma 0, kalibrasyon 1.6× doğrulandı, L-B1 lawyerNotifications 6 trigger zinciri canlı, Madde 24.11 üretim disiplini canlı). Madde 31.9 Rol-Ruh Tasarım Prensibi tohum olarak eklendi (Madde 22.2 alt-genişleme — sürüm artmaz): 4 CRM kendi paydaş ruhuna göre niş emsallerle (CEO↔Stripe Dashboard, LAWYER↔Clio/MyCase, REPRESENTATIVE↔HubSpot/Pipedrive, CUSTOMER↔Stripe Customer Portal/Apple Mail) farklılaşır. TUR #57'de uygulanacak — bu madde TUR #57'nin tohumudur. CEO direktifi 1 Mayıs 2026: "HER CRM KENDİ RUHUNA VE KENDİ ALANINA GÖRE ANALİZ EDİLMELİ".)**  
 **1 Mayıs 2026 — v1.16.0 (TUR #57 — 4 CRM Rol-Ruh Karakter Farklılaştırma: 12 atom (3 KRİTİK + 9 ORTA) ile 9 yeni DS komponenti (AnomalyStrip + KPICardEnhanced + Sparkline + CaseFolderCard + LawyerHealthTriad + KanbanBoard + DealCard + ActivityCounter + TimelineDot + TrustBadge + KeyboardShortcutsHelp), 2 yeni route (/dashboard/komuta + /temsilci/pipeline), 2 yeni utility (lib/sadelestir 30 terim + lib/keyboardNav G+harf), 2 mini endpoint (anomalies + lead aşama). Madde 31.9 Rol-Ruh Tasarım Prensibi tohumdan resmileşmeye geçti. 0 schema migration, 0 npm paket (3 paket adayı native alternatifle reddedildi: react-beautiful-dnd → HTML5 DragEvent, canvas-confetti → CSS keyframe, lottie-react → inline SVG). 4 CRM artık niş emsal seviyesinde (Stripe Dashboard+Linear, Clio+MyCase, HubSpot+Pipedrive, Stripe Customer Portal+Apple HIG). KAPANIŞ Madde 32'ye kaydı.)**  
+**1 Mayıs 2026 — v1.17.0 (TUR #58 — FAZ 5 DISCOVERABILITY başlangıcı: 9 atom (1 KRİTİK + 7 ORTA + 1 OS) ile llms.txt + JsonLd 3 yeni factory (FAQPage + HowTo + BreadcrumbList) + 3 niş landing'e SSS schema (15+15+10 toplam 40 SSS) + yeni /tazminat-rehberi sayfası (8 adım HowTo) + AI snippet meta disiplini + BrandFooterStrip 4 sayfada. Madde 33 (İçerik Üretim Disiplini) eklendi: avukat onayı zorunlu, TBB Reklam Yasağı uyumu, AI sadece taslak yazar — avukat onaylar, disclaimer her içerikte. 0 schema migration, 0 npm paket. CEO direktifi 1 Mayıs 2026 (Aylık Sabit Aidat Yasağı) MIMARI_KARARLAR.md'ye eklendi: tüm 3. parti SaaS sabit aidat yasak, sadece kullanım bazlı API ücreti orantılı geçer. KAPANIŞ Madde 32'ye kaydı.)**  
 **Versiyon geçmişi: tedbirge-os/MIMARI_KARARLAR.md**  
 **Her major/minor değişiklikte versiyon güncellemesi ZORUNLU (Madde 22)**

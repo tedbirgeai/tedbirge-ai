@@ -7,11 +7,11 @@
 
 ## 🎯 AKTİF KESİT
 
-**Faz:** FAZ 4-B Operasyonel Ölçek
-**Son TUR:** #57 — 4 CRM Rol-Ruh Karakter Farklılaştırma (KAPALI — Anayasa v1.16.0, 9 yeni DS komponenti, Madde 31.9 tohumdan resmî oldu, 0 schema/0 npm)
-**Önerilen sıradaki:** TUR #58 — Temsilci Sözleşme SMS OTP Backend (mini, ~2-3 saat) veya Sağlık Taraması (T tipi)
-**Anayasa:** v1.16.0 (MINOR — TUR #57 uygulanma turu)
-**Son güncelleme:** 1 Mayıs 2026 (TUR #57 KAPANIŞ)
+**Faz:** FAZ 5 Discoverability (Atom Blok 1 KAPALI)
+**Son TUR:** #58 — FAZ 5 Atom Blok 1 (KAPALI — Anayasa v1.17.0, llms.txt + 3 niş schema + tazminat-rehberi + Madde 33 + Aylık Aidat Yasağı)
+**Önerilen sıradaki:** TUR #59 — 30 Niş İçerik Makalesi (B tipi, ~30-40 saat) veya Sağlık Taraması (T tipi)
+**Anayasa:** v1.17.0 (MINOR — Madde 33 İçerik Üretim Disiplini eklendi)
+**Son güncelleme:** 1 Mayıs 2026 (TUR #58 KAPANIŞ)
 
 ### Kesit içi turlar (özet)
 
@@ -37,7 +37,9 @@
 | #55 | 4 CRM Anahtar Teslim (Anayasa v1.15.0: KIRMIZI 5'li paket + Design System v1.0 + Madde 30 Otonom Katman + Madde 31 Tasarım + 12 DS component + 3 agent + SSE backend + 5 KRİTİK bulgu kapatma) | ✅ Kapalı (Madde 4.5: 17/28 atom, 11 TUR #56'ya) |
 | #56 | TUR #55 Eksik 11 Atom Tamamlama (L-B1 KRİTİK ilk + Madde 24.11 üretim + LAWYER UI derinleştirme + REPRESENTATIVE 3-in-1 + CUSTOMER timeline+drag-drop + ADMIN şablon+mali rapor) | ✅ Kapalı (12 atom + OS, 13 commit, 0 KIRMIZI nokta, kalibrasyon 12/12 doğrulandı, TUR #51.B 18/18 bulgu kapandı) |
 | #57 | 4 CRM Rol-Ruh Karakter Farklılaştırma — CEO Dashboard (Stripe+Linear) + LAWYER (Clio+MyCase) + REPRESENTATIVE (HubSpot+Pipedrive) + CUSTOMER (Apple+Stripe Customer) niş emsalleri ile dünya seviyesi yarış (Madde 31.9 uygulanma turu) | ✅ Kapalı (12 atom + OS, 13 commit, 0 KIRMIZI nokta, 9 yeni DS komponenti, Anayasa v1.15.0 → v1.16.0, kalibrasyon 12/12 tekrar doğrulandı) |
-| #58 | Temsilci Sözleşme SMS OTP backend (mini, ~2-3 saat) — TUR #56 A8'de UI hazır, endpoint stub | 🟡 Açık |
+| #58 | FAZ 5 DISCOVERABILITY Atom Blok 1 — llms.txt + JsonLd 3 factory + 3 SSS landing + /tazminat-rehberi + AI snippet + BrandFooterStrip + Madde 33 (İçerik Üretim Disiplini) + Aylık Aidat Yasağı kararı | ✅ Kapalı (9 atom + OS, 9 commit, 0 KIRMIZI nokta, Anayasa v1.16.0 → v1.17.0, kalibrasyon 9/9) |
+| #59 | FAZ 5 Atom Blok 2 — 30 Niş İçerik Makalesi (10 trafik + 10 iş + 10 sigorta), B tipi, ~30-40 saat. Mimar oturumu önce → avukat onayı (Madde 33.2) → atom mektup → yayınlama | 🟡 Açık |
+| #58.B | (Eski TUR #58 önerisi) Temsilci Sözleşme SMS OTP backend (mini) — UI TUR #56 A8'de hazır, ileri TUR'a ertelendi | ⏭️ Ertelendi |
 
 ### TUR #44 — Hareket Disiplini ✅ BÜYÜK KAPANIŞ
 
