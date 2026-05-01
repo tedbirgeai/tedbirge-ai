@@ -1,6 +1,6 @@
 # TEDBİRGE.AI YOL HARİTASI v1.0
-**Son güncelleme:** 27 Nisan 2026 (öğleden sonra)
-**Anayasa versiyonu:** v1.4.0 (Madde 24 sonrası)
+**Son güncelleme:** 1 Mayıs 2026 (gece — TUR #63 KAPANIŞ)
+**Anayasa versiyonu:** v1.19.0 (Madde 32 Belge Disiplini eklendi)
 **İlke:** MoSCoW + Now-Next-Later hibrit (Madde 24.5)
 
 ---

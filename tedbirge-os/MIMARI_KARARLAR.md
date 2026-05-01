@@ -6,6 +6,79 @@
 
 ---
 
+## TUR #63 — Hibrit Belge Mimarisi (CEO yazılı onay 2 Mayıs 2026)
+
+**Anayasa:** v1.18.0 → v1.19.0 (MINOR — Madde 32 Belge Disiplini eklendi)
+
+### Karar
+
+Tedbirge.ai'nin tüm belge yönetimi (CUSTOMER + LAWYER + REPRESENTATIVE + ADMIN + public form'lar) **hibrit mimari** ile çalışır:
+
+- **Ana kopya:** Supabase Storage (her zaman, KVKK Madde 24.10 güvenli)
+- **Cache:** IndexedDB, 30 gün TTL, logout'ta `purgeAllCache()` (zorunlu temizleme)
+- **Sıkıştırma:** Browser tarafı zorunlu (resim 1920px JPG 0.85, PDF rebuild)
+- **Upload:** 4 adımlı — `compress` → `init-upload` (signed URL) → `PUT` direkt Supabase → `finalize-upload` (DB UPLOADED + audit log)
+- **Download:** `useDocument(id)` hook → cache → network fallback → blob URL otomatik revoke
+
+### Karar Gerekçesi
+
+1. **Bulut tek kaynak (Supabase Storage)** — KVKK uyumlu (Madde 24.10), 4 sağlayıcının SCC altyapısı zaten kuruldu, ana kopya kaybolmaz, avukat/müvekkil PC kaybedilse bile veri güvende
+2. **Hibrit cache (IndexedDB 30 gün TTL)** — avukat sahada offline hızlı erişim sağlar, logout purge ile KVKK m.4 ihlali yok
+3. **Browser sıkıştırma (%85 yer tasarrufu — 12 MB → 1 MB)** — Vercel egress maliyeti düşer, mobil kullanıcı için kritik, kullanıcıya şeffaf
+4. **Direkt Supabase upload (Vercel 4.5 MB body limit bypass)** — TUR #62 B4.7 KRİTİK problemi çözer (50 MB upload sınırı vs 5 MB body)
+5. **10 UploadContext tipi (Zod discriminatedUnion)** — yamalı bohça yok (Madde 4.1), tek util tüm kanal: lead, public-lead, career, kvkk-request, tahsilat, bilirkisi, dava, ihtarname, sozlesme, general
+6. **Schema migration: prisma migrate diff DB'siz pattern (TUR #49 dersi)** — DIRECT_URL lokalde yok → DB'siz SQL üretildi (547 byte), beklenmedik DROP/CASCADE/RENAME yok, production deploy CEO Render Shell manuel
+
+### Reddedilen Alternatifler
+
+**Yol 1 (Sadece sıkıştırma — bulut tek kaynak):**
+- Avantaj: KVKK güvenliği maksimum
+- Red sebebi: Avukat sahada offline çalışamaz, ağ bağlantısı kopukken belge görüntülenemez
+
+**Yol 3 (Tam lokal — IndexedDB ana kaynak):**
+- Avantaj: Hızlı offline erişim
+- Red sebebi: KVKK Madde 4 ihlali — avukat PC'si tek kaynak olursa veri sorumlusunun (avukat) güvenli arşivleme yükümlülüğü ihlal edilir; PC kaybı/çalınma = veri kaybı
+
+### CEO Yazılı Onay (Madde 18.3)
+
+CEO Mehmet DİNÇ yazılı onay (sohbet kaydı 2 Mayıs 2026 — gece TUR #63 mektup teslimi):
+- *"Schema migration onayı veriyorum. TUR #63 v3 mektubu hazırla. Yaz mektubu hatasız 0 risk ile."*
+- *"Otonom uçtan uca uygula yes/no sorma."*
+
+KIRMIZI nokta türü: schema migration (PENDING_UPLOAD enum + 4 yeni alan + leadId nullable) + npm install (browser-image-compression + pdf-lib).
+
+### Etki
+
+- **9 atom** (A0 ekosistem + A1 schema + A2 sıkıştırma + A3 hibrit upload + A4 cache + A5 body+logout + A6 mevcut kanal + A7 download + A8 smoke + A9 OS senkron) — sapma 0
+- **9 commit** (5 backend ana repo + 4 panel ayrı repo)
+- **TUR #62 B4.7 KRİTİK** çözüldü (5 MB body ↔ 50 MB upload çelişkisi)
+- **~%85 yer tasarrufu** (sıkıştırma) — Vercel egress + Supabase storage maliyeti düşer
+- **TÜM rolde tek mimari** — public form, CUSTOMER, LAWYER, REPRESENTATIVE, ADMIN aynı `uploadDocument(file, {context})` util kullanır
+- **A1.7 production deploy** CEO Render Shell beklemede (Madde 3.1 — KIRMIZI çizgi)
+
+### Mektup Düzeltmeleri (Madde 4.4 — Kod Kaynaktır)
+
+A0 ön kontrolünde mektup hataları yakalandı:
+- `BilirkisiAtama` → `Bilirkisi` (yanlış model adı)
+- `Ihtarname` → `IhtarnameTakip` (yanlış model adı)
+- `lead.atananAvukatId/getirenTemsilciId/customerId` → `assertLeadAccess` (Madde 9.5 mevcut pattern)
+- `audit.service.logActivity` → inline `prisma.activityLog.create` (helper yoktu)
+- Backend monorepo + panel ayrı git repo — commit'ler iki repoya bölündü
+
+### Madde Referansları
+
+- **Madde 4.4** (kod kaynaktır) — A0 ön kontrol ile mektup hataları yakalandı
+- **Madde 18.3** (KIRMIZI nokta yazılı onay) — schema + npm install için CEO yazılı onayı
+- **Madde 24.10** (KVKK Yurt Dışı Aktarım) — bulut ana kopya + SCC zinciri
+- **Madde 32** (yeni) — Belge Disiplini Hibrit Mimari TÜM SİSTEM (9 alt-madde)
+- **Madde 3.1** (KIRMIZI çizgi: production DB SQL) — A1.7 CEO Render Shell manuel
+- **Madde 4.1** (ekosistem haritası önce) — 10 UploadContext tek mimari, yamalı bohça yok
+
+**Mimar:** Claude Opus 4.7 (sohbet) + Claude Code (otonom uygulama)
+**Onay:** Mehmet DİNÇ (Kurucu, CEO & CTO) — Madde 17.5 + 18.3
+
+---
+
 ## 1 Mayıs 2026 — TUR #59 KAPANIŞ — FAZ 5 İçerik Üretimi (Anayasa v1.18.0)
 
 **Karar:** TUR #59 ile FAZ 5 İçerik Üretimi tamamlandı. 10 atom + 50 niş makale + 3 pillar refactor + iç linking grafı + sitemap auto-update.

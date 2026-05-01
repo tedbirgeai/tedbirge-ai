@@ -1,9 +1,9 @@
 # 🛡️ TEDBIRGE.AI — DEVİR RAPORU AKTİF
 
 **Son güncelleme:** 1 Mayıs 2026 (gece — TUR #63 KAPALI)
-**Anayasa:** v1.18.0 → v1.19.0 (33 madde + Madde 32 Belge Disiplini)
-**Aktif kesit:** Belge Mimarisi KAPALI ✅
-**Son TUR:** #63 — Uçtan uca hibrit belge yönetimi (TÜM SİSTEM, schema migration ile)
+**Anayasa:** v1.19.0 (33 madde + Madde 32 Belge Disiplini)
+**Aktif kesit:** TUR #63 KAPALI ✅ (A1.7 CEO MANUEL BEKLEMEDE — Render Shell migrate deploy)
+**Son TUR:** #63 — Uçtan uca hibrit belge yönetimi TÜM SİSTEM
 **Son düzeltme TUR'u:** #60 + #61 + #62 + #63
 
 ---
@@ -12,36 +12,35 @@
 
 TUR #62 B4.7 KRİTİK çözüldü. Hibrit belge mimarisi tüm rol için kuruldu.
 
-**🟢 BEKLEYEN MANUEL (CEO):**
-- A1.7 schema migration production deploy (Render Shell — `npx prisma migrate deploy`)
-- Migration apply olmadan yeni `init-upload` endpoint runtime'da fail eder
+**🟢 A1.7 BEKLEMEDE (Render Shell):**
+- `npx prisma migrate deploy`
+- Migration apply olmadan `/api/documents/init-upload` runtime'da fail eder
   (PENDING_UPLOAD enum, metadata/category/compressionRatio/originalSize alanları,
   leadId nullable production'da yok)
 
 ---
 
-## 🟡 PLANLI: 5
+## 🟡 PLANLI: 4
 
 1. **A1.7 — CEO Manuel Schema Migration Deploy** (5 dk):
    - https://dashboard.render.com → tedbirge-ai → Shell
+   - `npx prisma migrate status` → önce durum kontrolü
    - `npx prisma migrate deploy` → "Applied 1 migration"
-   - `npx prisma migrate status` → "up to date"
+   - `npx prisma migrate status` → "up to date" doğrulama
    - Render Manual Deploy → yeni Prisma Client aktif
 
-2. **TUR #64 — Eski Upload Endpoint Temizliği** (~2 saat):
-   - `src/routes/upload.routes.js` request-url + complete eski akışları
-   - Hibrit `init-upload`/`finalize-upload` tek endpoint kalır
-   - Public-lead için `LeadDraft` tablosu (basvuru/page.tsx hibrit'e geçirilebilir)
-
-3. **CEO Manuel İşler** (TUR #62 kalanları):
+2. **CEO Manuel 5 dk** (TUR #62 kalanları):
    - UptimeRobot → 14 dk /health ping (cold start çözümü)
    - Search Console + Bing → Sitemap submit (72 URL)
    - Vercel + Render + Supabase dashboard kontrolleri
    - Supabase Storage RLS policy doğrulama (Madde 32.5)
 
-4. **2 @deferred Schema İncelemesi** (TUR #62 B3.3 — Madde 28)
+3. **TUR #64 — Eski Upload Endpoint Temizliği** (~2 saat):
+   - `src/routes/upload.routes.js` request-url + complete eski akışları
+   - Hibrit `init-upload`/`finalize-upload` tek endpoint kalır
+   - Public-lead için `LeadDraft` tablosu (`basvuru/page.tsx` hibrit'e geçirilebilir)
 
-5. **TUR #65+ — FAZ 6 Public AI Chat Widget** (trafik 2-3 ay sonra)
+4. **TUR #65+ — FAZ 6 Public AI Chat Widget** (trafik 2-3 ay sonra)
 
 ---
 
