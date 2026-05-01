@@ -101,5 +101,17 @@ exports.updateCaseData = asyncHandler(async (req, res) => {
     },
   });
 
+  // TUR #55 A21 — gercekTazminat doldurulduysa otomatik CommissionLog tetikle
+  if (data.gercekTazminat && Number(data.gercekTazminat) > 0) {
+    try {
+      const commissionService = require("../services/commission.service");
+      commissionService.createFromLead(id).catch((err) =>
+        console.warn("[COMMISSION_AUTO_TRIGGER]", err.message)
+      );
+    } catch (e) {
+      console.warn("[COMMISSION_AUTO_TRIGGER] import:", e.message);
+    }
+  }
+
   return res.json({ success: true, lead: updated });
 });

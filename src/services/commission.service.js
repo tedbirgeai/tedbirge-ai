@@ -128,10 +128,59 @@ async function getTemsilciOzet(temsilciId) {
   return summary;
 }
 
+/**
+ * TUR #55 A21 — Lead.gercekTazminat doldurulduğunda otomatik CommissionLog oluştur.
+ * Idempotent: aynı leadId için zaten BEKLIYOR/HESAPLANDI kayıt varsa güncellenmez (yeni oluşturulmaz).
+ * Lead.createdById REPRESENTATIVE ise temsilci payı otomatik hesaplanır.
+ */
+async function createFromLead(leadId, opts = {}) {
+  const lead = await prisma.lead.findUnique({
+    where: { id: leadId },
+    select: {
+      id: true,
+      gercekTazminat: true,
+      komisyonOrani: true,
+      createdById: true,
+      createdBy: { select: { id: true, role: true, fullName: true } },
+    },
+  });
+  if (!lead) return null;
+  if (!lead.gercekTazminat || Number(lead.gercekTazminat) <= 0) return null;
+
+  // Aynı lead için aktif kayıt var mı?
+  const existing = await prisma.commissionLog.findFirst({
+    where: { leadId, durum: { in: ["BEKLIYOR", "HESAPLANDI"] } },
+  });
+  if (existing && !opts.force) return existing;
+
+  const tempId = lead.createdBy?.role === "REPRESENTATIVE" ? lead.createdById : null;
+  const log = await createLog({
+    leadId,
+    tahsilatBrut: lead.gercekTazminat,
+    tedbirgeOrani: lead.komisyonOrani ?? 20,
+    temsilciId: tempId,
+    notes: opts.notes || "Otomatik (Lead.gercekTazminat trigger)",
+  });
+
+  // Real-time event ADMIN feed
+  try {
+    await prisma.realtimeEvent.create({
+      data: {
+        channel: "ADMIN_FEED",
+        eventType: "COMMISSION_LOG_AUTO_CREATED",
+        payload: { leadId, logId: log.id, tahsilatBrut: String(lead.gercekTazminat) },
+      },
+    });
+  } catch (e) {}
+
+  return log;
+}
+
 module.exports = {
   hesaplaKomisyon,
   listLogs,
   createLog,
   updateStatus,
   getTemsilciOzet,
+  createFromLead,
 };

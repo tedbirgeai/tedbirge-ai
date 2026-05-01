@@ -67,5 +67,15 @@ exports.updateLeadMaluliyet = asyncHandler(async (req, res) => {
     },
   });
 
+  // TUR #55 A21 — tazminat doldurulduysa otomatik CommissionLog tetikle
+  if (tazminat && Number(tazminat) > 0) {
+    try {
+      const commissionService = require("../services/commission.service");
+      commissionService.createFromLead(id).catch((err) =>
+        console.warn("[COMMISSION_AUTO_TRIGGER maluliyet]", err.message)
+      );
+    } catch (e) {}
+  }
+
   res.json({ success: true, data: updated });
 });
