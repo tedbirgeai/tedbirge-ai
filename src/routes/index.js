@@ -11,6 +11,7 @@ const assignmentRoutes = require("./assignment.routes");
 const contractRoutes = require("./contract.routes");
 const analyticsRoutes = require("./analytics.routes");
 const documentRoutes = require("./document.routes");
+const documentsUploadRoutes = require("./documents.upload.routes");
 const hukukRoutes = require("./hukuk.routes");
 const petitionRoutes = require("./petition.routes");
 const petitionStandaloneRoutes = require("./petition.standalone.routes");
@@ -51,6 +52,8 @@ router.use("/assignments", assignmentRoutes);
 router.use("/contracts", contractRoutes);
 router.use("/analytics", analyticsRoutes);
 router.use("/documents", documentRoutes);
+// TUR #63 — Hibrit upload (init-upload + finalize-upload, 10 context)
+router.use("/documents", documentsUploadRoutes);
 router.use("/leads", hukukRoutes);
 router.use("/leads/:leadId/petitions", petitionRoutes);
 router.use("/petitions", petitionStandaloneRoutes);
