@@ -34,6 +34,9 @@ const auditRoutes = require("./audit.routes");
 const settingRoutes = require("./setting.routes");
 const realtimeRoutes = require("./realtime.routes");
 const agentRoutes = require("./agent.routes");
+// TUR #57 A2
+const adminAnomalyRoutes = require("./admin.anomaly.routes");
+const representativeRoutes = require("./representative.routes");
 
 const router = express.Router();
 
@@ -75,6 +78,9 @@ router.use('/', auditRoutes);
 router.use('/', settingRoutes);
 router.use('/', realtimeRoutes);
 router.use('/', agentRoutes);
+// TUR #57 A2 — anomaly + representative pipeline
+router.use('/', adminAnomalyRoutes);
+router.use('/', representativeRoutes);
 
 module.exports = router;
 
