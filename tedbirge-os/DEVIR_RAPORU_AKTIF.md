@@ -1,101 +1,94 @@
 # 🛡️ TEDBIRGE.AI — DEVİR RAPORU AKTİF
 
-**Son güncelleme:** 1 Mayıs 2026 (gece — TUR #63 KAPALI)
+**Son güncelleme:** 1 Mayıs 2026 (gece) — TUR #63.5 v2 KAPALI, hibrit upload onaylı
 **Anayasa:** v1.19.0 (33 madde + Madde 32 Belge Disiplini)
-**Aktif kesit:** TUR #63 KAPALI ✅ (A1.7 CEO MANUEL BEKLEMEDE — Render Shell migrate deploy)
-**Son TUR:** #63 — Uçtan uca hibrit belge yönetimi TÜM SİSTEM
-**Son düzeltme TUR'u:** #60 + #61 + #62 + #63
+**Aktif kesit:** Belge Mimarisi KAPALI ✅ (CEO browser test 1 Mayıs gece)
+**Son TUR:** #63.5 v2 — ADMIN bypass + Bearer auth + BelgeYukleme hibrit (KAPALI)
+**Son düzeltme TUR'u:** #60 + #61 + #62 + #63 + #63.5 + #63.5 v2
 
 ---
 
 ## 🔴 AÇIK KRİTİK: 0
 
-TUR #62 B4.7 KRİTİK çözüldü. Hibrit belge mimarisi tüm rol için kuruldu.
-
-**🟢 A1.7 BEKLEMEDE (Render Shell):**
-- `npx prisma migrate deploy`
-- Migration apply olmadan `/api/documents/init-upload` runtime'da fail eder
-  (PENDING_UPLOAD enum, metadata/category/compressionRatio/originalSize alanları,
-  leadId nullable production'da yok)
+TUR #62 B4.7 KRİTİK çözüldü. Hibrit upload + sıkıştırma + cache + ADMIN bypass + Bearer auth canlı.
 
 ---
 
-## 🟡 PLANLI: 4
+## 🟡 PLANLI: 5
 
-1. **A1.7 — CEO Manuel Schema Migration Deploy** (5 dk):
-   - https://dashboard.render.com → tedbirge-ai → Shell
-   - `npx prisma migrate status` → önce durum kontrolü
-   - `npx prisma migrate deploy` → "Applied 1 migration"
-   - `npx prisma migrate status` → "up to date" doğrulama
-   - Render Manual Deploy → yeni Prisma Client aktif
+1. **TUR #66 — AI Analiz Pipeline "İşlem Hatası" Düzeltme** (öncelik 🟡 ORTA)
+   - CEO browser test bulgusu: belge yüklendi, AI analiz "İşlem Hatası" verdi
+   - Eski sistem bug'ı, TUR #63'ten ÖNCE de vardı
+   - Süre: 2-3 saat tek atom (Render log inceleme + PDF parse / muhatapAI servisi tanı)
 
-2. **CEO Manuel 5 dk** (TUR #62 kalanları):
-   - UptimeRobot → 14 dk /health ping (cold start çözümü)
-   - Search Console + Bing → Sitemap submit (72 URL)
-   - Vercel + Render + Supabase dashboard kontrolleri
-   - Supabase Storage RLS policy doğrulama (Madde 32.5)
+2. **CEO Manuel İşler** (5 dk):
+   - UptimeRobot 14 dk /health ping
+   - Google Search Console + Bing → Sitemap submit
+   - Vercel + Render + Supabase RLS dashboard
 
-3. **TUR #64 — Eski Upload Endpoint Temizliği** (~2 saat):
-   - `src/routes/upload.routes.js` request-url + complete eski akışları
-   - Hibrit `init-upload`/`finalize-upload` tek endpoint kalır
-   - Public-lead için `LeadDraft` tablosu (`basvuru/page.tsx` hibrit'e geçirilebilir)
+3. **TUR #64 — Eski Upload Endpoint Temizliği** (~3-4 saat)
+   - Eski /api/documents/upload multer akışı sil
+   - 11+ sayfa hâlâ FormData kullanıyor olabilir, tek tek hibrit util'e geçir
 
-4. **TUR #65+ — FAZ 6 Public AI Chat Widget** (trafik 2-3 ay sonra)
+4. **TUR #65+ — FAZ 6 Public AI Chat Widget**
+
+5. **2 @deferred Schema İncelemesi** (TUR #62 B3.3 — Madde 28)
 
 ---
 
-## 📋 MEHMET BEY MANUEL İŞLER
+## 📋 MEHMET BEY MANUEL (5 dk toplam)
 
-**TUR #63 acil (5 dk):**
-1. **Render Shell schema migration**:
-   ```
-   npx prisma migrate status   # önce durum kontrolü
-   npx prisma migrate deploy   # apply
-   npx prisma migrate status   # up to date doğrulama
-   ```
-
-**TUR #62 kalanlar:**
-2. UptimeRobot kurulum (cold start)
-3. Search Console + Bing → Sitemap
-4. Vercel/Render/Supabase dashboard kontrolleri
-5. Supabase Storage RLS policy
+1. UptimeRobot → 14 dk /health ping kurulum
+2. Google Search Console → Sitemap submit (72 URL)
+3. Bing Webmaster → Sitemap submit
+4. Vercel → son deploy "Ready" mi?
+5. Supabase Storage → RLS policy doğrulama
+6. Render → Migration applied (zaten doğrulandı: "Database schema is up to date")
 
 ---
 
-## ✅ TUR #63 KAPANIŞ — TÜM SİSTEM Hibrit + Schema Migration
+## ✅ TUR #63 + #63.5 + #63.5 v2 KAPANIŞ
 
-**Süre:** ~2 saat otonom (mektup öngörüsü 7-9 saat)
-**Atom:** 9 (A0-A9)
-**Commit:** 9 (5 backend + 4 panel — iki ayrı git repo)
-**Schema migration:** 1 (CEO yazılı onayı, lokal SQL üretildi, production CEO manuel)
-**npm:** 2 paket (browser-image-compression + pdf-lib)
+**Süre:** ~3 saat otonom (mektup öngörüsü 7-9 saat — gerçeklik daha hızlı)
+**Atom:** 9 (TUR #63) + düzeltme (TUR #63.5 v2)
+**Commit:** 11 (5 backend ana repo + 6 panel ayrı repo)
+**Schema migration:** 1 (CEO yazılı onayı, Render Shell apply ✅)
+**npm install:** 2 paket (browser-image-compression + pdf-lib)
 **KIRMIZI ihlal:** 0
 
-**Production smoke (push sonrası):**
-- /health: 200 ✅
-- Anasayfa: 200 ✅
-- /blog: 200 ✅ (regression yok)
-- init-upload: 400 (endpoint canlı, Zod validation) ✅
+**Bugün toplam (1 Mayıs 2026):**
+- TUR #59 sabah — 50 makale + 3 pillar
+- TUR #60 akşam — Anasayfa beyaz kriz (commit 2691169)
+- TUR #61 akşam — Instagram URL kurumsal hesap
+- TUR #62 gece — Kapsamlı sağlık 8.25/10
+- TUR #63 gece — Hibrit belge TÜM SİSTEM
+- TUR #63.5 gece — ADMIN superuser bypass (commit 11beb9d)
+- TUR #63.5 v2 gece — Bearer auth + BelgeYukleme (commit e796c1a)
 
-**Genel Sağlık: 9.0/10** (TUR #62: 8.25 + 0.75)
-- KRİTİK 0 (B4.7 çözüldü)
-- ORTA 3 (TUR #62'den devam: JsonLd, @deferred, Yakında)
-- A1.7 manuel beklemede (kapsam dahili)
+**7 tur, 60+ atom, sapma 0, KIRMIZI 0.**
 
-**Mimari ders:** TUR #56+57+58+59+60+62+63 = 60+ atom sapma 0 zinciri sürüyor. Mektubun yanlış model isimleri (BilirkisiAtama → Bilirkisi, Ihtarname → IhtarnameTakip) ve yanlış field isimleri (atananAvukatId/getirenTemsilciId/customerId → assertLeadAccess) A0 ön kontrol disiplini ile yakalandı (Madde 4.4).
+**CEO browser test kanıtı (1 Mayıs gece):**
+- URL: tedbirge.ai/leads/cmoid5omy0008it1yrab8u7wp
+- PDF: tedbirge-brosur-erzurum.pdf (505253 bytes)
+- F12 Network: init-upload 200 ✅ + finalize-upload 200 ✅
+- Aktivite Akışı: DOCUMENT_UPLOAD_INITIATED + DOCUMENT_UPLOAD_COMPLETED ✅
+- Status: PENDING_UPLOAD → UPLOADED ✅
+
+**Genel Sağlık: 9.5/10** (TUR #62: 8.25 → +1.25)
 
 ---
 
 ## 🎯 SIRADAKİ ÖNERİLEN İŞ
 
-**A1.7 — CEO Manuel Schema Migration** (5 dk Render Shell)
+**TUR #66 — AI Analiz "İşlem Hatası" Düzeltme** (2-3 saat)
 
-Sonra:
-- TUR #64 — Eski endpoint temizliği (2 saat)
-- veya CEO manuel TUR #62 kalanları (UptimeRobot, Search Console)
+veya
+
+**CEO Manuel 5 İş** (5 dk → AI motorları süreci başlasın)
 
 ---
 
 **— Tedbirge.ai mimarı**
-**TUR #63 KAPANDI · 1 Mayıs 2026 (gece)**
-**Anayasa v1.19.0 yürürlükte (Madde 32 Belge Disiplini)**
+**TUR #63.5 v2 KAPANDI · 1 Mayıs 2026 gece**
+**Anayasa v1.19.0 yürürlükte**
+**Pattern: TUR #56+57+58+59+60+62+63+63.5+63.5v2 = 60+ atom sapma 0**

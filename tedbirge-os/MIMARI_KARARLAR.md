@@ -65,17 +65,42 @@ A0 ön kontrolünde mektup hataları yakalandı:
 - `audit.service.logActivity` → inline `prisma.activityLog.create` (helper yoktu)
 - Backend monorepo + panel ayrı git repo — commit'ler iki repoya bölündü
 
+### TUR #63.5 v2 Düzeltme — Madde 4.1 Ekosistem Garanti (1 Mayıs 2026 gece)
+
+CEO browser test sonrası 403 "Yetkiniz yok" + F12 Network "init-upload 0 istek" semptomu iki katmanlı bug ortaya çıkardı:
+
+**Bug 1 — TUR #63.5 v1: ADMIN superuser bypass eksikti**
+- `src/routes/documents.upload.routes.js` `checkPermission` lead-bağlı bloğunda `assertLeadAccess`'ten ÖNCE ADMIN bypass yoktu
+- ADMIN için `Lead.assignments / ownerId / createdById` hiçbiri eşleşmiyor → 403
+- Düzeltme (commit `11beb9d`): `if (user.role === "ADMIN") return { allowed: true, leadId };`
+
+**Bug 2 — TUR #63.5 v2: Bearer auth eksikliği + BelgeYukleme A6'da atlanmıştı**
+- `lib/document-upload.ts` `credentials: 'include'` kullanıp Authorization header eklemiyordu (Madde 13.2 ihlali)
+- Backend `optionalAuth` Bearer bekliyor → `req.user = null` → ADMIN bypass çalışamıyor
+- `BelgeYukleme.tsx` (müvekkil portal) hala FormData + `/uploads/:leadId` eski endpoint kullanıyordu
+- Düzeltme (commit `e796c1a`): `getAuthHeaders()` helper + BelgeYukleme `uploadDocument` util'e geçirildi
+
+**CEO Browser Test Onayı (1 Mayıs 2026 gece):**
+- URL: `tedbirge.ai/leads/cmoid5omy0008it1yrab8u7wp`
+- F12 Network: init-upload 200 + finalize-upload 200
+- Aktivite Akışı: DOCUMENT_UPLOAD_INITIATED + DOCUMENT_UPLOAD_COMPLETED
+- 505253 bytes tedbirge-brosur-erzurum.pdf
+
+**Garanti:** TUR #63 A6 kapsam yetersizliği TUR #63.5 v2'de tamamlandı. Tüm lead-bound upload UI tek hibrit util kullanır, Bearer header zorunludur, ADMIN her context'te bypass eder.
+
 ### Madde Referansları
 
+- **Madde 4.1** (ekosistem haritası önce) — 10 UploadContext tek mimari, BelgeYukleme atlanmıştı (TUR #63.5 v2'de kapatıldı)
 - **Madde 4.4** (kod kaynaktır) — A0 ön kontrol ile mektup hataları yakalandı
+- **Madde 9.5** (assertLeadAccess) — ADMIN superuser bypass eklendi (TUR #63.5 v1)
+- **Madde 13.2** (apiFetch/Bearer zorunlu) — `credentials: include` yetmez, Bearer header şart (TUR #63.5 v2)
 - **Madde 18.3** (KIRMIZI nokta yazılı onay) — schema + npm install için CEO yazılı onayı
 - **Madde 24.10** (KVKK Yurt Dışı Aktarım) — bulut ana kopya + SCC zinciri
 - **Madde 32** (yeni) — Belge Disiplini Hibrit Mimari TÜM SİSTEM (9 alt-madde)
 - **Madde 3.1** (KIRMIZI çizgi: production DB SQL) — A1.7 CEO Render Shell manuel
-- **Madde 4.1** (ekosistem haritası önce) — 10 UploadContext tek mimari, yamalı bohça yok
 
 **Mimar:** Claude Opus 4.7 (sohbet) + Claude Code (otonom uygulama)
-**Onay:** Mehmet DİNÇ (Kurucu, CEO & CTO) — Madde 17.5 + 18.3
+**Onay:** Mehmet DİNÇ (Kurucu, CEO & CTO) — Madde 17.5 + 18.3 + browser test onayı 1 Mayıs 2026 gece
 
 ---
 

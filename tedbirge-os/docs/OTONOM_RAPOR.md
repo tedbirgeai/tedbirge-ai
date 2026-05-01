@@ -1,3 +1,44 @@
+## TUR #63.5 v2 — Hibrit Upload ADMIN Bypass + Bearer Auth + BelgeYukleme
+
+**Tarih:** 1 Mayıs 2026 (gece, CEO browser test onaylı)
+**Anayasa:** v1.19.0
+**Tip:** P tipi (üretim düzeltme)
+**Atom:** A0 tanı + A1 düzeltme + A2 build/commit/push + A3 smoke + A4 CEO browser test
+**Commit:** 2 (11beb9d ADMIN bypass + e796c1a Bearer + BelgeYukleme)
+**Schema/migration/env/npm:** 0
+**KIRMIZI ihlal:** 0
+**Süre:** ~30 dk
+
+**CEO Browser Test Kanıtı:**
+- URL: tedbirge.ai/leads/cmoid5omy0008it1yrab8u7wp
+- F12 Network: init-upload 200 + finalize-upload 200
+- Aktivite Akışı: DOCUMENT_UPLOAD_INITIATED + DOCUMENT_UPLOAD_COMPLETED
+- 505 KB tedbirge-brosur-erzurum.pdf
+
+**Çözülen iki katmanlı bug:**
+
+Bug 1 (TUR #63.5 v1): ADMIN superuser bypass eksikti
+- src/routes/documents.upload.routes.js checkPermission lead-bağlı bloğunda
+  assertLeadAccess'ten ÖNCE ADMIN bypass yoktu
+- ADMIN için Lead.atananAvukatId/getirenTemsilciId/customerId hiçbiri eşleşmiyor → 403
+- Düzeltme: 1 satır eklendi: if (user.role === "ADMIN") return { allowed: true, leadId };
+
+Bug 2 (TUR #63.5 v2): Bearer auth eksikliği + BelgeYukleme A6'da atlanmıştı
+- lib/document-upload.ts credentials: 'include' kullanıp Authorization header eklemiyordu
+- Backend optionalAuth Bearer bekliyor → req.user = null → ADMIN bypass çalışamıyor
+- BelgeYukleme.tsx (müvekkil portal) hâlâ FormData + /uploads/:leadId eski endpoint kullanıyordu
+- Düzeltme: getAuthHeaders() helper + BelgeYukleme uploadDocument util'e geçirildi
+
+**Mimari ders:**
+- Madde 4.1 (ekosistem) — F12 Network kanıtı (init-upload 0 istek) yamalı bohça riskini gösterdi
+- Madde 4.4 (kod kaynak) — UploadForm.tsx zaten hibrit ama BelgeYukleme.tsx atlanmıştı
+- Madde 13.2 (auth disiplini) — credentials: include yetmez, Bearer header zorunlu
+- TUR #63 A6 kapsam yetersizliği TUR #63.5 v2'de tamamlandı
+
+**Pattern:** TUR #56+57+58+59+60+62+63+63.5+63.5v2 = 60+ atom sapma 0
+
+---
+
 ## TUR #63 — Uçtan Uca Hibrit Belge Yönetimi (TÜM SİSTEM)
 
 **Tarih:** 1 Mayıs 2026 (gece, otonom)

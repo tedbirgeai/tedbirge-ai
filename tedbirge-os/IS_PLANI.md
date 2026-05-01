@@ -7,12 +7,12 @@
 
 ## 🎯 AKTİF KESİT
 
-**Faz:** Belge Mimarisi KAPALI ✅ (TUR #63 hibrit belge yönetimi tamamlandı)
-**Son TUR:** #63 — Uçtan uca hibrit belge yönetimi TÜM SİSTEM (KAPALI — 9 atom, 9 commit, schema migration ile)
-**Son düzeltme TUR'u:** #60 + #61 + #62 + #63
-**Önerilen sıradaki:** A1.7 CEO Manuel schema deploy (5 dk Render Shell), sonra TUR #64 eski endpoint temizliği
-**Anayasa:** v1.19.0 (MINOR — Madde 32 Belge Disiplini eklendi)
-**Son güncelleme:** 1 Mayıs 2026 (TUR #63 KAPANIŞ — gece)
+**Faz:** Belge Mimarisi KAPALI ✅ (TUR #63.5 v2 onaylı)
+**Son TUR:** #63.5 v2 — ADMIN bypass + Bearer auth + BelgeYukleme (KAPALI, CEO browser test onaylı)
+**Son düzeltme TUR'u:** #60 + #61 + #62 + #63 + #63.5 + #63.5 v2
+**Önerilen sıradaki:** TUR #66 AI Analiz İşlem Hatası düzeltme veya CEO manuel 5 iş
+**Anayasa:** v1.19.0 (Madde 32 Belge Disiplini)
+**Son güncelleme:** 1 Mayıs 2026 gece (TUR #63.5 v2 KAPANIŞ)
 
 ### Kesit içi turlar (özet)
 
