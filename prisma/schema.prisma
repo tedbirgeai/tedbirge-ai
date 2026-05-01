@@ -134,7 +134,7 @@ model DavaSurec {
 
 model Document {
   id                 String         @id @default(cuid())
-  leadId             String
+  leadId             String?
   uploadedById       String?
   type               DocumentType   @default(OTHER)
   status             DocumentStatus @default(UPLOADED)
@@ -149,10 +149,14 @@ model Document {
   storageKey         String?
   compensationResult String?
   pageCount          Int?
+  metadata           Json?
+  category           String?
+  compressionRatio   Float?
+  originalSize       Int?
   createdAt          DateTime       @default(now())
   updatedAt          DateTime       @updatedAt
   deletedAt          DateTime?
-  Lead               Lead           @relation(fields: [leadId], references: [id])
+  Lead               Lead?          @relation(fields: [leadId], references: [id])
 }
 
 model Durusma {
@@ -434,6 +438,7 @@ enum ContractType {
 }
 
 enum DocumentStatus {
+  PENDING_UPLOAD
   UPLOADED
   PARSED
   ANALYZED
