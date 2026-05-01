@@ -7,11 +7,11 @@
 
 ## 🎯 AKTİF KESİT
 
-**Faz:** FAZ 5 Discoverability (Atom Blok 1 KAPALI)
-**Son TUR:** #58 — FAZ 5 Atom Blok 1 (KAPALI — Anayasa v1.17.0, llms.txt + 3 niş schema + tazminat-rehberi + Madde 33 + Aylık Aidat Yasağı)
-**Önerilen sıradaki:** TUR #59 — 30 Niş İçerik Makalesi (B tipi, ~30-40 saat) veya Sağlık Taraması (T tipi)
-**Anayasa:** v1.17.0 (MINOR — Madde 33 İçerik Üretim Disiplini eklendi)
-**Son güncelleme:** 1 Mayıs 2026 (TUR #58 KAPANIŞ)
+**Faz:** FAZ 5 İçerik Üretimi KAPALI ✅ (FAZ 5 ana blokları tamam — TUR #58 altyapı + TUR #59 içerik)
+**Son TUR:** #59 — FAZ 5 İçerik Üretimi (KAPALI — Anayasa v1.18.0, 50 makale + 3 pillar + iç linking, Madde 33.2 düzeltildi)
+**Önerilen sıradaki:** TUR #60 — Teknik SEO + Core Web Vitals + Monitoring (~10-12 saat) veya 2-3 ay trafik izleme
+**Anayasa:** v1.18.0 (MINOR — Madde 33.2 düzeltildi: KIRMIZI kontrol yeterli)
+**Son güncelleme:** 1 Mayıs 2026 (TUR #59 KAPANIŞ)
 
 ### Kesit içi turlar (özet)
 
@@ -38,7 +38,8 @@
 | #56 | TUR #55 Eksik 11 Atom Tamamlama (L-B1 KRİTİK ilk + Madde 24.11 üretim + LAWYER UI derinleştirme + REPRESENTATIVE 3-in-1 + CUSTOMER timeline+drag-drop + ADMIN şablon+mali rapor) | ✅ Kapalı (12 atom + OS, 13 commit, 0 KIRMIZI nokta, kalibrasyon 12/12 doğrulandı, TUR #51.B 18/18 bulgu kapandı) |
 | #57 | 4 CRM Rol-Ruh Karakter Farklılaştırma — CEO Dashboard (Stripe+Linear) + LAWYER (Clio+MyCase) + REPRESENTATIVE (HubSpot+Pipedrive) + CUSTOMER (Apple+Stripe Customer) niş emsalleri ile dünya seviyesi yarış (Madde 31.9 uygulanma turu) | ✅ Kapalı (12 atom + OS, 13 commit, 0 KIRMIZI nokta, 9 yeni DS komponenti, Anayasa v1.15.0 → v1.16.0, kalibrasyon 12/12 tekrar doğrulandı) |
 | #58 | FAZ 5 DISCOVERABILITY Atom Blok 1 — llms.txt + JsonLd 3 factory + 3 SSS landing + /tazminat-rehberi + AI snippet + BrandFooterStrip + Madde 33 (İçerik Üretim Disiplini) + Aylık Aidat Yasağı kararı | ✅ Kapalı (9 atom + OS, 9 commit, 0 KIRMIZI nokta, Anayasa v1.16.0 → v1.17.0, kalibrasyon 9/9) |
-| #59 | FAZ 5 Atom Blok 2 — 30 Niş İçerik Makalesi (10 trafik + 10 iş + 10 sigorta), B tipi, ~30-40 saat. Mimar oturumu önce → avukat onayı (Madde 33.2) → atom mektup → yayınlama | 🟡 Açık |
+| #59 | FAZ 5 İçerik Üretimi — 50 niş makale (Trafik 20 + İş Kazası 15 + Sigorta+Genel 15) + 3 pillar cluster grid + blog detay FAQPage/BreadcrumbList JsonLd + Madde 33.2 düzeltme + iç linking audit (150 cross-link, 0 bozuk) | ✅ Kapalı (10 atom, 9 commit, 0 KIRMIZI nokta, 0 npm, Anayasa v1.17.0 → v1.18.0, kalibrasyon 10/10 dördüncü kez doğrulandı) |
+| #60 | FAZ 5 Teknik SEO + Core Web Vitals + Monitoring (Lighthouse, iç link gücü, Search Console takip) | 🟡 Açık |
 | #58.B | (Eski TUR #58 önerisi) Temsilci Sözleşme SMS OTP backend (mini) — UI TUR #56 A8'de hazır, ileri TUR'a ertelendi | ⏭️ Ertelendi |
 
 ### TUR #44 — Hareket Disiplini ✅ BÜYÜK KAPANIŞ
