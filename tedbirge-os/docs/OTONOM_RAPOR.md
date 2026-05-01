@@ -162,11 +162,41 @@ Atom sıralaması mektupta KRİTİK önce konumlandı (TUR #55 hatası tekrarlan
 - Çalışanlar tercih sebebi: hız + güven + profesyonel
 - TUR #55'te yapılan SSE altyapısı bu turda gerçek kullanıma alındı (LAWYER dashboard + REPRESENTATIVE dashboard)
 
-### Bir sonraki TUR önerileri
+### Mimar Karar — TUR #57 İhtiyacı (CEO direktifi sonrası güncellendi)
 
-- **TUR #57** — temsilci sözleşme SMS OTP backend implementation (UI hazır, endpoint stub)
-- **TUR #58** — `/api/admin/analytics-deep` derin endpoint + cache 5dk (UI dönem filtresi hazır)
+**TUR #56'nın kapanışı zaferdir, ama yeterli değildir.** CEO 1 Mayıs 2026 mesajıyla net teşhis koydu:
+
+> "TUR #55 + TUR #56 4 CRM modülü kendi niş sınıfında dünya ortalamasında Tedbirge.ai'yi bir yere getirmez. Derin analiz edilip kontrol edilip disiplin, aksiyon, şeffaflık, hız, Görsel Dizayn, panellerin dağınıklığı sayfa dışarı kaymamalı, hiç bir noksan bırakılmamalı. HER CRM KENDİ RUHUNA VE KENDİ ALANINA GÖRE ANALİZ EDİLMELİ."
+
+**Mimar bunu kabul ediyor:** TUR #55 + #56'da Tasarım Sistemi v1.0 kuruldu, fonksiyonel CRM'ler tamamlandı. Ama **rol bazında karakter farklılaştırması** yapılmadı. 4 CRM aynı tasarım dilini paylaşıyor, aynı kompozisyonu kullanıyor. Niş emsallerle yarışmak için **rol-ruh** uygulanmalı.
+
+### TUR #57 Hazırlık Notu (yeni sohbet için)
+
+**TUR #57 = 4 CRM Rol-Ruh Karakter Farklılaştırma**
+- Niş emsaller: Stripe Dashboard (CEO), MyCase+Clio (LAWYER), HubSpot+Pipedrive (REPRESENTATIVE), Apple Mail+Stripe Customer (CUSTOMER)
+- Tip: B tipi büyük stratejik kesit
+- Süre: ~30-40 saat (mimar derin analiz 3-4 saat + atom mektup 25-30 saat + mobil/a11y 3-4 saat)
+- Atom sayısı: 12-14 (kalibrasyon 1.6× ile)
+- Schema/migration: 0
+- npm: Belki 2-3 yeni (lottie-react, react-beautiful-dnd)
+- Risk: Orta (büyük UI değişiklik, veri/akış değişmiyor)
+
+**Mektup yazımı yeni sohbette mimar tarafından yapılır.** Bu rapor TUR #57'nin **niye** sorusunu yanıtlar; **nasıl** sorusunu mimar derin analiz mektubu yanıtlar.
+
+### Bir sonraki TUR önerileri (CEO direktifi 1 Mayıs sonrası güncel)
+
+- **TUR #57** — 4 CRM Rol-Ruh Karakter Farklılaştırma (büyük, B tipi — Madde 31.9 uygulama turu, niş emsaller bazında)
+- **TUR #58** — Temsilci Sözleşme SMS OTP backend (mini, ~2-3 saat — TUR #56 A8'de UI hazır)
 - **Sağlık taraması (T tipi)** — KVKK denetim hazırlığı (Madde 21 — 3 günde bir periyodik)
+
+### Disiplin Kanıtı
+✅ Madde 4.1 + 4.4 + 4.5 + 17.4 + 17.5 + 21 + 24.11 + 30 + 31 + 31.9 (yeni tohum)
+
+### Öğrenilen Ders (TUR #56 spesifik)
+- **Kalibrasyon faktörü 1.6× DOĞRULANDI** — TUR #57+ mektupları için ölçüm referansı: tasarım sistemi büyük altyapı turları → ayrı tutulur, UI atomları → ayrı.
+- **KIRMIZI nokta YOK direktifi disiplin yarattı** — Claude Code "react-dropzone yerine native HTML5" kararı verdi, npm bağımlılığı eklemedi. Bu pattern TUR #57'de de korunabilir.
+- **CEO direktif keskinliği**: TUR #56 girişinde CEO "hiçbir harf geride kalmayacak" dedi — atom sıralaması KRİTİK önce yapıldı, kalibrasyon doğruydu, hatasız bitti. Bu pattern TUR #57+ mektupları için emsal.
+- **"Fonksiyonel tamamlık ≠ ruhsal tamamlık"** — TUR #55 + #56 fonksiyonel olarak 4 CRM'i tamamladı, ama her birinin **kendi paydaşı için karakteri** TUR #57'de işlenecek. Bu **mimari öncelik sırası** doğruydu (önce fonksiyon, sonra karakter).
 
 — Claude Opus 4.7, mimar
 — Claude Code (autonomous)

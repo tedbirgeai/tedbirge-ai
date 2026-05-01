@@ -6,6 +6,81 @@
 
 ---
 
+## 1 Mayıs 2026 — TUR #56 KAPANIŞ Kararı + TUR #57 Rol-Ruh Tohumu (Anayasa v1.15.0)
+
+**Karar 1 — TUR #56 KAPALI (12/12 atom, sapma 0):**
+TUR #55 ertelenen 11 atom + L-B1 KRİTİK + Madde 24.11 üretim disiplini kapatıldı. TUR #51.B raporu **18/18 bulgu** kapatıldı. Kalibrasyon faktörü 1.6× doğrulandı.
+
+**Karar 2 — TUR #57 önerildi (4 CRM Rol-Ruh Karakter Farklılaştırma):**
+CEO 1 Mayıs 2026 direktifiyle "her CRM kendi ruhuna göre analiz edilmeli" emrini verdi. TUR #57 mektubu yeni sohbette mimar tarafından yazılacak. Anayasa Madde 31'e 31.9 alt-başlığı (Rol-Ruh Tasarım Prensibi) tohum olarak eklendi (Madde 22.2 alt-genişleme — sürüm artmaz).
+
+### Niş Emsal Atama (Madde 31.9 ekosüsteminin parçası)
+
+| CRM | Niş Emsal | Karakter |
+|---|---|---|
+| CEO Dashboard | Stripe Dashboard + Linear Insights + Vercel Analytics | Yoğun veri + drill-down + anomali alarm + Cmd+K hakim |
+| LAWYER CRM | Clio Manage + MyCase + LawPay | Case-centric + takvim odaklı + dosya bütünlüğü dokunulmaz |
+| REPRESENTATIVE CRM | HubSpot Sales Hub + Pipedrive + Salesforce Lightning Sales | Pipeline kart drag-drop + deal value + gamification mikro |
+| CUSTOMER Portal | Stripe Customer Portal + Apple Mail + Linear Public Status | Vertical timeline + duygu hitabı + AI sade + minimum bilgi |
+
+### Sebep — Boşluk Analizi (TUR #55+#56 sonu)
+
+**Mevcut durum:**
+- TUR #55 + #56 birlikte 4 CRM'i **fonksiyonel olarak** tamamladı (40+ atom, 13+13 commit, 18/18 bulgu kapalı)
+- Tasarım Sistemi v1.0 kuruldu (Madde 31)
+- 4 CRM aynı design system kullanıyor (Crimson Pro + Inter Tight + glass + spring eğrisi)
+
+**Boşluk:**
+- 4 CRM **karakter olarak benzer** — aynı Card komponenti, aynı dashboard layout, aynı etkileşim ritmi
+- Niş emsallerle (Clio, HubSpot, Stripe Customer Portal vb.) **rol bazlı** kıyaslanınca **karakter farklılaşması yok**
+- Müvekkilin gördüğü = avukatın gördüğü = temsilcinin gördüğü = CEO'nun gördüğü (tasarım dili açısından)
+
+**Bu Madde 31'in ekonomi prensibi açısından eksik** — TUR #57 ile uygulanır.
+
+### TUR #57 Mektup İskeleti (yeni sohbet referansı)
+
+**Bölüm A** — Niş emsal derinlemesine analiz (read-only, ~3-4 saat)
+**Bölüm B** — 4 CRM karakter tasarımı (~5-6 saat tasarım)
+**Bölüm C** — Atom mektup uygulama (~25-30 saat)
+**Bölüm D** — Mobil + erişilebilirlik (~3-4 saat)
+
+### Alternatifler (TUR #57 öncesi düşünüldü, seçilmedi)
+
+- **A. Rol-ruh yapmadan TUR #57'yi atla** → reddedildi: CEO direktifi açık, dünya seviyesinde yarış için zorunlu
+- **B. Tek CRM seç (örn. LAWYER) önce ayır, diğerleri TUR #58+'a** → reddedildi: parçalı uygulama tasarım birliğini zedeler, CEO direktifi "tek bütün dönüşüm" anlamına gelir
+- **C. Yeni design system v2.0 yaz** → reddedildi: v1.0 sağlam, sorun rol farklılaştırma, sistem değil
+
+**Seçilen:** TUR #57 büyük tek paket — niş emsal analizi + 4 CRM rol-ruh uygulaması.
+
+### Etki
+
+- Anayasa: Madde 31'e 31.9 (Rol-Ruh Tasarım Prensibi) eklendi (TUR #56 OS commit'inde — tohum)
+- TUR #57 atom mektubu: ~12-14 atom (kalibrasyon 1.6×)
+- Süre tahmin: ~30-40 saat
+- Schema: 0
+- npm: belki 2-3 yeni paket (lottie-react, react-beautiful-dnd)
+- Risk: Orta
+
+**CEO direktifi (1 Mayıs 2026):**
+> "TUR #55 + TUR #56 4 CRM modülü kendi niş sınıfında dünya ortalamasında Tedbirge.ai'yi bir yere getirmez. Derin analiz edilip kontrol edilip disiplin, aksiyon, şeffaflık, hız, Görsel Dizayn, panellerin dağınıklığı sayfa dışarı kaymamalı, hiç bir noksan bırakılmamalı. HER CRM KENDİ RUHUNA VE KENDİ ALANINA GÖRE ANALİZ EDİLMELİ."
+
+**Mimar:** Claude Opus 4.7 (sohbet)
+**Onay:** Mehmet DİNÇ (Kurucu, CEO & CTO) — TUR #57 mektubu yazıldıktan sonra A/B kararı verecek
+
+**Disiplin Kanıtı:** Madde 4.1 + 4.4 + 4.5 + 17.4 + 17.5 + 21 + 22.2 (Madde 31.9 alt-başlık eklenmesi MINOR sayılmaz, mevcut maddenin alt-genişlemesi) + 31
+
+### Öğrenilen Ders
+
+**"Fonksiyonel tamamlık ≠ ruhsal tamamlık"** — TUR #55 + #56 fonksiyonel olarak 4 CRM'i tamamladı, ama her birinin **kendi paydaşı için karakteri** TUR #57'de işlenecek. Bu **mimari öncelik sırası** doğruydu (önce fonksiyon, sonra karakter), CEO direktifi de bunu doğruluyor (TUR #56 sonrası gelmesi mantıklı).
+
+**Pattern (TUR #58+ için):**
+1. Schema + altyapı turu (büyük, KIRMIZI nokta paketli)
+2. Fonksiyonel UI tamamlama turu (orta, schema sabit)
+3. **Rol-ruh karakter farklılaştırma turu** (büyük, kompozisyon değişimi — TUR #57)
+4. Sürdürülebilirlik turu (sağlık taraması + drift kontrol)
+
+---
+
 ## 1 Mayıs 2026 — TUR #56 — Kalibrasyon Doğrulandı + TUR #51.B 18/18 Bulgu Kapatıldı
 
 **Karar:** TUR #56 mektubu, TUR #55'teki 11 ertelenmiş atom + L-B1 KRİTİK trigger zinciri için **kalibrasyon faktörü 1.6× ile 12 atom** tahmin etti. Sonuç: **12/12 atom uygulandı (sapma 0)**, kalibrasyon doğrulandı. KIRMIZI nokta yok, schema/env/npm değişmedi, build 0 hata.
