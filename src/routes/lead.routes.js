@@ -43,6 +43,9 @@ router.get("/:id/activity", auth, controller.getActivityLogs);
 router.post("/:id/activity", auth, role("ADMIN","SALES","LAWYER"), controller.addActivityNote);
 router.get("/:id/timeline", auth, timelineCtrl.getTimeline);
 
+// TUR #56 A2 — Madde 24.11: AI analiz onay endpoint (LAWYER + ADMIN + SALES)
+router.post("/:id/ai-analiz-onayla", auth, role("ADMIN", "SALES", "LAWYER"), controller.aiAnalizOnay);
+
 module.exports = router;
 
 

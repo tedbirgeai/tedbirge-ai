@@ -546,3 +546,56 @@ exports.getActivityLogs = asyncHandler(async (req, res) => {
   });
   res.json({ success: true, data: logs });
 });
+
+// TUR #56 A2 — Madde 24.11: AI analiz onay endpoint
+exports.aiAnalizOnay = asyncHandler(async (req, res) => {
+  const { id } = req.params;
+  const { karar, note } = req.body || {};
+
+  if (!["ONAYLI", "REDDEDILDI"].includes(karar)) {
+    return res.status(400).json({ success: false, message: "karar ONAYLI veya REDDEDILDI olmali" });
+  }
+  if (karar === "REDDEDILDI" && !String(note || "").trim()) {
+    return res.status(400).json({ success: false, message: "Reddetme icin not zorunlu (Madde 24.11 audit izi)" });
+  }
+
+  const lead = await prisma.lead.findUnique({ where: { id } });
+  if (!lead) return res.status(404).json({ success: false, message: "Lead bulunamadi" });
+
+  // Erisim kontrolu — ADMIN/SALES/LAWYER (atanan)
+  const role = req.user?.role;
+  if (!["ADMIN", "SALES"].includes(role)) {
+    if (role === "LAWYER") {
+      const assignment = await prisma.assignment.findFirst({
+        where: { leadId: id, lawyerId: req.user.id, status: "ACTIVE" },
+      });
+      if (!assignment) return res.status(403).json({ success: false, message: "Bu dosyaya erisim yok" });
+    } else {
+      return res.status(403).json({ success: false, message: "Yetkisiz" });
+    }
+  }
+
+  if (lead.aiAnalizOnay && lead.aiAnalizOnay !== "BEKLIYOR") {
+    return res.status(400).json({ success: false, message: `Onay zaten verilmis: ${lead.aiAnalizOnay}` });
+  }
+
+  const updated = await prisma.lead.update({
+    where: { id },
+    data: {
+      aiAnalizOnay: karar,
+      aiAnalizOnayBy: req.user.id,
+      aiAnalizOnayAt: new Date(),
+      aiAnalizOnayNote: String(note || "").slice(0, 2000) || null,
+    },
+  });
+
+  await prisma.activityLog.create({
+    data: {
+      leadId: id,
+      action: "AI_ANALIZ_ONAY",
+      detail: `karar:${karar} by:${req.user.id} note:${(note || "").slice(0, 200)}`,
+    },
+  }).catch(() => {});
+
+  res.json({ success: true, data: updated });
+});

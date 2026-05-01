@@ -170,6 +170,11 @@ async function generateContract({ leadId, type, createdById }) {
   const lead = await prisma.lead.findUnique({ where: { id: leadId } });
   if (!lead) throw new ApiError(404, "Lead bulunamadı");
 
+  // TUR #56 A2 — Madde 24.11: AI analiz onayi BEKLIYOR ise sozlesme uretimi kilitli
+  if (lead.aiAnalizOnay === "BEKLIYOR") {
+    throw new ApiError(409, "AI analiz onayi bekleniyor (Madde 24.11). Once AI onerisini onaylayin/reddedin.");
+  }
+
   const titleMap = {
     SERVICE_AGREEMENT: `Hizmet Sözleşmesi — ${lead.customerName}`,
     POWER_OF_ATTORNEY: `Vekâletname Taslağı — ${lead.customerName}`,
