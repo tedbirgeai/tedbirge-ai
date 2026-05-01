@@ -135,6 +135,9 @@ async function checkPermission(context, user) {
   });
   if (!lead) return { allowed: false };
 
+  // ADMIN superuser bypass — her lead'e erisim (Madde 9.5 + ADMIN superuser)
+  if (user.role === "ADMIN") return { allowed: true, leadId };
+
   // assertLeadAccess pattern (utils/leadAccess.js — Madde 9.5)
   try {
     await assertLeadAccess(user, lead);
