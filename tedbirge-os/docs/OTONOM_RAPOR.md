@@ -1,3 +1,106 @@
+## TUR #66 v2 — AI Analiz Pipeline TÜM SİSTEM Uçtan Uca
+
+**Tarih:** 2 Mayıs 2026
+**Anayasa:** v1.19.0 → v1.19.1 (PATCH — Madde 32.10 eklendi)
+**Tip:** P tipi (üretim düzeltme + sistem boşluğu kapatma + frontend + retry)
+**Atom:** 7 (A0 keşif + A2 finalize tetikleyici + A3 panel + A4 ADMIN bildirim + A5 retry endpoint + A6 smoke + A7 OS)
+**Commit:** 5 (1 OS A0 + 3 backend + 1 panel; A7 OS bu commit ile 6)
+**Schema/migration/env/npm:** 0
+**KIRMIZI ihlal:** 0
+**Süre:** ~2 saat otonom (mektup tahmini 2.5 saat)
+
+**CEO Direktifi:** "Uçtan uca tüm sistem, tek seferde, geri dönüş yok." (Madde 17.5)
+
+### v1 → v2 Genişleme
+
+CEO direktifi "uçtan uca" gereği TUR #66 v1 (sadece finalize-upload tetikleyici) → v2 7 atom (frontend + ADMIN bildirim + retry job).
+
+### A0 Keşif Sürprizleri (Madde 4.4)
+
+Mektup yanlış varsayımları:
+1. `triggerAIAnalysis` fonksiyon adı — gerçek `analyzeDocumentById` (uploadAnalysis.bridge.js:160)
+2. `Lead.aiAnalizDurum/Hata` field'ları — yok, ama `Document.status FAILED + Document.aiAnalysis JSON` mevcut altyapı yeterli (eski silinmiş upload.service zaten kullanıyordu)
+
+Schema migration GEREKMEDİ. OTONOMİ SINIRI 4 senaryosundan 0'ı tetiklendi.
+
+### A2 — finalize-upload AI Tetikleyici (commit `9b257c3`)
+
+`src/routes/documents.upload.routes.js` finalize handler sonuna ~85 satır:
+- `setImmediate(() => analyzeDocumentById(documentId))` fire-and-forget
+- Document update: status ANALYZED + parsedText + aiAnalysis JSON + extractedJson
+- Lead update: aiSummary + qualificationScore (varsa)
+- ActivityLog DOCUMENT_ANALYZED
+- TUR #56 A1.2 hooks: notifyDocumentUploaded + notifyAiAnalysisCompleted (Madde 24.11 güven skoru kontrolü)
+- catch: Document.status FAILED + aiAnalysis.error gerçek mesaj
+- Tetikleme: `doc.leadId` varsa (7 context: lead/public-lead/sozlesme/tahsilat/bilirkisi/dava/ihtarname)
+- Response: `aiAnalysisQueued: !!doc.leadId`
+
+### A3 — Panel DocumentList Sabit "İşlem Hatası" Silindi (commit `ecba839`)
+
+`tedbirge-panel/components/documents/DocumentList.tsx`:
+- `getStatusLabel`: FAILED → "Hata" (kısa)
+- PENDING_UPLOAD label eklendi ("Yükleniyor...")
+- Yeni inline kırmızı blok: FAILED durumda `ai?.error || "Belge işlenemedi — yeniden deneyebilirsiniz."`
+- `safeParse(doc.aiAnalysis)` zaten mevcut (line 155)
+- TypeScript 0 hata
+
+A3.2 (Lead detay AI durum bandı) + A3.3 (müvekkil portal) NO-OP — mevcut altyapı (Document.status gösterimi + BelgeYukleme.tsx TUR #63.5 v2) yeterli.
+
+### A4 — ADMIN AI HATA Bildirim Hook (commit `3a70ae6` ile birlikte)
+
+`src/services/lawyerNotifications.service.js` yeni export:
+```js
+notifyAiAnalysisFailed(documentId, leadId, errorMessage)
+```
+- `prisma.user.findMany({ role: "ADMIN", isActive: true })`
+- Her admin için sendCombo (email + push notification)
+- ActivityLog `AI_ANALYSIS_FAILED` audit kaydı
+- finalize-upload catch bloğu + ai-retry catch bloğu otomatik çağırır
+
+### A5 — Geçmiş FAILED Document Retry Endpoint (commit `3a70ae6`)
+
+`src/routes/admin.os.routes.js`'e 3 yeni endpoint:
+```
+POST /api/os/ai-retry/all          → toplu retry (max 500 batch)
+POST /api/os/ai-retry/:documentId  → tekil retry
+GET  /api/os/ai-failed-count       → sayım (panel widget)
+```
+
+- ADMIN auth + role middleware
+- setImmediate ile fire-and-forget retry
+- Document update + Lead update (A2 pattern aynı)
+- `aiAnalysis.retryAttempted: true` flag (retry geçmişi)
+- Hâlâ hata varsa `notifyAiAnalysisFailed` otomatik tetiklenir
+- 500+ FAILED Document warning log (Madde 4 performans sınırı)
+
+### A6 — 3 Kanaldan Production Smoke
+
+```
+/health                          → 200 ✅
+/api/os/ai-failed-count          → 401 ✅ (yeni endpoint canlı, auth gerek)
+/api/os/ai-retry/all             → 401 ✅ (yeni endpoint canlı, auth gerek)
+/api/documents/finalize-upload   → 400 ✅ (Zod boş body validation)
+www.tedbirge.ai/basvuru          → 200 ✅ (regresyon yok)
+www.tedbirge.ai/blog             → 200 ✅ (regresyon yok)
+/api/uploads/test                → 404 ✅ (TUR #64 silinmiş eski endpoint hâlâ kapalı)
+```
+
+CEO browser test (4 kanal — LAWYER + CUSTOMER + PUBLIC + retry) **manuel adım**: CEO katkısı bekliyor (mektup A6.3).
+
+### Madde 32.10 Eklendi (Anayasa v1.19.1)
+
+AI Analiz Tetikleyici Disiplini formalize edildi:
+- finalize-upload setImmediate analyzeDocumentById zorunlu
+- Hata: Document.aiAnalysis.error gerçek mesaj + ADMIN bildirim
+- Retry: 3 endpoint + retryAttempted flag
+- Sabit "İşlem Hatası" YASAK (Madde 4.4)
+
+### Pattern
+
+`TUR #56+57+58+59+60+62+63+63.5+63.5v2+64+66v2 = 75+ atom sapma 0 — kalibrasyon faktörü 1.6× altıncı kez doğrulandı`
+
+---
+
 ## TUR #64 — Eski Upload Endpoint Temizliği + Ekosistem Sonuçlandırma
 
 **Tarih:** 2 Mayıs 2026

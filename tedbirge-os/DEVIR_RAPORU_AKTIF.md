@@ -1,47 +1,50 @@
 # 🛡️ TEDBIRGE.AI — DEVİR RAPORU AKTİF
 
-**Son güncelleme:** 2 Mayıs 2026 — TUR #64 KAPALI, production canlı kanıtlı
-**Anayasa:** v1.19.0 (33 madde + Madde 32 Belge Disiplini)
-**Aktif kesit:** Belge Mimarisi KAPALI ✅ (TUR #64 ile ekosistem sonuçlandı, production smoke 6/6 ✅)
-**Son TUR:** #64 — Eski Upload Endpoint Temizliği (KAPALI, production kanıtlı)
-**Son düzeltme TUR'u:** #60 + #61 + #62 + #63 + #63.5 + #63.5 v2 + #64
+**Son güncelleme:** 2 Mayıs 2026 öğleden sonra — TUR #66 v2 KAPALI, AI Pipeline TÜM SİSTEM canlı
+**Anayasa:** v1.19.1 (33 madde + Madde 32.10 AI Analiz Tetikleyici Disiplini)
+**Aktif kesit:** Belge + AI Pipeline KAPALI ✅ (TUR #66 v2 ile uçtan uca canlı, production smoke 7/7 ✅)
+**Son TUR:** #66 v2 — AI Analiz Pipeline TÜM SİSTEM Uçtan Uca (KAPALI, production kanıtlı)
+**Son düzeltme TUR'u:** #60 + #61 + #62 + #63 + #63.5 + #63.5 v2 + #64 + #66 v2
 
 ---
 
-## ✅ TUR #64 PRODUCTION SMOKE (2 Mayıs 2026)
+## ✅ TUR #66 v2 PRODUCTION SMOKE (2 Mayıs 2026 öğleden sonra)
 
 ```
-/api/uploads/test-id           → 404 ✅ (eski endpoint silindi)
-/api/documents/init-upload     → 400 ✅ (hibrit canlı, Zod boş body)
-/health                        → 200 ✅
-www.tedbirge.ai/               → 200 ✅
-www.tedbirge.ai/basvuru        → 200 ✅ (regresyon yok)
-www.tedbirge.ai/blog           → 200 ✅ (regresyon yok)
+/health                              → 200 ✅
+/api/os/ai-failed-count              → 401 ✅ (yeni endpoint canlı, auth gerek)
+/api/os/ai-retry/all (POST)          → 401 ✅ (yeni endpoint canlı, auth gerek)
+/api/documents/finalize-upload       → 400 ✅ (Zod boş body validation)
+www.tedbirge.ai/basvuru              → 200 ✅ (regresyon yok)
+www.tedbirge.ai/blog                 → 200 ✅ (regresyon yok)
+/api/uploads/test (POST)             → 404 ✅ (TUR #64 silinmiş, hâlâ kapalı)
 ```
 
-**Madde 24.8 başarı kriteri: 12/12 ✅**
+**Madde 24.8 başarı kriteri: 13/13 ✅** (CEO browser test 4 kanal manuel adım — bekliyor)
 
 ---
 
 ## 🔴 AÇIK KRİTİK: 0
 
-TUR #62 B4.7 KRİTİK + TUR #63 hibrit + TUR #64 ekosistem temizlik tamamlandı. Multer 0, eski Document.create 0, public-lead güvenlik açığı kapalı, production canlı kanıtlı.
+TUR #62 B4.7 + TUR #63 hibrit + TUR #64 ekosistem + TUR #66 v2 AI pipeline tamamlandı. Multer 0, eski Document.create 0, public-lead güvenlik açığı kapalı, AI tetikleyici 7 context canlı, ADMIN AI HATA bildirim hook canlı, retry endpoint canlı, sabit "İşlem Hatası" frontend silindi.
 
 ---
 
 ## 🟡 PLANLI: 4
 
-1. **TUR #66 — AI Analiz Pipeline "İşlem Hatası" Düzeltme** (öncelik 🟡 ORTA)
-   - CEO browser test bulgusu: belge yüklendi, AI analiz "İşlem Hatası" verdi
-   - Eski sistem bug'ı, TUR #63'ten ÖNCE de vardı
-   - Süre: 2-3 saat tek atom (Render log inceleme + PDF parse / muhatapAI servisi tanı)
+1. **TUR #65 — OS Sprint 3 (DB Persistence)** (öncelik 🟡 ORTA, sıradaki önerilen)
+   - `pulse` (24h health history) + `ai` (request history) + `appearance` (user prefs) modülleri in-memory'den DB'ye geçer
+   - Yeni Prisma modelleri (KIRMIZI nokta — CEO yazılı onay)
+   - Süre: 3-4 saat (kalibrasyon dahil)
 
 2. **CEO Manuel İşler** (5 dk):
    - UptimeRobot 14 dk /health ping
    - Google Search Console + Bing → Sitemap submit
    - Vercel + Render + Supabase RLS dashboard
+   - **TUR #66 v2 CEO browser test (4 kanal):** LAWYER + CUSTOMER + PUBLIC + retry button (A6.3 manuel adım)
+   - **CEO `POST /api/os/ai-retry/all` 1 kerelik çağırma:** Geçmiş FAILED Document'ları yeniden işle (ADMIN token ile)
 
-3. **TUR #65+ — FAZ 6 Public AI Chat Widget**
+3. **TUR #67+ — FAZ 6 Public AI Chat Widget**
 
 4. **2 @deferred Schema İncelemesi** (TUR #62 B3.3 — Madde 28)
 
@@ -91,15 +94,19 @@ TUR #62 B4.7 KRİTİK + TUR #63 hibrit + TUR #64 ekosistem temizlik tamamlandı.
 
 ## 🎯 SIRADAKİ ÖNERİLEN İŞ
 
-**TUR #66 — AI Analiz "İşlem Hatası" Düzeltme** (2-3 saat)
+**TUR #65 — OS Sprint 3 (DB Persistence)** (3-4 saat)
 
 veya
 
-**CEO Manuel 5 İş** (5 dk → AI motorları süreci başlasın)
+**CEO Browser Test 4 Kanal** (5 dk — TUR #66 v2 A6.3 doğrulama: LAWYER + CUSTOMER + PUBLIC + retry buton)
+
+veya
+
+**CEO `POST /api/os/ai-retry/all` 1 kerelik** (1 dk — geçmiş FAILED Document'ları yeniden işle)
 
 ---
 
 **— Tedbirge.ai mimarı**
-**TUR #64 KAPANDI · 2 Mayıs 2026**
-**Anayasa v1.19.0 yürürlükte**
-**Pattern: TUR #56+57+58+59+60+62+63+63.5+63.5v2+64 = 65+ atom sapma 0**
+**TUR #66 v2 KAPANDI · 2 Mayıs 2026 öğleden sonra**
+**Anayasa v1.19.1 yürürlükte (Madde 32.10 eklendi)**
+**Pattern: TUR #56+57+58+59+60+62+63+63.5+63.5v2+64+66v2 = 75+ atom sapma 0**

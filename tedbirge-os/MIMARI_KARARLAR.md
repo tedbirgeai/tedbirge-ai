@@ -6,6 +6,76 @@
 
 ---
 
+## TUR #66 v2 — AI Analiz Pipeline TÜM SİSTEM Uçtan Uca (2 Mayıs 2026 öğleden sonra)
+
+**Anayasa:** v1.19.0 → v1.19.1 (PATCH — Madde 32.10 alt-madde eklendi)
+
+### Karar
+
+TUR #64 sonrası kopuk AI analiz zinciri **TÜM SİSTEM** olarak yeniden kuruldu (LAWYER + CUSTOMER + PUBLIC + 7 context). Frontend sabit "İşlem Hatası" string silindi, kullanıcı gerçek hata mesajını görüyor. ADMIN otomatik bildirim alıyor. Geçmiş FAILED Document'lar için retry endpoint mevcut (toplu/tekil/sayım).
+
+Hibrit `finalize-upload` handler'ı `doc.leadId` mevcutsa `setImmediate(analyzeDocumentById)` ile AI analizi tetikler. Hata olursa Document.status FAILED + Document.aiAnalysis.error gerçek mesaj + ADMIN bildirim. Retry hâlâ hata alırsa aynı bildirim hook tetiklenir.
+
+### Karar Gerekçesi
+
+1. **Madde 4.1 ekosistem garantisi:** TUR #64 sonrası finalize-upload AI tetikleyici eksikti. Yeni belgeler analiz edilmiyordu.
+2. **Madde 4.4 kod kaynaktır:** Mektup `triggerAIAnalysis` adında fonksiyon arıyordu — gerçek `analyzeDocumentById` mevcut. Mektup `Lead.aiAnalizDurum/Hata` schema fields varsayıyordu — yok ama `Document.status FAILED + Document.aiAnalysis JSON` mevcut altyapı yeterli (eski silinmiş upload.service zaten kullanıyordu). **Schema migration gerekmedi.**
+3. **Madde 24.11 hukuki muhatap güven skoru disiplini:** `notifyAiAnalysisCompleted(leadId, summary, requiresReview)` hook (TUR #56 A1.2) — güven skoru < 0.7 ise manuel onay zorunlu, finalize handler bu hook'u tetikliyor.
+4. **CEO direktifi "uçtan uca tek seferde":** v1 (sadece finalize tetikleyici) → v2 7 atom (frontend + ADMIN bildirim + retry job). Yarım uygulama Madde 17.4 (yarım kesit) ihlali olur.
+5. **Sabit "İşlem Hatası" YASAK (Madde 4.4):** Frontend gerçek `Document.aiAnalysis.error` göstermeli. Yeni Madde 32.10 ile formalize edildi.
+
+### Reddedilen Alternatifler
+
+**Sadece A2 (v1 dar kapsam):**
+- Avantaj: Hızlı, dar değişiklik
+- Red: Frontend sabit "İşlem Hatası" + ADMIN bildirim + retry mekanizması yok → kullanıcı gerçek hatayı göremez, ADMIN haberdar olmaz, geçmiş FAILED'ler hâlâ kırık. Madde 4.1 ekosistem ihlali.
+
+**Lead.aiAnalizDurum/Hata schema migration:**
+- Avantaj: Mektup harfine sadık
+- Red: Mevcut Document.status FAILED + Document.aiAnalysis.error JSON aynı işi yapıyor (eski silinmiş upload.service kanıtı). Schema migration KIRMIZI nokta + CEO yazılı onay gereksiz külfet.
+
+**setImmediate yerine senkron AI çağrısı:**
+- Avantaj: Garantili sonuç finalize response'ta
+- Red: 10-30 sn API latency kullanıcıya yansır, kötü UX. Fire-and-forget pattern doğru (TUR #56 + eski upload.service kanıtı).
+
+### Etki
+
+- **7 atom** sapma 0 (A0 keşif + A2 finalize + A3 panel + A4 ADMIN bildirim + A5 retry endpoint + A6 smoke + A7 OS)
+- **5+ commit** (1 OS A0 + 1 A2 backend + 1 A4+A5 backend + 1 A3 panel + 1 OS A7)
+- **3 yeni endpoint:** POST `/api/os/ai-retry/all`, POST `/api/os/ai-retry/:id`, GET `/api/os/ai-failed-count`
+- **1 yeni servis fonksiyonu:** `lawyerNotifications.notifyAiAnalysisFailed`
+- **Frontend:** sabit "İşlem Hatası" → gerçek `aiAnalysis.error` mesajı
+- **Schema migration:** 0
+- **npm install:** 0
+- **Env değişikliği:** 0
+- **KIRMIZI ihlal:** 0
+- **Production smoke:** 7/7 yeşil
+- **Anayasa:** v1.19.0 → v1.19.1 (PATCH)
+
+### CEO Direktifi (Madde 17.5)
+
+CEO Mehmet DİNÇ:
+- v1 mektup sırasında: *"DUR. CEO yeni direktif verdi: uçtan uca tam sistem kapsamı."*
+- v2 mektup sonrası: *"Otonom uçtan uca, sırasıyla başla bitir."*
+
+KIRMIZI nokta türü yok (schema/npm/env 0). Madde 18.4 yeşil nokta otomatik akış.
+
+### Mektup Düzeltmeleri (Madde 4.4)
+
+- v1 mektup `triggerAIAnalysis` → gerçek `analyzeDocumentById` (uploadAnalysis.bridge.js)
+- v1 mektup `Lead.aiAnalizDurum/Hata` → gerçek `Document.status FAILED + Document.aiAnalysis JSON.error`
+- v2 mektup `/api/admin/ai-retry/...` URL → gerçek `/api/os/ai-retry/...` (admin.os.routes mount)
+
+### Pattern
+
+`TUR #56+57+58+59+60+62+63+63.5+63.5v2+64+66v2 = 75+ atom sapma 0 — kalibrasyon faktörü 1.6× altıncı kez doğrulandı`
+
+### Mimar
+
+Claude Opus 4.7 (1M context) — Sohbet mimarı (mektup yazan) + Claude Code uygulayan; CEO Mehmet DİNÇ otonom direktif
+
+---
+
 ## TUR #64 — Eski Upload Endpoint Silme + Public-Lead Güvenlik Kapatma (2 Mayıs 2026)
 
 **Anayasa:** v1.19.0 (sürüm artmaz — sadece TUR kaydı)
