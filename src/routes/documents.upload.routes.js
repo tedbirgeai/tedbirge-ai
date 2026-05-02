@@ -290,6 +290,93 @@ router.post(
       }).catch(() => {});
     }
 
+    // TUR #66 — AI Analiz arka plan tetikleyici (Madde 32.10)
+    // Lead'e bağlı belgeler (lead/public-lead/sozlesme/tahsilat/bilirkisi/dava/ihtarname) için
+    // setImmediate ile fire-and-forget — finalize response'u bekletmez (kullanıcı hızlı görür).
+    if (doc.leadId) {
+      setImmediate(async () => {
+        try {
+          const { analyzeDocumentById } = require("../services/uploadAnalysis.bridge");
+          const result = await analyzeDocumentById(documentId);
+
+          const safeSummary =
+            result?.analysis?.aiSummary ||
+            result?.analysis?.summary ||
+            "Analiz tamamlandi.";
+          const safeScore = Number.isInteger(result?.analysis?.qualificationScore)
+            ? result.analysis.qualificationScore
+            : (Number.isInteger(result?.analysis?.score) ? result.analysis.score : null);
+
+          await prisma.document.update({
+            where: { id: documentId },
+            data: {
+              status: "ANALYZED",
+              parsedText: result?.parsedText || null,
+              aiAnalysis: JSON.stringify({
+                ...(result?.analysis || {}),
+                extractionMethod: result?.extractionMethod,
+              }),
+              extractedJson: JSON.stringify(result?.analysis || {}),
+            },
+          });
+
+          await prisma.lead.update({
+            where: { id: doc.leadId },
+            data: {
+              aiSummary: safeSummary,
+              ...(safeScore !== null && { qualificationScore: safeScore }),
+            },
+          });
+
+          await prisma.activityLog.create({
+            data: {
+              leadId: doc.leadId,
+              action: "DOCUMENT_ANALYZED",
+              detail: `${updated.originalName} analiz edildi (${result?.extractionMethod || "unknown"})`,
+            },
+          }).catch(() => {});
+
+          // TUR #56 A1.2 — avukata belge yuklendi bildirimi
+          try {
+            const lawyerNotif = require("../services/lawyerNotifications.service");
+            await lawyerNotif.notifyDocumentUploaded(doc.leadId, updated);
+          } catch (notifErr) {
+            console.warn("[LAWYER NOTIF] notifyDocumentUploaded fail:", notifErr.message);
+          }
+
+          // TUR #56 A1.2 — AI analiz tamamlandi + Madde 24.11 guven skoru kontrolu
+          try {
+            const lawyerNotif = require("../services/lawyerNotifications.service");
+            const guvenSkoru = Number(
+              result?.analysis?.guvenSkoru ?? result?.analysis?.confidence ?? 1
+            );
+            const requiresReview = Number.isFinite(guvenSkoru) && guvenSkoru < 0.7;
+            await lawyerNotif.notifyAiAnalysisCompleted(doc.leadId, safeSummary, requiresReview);
+          } catch (notifErr) {
+            console.warn("[LAWYER NOTIF] notifyAiAnalysisCompleted fail:", notifErr.message);
+          }
+
+          console.log(`[finalize AI] ${documentId} ANALYZED — ${updated.originalName}`);
+        } catch (err) {
+          console.error(`[finalize AI] ${documentId} hata:`, err.message);
+          try {
+            await prisma.document.update({
+              where: { id: documentId },
+              data: {
+                status: "FAILED",
+                aiAnalysis: JSON.stringify({
+                  error: err.message || "AI analiz hatasi",
+                  failedAt: new Date().toISOString(),
+                }),
+              },
+            });
+          } catch (updateErr) {
+            console.error(`[finalize AI] FAILED update fail: ${updateErr.message}`);
+          }
+        }
+      });
+    }
+
     res.json({
       ok: true,
       document: {
@@ -298,6 +385,7 @@ router.post(
         sizeBytes: updated.sizeBytes,
         status: updated.status,
       },
+      aiAnalysisQueued: !!doc.leadId,
     });
   })
 );
