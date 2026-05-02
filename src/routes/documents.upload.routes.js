@@ -373,6 +373,14 @@ router.post(
           } catch (updateErr) {
             console.error(`[finalize AI] FAILED update fail: ${updateErr.message}`);
           }
+
+          // TUR #66 v2 A4 — ADMIN AI HATA bildirim (Madde 32.10)
+          try {
+            const lawyerNotif = require("../services/lawyerNotifications.service");
+            await lawyerNotif.notifyAiAnalysisFailed(documentId, doc.leadId, err.message);
+          } catch (notifErr) {
+            console.warn("[LAWYER NOTIF] notifyAiAnalysisFailed fail:", notifErr.message);
+          }
         }
       });
     }

@@ -111,9 +111,44 @@ async function notifyDavaAsamaIlerleme(leadId, asama) {
   }
 }
 
+// TUR #66 v2 A4 — ADMIN AI HATA bildirim hook (Madde 32.10)
+async function notifyAiAnalysisFailed(documentId, leadId, errorMessage) {
+  const safeError = String(errorMessage || "Bilinmeyen hata").slice(0, 200);
+  const admins = await prisma.user.findMany({
+    where: { role: "ADMIN", isActive: true },
+    select: { id: true, fullName: true, email: true },
+  });
+
+  for (const admin of admins) {
+    await sendCombo({
+      lawyer: admin,
+      subject: `AI Analiz Hatasi - Belge ${documentId}`,
+      body: `<p>Sayin ${admin.fullName || "Admin"},</p><p>Belge AI analizi basarisiz oldu.</p><p><strong>Document ID:</strong> ${documentId}</p><p><strong>Lead ID:</strong> ${leadId || "-"}</p><p><strong>Hata:</strong> ${safeError}</p><p>Panel ADMIN sayfasindan retry tetikleyebilirsiniz.</p>`,
+      pushPayload: {
+        title: "AI Analiz Hatasi",
+        body: `Belge ${documentId.slice(0, 8)}... hata: ${safeError.slice(0, 80)}`,
+        url: leadId ? `/leads/${leadId}` : "/dashboard/sistem-durumu",
+      },
+    });
+  }
+
+  try {
+    await prisma.activityLog.create({
+      data: {
+        leadId: leadId || null,
+        action: "AI_ANALYSIS_FAILED",
+        detail: `documentId:${documentId} hata:${safeError}`,
+      },
+    });
+  } catch (logErr) {
+    console.warn("[LAWYER NOTIF] AI_ANALYSIS_FAILED activityLog hata:", logErr.message);
+  }
+}
+
 module.exports = {
   notifyDocumentUploaded,
   notifyAiAnalysisCompleted,
+  notifyAiAnalysisFailed,
   notifyContractSigned,
   notifyCommissionLogCreated,
   notifyKvkkDeletionRequest,
