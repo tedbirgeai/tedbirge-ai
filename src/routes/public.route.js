@@ -3,11 +3,11 @@ const router = express.Router();
 const { publicQueryLimiter } = require("../middlewares/rateLimiters");
 const env = require("../config/env");
 const prisma = require("../config/db");
-const upload = require("../middlewares/uploadMiddleware");
-const { supabaseUploadMiddleware } = require("../middlewares/uploadMiddleware");
 const leadService = require("../services/lead.service");
 
-router.post("/public-lead", upload.single("file"), supabaseUploadMiddleware, async (req, res) => {
+// TUR #64 — Madde 32.3: file upload artık /api/documents/init-upload (hibrit)
+// Bu endpoint sadece Lead create yapar, dosya beklemez (panel ayrı POST gönderir)
+router.post("/public-lead", async (req, res) => {
   try {
     const { fullName, phone, email, city, summary, kvkkApproved, healthDataApproved } = req.body;
 
@@ -72,32 +72,6 @@ router.post("/public-lead", upload.single("file"), supabaseUploadMiddleware, asy
       landingPage: landingPage ? String(landingPage).slice(0, 200) : null,
     }, null, null);
 
-    let document = null;
-
-    if (req.file) {
-      document = await prisma.document.create({
-        data: {
-          leadId: lead.id,
-          uploadedById: null,
-          type: "OTHER",
-          status: "UPLOADED",
-          originalName: req.file.originalname,
-          storedName: req.file.filename || req.file.originalname,
-          mimeType: req.file.mimetype || "application/octet-stream",
-          sizeBytes: Number(req.file.size || 0),
-          path: req.file.path || req.file.filename || req.file.originalname
-        }
-      });
-
-      await prisma.activityLog.create({
-        data: {
-          leadId: lead.id,
-          action: "PUBLIC_DOCUMENT_UPLOADED",
-          detail: `Public form uzerinden belge yuklendi: ${req.file.originalname}`
-        }
-      });
-    }
-
     await prisma.activityLog.create({
       data: {
         leadId: lead.id,
@@ -129,8 +103,7 @@ router.post("/public-lead", upload.single("file"), supabaseUploadMiddleware, asy
       message: "Basvuru olusturuldu.",
       data: {
         leadId: lead.id,
-        leadCode: lead.leadCode,
-        documentId: document ? document.id : null
+        leadCode: lead.leadCode
       }
     });
   } catch (error) {
