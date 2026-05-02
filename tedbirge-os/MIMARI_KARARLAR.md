@@ -6,6 +6,68 @@
 
 ---
 
+## TUR #64 — Eski Upload Endpoint Silme + Public-Lead Güvenlik Kapatma (2 Mayıs 2026)
+
+**Anayasa:** v1.19.0 (sürüm artmaz — sadece TUR kaydı)
+
+### Karar
+
+Eski multer akışı (`/api/uploads/:leadId` + signed URL eski endpoint'leri) tamamen silindi. `uploadDocument` hibrit util TÜM SİSTEM için **gerçek tek giriş noktası** oldu (sadece tasarım garantisi değil — kanıtlı: backend multer 0, panel FormData 0, eski Document.create 0).
+
+İkinci karar: TUR #63 zamanından kalan public-lead **gizli güvenlik açığı** kapatıldı. `documents.upload.routes.js` Zod şeması `leadDraftToken` istiyordu ama `checkPermission` doğrulamıyordu — anonim biri herhangi bir 8+ char string ile `public-drafts/` klasörüne yazabilirdi.
+
+**Yol E (pragmatik):** `leadDraftToken` içeriği `lead.id` (UUID). 30 dk pencere + `lead.source === "public_form"` kontrolü.
+
+### Karar Gerekçesi
+
+1. **Madde 32.8 yasak listesi tam uygulanması:** Vercel 4.5 MB body bypass + tek util kuralı + audit log atlama riski 0
+2. **Madde 4.1 ekosistem garantisi:** TUR #63 sonrası kalan teknik borç (eski multer + 3 ayrı `Document.create`) silindi
+3. **Public-lead güvenlik:** Yeni token mekanizması eklemeden mevcut Lead.createdAt + source field ile doğrulama (0 schema değişikliği)
+4. **A0 keşif disiplini (Madde 4.1 + 4.4):** Mektup tahmin "11+ panel sayfası" — gerçek 1. Eski endpoint panel'de zaten kullanılmıyordu. Atom planı revize edildi (9 atom → 6 atom, ~4 saat → ~1.5 saat).
+
+### Reddedilen Alternatifler
+
+**Yol F (UUID draftToken yeni mekanizma):**
+- Avantaj: Mektup harfine en sadık, "draftToken" ismi gerçek crypto token
+- Red: Lead modeli `metadata Json` field gerektirir veya in-memory cache; schema değişikliği = KIRMIZI nokta; yeni TUR (#65+) gerektirir; Yol E ile aynı güvenlik seviyesi minimum kod ile
+
+**Eski endpoint deprecate işaretleyip korumak:**
+- Avantaj: Yarı zamanlı geçiş riski yok
+- Red: Madde 4.1 ekosistem garantisi ihlali; "yarı kurulu" mimari Madde 32.8 yasak
+
+### Etki
+
+- **6 atom** (A0 keşif + A1 backend silme + A2.0 hibrit doğrulama + A2.1 panel migrate + A2.2 backend temizlik + A3 smoke + A4 OS) sapma 0
+- **5 commit** (3 backend + 1 panel ayrı git repo + 1 OS A0; A4 OS bu commit ile birlikte 6)
+- **4 backend dosya silindi** (upload.routes + upload.controller + upload.service + uploadMiddleware) — 310 satır temizlik
+- **public.route.js 132 satır azaldı** (multer + Document.create + activityLog blokları)
+- **Public-lead güvenlik açığı kapandı** (gizli, TUR #63'ten beri vardı)
+- **Schema migration:** 0
+- **npm install:** 0
+- **Env değişikliği:** 0
+- **KIRMIZI ihlal:** 0
+
+### CEO Yazılı Onay (Madde 17.5)
+
+CEO Mehmet DİNÇ direktifi: *"Otonom uçtan uca uygula yes/no sorma."* (TUR #63 pattern devam — sohbet kaydı 2 Mayıs 2026 mektup teslimi). Schema/npm/env yok → KIRMIZI nokta yok → Madde 18.4 yeşil nokta otomatik.
+
+### Mektup Düzeltmeleri (Madde 4.4 — Kod Kaynaktır)
+
+- Mektup tahmini "11+ panel sayfası FormData" → gerçek **1 sayfa** (basvuru/page.tsx)
+- Mektup `src/middleware/uploadMiddleware.js` → gerçek `src/middlewares/uploadMiddleware.js` (çoğul)
+- Mektup `documents.upload.routes.js` "zaten doğru pattern" → gerçek **public-lead doğrulama yarımdı**, gizli güvenlik açığı kapatıldı (Yol E)
+- Mektup `draftToken` cryptographic → Yol E pragmatik: leadDraftToken = lead.id
+
+### Pattern
+
+`TUR #56+57+58+59+60+62+63+63.5+63.5v2+64 = 65+ atom sapma 0 — kalibrasyon faktörü 1.6× sürdü`
+
+### Mimar
+
+Claude Opus 4.7 (1M context) — Sohbet mimarı (mektup yazan) + Claude Code uygulayan; CEO Mehmet DİNÇ otonom direktif
+
+---
+
 ## TUR #63 — Hibrit Belge Mimarisi (CEO yazılı onay 2 Mayıs 2026)
 
 **Anayasa:** v1.18.0 → v1.19.0 (MINOR — Madde 32 Belge Disiplini eklendi)

@@ -1,18 +1,18 @@
 # TEDBİRGE.AI YOL HARİTASI v1.0
-**Son güncelleme:** 1 Mayıs 2026 (gece — TUR #63 KAPANIŞ)
-**Anayasa versiyonu:** v1.19.0 (Madde 32 Belge Disiplini eklendi)
+**Son güncelleme:** 2 Mayıs 2026 (TUR #64 KAPANIŞ — eski upload endpoint temizliği)
+**Anayasa versiyonu:** v1.19.0 (Madde 32 Belge Disiplini)
 **İlke:** MoSCoW + Now-Next-Later hibrit (Madde 24.5)
 
 ---
 
 ## 🎯 AKTİF KESİT
 
-**Faz:** Belge Mimarisi KAPALI ✅ (TUR #63.5 v2 onaylı)
-**Son TUR:** #63.5 v2 — ADMIN bypass + Bearer auth + BelgeYukleme (KAPALI, CEO browser test onaylı)
-**Son düzeltme TUR'u:** #60 + #61 + #62 + #63 + #63.5 + #63.5 v2
+**Faz:** Belge Mimarisi KAPALI ✅ (TUR #64 ile ekosistem sonuçlandı — Madde 32.8 tam uygulandı)
+**Son TUR:** #64 — Eski Upload Endpoint Temizliği (KAPALI)
+**Son düzeltme TUR'u:** #60 + #61 + #62 + #63 + #63.5 + #63.5 v2 + #64
 **Önerilen sıradaki:** TUR #66 AI Analiz İşlem Hatası düzeltme veya CEO manuel 5 iş
 **Anayasa:** v1.19.0 (Madde 32 Belge Disiplini)
-**Son güncelleme:** 1 Mayıs 2026 gece (TUR #63.5 v2 KAPANIŞ)
+**Son güncelleme:** 2 Mayıs 2026 (TUR #64 KAPANIŞ — multer 0 ref, eski Document.create 0 ref, public-lead güvenlik açığı kapandı)
 
 ### Kesit içi turlar (özet)
 
@@ -41,6 +41,7 @@
 | #58 | FAZ 5 DISCOVERABILITY Atom Blok 1 — llms.txt + JsonLd 3 factory + 3 SSS landing + /tazminat-rehberi + AI snippet + BrandFooterStrip + Madde 33 (İçerik Üretim Disiplini) + Aylık Aidat Yasağı kararı | ✅ Kapalı (9 atom + OS, 9 commit, 0 KIRMIZI nokta, Anayasa v1.16.0 → v1.17.0, kalibrasyon 9/9) |
 | #59 | FAZ 5 İçerik Üretimi — 50 niş makale (Trafik 20 + İş Kazası 15 + Sigorta+Genel 15) + 3 pillar cluster grid + blog detay FAQPage/BreadcrumbList JsonLd + Madde 33.2 düzeltme + iç linking audit (150 cross-link, 0 bozuk) | ✅ Kapalı (10 atom, 9 commit, 0 KIRMIZI nokta, 0 npm, Anayasa v1.17.0 → v1.18.0, kalibrasyon 10/10 dördüncü kez doğrulandı) |
 | #60 | FAZ 5 Teknik SEO + Core Web Vitals + Monitoring (Lighthouse, iç link gücü, Search Console takip) | 🟡 Açık |
+| #64 | Eski Upload Endpoint Temizliği — `/api/uploads/*` silme + 4 dosya silme + public.route.js multer çıkar + public-lead güvenlik açığı kapatma (Yol E: leadDraftToken=leadId + 30 dk pencere + source kontrolü) + panel basvuru/page.tsx hibrit migrate | ✅ Kapalı (6 atom, 5 commit, 0 KIRMIZI nokta, 0 schema/npm/env, A0 keşif sürprizi: kapsam mektup tahmininden 11× küçük, OTONOMI SINIRI 4 senaryosu 0 tetiklendi, Madde 32.8 tam uygulandı) |
 | #58.B | (Eski TUR #58 önerisi) Temsilci Sözleşme SMS OTP backend (mini) — UI TUR #56 A8'de hazır, ileri TUR'a ertelendi | ⏭️ Ertelendi |
 
 ### TUR #44 — Hareket Disiplini ✅ BÜYÜK KAPANIŞ

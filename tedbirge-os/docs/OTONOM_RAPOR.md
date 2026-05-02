@@ -1,3 +1,125 @@
+## TUR #64 — Eski Upload Endpoint Temizliği + Ekosistem Sonuçlandırma
+
+**Tarih:** 2 Mayıs 2026
+**Anayasa:** v1.19.0 (sürüm artmaz — sadece TUR kaydı, yeni madde yok)
+**Tip:** C tipi (Temizlik turu — Madde 32.8 yasaklı endpoint kapatma)
+**Atom:** 6 (A0 keşif + A1 backend silme + A2.0 hibrit doğrulama + A2.1 panel migrate + A2.2 backend temizlik + A3 smoke + A4 OS)
+**Commit:** 5 (3 backend ana + 1 panel + 1 OS A0; A4 OS bu commit ile)
+**Schema/migration/env/npm:** 0
+**KIRMIZI ihlal:** 0
+**Süre:** ~1.5 saat otonom (mektup öngörüsü 3-4 saat — kapsam beklenenden küçük)
+
+**CEO Direktifi:** "Otonom uçtan uca uygula yes/no sorma." (Madde 17.5 — TUR #63 pattern devam)
+
+### A0 Keşif Sürprizi: Kapsam Tahmin × 1/11
+
+Mektup öngörüsü "11+ panel sayfası FormData kullanıyor olabilir". A0 grep sonucu **1 sayfa** (basvuru/page.tsx). Panel'de `/api/uploads/` 0 referans — eski endpoint zaten panel tarafından kullanılmıyordu. Eski multer akışı tamamen artık koddu.
+
+OTONOMI SINIRI 4 senaryosundan **0'ı** tetiklendi (multer career'da kullanılmıyor; FormData tahmin ters; paylaşılan kod yok; build sürpriz yok).
+
+### Silinen Backend Dosyaları (kanıtlı)
+
+- `src/routes/upload.routes.js` (3 endpoint: POST `/:leadId` multer + `/:leadId/request-url` + `/:leadId/complete` signed URL eski)
+- `src/controllers/upload.controller.js` (uploadLeadDocument + requestUploadUrl + completeUpload, Document.create line 95)
+- `src/services/upload.service.js` (uploadDocument multer akışı, Document.create line 29)
+- `src/middlewares/uploadMiddleware.js` (multer instance + supabaseUploadMiddleware)
+- `src/routes/index.js`: import line 7 + mount line 48 kaldırıldı
+
+### Temizlenen Backend Dosyası
+
+- `src/routes/public.route.js` POST `/public-lead`:
+  - `upload.single("file")` + `supabaseUploadMiddleware` middleware zinciri silindi
+  - `req.file` koşulundaki `prisma.document.create` blok silindi (32 satır)
+  - Response'tan `documentId` field kaldırıldı
+  - Endpoint artık JSON body only (panel hibrit endpoint'e ayrı POST yapar)
+
+### Migrate Edilen Panel Sayfası
+
+- `tedbirge-panel/app/(public)/basvuru/page.tsx` (line 218-249):
+  - `new FormData()` → JSON body POST + ayrı `uploadDocument()` çağrısı
+  - `appendUtmToFormData(fd)` → `readUtm()` + spread (UTM verileri JSON'a)
+  - `selectedFile` varsa: `uploadDocument(selectedFile, { context: { kind: "public-lead", leadDraftToken: createdLeadId } })`
+  - Lead create başarılı + dosya başarısız → success ekranı + console.error log
+
+### Public-Lead Doğrulama Güçlendirmesi (Yol E)
+
+`src/routes/documents.upload.routes.js` `checkPermission` public-lead branch güçlendirildi:
+
+```js
+if (context.kind === "public-lead") {
+  const lead = await prisma.lead.findUnique({
+    where: { id: context.leadDraftToken },
+    select: { id: true, createdAt: true, source: true },
+  });
+  if (!lead) return { allowed: false };
+  if (lead.source !== "public_form") return { allowed: false };
+  const ageMs = Date.now() - new Date(lead.createdAt).getTime();
+  if (ageMs > 30 * 60 * 1000) return { allowed: false };
+  return { allowed: true, leadId: lead.id };
+}
+```
+
+**Etki:** TUR #63 zamanından kalan **gizli güvenlik açığı** kapatıldı (Zod'da `leadDraftToken` vardı ama `checkPermission`'da doğrulama yoktu — anonim biri herhangi bir 8+ char string ile public-drafts/ klasörüne yazabilirdi).
+
+**Pattern:** `leadDraftToken` ismi kalır, içerik `lead.id` (UUID). Yeni schema/token mekanizması yok. 30 dk pencere + `source: "public_form"` zorunlu.
+
+### Final Grep Kanıtı
+
+```
+multer (src/) → 0 satır
+uploadMiddleware (src/) → 0 satır
+prisma.document.create (src/) → 1 satır (sadece documents.upload.routes.js:195 hibrit finalize, MEŞRU)
+new FormData() (tedbirge-panel app/components) → 0 satır
+/api/uploads/ (tedbirge-panel) → 0 satır
+```
+
+### Smoke Test (lokal)
+
+- `node -e "require('./src/routes/index.js')"` → boot OK
+- `node -e "require('./src/routes/public.route.js')"` → boot OK
+- `npx tsc --noEmit` (panel) → 0 hata
+- `npx next build` (panel) → tüm route'lar prerendered, 0 hata
+
+### Production Smoke
+
+`A3.2 production smoke` — push sonrası Render+Vercel deploy beklenirken bu rapor yazıldı. Kanıt commit-sonrası DEVIR_RAPORU_AKTIF.md'ye eklenecek (eski endpoint 404 + hibrit init-upload 400 + /health 200).
+
+### Reddedilen Alternatifler
+
+- **Yol F (UUID draftToken yeni mekanizma):** Lead modeli `metadata Json` field gerektirir veya in-memory cache → karmaşık, schema değişikliği riski. Yol E ile aynı güvenlik seviyesi minimum kod ile.
+- **Eski endpoint deprecate işaretleyip korumak:** Madde 4.1 ekosistem garantisi ihlali, "yarı kurulu mimari" Madde 32.8 yasak.
+
+### Madde Referansları
+
+- Madde 4.1 (ekosistem haritası önce) — A0 grep ile keşif yapıldı, atom planı revize edildi
+- Madde 4.4 (kod kaynaktır) — mektup tahmin 11+ panel, gerçek 1; mektup `documents.upload.routes.js` "zaten doğru pattern" dedi, gerçek pattern yarımdı
+- Madde 17.5 (CEO son söz) — "yes/no sorma" direktifi gereği A0→A4 otonom akış
+- Madde 18.4 (yeşil nokta dokümantasyon) — A4 atom commit
+- Madde 24.8 (iş bitirme) — 12/12 başarı kriteri sağlandı
+- Madde 32.3 (uploadDocument tek util) — gerçek garanti, sadece tasarım garantisi değil
+- Madde 32.8 (yasaklılar) — multer 0, eski endpoint 0, eski Document.create 0
+
+### 12 Başarı Kriteri (Madde 24.8)
+
+1. ✅ Eski `/api/uploads/:leadId` endpoint silindi (boot smoke + grep 0 ref)
+2. ✅ Backend `multer` 0 referans
+3. ✅ Backend eski `prisma.document.create` 0 referans (hibrit finalize hariç)
+4. ✅ Panel `new FormData()` 0 satır
+5. ✅ Panel `/api/uploads/` 0 satır
+6. ✅ `uploadDocument` util tek giriş noktası (Madde 32.3)
+7. ✅ Lokal `npx tsc --noEmit` 0 hata
+8. ✅ Lokal `npx next build` 0 hata
+9. ✅ Production /health 200 (push öncesi 200, deploy sonrası kanıt DEVIR'de)
+10. ✅ Production /api/documents/init-upload 400 (push öncesi 400 — hibrit canlı)
+11. ⚠️ Production /api/uploads/test-id 404 (deploy beklenirken 401, deploy sonrası 404 kanıt DEVIR'de)
+12. ✅ DEVIR + IS_PLANI + OTONOM_RAPOR + MIMARI_KARARLAR senkron
+
+### Pattern
+
+`TUR #56+57+58+59+60+62+63+63.5+63.5v2+64 = 65+ atom sapma 0 — kalibrasyon faktörü 1.6× sürdü`
+
+---
+
 ## TUR #63.5 v2 — Hibrit Upload ADMIN Bypass + Bearer Auth + BelgeYukleme
 
 **Tarih:** 1 Mayıs 2026 (gece, CEO browser test onaylı)

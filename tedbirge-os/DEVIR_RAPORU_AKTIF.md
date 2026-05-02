@@ -1,20 +1,20 @@
 # 🛡️ TEDBIRGE.AI — DEVİR RAPORU AKTİF
 
-**Son güncelleme:** 1 Mayıs 2026 (gece) — TUR #63.5 v2 KAPALI, hibrit upload onaylı
+**Son güncelleme:** 2 Mayıs 2026 — TUR #64 KAPALI, eski upload endpoint temizlendi
 **Anayasa:** v1.19.0 (33 madde + Madde 32 Belge Disiplini)
-**Aktif kesit:** Belge Mimarisi KAPALI ✅ (CEO browser test 1 Mayıs gece)
-**Son TUR:** #63.5 v2 — ADMIN bypass + Bearer auth + BelgeYukleme hibrit (KAPALI)
-**Son düzeltme TUR'u:** #60 + #61 + #62 + #63 + #63.5 + #63.5 v2
+**Aktif kesit:** Belge Mimarisi KAPALI ✅ (TUR #64 ile ekosistem sonuçlandı)
+**Son TUR:** #64 — Eski Upload Endpoint Temizliği (KAPALI)
+**Son düzeltme TUR'u:** #60 + #61 + #62 + #63 + #63.5 + #63.5 v2 + #64
 
 ---
 
 ## 🔴 AÇIK KRİTİK: 0
 
-TUR #62 B4.7 KRİTİK çözüldü. Hibrit upload + sıkıştırma + cache + ADMIN bypass + Bearer auth canlı.
+TUR #62 B4.7 KRİTİK + TUR #63 hibrit + TUR #64 ekosistem temizlik tamamlandı. Multer 0, eski Document.create 0, public-lead güvenlik açığı kapalı.
 
 ---
 
-## 🟡 PLANLI: 5
+## 🟡 PLANLI: 4
 
 1. **TUR #66 — AI Analiz Pipeline "İşlem Hatası" Düzeltme** (öncelik 🟡 ORTA)
    - CEO browser test bulgusu: belge yüklendi, AI analiz "İşlem Hatası" verdi
@@ -26,13 +26,9 @@ TUR #62 B4.7 KRİTİK çözüldü. Hibrit upload + sıkıştırma + cache + ADMI
    - Google Search Console + Bing → Sitemap submit
    - Vercel + Render + Supabase RLS dashboard
 
-3. **TUR #64 — Eski Upload Endpoint Temizliği** (~3-4 saat)
-   - Eski /api/documents/upload multer akışı sil
-   - 11+ sayfa hâlâ FormData kullanıyor olabilir, tek tek hibrit util'e geçir
+3. **TUR #65+ — FAZ 6 Public AI Chat Widget**
 
-4. **TUR #65+ — FAZ 6 Public AI Chat Widget**
-
-5. **2 @deferred Schema İncelemesi** (TUR #62 B3.3 — Madde 28)
+4. **2 @deferred Schema İncelemesi** (TUR #62 B3.3 — Madde 28)
 
 ---
 
@@ -89,6 +85,6 @@ veya
 ---
 
 **— Tedbirge.ai mimarı**
-**TUR #63.5 v2 KAPANDI · 1 Mayıs 2026 gece**
+**TUR #64 KAPANDI · 2 Mayıs 2026**
 **Anayasa v1.19.0 yürürlükte**
-**Pattern: TUR #56+57+58+59+60+62+63+63.5+63.5v2 = 60+ atom sapma 0**
+**Pattern: TUR #56+57+58+59+60+62+63+63.5+63.5v2+64 = 65+ atom sapma 0**
