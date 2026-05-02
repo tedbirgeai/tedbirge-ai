@@ -1,3 +1,68 @@
+## TUR #66.5 — Vision 20 MB Limit Hotfix (KEŞİF NOTU)
+
+**Tarih:** 2 Mayıs 2026 gece (CEO browser test sonrası)
+**Anayasa:** v1.19.1 (mevcut yürürlük)
+**Tip:** P tipi (üretim hotfix — CEO browser test bulgusu)
+**Süre tahmini:** 30-45 dk (3 atom)
+**Risk:** 🟢 Düşük (0 schema, 0 npm, 0 KIRMIZI)
+**Durum:** 🟡 PLANLI — mektup CEO'dan bekleniyor
+
+### CEO Browser Test Bulgusu (LAWYER kanal)
+
+CEO 2 Mayıs gece **26.5 MB PDF** yükledi:
+
+```
+✅ DOCUMENT_UPLOAD_INITIATED (init-upload 200)
+✅ DOCUMENT_UPLOAD_COMPLETED (finalize-upload 200)
+✅ AI Analiz arka planda tetiklendi (TUR #66 v2 A2 setImmediate)
+❌ Vision API: "PDF boyutu 26.5 MB — Vision limiti 20 MB. Dosya sıkıştırılmalı."
+✅ Document.status = FAILED
+✅ Document.aiAnalysis.error = gerçek hata mesajı
+✅ Frontend "Hata" badge + inline kırmızı blok: gerçek mesaj gösterildi (Madde 4.4 CANLI KANIT)
+✅ AI_ANALYSIS_FAILED ActivityLog audit
+```
+
+### Madde 4.4 Canlı Kanıt
+
+TUR #66 v2 A3'te eklenen frontend gerçek hata gösterimi **production'da çalıştı**:
+- Eski sabit "İşlem Hatası" → silindi
+- Yeni: `ai?.error` mesajı kullanıcıya gösteriliyor
+- CEO testi sırasında mesaj birebir göründü: *"PDF boyutu 26.5 MB — Vision limiti 20 MB. Dosya sıkıştırılmalı."*
+
+Bu kanıt anayasa Madde 4.4 (kod kaynaktır) + Madde 32.10 (AI Analiz Tetikleyici Disiplini) **doğru çalıştığını** gösterir.
+
+### TUR #66.5 — 3 Atom Çözüm Planı
+
+**Atom A — Frontend proaktif sıkıştırma + uyarı:**
+`tedbirge-panel/lib/document-upload.ts` `compressDocument()`:
+- > 20 MB PDF için **aggressive compress** (pdf-lib useObjectStreams + image quality düşür)
+- Hâlâ > 20 MB ise **kullanıcıya proaktif uyarı**: "Bu PDF Vision API limit (20 MB) üstünde. AI analiz çalışmayabilir, devam edilsin mi?" (kullanıcı seçim)
+
+**Atom B — Backend text fallback:**
+`src/services/uploadAnalysis.bridge.js` `resolveDocumentText` PDF dalı:
+- Vision çağrısından **ÖNCE** `pdf-parse` ile text extract dene
+- Text yeterli (>100 char) ise Vision atla, text dön
+- Text yetersiz veya hata varsa Vision dene (mevcut akış)
+- Vision 20 MB error ise **gracefull degradation:** "Belge çok büyük, manuel inceleme gerekli" mesajı + Document.status FAILED
+
+**Atom C — Anayasa Madde 32.2 PATCH:**
+Madde 32.2 (Sıkıştırma Disiplini) sonuna alt-madde:
+```
+**Vision API limit kontrolü:**
+- 20 MB+ PDF için aggressive compress zorunlu (pdf-lib + image quality düşür)
+- Sıkıştırma sonrası hâlâ 20 MB+ ise kullanıcıya proaktif uyarı + onay
+- Backend Vision öncesi text-extract fallback (pdf-parse) zorunlu
+- Vision limit error gracefull degradation + Document.status FAILED + gerçek mesaj
+```
+
+**Sürüm:** v1.19.1 → v1.19.2 (PATCH).
+
+### Pattern
+
+`TUR #56+57+58+59+60+62+63+63.5+63.5v2+64+66v2+66.5 = 78+ atom sapma 0 (planlı)`
+
+---
+
 ## TUR #66 v2 — AI Analiz Pipeline TÜM SİSTEM Uçtan Uca
 
 **Tarih:** 2 Mayıs 2026

@@ -1,5 +1,5 @@
 # TEDBİRGE.AI YOL HARİTASI v1.0
-**Son güncelleme:** 2 Mayıs 2026 öğleden sonra (TUR #66 v2 KAPANIŞ — AI Pipeline TÜM SİSTEM)
+**Son güncelleme:** 2 Mayıs 2026 gece (TUR #66 v2 KAPALI + TUR #66.5 Vision hotfix planlı)
 **Anayasa versiyonu:** v1.19.1 (Madde 32.10 AI Analiz Tetikleyici Disiplini eklendi)
 **İlke:** MoSCoW + Now-Next-Later hibrit (Madde 24.5)
 
@@ -10,9 +10,20 @@
 **Faz:** Belge + AI Pipeline KAPALI ✅ (TUR #66 v2 ile AI analiz uçtan uca canlı, Madde 32.10 yürürlükte)
 **Son TUR:** #66 v2 — AI Analiz Pipeline TÜM SİSTEM Uçtan Uca (KAPALI)
 **Son düzeltme TUR'u:** #60 + #61 + #62 + #63 + #63.5 + #63.5 v2 + #64 + #66 v2
-**Önerilen sıradaki:** TUR #65 — OS Sprint 3 (DB Persistence — pulse + ai + appearance modülleri in-memory'den DB'ye geçer)
+**Önerilen sıradaki:** TUR #66.5 — Vision 20 MB Limit Hotfix (CEO browser test bulgusu, 30-45 dk küçük iş)
 **Anayasa:** v1.19.1 (Madde 32.10 AI Analiz Tetikleyici Disiplini)
-**Son güncelleme:** 2 Mayıs 2026 öğleden sonra (TUR #66 v2 KAPANIŞ — AI tetikleyici 7 context canlı, sabit "İşlem Hatası" string silindi, ADMIN AI HATA bildirim + retry endpoint canlı)
+**Son güncelleme:** 2 Mayıs 2026 gece (TUR #66 v2 KAPANIŞ + TUR #66.5 Vision 20 MB hotfix planlı)
+
+### 4 TUR Yol Haritası (CEO HAYALİ — 2 Mayıs gece)
+
+| Sıra | TUR | Konu | Süre | Schema | Açıklama |
+|---|---|---|---|---|---|
+| 1 | #66.5 | Vision 20 MB Hotfix | 30-45 dk | 0 | Frontend aggressive compress + backend text fallback + Madde 32.2 PATCH |
+| 2 | #65 | OS Sprint 3 DB Persistence | 4-5 saat | 3 KIRMIZI | pulse + ai + appearance in-memory → DB |
+| 3 | #67 | OS Sprint 4 Cron + Email | 4-5 saat | 1 KIRMIZI | Render Cron + sabah 08:00 email + pulse 5 dk audit |
+| 4 | **#68 CEO KONSOL** | **LLM Router** | **5-6 saat** | **0** | **🌟 Doğal dil komut çubuğu — CEO uçtan uca tek komut hayali GERÇEK** |
+
+**Toplam yol haritası:** ~14-17 saat, 75+ → 100+ atom, kalibrasyon 1.6× sürer.
 
 ### Kesit içi turlar (özet)
 
@@ -43,6 +54,10 @@
 | #60 | FAZ 5 Teknik SEO + Core Web Vitals + Monitoring (Lighthouse, iç link gücü, Search Console takip) | 🟡 Açık |
 | #64 | Eski Upload Endpoint Temizliği — `/api/uploads/*` silme + 4 dosya silme + public.route.js multer çıkar + public-lead güvenlik açığı kapatma (Yol E: leadDraftToken=leadId + 30 dk pencere + source kontrolü) + panel basvuru/page.tsx hibrit migrate | ✅ Kapalı (6 atom, 5 commit, 0 KIRMIZI nokta, 0 schema/npm/env, A0 keşif sürprizi: kapsam mektup tahmininden 11× küçük, OTONOMI SINIRI 4 senaryosu 0 tetiklendi, Madde 32.8 tam uygulandı) |
 | #66 v2 | AI Analiz Pipeline TÜM SİSTEM Uçtan Uca — finalize-upload setImmediate analyzeDocumentById + Document/Lead update + lawyerNotifications hooks + DocumentList sabit "İşlem Hatası" sil (gerçek error gösterilir) + ADMIN AI HATA bildirim hook + admin retry endpoint (toplu/tekil/sayım) + Anayasa Madde 32.10 | ✅ Kapalı (7 atom, 5+ commit (4 backend + 1 panel), 0 KIRMIZI nokta, 0 schema/npm/env, A0 mektup yanlış varsayım Madde 4.4 ile düzeltildi, OTONOMI SINIRI 4 senaryo 0 tetik, Anayasa v1.19.0 → v1.19.1 PATCH) |
+| #66.5 | Vision 20 MB Limit Hotfix — Frontend aggressive compress + proaktif uyarı + Backend Vision öncesi text fallback + Anayasa Madde 32.2 PATCH (CEO browser test 26.5 MB PDF bulgusu — Madde 4.4 canlı kanıt: frontend gerçek hata mesajı gösterdi) | 🟡 Planlı (3 atom, 30-45 dk, 0 schema/npm/env) |
+| #65 | OS Sprint 3 DB Persistence — pulse (24h health) + ai (request history) + appearance (user prefs) modülleri in-memory'den DB'ye geçer | 🟡 Planlı (4-5 saat, 3 schema KIRMIZI nokta — CEO yazılı onay) |
+| #67 | OS Sprint 4 Cron + Email Rapor — Render Cron + sabah 08:00 email rapor + pulse 5 dk audit otomatik | 🟡 Planlı (4-5 saat, 1 schema KIRMIZI nokta) |
+| **#68** | **CEO KONSOL — LLM Router** — Doğal dil komut çubuğu ("bu hafta gelir" / "atanmamış lead" / "yedek al") | 🌟 **CEO HAYALİ** (5-6 saat, 0 schema, mevcut endpoint'ler) |
 | #58.B | (Eski TUR #58 önerisi) Temsilci Sözleşme SMS OTP backend (mini) — UI TUR #56 A8'de hazır, ileri TUR'a ertelendi | ⏭️ Ertelendi |
 
 ### TUR #44 — Hareket Disiplini ✅ BÜYÜK KAPANIŞ

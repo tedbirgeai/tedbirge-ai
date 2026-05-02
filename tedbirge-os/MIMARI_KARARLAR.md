@@ -6,6 +6,44 @@
 
 ---
 
+## TUR #66.5 — Vision 20 MB Limit Hotfix (KARAR TOHUMU — 2 Mayıs 2026 gece)
+
+**Anayasa:** v1.19.1 → v1.19.2 (PATCH önerisi — Madde 32.2 alt-madde)
+
+### Karar Tohumu (mektup CEO'dan bekleniyor)
+
+CEO browser test 2 Mayıs gece bulgusu: 26.5 MB PDF Vision API limit aştı, AI analiz FAILED. TUR #66 v2 hata yönetimi **doğru çalıştı** (Madde 4.4 canlı kanıt — frontend gerçek mesaj gösterdi, ADMIN bildirim hook tetiklendi). Ancak kullanıcı deneyimi açısından **proaktif sıkıştırma + uyarı** gerekli.
+
+**Önerilen 3 atom hotfix:**
+
+1. **Frontend (`document-upload.ts`):** `compressDocument` >20 MB PDF için aggressive compress + kullanıcı uyarısı
+2. **Backend (`uploadAnalysis.bridge.js`):** Vision öncesi `pdf-parse` text extract fallback
+3. **Anayasa (Madde 32.2 PATCH):** Vision limit kontrolü disiplini formalize
+
+### Karar Gerekçesi (Tohum — mektup detaylandıracak)
+
+1. **Madde 4.1 ekosistem garantisi:** TUR #66 v2 hata mesajı doğru gösteriyor ama kullanıcı **önceden** proaktif uyarı almıyor — yarım UX
+2. **Madde 32.2 sıkıştırma disiplini:** Mevcut "1920px JPG 0.85 + 2 MB hedef" PDF için Vision 20 MB limitini kapsamıyor — disiplin genişletilmeli
+3. **Madde 24.11 hukuki muhatap güven skoru:** Vision atlanırsa text fallback kalitesi düşer, güven skoru otomatik düşer (zaten kurulu)
+
+### Reddedilen Alternatif (tohum)
+
+- **Vision limit'i 20 MB'a kadar destekleme:** Anthropic API kontrol dışı, limit değiştirilemez
+- **Sadece backend text fallback:** Frontend kullanıcıya bilgi vermeden büyük dosyalar yine yüklenir, bant genişliği israfı
+
+### Etki Tahmini
+
+- 3 atom (A1 frontend + A2 backend + A3 anayasa)
+- Süre 30-45 dk
+- 0 schema, 0 npm, 0 KIRMIZI nokta
+- Anayasa v1.19.1 → v1.19.2 (PATCH)
+
+### Madde 26.4 + 26.9 (sohbet kapanış uyarısı)
+
+CEO 2 Mayıs gece sohbeti kapatıyor — 5 dosya devir paketi knowledge klasörüne yüklenecek. Yeni sohbet TUR #66.5 mektubunu yazacak ve Code uygulayacak (Madde 26.4 açılış protokolü otomatik).
+
+---
+
 ## TUR #66 v2 — AI Analiz Pipeline TÜM SİSTEM Uçtan Uca (2 Mayıs 2026 öğleden sonra)
 
 **Anayasa:** v1.19.0 → v1.19.1 (PATCH — Madde 32.10 alt-madde eklendi)

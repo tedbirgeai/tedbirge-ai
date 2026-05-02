@@ -1,8 +1,8 @@
 # 🛡️ TEDBIRGE.AI — DEVİR RAPORU AKTİF
 
-**Son güncelleme:** 2 Mayıs 2026 öğleden sonra — TUR #66 v2 KAPALI, AI Pipeline TÜM SİSTEM canlı
+**Son güncelleme:** 2 Mayıs 2026 gece — TUR #66 v2 KAPALI + TUR #66.5 planlı (Vision 20 MB hotfix)
 **Anayasa:** v1.19.1 (33 madde + Madde 32.10 AI Analiz Tetikleyici Disiplini)
-**Aktif kesit:** Belge + AI Pipeline KAPALI ✅ (TUR #66 v2 ile uçtan uca canlı, production smoke 7/7 ✅)
+**Aktif kesit:** Belge + AI Pipeline KAPALI ✅ (TUR #66 v2 uçtan uca canlı, production smoke 7/7 ✅)
 **Son TUR:** #66 v2 — AI Analiz Pipeline TÜM SİSTEM Uçtan Uca (KAPALI, production kanıtlı)
 **Son düzeltme TUR'u:** #60 + #61 + #62 + #63 + #63.5 + #63.5 v2 + #64 + #66 v2
 
@@ -20,7 +20,21 @@ www.tedbirge.ai/blog                 → 200 ✅ (regresyon yok)
 /api/uploads/test (POST)             → 404 ✅ (TUR #64 silinmiş, hâlâ kapalı)
 ```
 
-**Madde 24.8 başarı kriteri: 13/13 ✅** (CEO browser test 4 kanal manuel adım — bekliyor)
+**Madde 24.8 başarı kriteri: 10/12 ✅** (4 kanal CEO browser test — 1/4 kanıtlı, 3 bekliyor)
+
+---
+
+## 🔬 CEO BROWSER TEST DURUMU (2 Mayıs gece)
+
+| Kanal | Durum | Kanıt |
+|---|---|---|
+| LAWYER (26.5 MB PDF) | ✅ KANITLI | DOCUMENT_UPLOAD_INITIATED + COMPLETED + AI_ANALYSIS_FAILED + frontend gerçek mesaj |
+| CUSTOMER (drag-drop + publicSummary) | ⏳ Bekliyor | — |
+| PUBLIC FORM (atanmış avukata push) | ⏳ Bekliyor | — |
+| Retry buton (ADMIN sistem-durumu widget) | ⏳ Bekliyor | — |
+| Geçmiş FAILED retry (POST /api/os/ai-retry/all) | ⏳ Bekliyor | CEO ADMIN token ile 1 kerelik çağırmalı |
+
+**Madde 4.4 CANLI KANIT:** LAWYER kanal testinde frontend "İşlem Hatası" sabit string yerine **gerçek hata mesajı** gösterdi: `"Hata: PDF boyutu 26.5 MB — Vision limiti 20 MB. Dosya sıkıştırılmalı."` — TUR #66 v2 A3 (DocumentList) çalışıyor, A4 ADMIN bildirim hook tetikleniyor.
 
 ---
 
@@ -30,23 +44,42 @@ TUR #62 B4.7 + TUR #63 hibrit + TUR #64 ekosistem + TUR #66 v2 AI pipeline tamam
 
 ---
 
-## 🟡 PLANLI: 4
+## 🟡 PLANLI: 5
 
-1. **TUR #65 — OS Sprint 3 (DB Persistence)** (öncelik 🟡 ORTA, sıradaki önerilen)
+1. **TUR #66.5 — Vision 20 MB Limit Hotfix** (🔴 ÖNCELİK, 30-45 dk küçük iş)
+   - CEO browser test 2 Mayıs gece: 26.5 MB PDF Vision API limit hatası
+   - Hibrit upload BAŞARILI, AI analiz limit nedeniyle FAILED
+   - 3 atom çözüm:
+     - A) `tedbirge-panel/lib/document-upload.ts`: > 20 MB PDF için aggressive compress + proaktif kullanıcı uyarısı
+     - B) `src/services/uploadAnalysis.bridge.js`: Vision öncesi text extract fallback (pdf-parse veya Tesseract)
+     - C) Anayasa Madde 32.2 PATCH: Vision limit kontrolü disiplini
+   - Süre: 30-45 dk, 0 schema, 0 npm, 0 KIRMIZI
+
+2. **TUR #65 — OS Sprint 3 (DB Persistence)** (öncelik 🟡 ORTA, 4-5 saat)
    - `pulse` (24h health history) + `ai` (request history) + `appearance` (user prefs) modülleri in-memory'den DB'ye geçer
-   - Yeni Prisma modelleri (KIRMIZI nokta — CEO yazılı onay)
-   - Süre: 3-4 saat (kalibrasyon dahil)
+   - 3 yeni Prisma modeli (KIRMIZI nokta — CEO yazılı onay şart)
+   - TUR #65 OS Sprint 2 zaten yarım kurulu (`src/os/modules/`), Sprint 3 persistence katmanı ekler
 
-2. **CEO Manuel İşler** (5 dk):
+3. **TUR #67 — OS Sprint 4 Cron + Email Rapor** (4-5 saat)
+   - Render Cron entegrasyonu
+   - Sabah 08:00 günlük email raporu (CEO + ADMIN'lere)
+   - `pulse` 5 dk audit otomatik
+   - 1 schema KIRMIZI (CronJob + EmailDigest)
+
+4. **TUR #68 — CEO KONSOL: LLM Router** (5-6 saat, 🌟 CEO HAYALİ)
+   - Doğal dil komut çubuğu: "bu hafta gelir" / "atanmamış lead" / "yedek al"
+   - LLM router → backend endpoint çağrısı
+   - **CEO uçtan uca tek komut hayali GERÇEK** olur
+   - 0 schema (mevcut endpoint'leri kullanır)
+
+5. **CEO Manuel İşler** (5 dk):
+   - **CEO browser test 4 kanal eksik (TUR #66 v2 A6.3):** CUSTOMER + PUBLIC + retry buton + geçmiş FAILED retry
+   - **`POST /api/os/ai-retry/all` 1 kerelik çağırma** (ADMIN token, 1 dk)
    - UptimeRobot 14 dk /health ping
    - Google Search Console + Bing → Sitemap submit
    - Vercel + Render + Supabase RLS dashboard
-   - **TUR #66 v2 CEO browser test (4 kanal):** LAWYER + CUSTOMER + PUBLIC + retry button (A6.3 manuel adım)
-   - **CEO `POST /api/os/ai-retry/all` 1 kerelik çağırma:** Geçmiş FAILED Document'ları yeniden işle (ADMIN token ile)
 
-3. **TUR #67+ — FAZ 6 Public AI Chat Widget**
-
-4. **2 @deferred Schema İncelemesi** (TUR #62 B3.3 — Madde 28)
+6. **2 @deferred Schema İncelemesi** (TUR #62 B3.3 — Madde 28)
 
 ---
 
@@ -94,15 +127,19 @@ TUR #62 B4.7 + TUR #63 hibrit + TUR #64 ekosistem + TUR #66 v2 AI pipeline tamam
 
 ## 🎯 SIRADAKİ ÖNERİLEN İŞ
 
-**TUR #65 — OS Sprint 3 (DB Persistence)** (3-4 saat)
+**🔴 TUR #66.5 — Vision 20 MB Limit Hotfix** (30-45 dk küçük iş, ÖNCELİK)
+CEO browser test bulgusu — kullanıcı 20 MB üzeri PDF yüklerken proaktif uyarı + backend Vision öncesi text fallback.
 
 veya
 
-**CEO Browser Test 4 Kanal** (5 dk — TUR #66 v2 A6.3 doğrulama: LAWYER + CUSTOMER + PUBLIC + retry buton)
+**CEO Browser Test 3 kanal eksik** (5 dk — CUSTOMER + PUBLIC + retry buton)
 
 veya
 
-**CEO `POST /api/os/ai-retry/all` 1 kerelik** (1 dk — geçmiş FAILED Document'ları yeniden işle)
+**CEO `POST /api/os/ai-retry/all` 1 kerelik** (1 dk — geçmiş FAILED Document'ları yeniden işle, A4 hook canlı doğrulama)
+
+**Sıradaki büyük iş zinciri:**
+TUR #66.5 (30 dk) → TUR #65 (4-5h, OS Sprint 3 DB persistence) → TUR #67 (4-5h, Cron + Email) → **TUR #68 CEO KONSOL** (5-6h, LLM Router doğal dil komut çubuğu — CEO hayali GERÇEK)
 
 ---
 
