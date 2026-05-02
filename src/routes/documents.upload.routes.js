@@ -73,7 +73,17 @@ const InitSchema = z.object({
 // Yetki kontrolu (TUR #63 — assertLeadAccess pattern + context bazli)
 async function checkPermission(context, user) {
   if (context.kind === "public-lead") {
-    return { allowed: true, leadId: null };
+    // TUR #64 — leadDraftToken = lead.id pattern (Yol E)
+    // Anonim public-lead upload: lead public_form kaynaklı + 30 dk pencere
+    const lead = await prisma.lead.findUnique({
+      where: { id: context.leadDraftToken },
+      select: { id: true, createdAt: true, source: true },
+    });
+    if (!lead) return { allowed: false };
+    if (lead.source !== "public_form") return { allowed: false };
+    const ageMs = Date.now() - new Date(lead.createdAt).getTime();
+    if (ageMs > 30 * 60 * 1000) return { allowed: false };
+    return { allowed: true, leadId: lead.id };
   }
   if (!user) return { allowed: false };
 
