@@ -1,16 +1,31 @@
 # 🛡️ TEDBIRGE.AI — DEVİR RAPORU AKTİF
 
-**Son güncelleme:** 2 Mayıs 2026 — TUR #64 KAPALI, eski upload endpoint temizlendi
+**Son güncelleme:** 2 Mayıs 2026 — TUR #64 KAPALI, production canlı kanıtlı
 **Anayasa:** v1.19.0 (33 madde + Madde 32 Belge Disiplini)
-**Aktif kesit:** Belge Mimarisi KAPALI ✅ (TUR #64 ile ekosistem sonuçlandı)
-**Son TUR:** #64 — Eski Upload Endpoint Temizliği (KAPALI)
+**Aktif kesit:** Belge Mimarisi KAPALI ✅ (TUR #64 ile ekosistem sonuçlandı, production smoke 6/6 ✅)
+**Son TUR:** #64 — Eski Upload Endpoint Temizliği (KAPALI, production kanıtlı)
 **Son düzeltme TUR'u:** #60 + #61 + #62 + #63 + #63.5 + #63.5 v2 + #64
+
+---
+
+## ✅ TUR #64 PRODUCTION SMOKE (2 Mayıs 2026)
+
+```
+/api/uploads/test-id           → 404 ✅ (eski endpoint silindi)
+/api/documents/init-upload     → 400 ✅ (hibrit canlı, Zod boş body)
+/health                        → 200 ✅
+www.tedbirge.ai/               → 200 ✅
+www.tedbirge.ai/basvuru        → 200 ✅ (regresyon yok)
+www.tedbirge.ai/blog           → 200 ✅ (regresyon yok)
+```
+
+**Madde 24.8 başarı kriteri: 12/12 ✅**
 
 ---
 
 ## 🔴 AÇIK KRİTİK: 0
 
-TUR #62 B4.7 KRİTİK + TUR #63 hibrit + TUR #64 ekosistem temizlik tamamlandı. Multer 0, eski Document.create 0, public-lead güvenlik açığı kapalı.
+TUR #62 B4.7 KRİTİK + TUR #63 hibrit + TUR #64 ekosistem temizlik tamamlandı. Multer 0, eski Document.create 0, public-lead güvenlik açığı kapalı, production canlı kanıtlı.
 
 ---
 

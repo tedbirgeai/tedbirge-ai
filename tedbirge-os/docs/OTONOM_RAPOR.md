@@ -3,8 +3,8 @@
 **Tarih:** 2 Mayıs 2026
 **Anayasa:** v1.19.0 (sürüm artmaz — sadece TUR kaydı, yeni madde yok)
 **Tip:** C tipi (Temizlik turu — Madde 32.8 yasaklı endpoint kapatma)
-**Atom:** 6 (A0 keşif + A1 backend silme + A2.0 hibrit doğrulama + A2.1 panel migrate + A2.2 backend temizlik + A3 smoke + A4 OS)
-**Commit:** 5 (3 backend ana + 1 panel + 1 OS A0; A4 OS bu commit ile)
+**Atom:** 7 (A0 keşif + A1 backend silme + A2.0 hibrit doğrulama + A2.1 panel migrate + A2.2 backend temizlik + A2.2-fix Render fix + A3 smoke + A4 OS)
+**Commit:** 7 (4 backend ana + 1 panel + 2 OS — A0 + A4 + A4-final)
 **Schema/migration/env/npm:** 0
 **KIRMIZI ihlal:** 0
 **Süre:** ~1.5 saat otonom (mektup öngörüsü 3-4 saat — kapsam beklenenden küçük)
@@ -80,9 +80,23 @@ new FormData() (tedbirge-panel app/components) → 0 satır
 - `npx tsc --noEmit` (panel) → 0 hata
 - `npx next build` (panel) → tüm route'lar prerendered, 0 hata
 
-### Production Smoke
+### Production Smoke (kanıtlı, 2 Mayıs 2026)
 
-`A3.2 production smoke` — push sonrası Render+Vercel deploy beklenirken bu rapor yazıldı. Kanıt commit-sonrası DEVIR_RAPORU_AKTIF.md'ye eklenecek (eski endpoint 404 + hibrit init-upload 400 + /health 200).
+```
+/api/uploads/test-id        → 404  ✅ (eski endpoint silindi)
+/api/documents/init-upload  → 400  ✅ (hibrit canlı)
+/health                     → 200  ✅
+www.tedbirge.ai/            → 200  ✅
+www.tedbirge.ai/basvuru     → 200  ✅
+www.tedbirge.ai/blog        → 200  ✅
+```
+
+**Render deploy gecikmesi sürprizi (Madde 4.4 dersi):**
+A2.2 commit'i (`4fe7ac6`) yaparken `git add public.route.js uploadMiddleware.js` çoklu argümanda `git rm` sonrası uploadMiddleware path eşleşmediği için `fatal: pathspec did not match` döndü. PowerShell sessiz fail — public.route.js de stage edilmedi. Sonuç: Render deploy `uploadMiddleware.js` siliyor ama `public.route.js` hâlâ require ediyor → **MODULE_NOT_FOUND public.route.js:6**.
+
+CEO Mehmet Bey hata raporladı, fix commit `9f33699` (TUR #64 A2.2-fix) ile public.route.js gerçek temiz hâli push edildi. Render redeploy → 404 kanıtlı.
+
+**Ders:** PowerShell çoklu `git add` argümanında biri fatal verirse sessiz fail riski. Status doğrulama (`git status --short`) şart. CLAUDE.md Madde 4.6 (geri alma her zaman mümkün) — fix kolaydı, ama `git status` doğrulamasız push tehlike.
 
 ### Reddedilen Alternatifler
 
