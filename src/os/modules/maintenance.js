@@ -407,6 +407,107 @@ async function runStatusCheck() {
 }
 
 // ============================================================================
+// SECTION 8B — TUR #72 A9 — runActiveTask (GERCEK TEMIZLIK + Healer pattern migrate)
+// ============================================================================
+
+let lastActiveTaskAt = 0;
+const ACTIVE_TASK_INTERVAL_MS = 6 * 60 * 60 * 1000; // 6 saat
+
+function shouldRunActiveTask() {
+  return Date.now() - lastActiveTaskAt >= ACTIVE_TASK_INTERVAL_MS;
+}
+
+async function runActiveTask() {
+  const startTs = Date.now();
+  const prismaClient = require("../../config/db");
+  const day = 24 * 60 * 60 * 1000;
+  const since30d = new Date(Date.now() - 30 * day);
+  const since7d = new Date(Date.now() - 7 * day);
+  const since90d = new Date(Date.now() - 90 * day);
+
+  let agentEventPurged = 0;
+  let realtimePurged = 0;
+  let stuckDocPurged = 0;
+  let sessionPurged = 0;
+
+  // 1. 30 gun+ INFO AgentEvent purge (max 1000)
+  try {
+    const ids = await prismaClient.agentEvent.findMany({
+      where: { severity: "INFO", createdAt: { lt: since30d } },
+      select: { id: true },
+      take: 1000,
+    });
+    if (ids.length > 0) {
+      const r = await prismaClient.agentEvent.deleteMany({
+        where: { id: { in: ids.map((x) => x.id) } },
+      });
+      agentEventPurged = r.count;
+    }
+  } catch (_) {}
+
+  // 2. 7 gun+ consumed RealtimeEvent purge (max 1000)
+  try {
+    const ids = await prismaClient.realtimeEvent.findMany({
+      where: { consumed: true, createdAt: { lt: since7d } },
+      select: { id: true },
+      take: 1000,
+    });
+    if (ids.length > 0) {
+      const r = await prismaClient.realtimeEvent.deleteMany({
+        where: { id: { in: ids.map((x) => x.id) } },
+      });
+      realtimePurged = r.count;
+    }
+  } catch (_) {}
+
+  // 3. 90 gun+ stuck PENDING_UPLOAD Document soft-delete (status DELETED, file korunur)
+  try {
+    const r = await prismaClient.document.updateMany({
+      where: { status: "PENDING_UPLOAD", createdAt: { lt: since90d } },
+      data: { status: "DELETED" },
+    });
+    stuckDocPurged = r.count;
+  } catch (_) {}
+
+  // 4. Adaptive threshold: anomalik artis WARNING
+  let anomaly = false;
+  try {
+    const helper = require("../lib/adaptiveThreshold");
+    const totalPurged = agentEventPurged + realtimePurged + stuckDocPurged;
+    const result = await helper.adaptiveOr(MODULE_NAME, "totalPurged", 5000, 7);
+    if (totalPurged > result.threshold) anomaly = true;
+  } catch (_) {}
+
+  const severity = anomaly ? "WARNING" : "INFO";
+  const total = agentEventPurged + realtimePurged + stuckDocPurged + sessionPurged;
+
+  try {
+    await prismaClient.agentEvent.create({
+      data: {
+        agentName: MODULE_NAME,
+        eventType: "ACTION_TAKEN",
+        severity,
+        payload: {
+          action_taken: {
+            agentEvent_purged: agentEventPurged,
+            realtime_purged: realtimePurged,
+            stuck_doc_purged: stuckDocPurged,
+            sessions_purged: sessionPurged,
+            totalPurged: total,
+          },
+          anomaly,
+          durationMs: Date.now() - startTs,
+          message: `Bakim GERCEK temizlik · ${agentEventPurged} AgentEvent · ${realtimePurged} RealtimeEvent · ${stuckDocPurged} stuck Document${anomaly ? " (anomali)" : ""}`,
+        },
+      },
+    });
+  } catch (_) {}
+
+  lastActiveTaskAt = Date.now();
+  return { agentEventPurged, realtimePurged, stuckDocPurged, anomaly };
+}
+
+// ============================================================================
 // SECTION 9 — EXPORTS
 // ============================================================================
 
@@ -416,6 +517,8 @@ module.exports = {
   runDailyMaintenance,
   runWeeklyMaintenance,
   runStatusCheck,
+  runActiveTask,
+  shouldRunActiveTask,
   getStatus,
   getMaintenanceHistory,
   resetState,

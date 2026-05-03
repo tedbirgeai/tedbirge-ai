@@ -85,6 +85,10 @@ class AuditorAgent extends BaseAgent {
     // TUR #69.5 B2 — 16 Modül Orchestrator (her tick'te 16 modülün runStatusCheck'i)
     // Auditor kendi 6 check'ini KORUR — bu EK katman.
     await this.runAllModules();
+
+    // TUR #72 — 16 Modül runActiveTask (gerçek görev katmanı)
+    // shouldRunActiveTask() kontrolü modül-spesifik periyot için.
+    await this.runAllActiveTasks();
   }
 
   async runAllModules() {
@@ -120,6 +124,46 @@ class AuditorAgent extends BaseAgent {
       failed,
       durationMs: Date.now() - start,
       message: `Orchestrator · ${written}/${moduleNames.length} modül AgentEvent yazdı (${skipped} skip, ${failed} fail)`,
+    });
+  }
+
+  // TUR #72 — runActiveTask orchestrator: her modülün shouldRunActiveTask() kontrolü
+  async runAllActiveTasks() {
+    const tedbirgeOS = require("../os");
+    const moduleNames = [
+      "ai", "analyzer", "appearance", "backup", "compliance",
+      "costGuard", "deploy", "insurance", "maintenance", "navigation",
+      "notifications", "performance", "pulse", "recovery", "security", "uyapControl",
+    ];
+
+    const start = Date.now();
+    const results = await Promise.allSettled(
+      moduleNames.map((name) => {
+        const mod = tedbirgeOS.modules?.[name];
+        if (!mod || typeof mod.runActiveTask !== "function") {
+          return Promise.resolve({ skipped: true, name, reason: "no_runActiveTask" });
+        }
+        if (typeof mod.shouldRunActiveTask === "function" && !mod.shouldRunActiveTask()) {
+          return Promise.resolve({ skipped: true, name, reason: "interval_not_reached" });
+        }
+        return mod.runActiveTask().then(
+          (r) => ({ ok: true, name, result: r }),
+          (err) => ({ ok: false, name, error: err.message }),
+        );
+      }),
+    );
+
+    const summary = results.map((r) => r.value || r.reason);
+    const acted = summary.filter((s) => s.ok).length;
+    const skipped = summary.filter((s) => s.skipped).length;
+    const failed = summary.filter((s) => s.ok === false).length;
+
+    await this.log("ACTIVE_TASK_ORCHESTRATOR", "INFO", {
+      acted,
+      skipped,
+      failed,
+      durationMs: Date.now() - start,
+      message: `Aktif görev · ${acted}/${moduleNames.length} modül runActiveTask çalıştı (${skipped} skip, ${failed} fail)`,
     });
   }
 }

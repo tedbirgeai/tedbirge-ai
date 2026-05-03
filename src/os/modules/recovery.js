@@ -358,6 +358,73 @@ async function runStatusCheck() {
 }
 
 // ============================================================================
+// SECTION 10B — TUR #72 A14 — runActiveTask (FAILED Document retry max 5)
+// ============================================================================
+
+let lastActiveTaskAt_rc = 0;
+const RC_ACTIVE_INTERVAL_MS = 30 * 60 * 1000;
+function shouldRunActiveTask() { return Date.now() - lastActiveTaskAt_rc >= RC_ACTIVE_INTERVAL_MS; }
+
+async function runActiveTask() {
+  const startTs = Date.now();
+  const prismaClient = require("../../config/db");
+  const day = 24 * 60 * 60 * 1000;
+  let recovered = 0;
+  let stuckAlerted = 0;
+  let cronRestarted = 0;
+
+  try {
+    const failed = await prismaClient.document.findMany({
+      where: { status: "FAILED", leadId: { not: null } },
+      select: { id: true },
+      take: 5,
+    });
+    if (failed.length > 0) {
+      try {
+        const { analyzeDocumentById } = require("../../services/uploadAnalysis.bridge");
+        for (const doc of failed) {
+          try { await analyzeDocumentById(doc.id); recovered++; } catch (_) {}
+        }
+      } catch (_) {}
+    }
+
+    // Stuck Lead PENDING 7 gun+
+    const since7d = new Date(Date.now() - 7 * day);
+    const stuck = await prismaClient.lead.count({
+      where: { status: { in: ["NEW", "CONTACTED", "DOCS_PENDING"] }, updatedAt: { lt: since7d } },
+    });
+    if (stuck > 0) {
+      try {
+        await prismaClient.realtimeEvent.create({
+          data: { channel: "ADMIN_FEED", eventType: "LEAD_STUCK_7D", payload: { count: stuck } },
+        });
+        stuckAlerted = stuck;
+      } catch (_) {}
+    }
+  } catch (_) {}
+
+  const severity = recovered > 0 || stuckAlerted > 0 ? "WARNING" : "INFO";
+
+  try {
+    await prismaClient.agentEvent.create({
+      data: {
+        agentName: "recovery",
+        eventType: "ACTION_TAKEN",
+        severity,
+        payload: {
+          action_taken: { recovered, stuck_alerted: stuckAlerted, cron_restarted: cronRestarted },
+          durationMs: Date.now() - startTs,
+          message: `Kurtarma · ${recovered} Document recover · ${stuckAlerted} Lead stuck alert`,
+        },
+      },
+    });
+  } catch (_) {}
+
+  lastActiveTaskAt_rc = Date.now();
+  return { recovered, stuckAlerted, cronRestarted };
+}
+
+// ============================================================================
 // SECTION 11 — EXPORTS
 // ============================================================================
 
@@ -367,6 +434,8 @@ module.exports = {
   handleHealthChange,
   decideAction,
   runStatusCheck,
+  runActiveTask,
+  shouldRunActiveTask,
   getStatus,
   getHistory,
   resetState,

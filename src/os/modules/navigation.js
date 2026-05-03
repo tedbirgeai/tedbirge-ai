@@ -231,8 +231,73 @@ async function runStatusCheck() {
   return { ok: true, unassigned24h, lawyerLoadDelta };
 }
 
+// TUR #72 A10 — runActiveTask: 24h+ atanmamis lead alert + lawyer load delta
+let lastActiveTaskAt_nv = 0;
+const NV_ACTIVE_INTERVAL_MS = 60 * 60 * 1000;
+function shouldRunActiveTask() { return Date.now() - lastActiveTaskAt_nv >= NV_ACTIVE_INTERVAL_MS; }
+
+async function runActiveTask() {
+  const startTs = Date.now();
+  const prismaClient = require("../../config/db");
+  const day = 24 * 60 * 60 * 1000;
+  let autoAssigned = 0;
+  let rebalanceSuggestions = 0;
+  let mismatchAlerts = 0;
+
+  try {
+    const since24h = new Date(Date.now() - day);
+    const unassigned = await prismaClient.lead.count({
+      where: {
+        status: { in: ["NEW", "CONTACTED", "DOCS_PENDING", "ANALYZED"] },
+        assignments: { none: {} },
+        createdAt: { lt: since24h },
+      },
+    });
+    if (unassigned > 0) {
+      try {
+        await prismaClient.realtimeEvent.create({
+          data: { channel: "ADMIN_FEED", eventType: "NAV_UNASSIGNED_24H", payload: { count: unassigned } },
+        });
+      } catch (_) {}
+    }
+
+    // Lawyer load delta
+    const lawyers = await prismaClient.user.findMany({
+      where: { role: "LAWYER", isActive: true },
+      select: { id: true, _count: { select: { assignments: { where: { status: "ACTIVE" } } } } },
+    });
+    if (lawyers.length > 1) {
+      const counts = lawyers.map((l) => l._count.assignments);
+      const max = Math.max(...counts);
+      const min = Math.min(...counts);
+      if (max - min > 5) rebalanceSuggestions = 1;
+    }
+  } catch (_) {}
+
+  const severity = rebalanceSuggestions > 0 || mismatchAlerts > 0 ? "WARNING" : "INFO";
+
+  try {
+    await prismaClient.agentEvent.create({
+      data: {
+        agentName: "navigation",
+        eventType: "ACTION_TAKEN",
+        severity,
+        payload: {
+          action_taken: { auto_assigned: autoAssigned, rebalance_suggestions: rebalanceSuggestions, mismatch_alerts: mismatchAlerts },
+          durationMs: Date.now() - startTs,
+          message: `Yonlendirme · ${autoAssigned} auto-assign · ${rebalanceSuggestions} rebalance oneri`,
+        },
+      },
+    });
+  } catch (_) {}
+
+  lastActiveTaskAt_nv = Date.now();
+  return { autoAssigned, rebalanceSuggestions, mismatchAlerts };
+}
+
 module.exports = {
   start, stop, runTick, runStatusCheck,
+  runActiveTask, shouldRunActiveTask,
   checkRoute, checkAllRoutes,
   getStatus, getCheckHistory, resetState,
   MODULE_NAME, TICK_INTERVAL_MS, FETCH_TIMEOUT_MS, HISTORY_SIZE, COOLDOWN_MS,

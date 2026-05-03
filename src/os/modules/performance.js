@@ -461,6 +461,59 @@ async function runStatusCheck() {
 }
 
 // ============================================================================
+// SECTION 11B — TUR #72 A12 — runActiveTask (perf metrics + adaptive)
+// ============================================================================
+
+let lastActiveTaskAt_pf = 0;
+const PF_ACTIVE_INTERVAL_MS = 30 * 60 * 1000;
+function shouldRunActiveTask() { return Date.now() - lastActiveTaskAt_pf >= PF_ACTIVE_INTERVAL_MS; }
+
+async function runActiveTask() {
+  const startTs = Date.now();
+  const prismaClient = require("../../config/db");
+
+  // Process metrics
+  const memUsageMb = Math.round((process.memoryUsage?.().rss || 0) / 1024 / 1024);
+  let p99Ms = 0;
+  let slowQueries = 0;
+  let cpuPct = 0;
+  let anomaly = false;
+  let baselineUsed = null;
+
+  try {
+    const status = getStatus?.();
+    p99Ms = Math.round(status?.api?.p99 || 0);
+  } catch (_) {}
+
+  try {
+    const helper = require("../lib/adaptiveThreshold");
+    const result = await helper.adaptiveOr("performance", "memUsageMb", 512, 7);
+    baselineUsed = result.threshold;
+    if (memUsageMb > result.threshold * 1.3) anomaly = true;
+  } catch (_) {}
+
+  const severity = anomaly || p99Ms > 2000 ? "WARNING" : "INFO";
+
+  try {
+    await prismaClient.agentEvent.create({
+      data: {
+        agentName: "performance",
+        eventType: "ACTION_TAKEN",
+        severity,
+        payload: {
+          action_taken: { slow_queries: slowQueries, p99_ms: p99Ms, memory_mb: memUsageMb, cpu_pct: cpuPct, anomaly, baseline_used: baselineUsed },
+          durationMs: Date.now() - startTs,
+          message: `Performans · p99 ${p99Ms}ms · mem ${memUsageMb}MB${anomaly ? " (ANOMALI)" : ""}`,
+        },
+      },
+    });
+  } catch (_) {}
+
+  lastActiveTaskAt_pf = Date.now();
+  return { p99Ms, memUsageMb, anomaly };
+}
+
+// ============================================================================
 // SECTION 12 — EXPORTS
 // ============================================================================
 
@@ -471,6 +524,8 @@ module.exports = {
   recordThroughput,
   runTick,
   runStatusCheck,
+  runActiveTask,
+  shouldRunActiveTask,
   getStatus,
   getCategoryStats,
   listCategories,

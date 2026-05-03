@@ -555,6 +555,70 @@ async function runStatusCheck() {
 }
 
 // ============================================================================
+// SECTION 11B — TUR #72 A11 — runActiveTask
+// ============================================================================
+
+let lastActiveTaskAt_nt = 0;
+const NT_ACTIVE_INTERVAL_MS = 30 * 60 * 1000;
+function shouldRunActiveTask() { return Date.now() - lastActiveTaskAt_nt >= NT_ACTIVE_INTERVAL_MS; }
+
+async function runActiveTask() {
+  const startTs = Date.now();
+  const prismaClient = require("../../config/db");
+  const day = 24 * 60 * 60 * 1000;
+  let retried = 0;
+  let purged = 0;
+  let failedRatePct = 0;
+  let thresholdUsed = 5;
+  let anomaly = false;
+
+  try {
+    const since24h = new Date(Date.now() - day);
+    const total24h = await prismaClient.activityLog.count({
+      where: { createdAt: { gte: since24h }, action: { in: ["SMS_SENT", "EMAIL_SENT", "PUSH_SENT"] } },
+    }).catch(() => 0);
+    const failed24h = await prismaClient.activityLog.count({
+      where: { createdAt: { gte: since24h }, action: { in: ["SMS_FAILED", "EMAIL_FAILED", "PUSH_FAILED"] } },
+    }).catch(() => 0);
+    if (total24h > 0) failedRatePct = Math.round((failed24h / (total24h + failed24h)) * 1000) / 10;
+
+    // 7 gun+ sent notification purge
+    const since7d = new Date(Date.now() - 7 * day);
+    const r = await prismaClient.activityLog.deleteMany({
+      where: { createdAt: { lt: since7d }, action: { in: ["SMS_SENT", "EMAIL_SENT", "PUSH_SENT"] } },
+    }).catch(() => ({ count: 0 }));
+    purged = r.count || 0;
+  } catch (_) {}
+
+  try {
+    const helper = require("../lib/adaptiveThreshold");
+    const result = await helper.adaptiveOr("notifications", "failedRatePct", 5, 7);
+    thresholdUsed = result.threshold;
+    if (failedRatePct > result.threshold) anomaly = true;
+  } catch (_) {}
+
+  const severity = failedRatePct > 15 ? "CRITICAL" : failedRatePct > thresholdUsed ? "WARNING" : "INFO";
+
+  try {
+    await prismaClient.agentEvent.create({
+      data: {
+        agentName: "notifications",
+        eventType: "ACTION_TAKEN",
+        severity,
+        payload: {
+          action_taken: { retried, purged, failed_rate_pct: failedRatePct, threshold_used: thresholdUsed, anomaly },
+          durationMs: Date.now() - startTs,
+          message: `Bildirimler · fail rate ${failedRatePct}% · ${purged} purge · esik ${thresholdUsed}%${anomaly ? " (ANOMALI)" : ""}`,
+        },
+      },
+    });
+  } catch (_) {}
+
+  lastActiveTaskAt_nt = Date.now();
+  return { retried, purged, failedRatePct, anomaly };
+}
+
+// ============================================================================
 // SECTION 12 — EXPORTS
 // ============================================================================
 
@@ -563,6 +627,8 @@ module.exports = {
   stop,
   dispatch,
   runStatusCheck,
+  runActiveTask,
+  shouldRunActiveTask,
   registerRule,
   clearRules,
   loadDefaultRules,

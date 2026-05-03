@@ -522,6 +522,71 @@ async function runStatusCheck() {
 }
 
 // ============================================================================
+// SECTION 12B — TUR #72 A2 — runActiveTask
+// ============================================================================
+
+let lastActiveTaskAt_an = 0;
+const AN_ACTIVE_INTERVAL_MS = 15 * 60 * 1000;
+
+function shouldRunActiveTask() {
+  return Date.now() - lastActiveTaskAt_an >= AN_ACTIVE_INTERVAL_MS;
+}
+
+async function runActiveTask() {
+  const startTs = Date.now();
+  const prismaClient = require("../../config/db");
+  const since24h = new Date(Date.now() - 24 * 60 * 60 * 1000);
+  let stuckMarked = 0;
+  let queueSize = 0;
+  let anomaly = false;
+
+  try {
+    const r = await prismaClient.document.updateMany({
+      where: { status: "PENDING_UPLOAD", createdAt: { lt: since24h } },
+      data: { status: "STUCK" },
+    });
+    stuckMarked = r.count;
+    if (stuckMarked > 0) {
+      try {
+        await prismaClient.realtimeEvent.create({
+          data: { channel: "ADMIN_FEED", eventType: "ANALYZER_STUCK", payload: { count: stuckMarked } },
+        });
+      } catch (_) {}
+    }
+  } catch (_) {}
+
+  try {
+    queueSize = await prismaClient.document.count({ where: { status: "PENDING_UPLOAD" } });
+  } catch (_) {}
+
+  try {
+    const helper = require("../lib/adaptiveThreshold");
+    const result = await helper.adaptiveOr("analyzer", "queueSize", 100, 7);
+    if (queueSize > result.threshold) anomaly = true;
+  } catch (_) {}
+
+  const severity = anomaly ? "CRITICAL" : stuckMarked > 0 ? "WARNING" : "INFO";
+
+  try {
+    await prismaClient.agentEvent.create({
+      data: {
+        agentName: "analyzer",
+        eventType: "ACTION_TAKEN",
+        severity,
+        payload: {
+          action_taken: { stuck_marked: stuckMarked, queue_size: queueSize, anomaly },
+          durationMs: Date.now() - startTs,
+          message: `Belge Analizci · ${stuckMarked} stuck → STUCK · queue ${queueSize}${anomaly ? " (ANOMALI)" : ""}`,
+        },
+      },
+    });
+  } catch (_) {}
+
+  lastActiveTaskAt_an = Date.now();
+  return { stuckMarked, queueSize, anomaly };
+}
+
+// ============================================================================
 // SECTION 13 — EXPORTS
 // ============================================================================
 
@@ -532,6 +597,8 @@ module.exports = {
   runTick,
   runWorker,
   runStatusCheck,
+  runActiveTask,
+  shouldRunActiveTask,
   getStatus,
   getQueue,
   getQueueDepth,

@@ -530,6 +530,78 @@ async function runStatusCheck() {
 }
 
 // ============================================================================
+// SECTION 9B — TUR #72 A6 — runActiveTask (cost alert + adaptive)
+// ============================================================================
+
+let lastActiveTaskAt_cg = 0;
+const CG_ACTIVE_INTERVAL_MS = 30 * 60 * 1000;
+
+function shouldRunActiveTask() {
+  return Date.now() - lastActiveTaskAt_cg >= CG_ACTIVE_INTERVAL_MS;
+}
+
+async function runActiveTask() {
+  const startTs = Date.now();
+  const prismaClient = require("../../config/db");
+  let cost24hUsd = 0;
+  let alertsSent = 0;
+  let anomaly = false;
+  let thresholdUsed = 50;
+
+  // Anthropic cost: 24h Document.aiCost aggregate (varsa)
+  try {
+    const since24h = new Date(Date.now() - 24 * 60 * 60 * 1000);
+    const docs = await prismaClient.document.findMany({
+      where: { updatedAt: { gte: since24h }, aiAnalysis: { not: null } },
+      select: { aiAnalysis: true },
+      take: 5000,
+    });
+    for (const d of docs) {
+      const c = d.aiAnalysis?.cost || d.aiAnalysis?.tokens?.cost;
+      if (typeof c === "number") cost24hUsd += c;
+    }
+    cost24hUsd = Math.round(cost24hUsd * 100) / 100;
+  } catch (_) {}
+
+  // Adaptive threshold
+  try {
+    const helper = require("../lib/adaptiveThreshold");
+    const result = await helper.adaptiveOr("costGuard", "cost24hUsd", 50, 30);
+    thresholdUsed = result.threshold;
+    if (cost24hUsd > result.threshold) anomaly = true;
+  } catch (_) {}
+
+  if (cost24hUsd > thresholdUsed) {
+    try {
+      await prismaClient.realtimeEvent.create({
+        data: { channel: "ADMIN_FEED", eventType: "COST_ALERT_24H", payload: { cost24hUsd, thresholdUsed } },
+      });
+      alertsSent = 1;
+    } catch (_) {}
+  }
+
+  const severity = cost24hUsd > thresholdUsed ? "CRITICAL" : anomaly ? "WARNING" : "INFO";
+
+  try {
+    await prismaClient.agentEvent.create({
+      data: {
+        agentName: "costGuard",
+        eventType: "ACTION_TAKEN",
+        severity,
+        payload: {
+          action_taken: { cost_24h_usd: cost24hUsd, alerts_sent: alertsSent, anomaly, threshold_used: thresholdUsed },
+          durationMs: Date.now() - startTs,
+          message: `Maliyet Bekcisi · 24h $${cost24hUsd} · esik $${thresholdUsed}${anomaly ? " (ANOMALI)" : ""}`,
+        },
+      },
+    });
+  } catch (_) {}
+
+  lastActiveTaskAt_cg = Date.now();
+  return { cost24hUsd, alertsSent, anomaly, thresholdUsed };
+}
+
+// ============================================================================
 // SECTION 10 — EXPORTS
 // ============================================================================
 
@@ -539,6 +611,8 @@ module.exports = {
   recordUsage,
   runCheck,
   runStatusCheck,
+  runActiveTask,
+  shouldRunActiveTask,
   getStatus,
   resetState,
   MODULE_NAME,

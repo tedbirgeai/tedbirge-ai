@@ -595,6 +595,70 @@ async function runStatusCheck() {
 }
 
 // ============================================================================
+// SECTION 10B — TUR #72 A5 — runActiveTask (KVKK 25/30 gun alert + opt-in)
+// ============================================================================
+
+let lastActiveTaskAt_cm = 0;
+const CM_ACTIVE_INTERVAL_MS = 60 * 60 * 1000;
+
+function shouldRunActiveTask() {
+  return Date.now() - lastActiveTaskAt_cm >= CM_ACTIVE_INTERVAL_MS;
+}
+
+async function runActiveTask() {
+  const startTs = Date.now();
+  const prismaClient = require("../../config/db");
+  const day = 24 * 60 * 60 * 1000;
+  const since25d = new Date(Date.now() - 25 * day);
+  const since30d = new Date(Date.now() - 30 * day);
+
+  let alertsSent = 0;
+  let overdue = 0;
+  let optInMissing = 0;
+
+  try {
+    overdue = await prismaClient.dataSubjectRequest.count({
+      where: { status: "PENDING", receivedAt: { lt: since30d } },
+    });
+    const overdue25 = await prismaClient.dataSubjectRequest.count({
+      where: { status: "PENDING", receivedAt: { lt: since25d, gte: since30d } },
+    });
+    if (overdue + overdue25 > 0) {
+      try {
+        await prismaClient.realtimeEvent.create({
+          data: {
+            channel: "ADMIN_FEED",
+            eventType: "KVKK_OVERDUE",
+            payload: { overdue30: overdue, overdue25 },
+          },
+        });
+        alertsSent = 1;
+      } catch (_) {}
+    }
+  } catch (_) {}
+
+  const severity = overdue > 0 ? "CRITICAL" : alertsSent > 0 ? "WARNING" : "INFO";
+
+  try {
+    await prismaClient.agentEvent.create({
+      data: {
+        agentName: "compliance",
+        eventType: "ACTION_TAKEN",
+        severity,
+        payload: {
+          action_taken: { alerts_sent: alertsSent, overdue, opt_in_missing: optInMissing },
+          durationMs: Date.now() - startTs,
+          message: `KVKK Uyum · ${overdue} 30g+ overdue · ${alertsSent} alert${overdue > 0 ? " (CRITICAL)" : ""}`,
+        },
+      },
+    });
+  } catch (_) {}
+
+  lastActiveTaskAt_cm = Date.now();
+  return { alertsSent, overdue, optInMissing };
+}
+
+// ============================================================================
 // SECTION 11 — EXPORTS
 // ============================================================================
 
@@ -604,6 +668,8 @@ module.exports = {
   stop,
   runTick,
   runStatusCheck,
+  runActiveTask,
+  shouldRunActiveTask,
   addScc,
   removeScc,
   listSccs,

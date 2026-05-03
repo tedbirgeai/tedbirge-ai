@@ -522,6 +522,70 @@ async function runStatusCheck() {
 }
 
 // ============================================================================
+// SECTION 8B — TUR #72 A4 — runActiveTask (snapshot age + integrity)
+// ============================================================================
+
+let lastActiveTaskAt_bk = 0;
+const BK_ACTIVE_INTERVAL_MS = 6 * 60 * 60 * 1000;
+
+function shouldRunActiveTask() {
+  return Date.now() - lastActiveTaskAt_bk >= BK_ACTIVE_INTERVAL_MS;
+}
+
+async function runActiveTask() {
+  const startTs = Date.now();
+  const prismaClient = require("../../config/db");
+  let lastAgeHours = null;
+  let triggered = false;
+  let sizeMb = null;
+  let anomaly = false;
+
+  // Backup history dahili — getStatus'tan oku
+  try {
+    const status = getStatus();
+    if (status?.lastDatabaseBackup?.completedAt) {
+      const ageMs = Date.now() - Date.parse(status.lastDatabaseBackup.completedAt);
+      lastAgeHours = Math.round(ageMs / 3600000);
+    }
+  } catch (_) {}
+
+  // Adaptive: backup_size_p95 -50% → CRITICAL
+  try {
+    const helper = require("../lib/adaptiveThreshold");
+    const result = await helper.adaptiveOr("backup", "sizeMb", 0, 30);
+    if (sizeMb && result.adaptive && sizeMb < result.adaptive * 0.5) anomaly = true;
+  } catch (_) {}
+
+  const severity = (lastAgeHours != null && lastAgeHours > 26) || anomaly ? "CRITICAL" : "INFO";
+
+  try {
+    await prismaClient.agentEvent.create({
+      data: {
+        agentName: "backup",
+        eventType: "ACTION_TAKEN",
+        severity,
+        payload: {
+          action_taken: { triggered, last_age_hours: lastAgeHours, size_mb: sizeMb, anomaly },
+          durationMs: Date.now() - startTs,
+          message: `Yedekleme · son ${lastAgeHours ?? "?"}h · ${triggered ? "trigger" : "bekleniyor"}${anomaly ? " (kucuk yedek anomali)" : ""}`,
+        },
+      },
+    });
+  } catch (_) {}
+
+  if (severity === "CRITICAL") {
+    try {
+      await prismaClient.realtimeEvent.create({
+        data: { channel: "ADMIN_FEED", eventType: "BACKUP_OVERDUE", payload: { lastAgeHours, anomaly } },
+      });
+    } catch (_) {}
+  }
+
+  lastActiveTaskAt_bk = Date.now();
+  return { lastAgeHours, triggered, sizeMb, anomaly };
+}
+
+// ============================================================================
 // SECTION 9 — EXPORTS
 // ============================================================================
 
@@ -531,6 +595,8 @@ module.exports = {
   runDatabaseBackup,
   runStorageBackup,
   runStatusCheck,
+  runActiveTask,
+  shouldRunActiveTask,
   getStatus,
   getBackupHistory,
   resetState,

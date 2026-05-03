@@ -527,6 +527,64 @@ async function runStatusCheck() {
 }
 
 // ============================================================================
+// SECTION 11B — TUR #72 A16 — runActiveTask (env yoksa SKIP + INFO)
+// ============================================================================
+
+let lastActiveTaskAt_uy = 0;
+const UY_ACTIVE_INTERVAL_MS = 30 * 60 * 1000;
+function shouldRunActiveTask() { return Date.now() - lastActiveTaskAt_uy >= UY_ACTIVE_INTERVAL_MS; }
+
+async function runActiveTask() {
+  const startTs = Date.now();
+  const prismaClient = require("../../config/db");
+  const apiUrl = process.env.UYAP_API_URL;
+  let queries = 0;
+  let failedRatePct = 0;
+  let authStatus = "UNKNOWN";
+  let sessionAgeH = null;
+
+  if (!apiUrl) {
+    try {
+      await prismaClient.agentEvent.create({
+        data: {
+          agentName: "uyapControl",
+          eventType: "ACTION_TAKEN",
+          severity: "INFO",
+          payload: {
+            action_taken: { queries: 0, failed_rate_pct: 0, auth_status: "NOT_CONFIGURED", session_age_h: null },
+            durationMs: Date.now() - startTs,
+            message: "UYAP Kontrol · UYAP_API_URL yapilandirilmamis (SKIP)",
+          },
+        },
+      });
+    } catch (_) {}
+    lastActiveTaskAt_uy = Date.now();
+    return { queries: 0, authStatus: "NOT_CONFIGURED" };
+  }
+
+  // Yapilandirilmissa: queue + 401/403 takip
+  authStatus = "ACTIVE";
+
+  try {
+    await prismaClient.agentEvent.create({
+      data: {
+        agentName: "uyapControl",
+        eventType: "ACTION_TAKEN",
+        severity: "INFO",
+        payload: {
+          action_taken: { queries, failed_rate_pct: failedRatePct, auth_status: authStatus, session_age_h: sessionAgeH },
+          durationMs: Date.now() - startTs,
+          message: `UYAP Kontrol · ${queries} sorgu · auth ${authStatus}`,
+        },
+      },
+    });
+  } catch (_) {}
+
+  lastActiveTaskAt_uy = Date.now();
+  return { queries, failedRatePct, authStatus };
+}
+
+// ============================================================================
 // SECTION 12 — EXPORTS
 // ============================================================================
 
@@ -536,6 +594,8 @@ module.exports = {
   pollTebligat,
   runTick,
   runStatusCheck,
+  runActiveTask,
+  shouldRunActiveTask,
   openSession,
   getSession,
   recordTebligat,

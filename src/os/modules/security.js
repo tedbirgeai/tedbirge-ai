@@ -458,6 +458,80 @@ async function runStatusCheck() {
 }
 
 // ============================================================================
+// SECTION 11B — TUR #72 A15 — runActiveTask (2FA + brute force + KVKK)
+// ============================================================================
+
+let lastActiveTaskAt_sc = 0;
+const SC_ACTIVE_INTERVAL_MS = 15 * 60 * 1000;
+function shouldRunActiveTask() { return Date.now() - lastActiveTaskAt_sc >= SC_ACTIVE_INTERVAL_MS; }
+
+async function runActiveTask() {
+  const startTs = Date.now();
+  const prismaClient = require("../../config/db");
+  const day = 24 * 60 * 60 * 1000;
+  let criticalAlerts = 0;
+  let suspiciousLogins = 0;
+  let bruteForceDetected = false;
+  let anomaly = false;
+
+  try {
+    // ADMIN 2FA off
+    const adminNo2FA = await prismaClient.user.count({
+      where: { role: "ADMIN", isActive: true, twoFactorEnabled: false },
+    }).catch(() => 0);
+    if (adminNo2FA > 0) criticalAlerts++;
+
+    // 24h LOGIN_FAILED
+    const since24h = new Date(Date.now() - day);
+    const loginFailed = await prismaClient.activityLog.count({
+      where: { action: "LOGIN_FAILED", createdAt: { gte: since24h } },
+    }).catch(() => 0);
+
+    // Brute force pattern (5 dk icinde 10+ fail)
+    const since5m = new Date(Date.now() - 5 * 60 * 1000);
+    const recent = await prismaClient.activityLog.count({
+      where: { action: "LOGIN_FAILED", createdAt: { gte: since5m } },
+    }).catch(() => 0);
+    if (recent >= 10) bruteForceDetected = true;
+
+    if (bruteForceDetected) {
+      try {
+        await prismaClient.realtimeEvent.create({
+          data: { channel: "ADMIN_FEED", eventType: "BRUTE_FORCE_DETECTED", payload: { recent5m: recent } },
+        });
+      } catch (_) {}
+    }
+
+    // Adaptive
+    try {
+      const helper = require("../lib/adaptiveThreshold");
+      const result = await helper.adaptiveOr("security", "loginFailed24h", 50, 7);
+      if (loginFailed > result.threshold) anomaly = true;
+    } catch (_) {}
+  } catch (_) {}
+
+  const severity = bruteForceDetected || criticalAlerts > 0 ? "CRITICAL" : anomaly ? "WARNING" : "INFO";
+
+  try {
+    await prismaClient.agentEvent.create({
+      data: {
+        agentName: "security",
+        eventType: "ACTION_TAKEN",
+        severity,
+        payload: {
+          action_taken: { critical_alerts: criticalAlerts, suspicious_logins: suspiciousLogins, brute_force_detected: bruteForceDetected, anomaly },
+          durationMs: Date.now() - startTs,
+          message: `Guvenlik · ${criticalAlerts} kritik · brute ${bruteForceDetected ? "EVET" : "yok"}${anomaly ? " (anomali)" : ""}`,
+        },
+      },
+    });
+  } catch (_) {}
+
+  lastActiveTaskAt_sc = Date.now();
+  return { criticalAlerts, bruteForceDetected, anomaly };
+}
+
+// ============================================================================
 // SECTION 12 — EXPORTS
 // ============================================================================
 
@@ -466,6 +540,8 @@ module.exports = {
   stop,
   runTick,
   runStatusCheck,
+  runActiveTask,
+  shouldRunActiveTask,
   recordLoginAttempt,
   recordRateLimit,
   recordAccessAnomaly,

@@ -502,6 +502,80 @@ async function runStatusCheck() {
 }
 
 // ============================================================================
+// SECTION 10B — TUR #72 A13 — runActiveTask (snapshot age + trend delta)
+// ============================================================================
+
+let lastActiveTaskAt_pl = 0;
+const PL_ACTIVE_INTERVAL_MS = 6 * 60 * 60 * 1000;
+function shouldRunActiveTask() { return Date.now() - lastActiveTaskAt_pl >= PL_ACTIVE_INTERVAL_MS; }
+
+async function runActiveTask() {
+  const startTs = Date.now();
+  const prismaClient = require("../../config/db");
+  let lastSnapshotAgeDays = null;
+  let archived = 0;
+  let trendDeltaPct = null;
+  let anomaly = false;
+
+  // Pulse last snapshot age
+  try {
+    const last = await prismaClient.pulse.findFirst({
+      orderBy: { weekStart: "desc" },
+      select: { weekStart: true, metrics: true },
+    });
+    if (last) {
+      const ageDays = Math.floor((Date.now() - last.weekStart.getTime()) / (24 * 60 * 60 * 1000));
+      lastSnapshotAgeDays = ageDays;
+    }
+  } catch (_) {}
+
+  // Trend delta — son 2 hafta karsilastir
+  try {
+    const recent = await prismaClient.pulse.findMany({
+      orderBy: { weekStart: "desc" },
+      take: 2,
+      select: { metrics: true },
+    });
+    if (recent.length === 2) {
+      const cur = Number(recent[0]?.metrics?.revenue || 0);
+      const prev = Number(recent[1]?.metrics?.revenue || 0);
+      if (prev > 0) {
+        trendDeltaPct = Math.round(((cur - prev) / prev) * 1000) / 10;
+        if (Math.abs(trendDeltaPct) > 30) anomaly = true;
+      }
+    }
+  } catch (_) {}
+
+  const severity = (lastSnapshotAgeDays != null && lastSnapshotAgeDays > 8) || anomaly ? "CRITICAL" : "INFO";
+
+  if (severity === "CRITICAL") {
+    try {
+      await prismaClient.realtimeEvent.create({
+        data: { channel: "ADMIN_FEED", eventType: "PULSE_ANOMALY", payload: { lastSnapshotAgeDays, trendDeltaPct, anomaly } },
+      });
+    } catch (_) {}
+  }
+
+  try {
+    await prismaClient.agentEvent.create({
+      data: {
+        agentName: "pulse",
+        eventType: "ACTION_TAKEN",
+        severity,
+        payload: {
+          action_taken: { last_snapshot_age_days: lastSnapshotAgeDays, archived, trend_delta_pct: trendDeltaPct, anomaly },
+          durationMs: Date.now() - startTs,
+          message: `Nabiz · son snapshot ${lastSnapshotAgeDays ?? "?"}g · trend ${trendDeltaPct != null ? trendDeltaPct + "%" : "?"}${anomaly ? " (ANOMALI)" : ""}`,
+        },
+      },
+    });
+  } catch (_) {}
+
+  lastActiveTaskAt_pl = Date.now();
+  return { lastSnapshotAgeDays, archived, trendDeltaPct, anomaly };
+}
+
+// ============================================================================
 // SECTION 11 — EXPORTS
 // ============================================================================
 
@@ -511,6 +585,8 @@ module.exports = {
   runTick,
   runStatusCheck,
   weeklyRunner,
+  runActiveTask,
+  shouldRunActiveTask,
   getStatus,
   calculateUptime,
   classifyAdapter,

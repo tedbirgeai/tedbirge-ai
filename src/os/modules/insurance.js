@@ -217,8 +217,64 @@ async function runStatusCheck() {
   return { ok: true, trafikLeads24h, activeSigorta };
 }
 
+// TUR #72 A8 — runActiveTask
+let lastActiveTaskAt_in = 0;
+const IN_ACTIVE_INTERVAL_MS = 60 * 60 * 1000;
+function shouldRunActiveTask() { return Date.now() - lastActiveTaskAt_in >= IN_ACTIVE_INTERVAL_MS; }
+
+async function runActiveTask() {
+  const startTs = Date.now();
+  const prismaClient = require("../../config/db");
+  const day = 24 * 60 * 60 * 1000;
+  let autoAssigned = 0;
+  let retried = 0;
+  let criticalAlerts = 0;
+
+  // 24h atanmamis trafik lead — sayim (gerçek auto-assign service yok, ADMIN_FEED öneri)
+  try {
+    const since24h = new Date(Date.now() - day);
+    const unassigned = await prismaClient.lead.count({
+      where: {
+        kazaTuru: "TRAFIK",
+        status: { in: ["NEW", "CONTACTED"] },
+        assignments: { none: {} },
+        createdAt: { lt: since24h },
+      },
+    });
+    if (unassigned > 0) {
+      try {
+        await prismaClient.realtimeEvent.create({
+          data: { channel: "ADMIN_FEED", eventType: "INSURANCE_UNASSIGNED", payload: { count: unassigned } },
+        });
+        criticalAlerts = unassigned > 5 ? 1 : 0;
+      } catch (_) {}
+    }
+  } catch (_) {}
+
+  const severity = criticalAlerts > 0 ? "CRITICAL" : "INFO";
+
+  try {
+    await prismaClient.agentEvent.create({
+      data: {
+        agentName: "insurance",
+        eventType: "ACTION_TAKEN",
+        severity,
+        payload: {
+          action_taken: { auto_assigned: autoAssigned, retried, critical_alerts: criticalAlerts },
+          durationMs: Date.now() - startTs,
+          message: `Sigorta · ${autoAssigned} auto-assign · ${criticalAlerts} kritik alert`,
+        },
+      },
+    });
+  } catch (_) {}
+
+  lastActiveTaskAt_in = Date.now();
+  return { autoAssigned, retried, criticalAlerts };
+}
+
 module.exports = {
   start, stop, runTick, runStatusCheck,
+  runActiveTask, shouldRunActiveTask,
   queryPolice, queryKTT, requestEksper,
   getStatus, getQueryHistory, resetState,
   MODULE_NAME, TICK_INTERVAL_MS, HISTORY_SIZE,

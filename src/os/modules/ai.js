@@ -485,6 +485,95 @@ async function runStatusCheck() {
 }
 
 // ============================================================================
+// SECTION 10B — TUR #72 A1 — runActiveTask (GERCEK RETRY + adaptive anomaly)
+// ============================================================================
+
+let lastActiveTaskAt_ai = 0;
+const AI_ACTIVE_INTERVAL_MS = 10 * 60 * 1000;
+
+function shouldRunActiveTask() {
+  return Date.now() - lastActiveTaskAt_ai >= AI_ACTIVE_INTERVAL_MS;
+}
+
+async function runActiveTask() {
+  const startTs = Date.now();
+  const prismaClient = require("../../config/db");
+  const since1h = new Date(Date.now() - 60 * 60 * 1000);
+  const since30m = new Date(Date.now() - 30 * 60 * 1000);
+
+  let retried = 0;
+  let stuckRecovered = 0;
+  let rateLimitPct = 0;
+  let anomalyDetected = false;
+
+  // 1. FAILED Document son 1 saat → max 5 retry
+  try {
+    const failed = await prismaClient.document.findMany({
+      where: { status: "FAILED", updatedAt: { gte: since1h }, leadId: { not: null } },
+      select: { id: true },
+      take: 5,
+    });
+    if (failed.length > 0) {
+      try {
+        const { analyzeDocumentById } = require("../../services/uploadAnalysis.bridge");
+        for (const doc of failed) {
+          try {
+            await analyzeDocumentById(doc.id);
+            retried++;
+          } catch (_) {}
+        }
+      } catch (_) {}
+    }
+  } catch (_) {}
+
+  // 2. Stuck PROCESSING > 30 dk → FAILED'e cek
+  try {
+    const r = await prismaClient.document.updateMany({
+      where: { status: "PROCESSING", updatedAt: { lt: since30m } },
+      data: { status: "FAILED" },
+    });
+    stuckRecovered = r.count;
+  } catch (_) {}
+
+  // 3. Rate limit gostergesi (24h failed_rate)
+  try {
+    const since24h = new Date(Date.now() - 24 * 60 * 60 * 1000);
+    const [total, failed] = await Promise.all([
+      prismaClient.document.count({ where: { updatedAt: { gte: since24h } } }),
+      prismaClient.document.count({ where: { status: "FAILED", updatedAt: { gte: since24h } } }),
+    ]);
+    if (total > 0) rateLimitPct = Math.round((failed / total) * 1000) / 10;
+  } catch (_) {}
+
+  // 4. Adaptive anomaly check
+  try {
+    const helper = require("../lib/adaptiveThreshold");
+    const result = await helper.adaptiveOr("ai", "rateLimitPct", 30, 7);
+    if (rateLimitPct > result.threshold) anomalyDetected = true;
+  } catch (_) {}
+
+  const severity = anomalyDetected || rateLimitPct > 30 ? "CRITICAL" : retried > 0 || stuckRecovered > 0 ? "INFO" : "INFO";
+
+  try {
+    await prismaClient.agentEvent.create({
+      data: {
+        agentName: "ai",
+        eventType: "ACTION_TAKEN",
+        severity,
+        payload: {
+          action_taken: { retried, stuck_recovered: stuckRecovered, rate_limit_pct: rateLimitPct, anomaly_detected: anomalyDetected },
+          durationMs: Date.now() - startTs,
+          message: `AI GERCEK gorev · ${retried} retry · ${stuckRecovered} stuck recover · ${rateLimitPct}% fail rate${anomalyDetected ? " (ANOMALI)" : ""}`,
+        },
+      },
+    });
+  } catch (_) {}
+
+  lastActiveTaskAt_ai = Date.now();
+  return { retried, stuckRecovered, rateLimitPct, anomalyDetected };
+}
+
+// ============================================================================
 // SECTION 11 — EXPORTS
 // ============================================================================
 
@@ -492,6 +581,8 @@ module.exports = {
   complete,
   getStatus,
   runStatusCheck,
+  runActiveTask,
+  shouldRunActiveTask,
   getRequestHistory,
   resetState,
   MODULE_NAME,

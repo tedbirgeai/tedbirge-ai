@@ -168,11 +168,70 @@ async function runStatusCheck() {
   };
 }
 
+// TUR #72 A3 — runActiveTask: invalid preferences reset + theme stats
+let lastActiveTaskAt_ap = 0;
+const AP_ACTIVE_INTERVAL_MS = 60 * 60 * 1000;
+
+function shouldRunActiveTask() {
+  return Date.now() - lastActiveTaskAt_ap >= AP_ACTIVE_INTERVAL_MS;
+}
+
+async function runActiveTask() {
+  const startTs = Date.now();
+  const prismaClient = require("../../config/db");
+  let resets = 0;
+  let mismatches = 0;
+  let darkCount = 0;
+  let lightCount = 0;
+
+  try {
+    const users = await prismaClient.user.findMany({
+      where: { preferences: { not: null } },
+      select: { id: true, preferences: true },
+      take: 200,
+    });
+    for (const u of users) {
+      const p = u.preferences;
+      if (!p || typeof p !== "object") {
+        mismatches++;
+        if (resets < 50) {
+          try {
+            await prismaClient.user.update({ where: { id: u.id }, data: { preferences: {} } });
+            resets++;
+          } catch (_) {}
+        }
+        continue;
+      }
+      if (p.theme === "dark") darkCount++;
+      else if (p.theme === "light") lightCount++;
+    }
+  } catch (_) {}
+
+  try {
+    await prismaClient.agentEvent.create({
+      data: {
+        agentName: "appearance",
+        eventType: "ACTION_TAKEN",
+        severity: mismatches > 10 ? "WARNING" : "INFO",
+        payload: {
+          action_taken: { resets, mismatches, dark_count: darkCount, light_count: lightCount },
+          durationMs: Date.now() - startTs,
+          message: `Gorunum · ${resets} reset · ${mismatches} mismatch · dark/light ${darkCount}/${lightCount}`,
+        },
+      },
+    });
+  } catch (_) {}
+
+  lastActiveTaskAt_ap = Date.now();
+  return { resets, mismatches, darkCount, lightCount };
+}
+
 module.exports = {
   start, stop,
   getPreferences, setPreferences, resetPreferences,
   listUsers, listThemes, listDensities,
   getStatus, runStatusCheck, resetState,
+  runActiveTask, shouldRunActiveTask,
   MODULE_NAME, THEMES, DENSITY, DEFAULT_PREFS,
   EVENT_CHANGED,
 };

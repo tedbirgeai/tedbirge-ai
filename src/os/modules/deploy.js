@@ -606,6 +606,62 @@ async function runStatusCheck() {
 }
 
 // ============================================================================
+// SECTION 11B — TUR #72 A7 — runActiveTask (deploy status + alert)
+// ============================================================================
+
+let lastActiveTaskAt_dp = 0;
+const DP_ACTIVE_INTERVAL_MS = 15 * 60 * 1000;
+
+function shouldRunActiveTask() {
+  return Date.now() - lastActiveTaskAt_dp >= DP_ACTIVE_INTERVAL_MS;
+}
+
+async function runActiveTask() {
+  const startTs = Date.now();
+  const prismaClient = require("../../config/db");
+  let vercelStatus = "UNKNOWN";
+  let renderStatus = "UNKNOWN";
+  let alerts = 0;
+  let anomaly = false;
+
+  // Vercel + Render status — eger getStatus() son deployment bilgisi varsa kullan
+  try {
+    const status = getStatus?.();
+    vercelStatus = status?.lastVercelDeployment?.state || "UNKNOWN";
+    renderStatus = status?.lastRenderDeployment?.state || "UNKNOWN";
+  } catch (_) {}
+
+  if (vercelStatus === "ERROR" || renderStatus === "FAILED" || renderStatus === "ERROR") {
+    try {
+      await prismaClient.realtimeEvent.create({
+        data: { channel: "ADMIN_FEED", eventType: "DEPLOY_FAILED", payload: { vercelStatus, renderStatus } },
+      });
+      alerts = 1;
+    } catch (_) {}
+  }
+
+  const severity = alerts > 0 ? "CRITICAL" : "INFO";
+
+  try {
+    await prismaClient.agentEvent.create({
+      data: {
+        agentName: "deploy",
+        eventType: "ACTION_TAKEN",
+        severity,
+        payload: {
+          action_taken: { vercel_status: vercelStatus, render_status: renderStatus, alerts, anomaly },
+          durationMs: Date.now() - startTs,
+          message: `Yayin Sistemi · Vercel ${vercelStatus} · Render ${renderStatus}${alerts > 0 ? " (ALERT)" : ""}`,
+        },
+      },
+    });
+  } catch (_) {}
+
+  lastActiveTaskAt_dp = Date.now();
+  return { vercelStatus, renderStatus, alerts, anomaly };
+}
+
+// ============================================================================
 // SECTION 12 — EXPORTS
 // ============================================================================
 
@@ -615,6 +671,8 @@ module.exports = {
   pollDeployments,
   runTick,
   runStatusCheck,
+  runActiveTask,
+  shouldRunActiveTask,
   runPostDeployHealthCheck,
   getStatus,
   getDeployHistory,
