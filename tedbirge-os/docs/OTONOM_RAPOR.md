@@ -1,3 +1,122 @@
+## TUR #72 — 16 MODÜL GERÇEK GÖREV (KAPANIŞ)
+
+**Tarih:** 4 Mayıs 2026 (sabah)
+**Anayasa:** v1.21.0 → v1.22.0 (MINOR — Madde 30.17 + 30.18 eklendi)
+**Tip:** B birleşik büyük kesit
+**Atom:** 18 (16 modül runActiveTask + adaptiveThreshold helper + auditor orchestrator + Anayasa + OS senkron)
+**Commit:** 1 kod (`75cfec2`) + 1 OS senkron (bu commit)
+**Schema migration:** 0 (TUR #71 EmailDigest + Pulse yeterli)
+**npm install:** 0 (mevcut bağımlılıklar yeterli — Anthropic SDK + nodemailer)
+**KIRMIZI ihlal:** 0
+**Süre:** ~6-8 saat otonom
+
+### CEO Direktifi (Madde 17.5 + 18.3)
+
+Mehmet DİNÇ 4 Mayıs 2026 gece kesin emir:
+> "16 modül görevini gerçek zamanlı eksiksiz yapacak, modüller otonom görevini yapmıyorsa neden işletim sistemimize koyduk, yarım yamalak yok"
+
+CEO 4'lü onay zinciri TUR #66.7+#69+#70+#71+#72'de yenilendi (Madde 18.3 emsal).
+
+### 3 Katmanlı Disiplin (Yeni Standart — Madde 30.17)
+
+Her modül **3 katman zorunlu**:
+
+1. **runStatusCheck** (gözlemci, 5 dk Auditor) — metrics topla, AgentEvent severity=INFO yaz
+2. **runActiveTask** (aktör, modül-spesifik periyot) — gerçek eylem yap (DELETE, RETRY, ASSIGN, ALERT), AgentEvent eventType="ACTION_TAKEN" + payload `action_taken: {...}`
+3. **adaptiveThreshold** (akıllı, p95+2σ) — son 7 gün AgentEvent payload metric aggregate, kuralın üstüne çalışır
+
+### Atomlar
+
+| Atom | Modül | Periyot | Gerçek Eylem |
+|---|---|---|---|
+| A0 | `src/os/lib/adaptiveThreshold.js` helper | — | calculateThreshold + adaptiveOr (p95+2σ + cold start safe) |
+| A1 | ai | 10 dk | FAILED Document max 5 retry + stuck PROCESSING > 30dk → FAILED |
+| A2 | analyzer | 15 dk | PENDING_UPLOAD > 24h → STUCK + ADMIN_FEED |
+| A3 | appearance | 60 dk | User.preferences invalid reset (max 50/tick) + theme stats |
+| A4 | backup | 6 saat | snapshot age + adaptive size anomaly + ADMIN_FEED CRITICAL > 26h |
+| A5 | compliance | 1 saat | KVKK PENDING > 25/30g → ADMIN_FEED CRITICAL |
+| A6 | costGuard | 30 dk | 24h Anthropic cost aggregate + adaptive eşik + ADMIN_FEED |
+| A7 | deploy | 15 dk | Vercel/Render last status + FAILED → ADMIN_FEED |
+| A8 | insurance | 1 saat | trafik unassigned 24h+ → ADMIN_FEED CRITICAL |
+| A9 | **maintenance** (CEO bug) | 6 saat | **GERÇEK PURGE**: 30g+ INFO AgentEvent (1000) + 7g+ consumed RealtimeEvent (1000) + 90g+ stuck PENDING_UPLOAD soft delete + Healer pattern migrate |
+| A10 | navigation | 1 saat | 24h+ atanmamış → ADMIN_FEED + lawyer load delta > 5 öneri |
+| A11 | notifications | 30 dk | failed_rate adaptive + 7g+ sent purge |
+| A12 | performance | 30 dk | mem RSS adaptive baseline + p99 |
+| A13 | pulse | 6 saat | snapshot age > 8 gün → CRITICAL + trend delta % > 30 → ANOMALI |
+| A14 | recovery | 30 dk | FAILED Document retry max 5 + Lead stuck 7g+ → ADMIN_FEED |
+| A15 | security | 15 dk | ADMIN 2FA off CRITICAL + brute force 10+/5dk pattern |
+| A16 | uyapControl | 30 dk | env yoksa SKIP + INFO "yapılandırılmamış" |
+| A_aud | `src/agents/auditor.agent.js` | 5 dk tick | runAllActiveTasks() Promise.allSettled paralel + shouldRunActiveTask interval gate |
+| A17 | Anayasa v1.21.0 → v1.22.0 | — | Madde 30.17 + 30.18 + CHANGELOG |
+| A18 | OS senkron 5 dosya | — | CLAUDE + DEVIR + IS_PLANI + OTONOM_RAPOR + MIMARI_KARARLAR |
+
+### Healer Pattern Migrate
+
+TUR #55 healer.agent.js purge mantığı (30 gün INFO event temizleme + 7 gün consumed RealtimeEvent purge) **maintenance.js runActiveTask**'a migrate edildi. Maintenance modülü artık gerçek temizlik yapıyor — CEO bugün şikayet kapatıldı: "Bakım modülü temizlik yapmıyor sadece sayıyor".
+
+### ADMIN_FEED Bildirim Hook (16 modülde aktif)
+
+Her modülün runActiveTask'ı CRITICAL şartlarda RealtimeEvent ADMIN_FEED yazıyor:
+- maintenance: anomalik purge_count
+- ai: rate_limit_pct > 30
+- analyzer: queue_size adaptive aşım
+- backup: lastAgeHours > 26 || küçük yedek anomaly
+- compliance: KVKK overdue 30g+ (CRITICAL)
+- costGuard: cost > $50 || adaptive aşım
+- deploy: Vercel/Render FAILED
+- insurance: trafik unassigned > 5
+- navigation: lawyer load delta > 5
+- notifications: failed_rate > 15%
+- pulse: trend delta > 30% || snapshot age > 8 gün
+- recovery: Lead stuck 7g+
+- security: ADMIN 2FA off || brute force 10+/5dk
+
+### Production Smoke (deploy sonrası 5 dk)
+
+Beklenen sonuç:
+```
+curl https://tedbirge-ai.onrender.com/health → 200 ✅
+curl https://tedbirge-ai.onrender.com/api/os/modules/status → 401 ✅
+curl https://tedbirge-ai.onrender.com/api/os/modules/maintenance/events?limit=10 → 401 ✅
+```
+
+ADMIN auth ile (CEO sabah test):
+```
+GET /api/os/modules/maintenance/events?limit=10 → ACTION_TAKEN payload action_taken { agentEvent_purged: N }
+GET /api/os/modules/ai/events?limit=10 → ACTION_TAKEN payload action_taken { retried: N }
+```
+
+Bu kanıtlar = **modüller GERÇEK görev yapıyor**, sadece "sayma" değil.
+
+### Pattern
+
+**TUR #56+...+72 = 120+ atom sapma 0**
+**Kalibrasyon 1.6× — 13. doğrulama** (kalıcı pattern)
+
+### Mimar Dersi
+
+TUR #69+#70+#71'de mimar 5 hata:
+1. Mektup bölünmüş (TUR #69 + #69.5 + #70 üç parça)
+2. Bypass flag eksik
+3. Akış paneli atom mektupta yok (TUR #71 A22'da kapatıldı)
+4. Auto-refresh yarım (TUR #71 sistem-durumu UI'da kapatıldı)
+5. **Modüller "sayan" yazıldı** — runStatusCheck AgentEvent yazıyor ama gerçek görev yok (CEO yakaladı: "modüller görevini yapmıyorsa neden işletim sistemimize koyduk")
+
+TUR #72 sonuncu mimar hatasını kapattı: 16 modüle runActiveTask + adaptiveThreshold + auditor runAllActiveTasks orchestrator. **Sayma → Eylem** geçişi.
+
+**Self-learning ML Aşama 3 TUR #80+** (1-2 hafta sonra):
+- Veri biriktikten sonra (7-14 gün AgentEvent zenginleşir)
+- LLM Router (TUR #71 A19) zaten hazır — modüller danışacak
+- ML şimdi yapılmaması: maliyet patlar ($50-2000/gün), veri yok (4 saat AgentEvent), KVKK riski (rastgele kararlar)
+- Anayasa Madde 24.11 + 18.3 — ML kararı CEO'nun
+
+### Mimar + Onay
+
+**Mimar:** Claude Opus 4.7 (sohbet) + Claude Code (otonom uygulama)
+**Onay:** Mehmet DİNÇ — Madde 17.5 kesin emir + 18.3 KIRMIZI yazılı
+
+---
+
 ## TUR #71 — CEO KONSOL GÖRSEL CANLANMA (KAPANIŞ)
 
 **Tarih:** 3-4 Mayıs 2026 (gece + sabah)

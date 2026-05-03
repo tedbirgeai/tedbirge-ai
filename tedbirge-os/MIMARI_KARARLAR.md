@@ -6,6 +6,65 @@
 
 ---
 
+## 4 Mayıs 2026 — TUR #72 KARARI — 16 MODÜL GERÇEK GÖREV
+
+**Anayasa:** v1.21.0 → v1.22.0 (MINOR — Madde 30.17 + 30.18 eklendi)
+
+### Karar
+
+TUR #69+#70+#71'de 16 modül runStatusCheck (gözlemci) yazıldı, AgentEvent yazıyor ama "sayma" yapıyordu. CEO bunu yakaladı: *"Bakım modülü temizlik yapmıyor sadece sayıyor, modüller görevini yapmıyorsa neden işletim sistemimize koyduk"*. TUR #72 her modüle **runActiveTask (aktör) + adaptiveThreshold (akıllı eşik)** ekledi. **Healer pattern Maintenance modülüne migrate** edildi. Anayasa v1.22.0 — Madde 30.17 + 30.18.
+
+### Karar Gerekçesi
+
+1. **CEO kesin emir Madde 17.5:** "tek komut otonom uçtan uca, eksiksiz, yarım yamalak yasak"
+2. **Madde 4 + 17.4 (yarım kesit yasak):** TUR #69+#70+#71'de 5 mimar hatası vardı (mektup bölme + bypass flag eksik + akış paneli atom yok + auto-refresh yarım + **modüller "sayan" yazıldı**) — TUR #72 sonuncuyu kapattı
+3. **CEO 4'lü onay zinciri yenilendi:** tüm 16 modül runActiveTask + 2 yeni Anayasa maddesi otonom akıt
+4. **Self-learning ML katmanı (Aşama 3) bu turda DEĞİL:** veri yok (4 saat AgentEvent), maliyet riski (LLM her karar için $50-2000/gün), KVKK riski (rastgele kararlar). **TUR #80+ planlı.**
+
+### Reddedilen Alternatifler
+
+- **ML self-learning şimdi:** maliyet patlar + veri yok + KVKK riski + Anayasa Madde 24.11 ihlal. Reddedildi.
+- **16 modül "sayma" bırak:** CEO direktifi ihlal, modülün varlık sebebi tartışmalı. Reddedildi.
+- **Tek katman runActiveTask, adaptiveThreshold yok:** Eşikler statik, sistem öğrenmiyor, 1 hafta sonra eşik hatalı. Reddedildi.
+- **Schema tabanlı modül durumu (modules tablosu):** TUR #71 EmailDigest+Pulse yeterli, runActiveTask AgentEvent yazıyor — schema şişirme gerek yok. Reddedildi.
+- **node-cron paketi:** in-process scheduler (TUR #71 emsali) yeterli. Reddedildi.
+
+### Etki
+
+- **16 modül 3 katmanlı** (runStatusCheck + runActiveTask + adaptiveThreshold)
+- **18 atom + 2 commit** (1 backend kod + 1 OS senkron)
+- **0 schema migration** (TUR #71 EmailDigest + Pulse yeterli)
+- **0 npm install**
+- **0 KIRMIZI ihlal**
+- **120+ atom sapma 0** — kalibrasyon 1.6× 13. doğrulama
+- Healer pattern Maintenance'e migrate (TUR #55 healer.agent.js purge mantığı)
+- ADMIN_FEED bildirim hook 16 modülde aktif
+
+### CEO Direktifi (Madde 17.5)
+
+Mehmet DİNÇ 4 Mayıs 2026 gece: 
+> "şimdi kesin emir veriyorum, tek komut ile uçtan uca otonom, 16 modül görevini gerçek zamanlı eksiksiz yapacak, modüller görevini yapmıyorsa neden işletim sistemimize koyduk, yarım yamalak yok"
+
+### Kalıcı Pattern (TUR #80+ için)
+
+1. **16 modül 3 katmanlı disiplin** (gözlemci + aktör + akıllı eşik) — kalıcı standart (Madde 30.17)
+2. **Self-learning ML Aşama 3 hazırlığı:** 7-14 gün veri biriktirme + LLM Router (TUR #71 A19) zaten hazır — modüller danışacak
+3. **Modül her commit'te "kabuk yasağı" check:** ACTION_TAKEN olayı 24 saatte yoksa CRITICAL (Madde 30.17 yasak)
+4. **Auto-action max limit ZORUNLU:** Maintenance 1000/tick · ai retry 5/tick · recovery retry 5/tick · appearance reset 50/tick. Sınırsız delete YASAK.
+5. **KVKK + güvenlik etkili otomasyon ADMIN_FEED öneri sınırlı** (Madde 24.11 + 18.3) — gerçek action ADMIN onayı zorunlu
+6. **Adaptive threshold cold start safe** (< 100 sample → null → static default kullan)
+7. **Adaptive eşik kuralın YERİNE değil ÜSTÜNE çalışır** (max strategy)
+
+### Mimar
+
+Claude Opus 4.7 (sohbet) + Claude Code (otonom uygulama)
+
+### Onay
+
+Mehmet DİNÇ — Madde 17.5 kesin emir + 18.3 KIRMIZI yazılı
+
+---
+
 ## 3-4 Mayıs 2026 — TUR #71 BİRLEŞİK KARARI — CEO Konsol Görsel Canlanma
 
 **Anayasa:** v1.20.0 → v1.21.0 (MINOR — Madde 30.13 + 30.14 + 30.15 + 30.16 eklendi)

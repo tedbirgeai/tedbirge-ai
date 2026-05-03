@@ -1575,6 +1575,61 @@ Auditor/Healer/Reporter ADMIN'e bildirim göndermek için `RealtimeEvent` tablos
 - ❌ Submit butonu olmadan sadece klavye shortcut (erişilebilirlik)
 - ❌ apiFetch atlama (Madde 13.2 ihlali)
 
+### 30.17 — 16 Modül Gerçek Görev Disiplini (TUR #72)
+
+**Kural:** Her modül **3 katmanlı zorunlu**:
+
+1. **runStatusCheck** (gözlemci, 5 dk Auditor) — metrics topla, AgentEvent severity=INFO yaz
+2. **runActiveTask** (aktör, modül-spesifik periyot) — gerçek eylem yap (DELETE, RETRY, ASSIGN, ALERT), AgentEvent eventType="ACTION_TAKEN" + payload `action_taken: {...}`
+3. **adaptiveThreshold** (akıllı, p95+2σ) — son 7 gün AgentEvent payload metric aggregate, kuralın üstüne çalışır
+
+**Sadece sayma yapan modül YASAK.** TUR #69+#70 mimar hatası: 16 modül runStatusCheck yazıldı ama sayıyordu (Bakım purge yapmıyordu). CEO yakaladı: "modüller görevini yapmıyorsa neden işletim sistemimize koyduk". TUR #72 her modüle runActiveTask + adaptiveThreshold eklendi.
+
+**ACTION_TAKEN payload AgentEvent zorunlu** her runActiveTask çağrısı sonrası. Empty bile olsa (örn. `agentEvent_purged: 0`) yazılır — kanıt zinciri için.
+
+**Auto-action max limit ZORUNLU (rate-limit):** Maintenance 1000/tick · ai retry 5/tick · recovery retry 5/tick · appearance reset 50/tick. Sınırsız delete YASAK.
+
+**KVKK + güvenlik etkili otomasyon:** ADMIN_FEED bildirim öneri ile sınırlı, gerçek action ADMIN onayı zorunlu (Madde 24.11 + 18.3). Örnekler:
+- Security 2FA off → ADMIN_FEED CRITICAL bildirim (zorla aktive YOK)
+- Security IP block → öneri (gerçek block YOK)
+- Navigation lawyer rebalance → öneri (gerçek atama YOK)
+- Insurance auto-assign → şu an SKIP (gerçek auto-assign servisi yok)
+
+**shouldRunActiveTask() interval gate:** Modül kendi periyodunu belirler — son ACTION_TAKEN'dan kaç dk geçti kontrol eder. Auditor 5 dk tick'te tüm modülleri çağırır, modüller `false` dönerse skip edilir.
+
+**Yasak:**
+- ❌ runActiveTask olmayan modül (kabuk yasağı 24 saatte ACTION_TAKEN olayı yoksa CRITICAL)
+- ❌ Auto-action limit aşımı (rate-limit zorunlu)
+- ❌ KVKK riskli alanda otomatik kalıcı eylem (sadece ADMIN_FEED öneri)
+- ❌ runActiveTask AgentEvent yazmadan return etmek
+- ❌ shouldRunActiveTask hep true dönmek (yorgunluk + DB yük)
+
+### 30.18 — Adaptive Threshold Disiplini (TUR #72)
+
+**Kural:** Modül eşikleri **statik default + statistiksel p95+2σ kombinasyonu**. `src/os/lib/adaptiveThreshold.js` helper:
+
+```js
+const helper = require("../lib/adaptiveThreshold");
+const result = await helper.adaptiveOr("ai", "rateLimitPct", 30, 7);
+// result.threshold = max(static_default, p95+2σ)
+// result.source = "static" | "adaptive"
+// result.coldStart = true (veri < 100)
+```
+
+**Cold start safe:** 7 gün veri < 100 sample → `null` döner, çağıran static_default kullanmalı. KISA verili modüllerde rastgele eşik üretmez.
+
+**Max strategy:** `rule_threshold = max(static_default, statistical_p95 + 2*stddev)`. Adaptive eşik kuralın **YERİNE** değil **ÜSTÜNE** çalışır. Statik default minimum güvence, adaptive üstü öğrenmeyle anomali yakalama.
+
+**P95 + 2σ neden:** Normal dağılımda p95 üstü %5, 2σ üstü %2.5 — birleşik olağandışı %1-2'lik kuyruk. Anomali tanımı: "geçen 7 günde olmayan davranış".
+
+**Statistiksel temel kural-bazlı YERİ değil ÜSTÜ:** Maliyet $50 hard limit (yasal/iş kuralı) + adaptive p95+2σ örn. $35 (öğrenilen normal). Sistem $35'i geçince WARNING, $50'yi geçince CRITICAL.
+
+**Yasak:**
+- ❌ Adaptive eşik kuralın yerine geçirmek (statik default kaldırma)
+- ❌ Cold start handling olmadan adaptive (rastgele küçük örneklem ile yanlış eşik)
+- ❌ Modül her tick'te calculateThreshold çağırmak (DB yük — günlük 1 cache yeterli)
+- ❌ Adaptive eşik üzerinden kalıcı eylem (rate-limit + ADMIN_FEED zorunlu)
+
 ---
 
 ## 31. TASARIM DİSİPLİNİ — Tedbirge Design System v1.0
@@ -1887,7 +1942,7 @@ Mehmet Bey sahaya çıkabilsin diye bu disiplin var.
 
 ---
 
-**— Tedbirge Mimari Anayasası v1.21.0**  
+**— Tedbirge Mimari Anayasası v1.22.0**  
 **25 Nisan 2026 — başlangıç (Claude Opus 4.7)**  
 **28 Nisan 2026 — v1.7.0 (Madde 26-32 eklendi: otonom devir, sağlık periyodikliği, T tipi onay, migration kanıtı, frontend standardı, ortam izolasyonu, anayasa boyutu)**  
 **28 Nisan 2026 — v1.8.0 (Madde 28 eklendi: Beklemede Özellik Disiplini — AccidentCase TUR #29 dersi; Madde 28 (eski 33) kapanış → 29 (eski 34) olarak yeniden numaralandı)**  
@@ -1903,6 +1958,7 @@ Mehmet Bey sahaya çıkabilsin diye bu disiplin var.
 **1 Mayıs 2026 — v1.16.0 (TUR #57 — 4 CRM Rol-Ruh Karakter Farklılaştırma: 12 atom (3 KRİTİK + 9 ORTA) ile 9 yeni DS komponenti (AnomalyStrip + KPICardEnhanced + Sparkline + CaseFolderCard + LawyerHealthTriad + KanbanBoard + DealCard + ActivityCounter + TimelineDot + TrustBadge + KeyboardShortcutsHelp), 2 yeni route (/dashboard/komuta + /temsilci/pipeline), 2 yeni utility (lib/sadelestir 30 terim + lib/keyboardNav G+harf), 2 mini endpoint (anomalies + lead aşama). Madde 31.9 Rol-Ruh Tasarım Prensibi tohumdan resmileşmeye geçti. 0 schema migration, 0 npm paket (3 paket adayı native alternatifle reddedildi: react-beautiful-dnd → HTML5 DragEvent, canvas-confetti → CSS keyframe, lottie-react → inline SVG). 4 CRM artık niş emsal seviyesinde (Stripe Dashboard+Linear, Clio+MyCase, HubSpot+Pipedrive, Stripe Customer Portal+Apple HIG). KAPANIŞ Madde 32'ye kaydı.)**  
 **1 Mayıs 2026 — v1.17.0 (TUR #58 — FAZ 5 DISCOVERABILITY başlangıcı: 9 atom (1 KRİTİK + 7 ORTA + 1 OS) ile llms.txt + JsonLd 3 yeni factory (FAQPage + HowTo + BreadcrumbList) + 3 niş landing'e SSS schema (15+15+10 toplam 40 SSS) + yeni /tazminat-rehberi sayfası (8 adım HowTo) + AI snippet meta disiplini + BrandFooterStrip 4 sayfada. Madde 33 (İçerik Üretim Disiplini) eklendi: avukat onayı zorunlu, TBB Reklam Yasağı uyumu, AI sadece taslak yazar — avukat onaylar, disclaimer her içerikte. 0 schema migration, 0 npm paket. CEO direktifi 1 Mayıs 2026 (Aylık Sabit Aidat Yasağı) MIMARI_KARARLAR.md'ye eklendi: tüm 3. parti SaaS sabit aidat yasak, sadece kullanım bazlı API ücreti orantılı geçer. KAPANIŞ Madde 32'ye kaydı.)**  
 **1 Mayıs 2026 — v1.18.0 (TUR #59 — FAZ 5 İçerik Üretimi KAPANIŞ: 10 atom sapma 0 ile 50 niş makale (Trafik 20 + İş Kazası 15 + Sigorta+Genel 15) + 3 pillar refactor (cluster grid) + blog detay FAQPage+BreadcrumbList JsonLd + sitemap auto-update (51 makale URL) + iç linking audit (150 cross-link, 0 bozuk). Madde 33.2 düzeltme: avukat onayı yerine Madde 25.3 KIRMIZI listesi kontrolü yeterli (TUR #47 fizibilite raporları zaten anayasal düzeyde kurulmuş). Mevcut lib/blog.ts POSTS array genişletildi (MDX altyapısı reddedildi — 0 npm install). Pattern: TUR #56+57+58+59 = 43/43 atom sapma 0 — kalibrasyon 1.6× dördüncü kez kalıcı pattern. KAPANIŞ Madde 32'ye kaydı.)**  
+**4 Mayıs 2026 — v1.22.0 (TUR #72 BIRLESIK 16 MODÜL GERÇEK GÖREV: 18 atom uçtan uca — 16 modül runActiveTask + adaptiveThreshold helper + auditor runAllActiveTasks orchestrator + Anayasa Madde 30.17 + 30.18 + OS senkron 5 dosya. CEO emri "sayma değil eylem" — TUR #69+#70+#71'de modüller "sayan" yazıldı (mimar hatası 5), CEO yakaladı, TUR #72 "yapan" yaptı. 3 katmanlı disiplin: runStatusCheck (gözlemci, 5 dk Auditor) + runActiveTask (aktör, modül-spesifik periyot) + adaptiveThreshold (akıllı, p95+2σ — cold start safe < 100 sample → static default). Healer pattern Maintenance modülüne migrate (TUR #55 healer.agent.js purge mantığı maintenance.js'e geçti). 16 modül ACTION_TAKEN AgentEvent yazıyor: ai retry · maintenance GERCEK PURGE (30g+ INFO AgentEvent + 7g+ consumed RealtimeEvent + 90g+ stuck Document) · compliance KVKK ADMIN alert · security brute force · vd. Auto-action rate-limit zorunlu. KVKK+güvenlik etkili otomasyon ADMIN_FEED öneri sınırlı. 0 schema migration (TUR #71 EmailDigest+Pulse yeterli), 0 npm install. Pattern: TUR #56+...+72 = 120+ atom sapma 0 — kalibrasyon 1.6× 13. doğrulama. Self-learning ML Aşama 3 TUR #80+'a planlı (7-14 gün veri biriktirme + LLM Router TUR #71 A19 hazır).)**  
 **3 Mayıs 2026 — v1.21.0 (TUR #71 BIRLESIK 7 atom uçtan uca: A22 Akış paneli + A18 Pulse haftalık + A23 EmailDigest 09:00 cron + A19 LLM Router backend (Anthropic Tool Use SELECT-only) + A20 Komut Çubuğu UI + A24 Global Canlı Olay Akışı + A25 Anayasa + A26 OS senkron. CEO 18 saatlik gün sonu kesin emir Madde 17.5: "tek komut otonom uçtan uca soru sorma". Madde 30'a 4 yeni alt-madde eklendi: 30.13 Akış Paneli Disiplini + 30.14 EmailDigest Disiplini + 30.15 LLM Router Güvenlik (çift regex SELECT-only + KVKK alan maskele) + 30.16 Komut Çubuğu UI Disiplini (Cmd+Enter + geçmiş 10 lokal state). 2 schema migration (EmailDigest + Pulse — KIRMIZI nokta CEO yazılı onayı), 0 npm install (mevcut @anthropic-ai/sdk + nodemailer). Pattern: TUR #56+...+71 = 102+ atom sapma 0 — kalibrasyon 1.6× 12. doğrulama. TUR #69+#70 mektup boşluğu (akış paneli atom unutulması) TUR #71 ile kapatıldı.)**  
 **3 Mayıs 2026 — v1.20.0 (TUR #69 + #69.5 + #70 BİRLEŞİK — 16 OS Modülü Canlı: Madde 30.10 — 16 Modül Otonom Disiplini eklendi. Auditor agent her 5 dk tick'te 16 modülün runStatusCheck'ini paralel çağırır (Promise.allSettled). 16/16 modül artık AgentEvent yazıyor (agentName UI key eşleşmesi), sistem-durumu UI canlı metrics gösteriyor (`/api/os/modules/status` endpoint). TUR #69 mektup boşluğu (orchestrator unutulmuş) TUR #69.5 hotfix ile kapandı. TUR #70 kalan 9 modül runStatusCheck eklendi (insurance/maintenance/navigation/notifications/performance/pulse/recovery/security/uyapControl). Pattern: TUR #56+...+69+69.5+70 = 95+ atom sapma 0. CEO 4'lü onay zinciri yenilendi: "kalanını tek komutla otonom bitir + parçalamadan aksın gitsin". Kalan iş yeni sohbete: A17 EmailDigest service, A18 Pulse haftalık schema, A19-A20 LLM Router (Anthropic Tool Use + komut çubuğu UI).)**  
 **3 Mayıs 2026 — v1.19.2 (TUR #66.7 — TÜM SİSTEM Prefetch Loop Hotfix: Madde 31.10 Link Prefetch Disiplini eklendi. Panel + müvekkil portal `<Link prefetch={false}>` zorunlu, public marketing istisna. useRealtimeFeed `useMemo`+`useCallback` stabilize. CEO browser test bulgusu: 1339 request + LCP 11.82s + DCL 3.2dk → Lokal build 0 hata, beklenen <100 request + LCP <4s. 7 atom (A0 keşif + A1 Sidebar/Nav + A2 Lead detay/liste + A3 panel/* + A4 NO-OP + A5 NO-OP + A6 SSE stabilize + A7 smoke + A8 production + A9 anayasa + A10 OS senkron). 24 dosya, ~65 Link prefetch={false}. 0 schema, 0 npm, 0 KIRMIZI. CEO yazılı onay 4'lü zincir: "ortak paneller yavaş" + "tüm dashboardlar" + "tek komut uçtan uca" + "0 hata ile uçak gibi". Pattern: TUR #56+57+58+59+60+62+63+63.5+63.5v2+64+66v2+66.7 = 80+ atom sapma 0.)**  
