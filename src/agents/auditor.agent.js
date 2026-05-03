@@ -81,6 +81,46 @@ class AuditorAgent extends BaseAgent {
         });
       } catch (e) {}
     }
+
+    // TUR #69.5 B2 — 16 Modül Orchestrator (her tick'te 16 modülün runStatusCheck'i)
+    // Auditor kendi 6 check'ini KORUR — bu EK katman.
+    await this.runAllModules();
+  }
+
+  async runAllModules() {
+    const tedbirgeOS = require("../os");
+    const moduleNames = [
+      "ai", "analyzer", "appearance", "backup", "compliance",
+      "costGuard", "deploy", "insurance", "maintenance", "navigation",
+      "notifications", "performance", "pulse", "recovery", "security", "uyapControl",
+    ];
+
+    const start = Date.now();
+    const results = await Promise.allSettled(
+      moduleNames.map((name) => {
+        const mod = tedbirgeOS.modules?.[name];
+        if (!mod || typeof mod.runStatusCheck !== "function") {
+          return Promise.resolve({ skipped: true, name });
+        }
+        return mod.runStatusCheck().then(
+          (r) => ({ ok: true, name, result: r }),
+          (err) => ({ ok: false, name, error: err.message }),
+        );
+      }),
+    );
+
+    const summary = results.map((r) => r.value || r.reason);
+    const written = summary.filter((s) => s.ok).length;
+    const skipped = summary.filter((s) => s.skipped).length;
+    const failed = summary.filter((s) => s.ok === false).length;
+
+    await this.log("MODULE_ORCHESTRATOR", "INFO", {
+      written,
+      skipped,
+      failed,
+      durationMs: Date.now() - start,
+      message: `Orchestrator · ${written}/${moduleNames.length} modül AgentEvent yazdı (${skipped} skip, ${failed} fail)`,
+    });
   }
 }
 
