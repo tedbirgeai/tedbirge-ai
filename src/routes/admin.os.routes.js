@@ -167,6 +167,46 @@ router.post(
   })
 );
 
+// TUR #69.5 C3 — UI endpoint: 16 modül son durum (lastRunAt + eventCountLast1h + severity)
+router.get(
+  "/modules/status",
+  auth,
+  role("ADMIN"),
+  asyncHandler(async (req, res) => {
+    const moduleNames = [
+      "ai", "analyzer", "appearance", "backup", "compliance",
+      "costGuard", "deploy", "insurance", "maintenance", "navigation",
+      "notifications", "performance", "pulse", "recovery", "security", "uyapControl",
+    ];
+
+    const oneHourAgo = new Date(Date.now() - 60 * 60 * 1000);
+
+    const modules = await Promise.all(
+      moduleNames.map(async (name) => {
+        const [last, count] = await Promise.all([
+          prisma.agentEvent.findFirst({
+            where: { agentName: name },
+            orderBy: { createdAt: "desc" },
+            select: { createdAt: true, severity: true, payload: true },
+          }),
+          prisma.agentEvent.count({
+            where: { agentName: name, createdAt: { gte: oneHourAgo } },
+          }),
+        ]);
+        return {
+          agentName: name,
+          lastRunAt: last?.createdAt || null,
+          lastSeverity: last?.severity || null,
+          lastMessage: last?.payload?.message || null,
+          eventCountLast1h: count,
+        };
+      }),
+    );
+
+    res.json({ success: true, modules, generatedAt: new Date().toISOString() });
+  }),
+);
+
 router.get(
   "/ai-failed-count",
   auth,
