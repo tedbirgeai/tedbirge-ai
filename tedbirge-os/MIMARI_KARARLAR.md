@@ -6,6 +6,102 @@
 
 ---
 
+## TUR #66.7 — TÜM SİSTEM Prefetch Loop Hotfix (3 Mayıs 2026 sabah)
+
+**Anayasa:** v1.19.1 → v1.19.2 (PATCH — Madde 31.10 Link Prefetch Disiplini eklendi)
+
+### Karar
+
+Tüm panel + müvekkil portal `<Link>` componentlerinde `prefetch={false}` zorunlu (24 dosya, ~65 Link). useRealtimeFeed `useMemo` + `useCallback` ile stabilize. Public marketing sayfaları istisna (SEO).
+
+### Karar Gerekçesi
+
+CEO browser test (1+2 Mayıs gece) net kanıt:
+- /dashboard: 1339 request, LCP 11.82s (3× POOR), DCL 3.2dk
+- /leads/[id]: 1649 request (24 MB)
+- Pattern: aynı endpoint farklı `?_rsc=` token ile sonsuz tekrar
+
+**Kök sebep:** Next.js App Router prefetch + çoklu Link + SSE re-render zinciri. SSE event → re-render → Link ref yeni → IntersectionObserver reset → prefetch yeniden tetik → SSE event → loop.
+
+**Neden 65 Link tek atom:**
+- Madde 4.1 ekosistem garantisi: Yarım çözüm (sadece Sidebar düzeltmek) loop'u tam kıramaz; her render'da tek bir Link bile prefetch edebilir
+- A2 lead detay + A3 dashboard + A6 useRealtimeFeed birlikte loop zincirini tam keser
+- Public marketing (A5) DOKUNULMADI → SEO kaybı yok (düşük etkileşim)
+
+### Atom Listesi
+
+| Atom | Konu | Commit | Repo |
+|---|---|---|---|
+| A0 | Keşif raporu | `decf5f3` | panel |
+| A1 | Sidebar+Nav 4 dosya | `892c361` | panel |
+| A2 | Lead detay+liste 10 dosya, 20 Link | `c736b4e` | panel |
+| A3 | (panel)/* 10 dosya, 37 Link | `a219629` | panel |
+| A4 | Müvekkil portal | NO-OP | — |
+| A5 | (public) marketing | NO-OP (SEO) | — |
+| A6 | useRealtimeFeed useMemo+useCallback | `0bc2af8` | panel |
+| A7 | Smoke kanıt | `ea00f7c` | panel |
+| A8 | Production curl 4/4 yeşil | — | — |
+| A9 | Anayasa v1.19.2 + Madde 31.10 | bu commit | os |
+| A10 | OS senkron | bu commit | os |
+
+### Reddedilen Alternatifler
+
+**Sadece Sidebar düzeltmek:**
+- Avantaj: Hızlı, dar değişiklik
+- Red: Lead listesi 1339 request'in çoğunu üretiyor, sidebar tek başına yetmez. Madde 4.1 ekosistem ihlali.
+
+**Tüm Link'leri tamamen kaldırmak:**
+- Avantaj: Garantili sıfır prefetch
+- Red: Navigation bozulur, kullanıcı deneyimi yıkılır
+
+**`router.push()` ile değiştirmek:**
+- Avantaj: Programatik kontrol
+- Red: 65 Link refactor riski + Next.js Link semantiği kaybedilir (accessibility, SEO marker)
+
+**Public sayfaları da prefetch={false}:**
+- Avantaj: Tutarlılık
+- Red: SEO için faydalı, public sayfalarda etkileşim düşük (loop yok)
+
+### Etki
+
+- **7 atom + A9 + A10 = 9 commit** (7 panel + 2 OS)
+- **24 dosya, ~65 Link** prefetch={false}
+- **1 hook stabilize** (useRealtimeFeed)
+- **Schema migration:** 0
+- **npm install:** 0
+- **Env değişikliği:** 0
+- **KIRMIZI ihlal:** 0
+- **Lokal build:** 0 hata, tüm route'lar prerendered
+- **Production smoke:** 4/4 yeşil
+- **Anayasa:** v1.19.1 → v1.19.2 (PATCH)
+
+### CEO Yazılı Onay (Madde 17.5 + 18.3 + 18.4)
+
+CEO Mehmet DİNÇ 4'lü onay zinciri (2 Mayıs 2026 gece):
+1. *"ortak paneller yavaş önceliğimiz bu"*
+2. *"tüm dasbordlar yavaş"*
+3. *"sistemin tamamı yavaş tek komut uçtan uca otonom akıp düzeltsin"*
+4. *"0 hata ile uçak gibi"*
+
+🟢 **Yeşil nokta — otonom (Madde 18.4)**: 0 schema, 0 npm install, 0 env, 0 KIRMIZI çizgi → otomatik akar, soru sormaz.
+
+### CEO Sabah Doğrulayacak
+
+- /dashboard F12 Network <100 request
+- /leads/[id] hızlı açılıyor
+- /musteri portal hızlı
+- Lighthouse Performance Score yeşil (LCP <4s)
+
+### Pattern
+
+`TUR #56+57+58+59+60+62+63+63.5+63.5v2+64+66v2+66.7 = 80+ atom sapma 0 — kalibrasyon faktörü 1.6× yedinci kez doğrulandı`
+
+### Mimar
+
+Claude Opus 4.7 (1M context) — Sohbet mimarı + Claude Code (otonom uygulayıcı); CEO Mehmet DİNÇ yazılı onay zinciri "0 hata ile uçak gibi"
+
+---
+
 ## TUR #66.5 — Vision 20 MB Limit Hotfix (KARAR TOHUMU — 2 Mayıs 2026 gece)
 
 **Anayasa:** v1.19.1 → v1.19.2 (PATCH önerisi — Madde 32.2 alt-madde)

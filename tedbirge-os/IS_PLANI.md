@@ -1,18 +1,18 @@
 # TEDBİRGE.AI YOL HARİTASI v1.0
-**Son güncelleme:** 2 Mayıs 2026 gece (TUR #66 v2 KAPALI + TUR #66.5 Vision hotfix planlı)
-**Anayasa versiyonu:** v1.19.1 (Madde 32.10 AI Analiz Tetikleyici Disiplini eklendi)
+**Son güncelleme:** 3 Mayıs 2026 sabah (TUR #66.7 KAPALI — TÜM SİSTEM Prefetch Loop Hotfix)
+**Anayasa versiyonu:** v1.19.2 (Madde 31.10 Link Prefetch Disiplini eklendi)
 **İlke:** MoSCoW + Now-Next-Later hibrit (Madde 24.5)
 
 ---
 
 ## 🎯 AKTİF KESİT
 
-**Faz:** Belge + AI Pipeline KAPALI ✅ (TUR #66 v2 ile AI analiz uçtan uca canlı, Madde 32.10 yürürlükte)
-**Son TUR:** #66 v2 — AI Analiz Pipeline TÜM SİSTEM Uçtan Uca (KAPALI)
-**Son düzeltme TUR'u:** #60 + #61 + #62 + #63 + #63.5 + #63.5 v2 + #64 + #66 v2
+**Faz:** TÜM SİSTEM Performans KAPALI ✅ (TUR #66.7 ile prefetch loop kırıldı, Madde 31.10 yürürlükte)
+**Son TUR:** #66.7 — TÜM SİSTEM Prefetch Loop Hotfix (KAPALI)
+**Son düzeltme TUR'u:** #60 + #61 + #62 + #63 + #63.5 + #63.5 v2 + #64 + #66 v2 + #66.7
 **Önerilen sıradaki:** TUR #66.5 — Vision 20 MB Limit Hotfix (CEO browser test bulgusu, 30-45 dk küçük iş)
-**Anayasa:** v1.19.1 (Madde 32.10 AI Analiz Tetikleyici Disiplini)
-**Son güncelleme:** 2 Mayıs 2026 gece (TUR #66 v2 KAPANIŞ + TUR #66.5 Vision 20 MB hotfix planlı)
+**Anayasa:** v1.19.2 (Madde 31.10 Link Prefetch Disiplini + Madde 32.10 AI Analiz Tetikleyici Disiplini)
+**Son güncelleme:** 3 Mayıs 2026 sabah (TUR #66.7 KAPANIŞ — TÜM SİSTEM Prefetch Loop Hotfix, Anayasa v1.19.1 → v1.19.2)
 
 ### 4 TUR Yol Haritası (CEO HAYALİ — 2 Mayıs gece)
 
@@ -58,6 +58,7 @@
 | #65 | OS Sprint 3 DB Persistence — pulse (24h health) + ai (request history) + appearance (user prefs) modülleri in-memory'den DB'ye geçer | 🟡 Planlı (4-5 saat, 3 schema KIRMIZI nokta — CEO yazılı onay) |
 | #67 | OS Sprint 4 Cron + Email Rapor — Render Cron + sabah 08:00 email rapor + pulse 5 dk audit otomatik | 🟡 Planlı (4-5 saat, 1 schema KIRMIZI nokta) |
 | **#68** | **CEO KONSOL — LLM Router** — Doğal dil komut çubuğu ("bu hafta gelir" / "atanmamış lead" / "yedek al") | 🌟 **CEO HAYALİ** (5-6 saat, 0 schema, mevcut endpoint'ler) |
+| #66.7 | TÜM SİSTEM Prefetch Loop Hotfix — `<Link prefetch={false}>` 24 dosya 65 Link + useRealtimeFeed `useMemo+useCallback` stabilize + Anayasa Madde 31.10 — CEO browser test bulgusu (1339 req → <100, LCP 11.82s → <4s) | ✅ Kapalı (7 atom, 7 panel commit + 2 OS commit, 0 KIRMIZI nokta, 0 schema/npm/env, Anayasa v1.19.1 → v1.19.2 PATCH, build kanıtlı, CEO sabah doğrulayacak) |
 | #58.B | (Eski TUR #58 önerisi) Temsilci Sözleşme SMS OTP backend (mini) — UI TUR #56 A8'de hazır, ileri TUR'a ertelendi | ⏭️ Ertelendi |
 
 ### TUR #44 — Hareket Disiplini ✅ BÜYÜK KAPANIŞ

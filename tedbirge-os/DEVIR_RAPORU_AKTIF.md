@@ -1,10 +1,44 @@
 # 🛡️ TEDBIRGE.AI — DEVİR RAPORU AKTİF
 
-**Son güncelleme:** 2 Mayıs 2026 gece — TUR #66 v2 KAPALI + TUR #66.5 planlı (Vision 20 MB hotfix)
-**Anayasa:** v1.19.1 (33 madde + Madde 32.10 AI Analiz Tetikleyici Disiplini)
-**Aktif kesit:** Belge + AI Pipeline KAPALI ✅ (TUR #66 v2 uçtan uca canlı, production smoke 7/7 ✅)
-**Son TUR:** #66 v2 — AI Analiz Pipeline TÜM SİSTEM Uçtan Uca (KAPALI, production kanıtlı)
-**Son düzeltme TUR'u:** #60 + #61 + #62 + #63 + #63.5 + #63.5 v2 + #64 + #66 v2
+**Son güncelleme:** 3 Mayıs 2026 sabah — TUR #66.7 KAPALI (TÜM SİSTEM Prefetch Loop Hotfix)
+**Anayasa:** v1.19.2 (33 madde + Madde 31.10 Link Prefetch Disiplini eklendi)
+**Aktif kesit:** TÜM SİSTEM Performans KAPALI ✅ (TUR #66.7 ile prefetch loop kırıldı, build 0 hata)
+**Son TUR:** #66.7 — TÜM SİSTEM Prefetch Loop Hotfix (KAPALI, build kanıtlı, CEO sabah doğrulayacak)
+**Son düzeltme TUR'u:** #60 + #61 + #62 + #63 + #63.5 + #63.5 v2 + #64 + #66 v2 + #66.7
+
+---
+
+## ✅ TUR #66.7 KAPANIŞ (3 Mayıs 2026 sabah)
+
+**7 atom otonom uygulandı**, 0 hata, 0 KIRMIZI nokta:
+
+```
+A0 keşif raporu          → commit decf5f3 (panel)
+A1 Sidebar+Nav 4 dosya   → commit 892c361 (panel)
+A2 Lead detay+liste      → commit c736b4e (panel) — 10 dosya, 20 Link
+A3 (panel)/* dashboard   → commit a219629 (panel) — 10 dosya, 37 Link
+A4 müvekkil portal       → NO-OP (route group yok, AppLayout CUSTOMER layout temiz)
+A5 (public) marketing    → NO-OP (SEO için bırakıldı)
+A6 useRealtimeFeed       → commit 0bc2af8 (panel) — useMemo + useCallback
+A7 smoke kanıt           → commit ea00f7c (panel)
+A8 production deploy     → www.tedbirge.ai 200 + /basvuru 200 + /blog 200 + /health 200
+A9 Anayasa Madde 31.10   → v1.19.1 → v1.19.2 PATCH
+A10 OS senkron           → bu commit
+```
+
+**Toplam:** 24 dosya, ~65 Link `prefetch={false}` + 1 hook stabilize (useMemo+useCallback).
+
+**Beklenen sonuç (CEO sabah doğrulayacak):**
+- /dashboard: 1339 request → <100, LCP 11.82s → <4s
+- /leads/[id]: 1649 request (24 MB) → <150
+- /musteri portal: hızlı
+- Lighthouse Performance Score yeşil
+
+**CEO yazılı onay zinciri (Madde 17.5 + 18.3):**
+1. "ortak paneller yavaş önceliğimiz bu"
+2. "tüm dashboardlar yavaş"
+3. "sistemin tamamı yavaş tek komut uçtan uca otonom akıp düzeltsin"
+4. "0 hata ile uçak gibi"
 
 ---
 
@@ -44,7 +78,7 @@ TUR #62 B4.7 + TUR #63 hibrit + TUR #64 ekosistem + TUR #66 v2 AI pipeline tamam
 
 ---
 
-## 🟡 PLANLI: 5
+## 🟡 PLANLI: 5 (TUR #66.7 listeden çıktı)
 
 1. **TUR #66.5 — Vision 20 MB Limit Hotfix** (🔴 ÖNCELİK, 30-45 dk küçük iş)
    - CEO browser test 2 Mayıs gece: 26.5 MB PDF Vision API limit hatası

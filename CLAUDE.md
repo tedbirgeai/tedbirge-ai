@@ -1580,6 +1580,31 @@ Tüm canlı feed SSE üstünden (`/api/realtime/notifications`). Client `EventSo
 
 **Bu prensip TUR #57'de uygulandı:** 9 yeni DS komponenti (`components/ds/role-specific/`) + 4 mevcut komponent genişletmesi + 2 yeni route (`/dashboard/komuta` + `/temsilci/pipeline`) + 2 yeni utility (`lib/sadelestir` 30 terim + `lib/keyboardNav` G+harf) + 2 mini endpoint (anomaly + lead aşama). 0 schema, 0 npm, 3 paket adayı native alternatifle reddedildi.
 
+### 31.10 Link Prefetch Disiplini (TUR #66.7)
+
+**Kural:** Panel ve müvekkil portal içinde `<Link prefetch={true}>` (Next.js App Router varsayılan) **YASAK**. Tüm Link componentleri açık şekilde `prefetch={false}` ile yazılır.
+
+**Sebep (TUR #66.7'de gözlemlendi):** Next.js App Router prefetch + çoklu Link + SSE re-render zinciri = sonsuz `?_rsc=` döngü. CEO browser test:
+- 1 Mayıs gece /dashboard: 1339 request, LCP 11.82s (3× POOR eşik), DCL 3.2dk
+- 2 Mayıs gece /leads/[id]: 1649 request (24 MB), DCL 1.5dk
+- Pattern: Aynı endpoint farklı `?_rsc=` token ile sürekli tekrar (lawyers/bilirkisi/iletisim 2-3×)
+
+**Kök sebep:** SSE event geldikçe re-render → Link referansı yeni → IntersectionObserver reset → prefetch yeniden tetik → SSE event → 1'e dön (sonsuz döngü).
+
+**İstisna:** Public marketing sayfalar (anasayfa, /basvuru, /blog, niş landing'ler, kvkk/iletişim/hakkımızda/kariyer) — düşük etkileşim, prefetch SEO için faydalı. Sadece `(panel)/*` ve müvekkil portal için yasak.
+
+**Yeni Link eklerken:** `<Link href={...} prefetch={false}>` zorunlu. Mimar inceleme noktası.
+
+**useRealtimeFeed disiplini:** SSE state update'leri `useMemo` + `useCallback` ile stabilize:
+- Hook return değeri `useMemo(() => ({...}), [deps])` ile sarılır
+- Event handler'lar (`onopen/onerror/onmessage`) `useCallback` ile stabilize
+- `useEffect` dependency array minimum tutulur (handler ref'leri)
+
+**Yasak:**
+- ❌ `<Link href={...}>` panel/müvekkil portal'da prefetch parametresi olmadan
+- ❌ SSE hook return değerinin her render'da yeni object referansı olması
+- ❌ EventSource event handler'larının inline (kararsız) tanımı
+
 ---
 
 ## 32. BELGE DİSİPLİNİ — Hibrit Mimari TÜM SİSTEM (TUR #63)
@@ -1768,7 +1793,7 @@ Mehmet Bey sahaya çıkabilsin diye bu disiplin var.
 
 ---
 
-**— Tedbirge Mimari Anayasası v1.19.1**  
+**— Tedbirge Mimari Anayasası v1.19.2**  
 **25 Nisan 2026 — başlangıç (Claude Opus 4.7)**  
 **28 Nisan 2026 — v1.7.0 (Madde 26-32 eklendi: otonom devir, sağlık periyodikliği, T tipi onay, migration kanıtı, frontend standardı, ortam izolasyonu, anayasa boyutu)**  
 **28 Nisan 2026 — v1.8.0 (Madde 28 eklendi: Beklemede Özellik Disiplini — AccidentCase TUR #29 dersi; Madde 28 (eski 33) kapanış → 29 (eski 34) olarak yeniden numaralandı)**  
@@ -1784,6 +1809,7 @@ Mehmet Bey sahaya çıkabilsin diye bu disiplin var.
 **1 Mayıs 2026 — v1.16.0 (TUR #57 — 4 CRM Rol-Ruh Karakter Farklılaştırma: 12 atom (3 KRİTİK + 9 ORTA) ile 9 yeni DS komponenti (AnomalyStrip + KPICardEnhanced + Sparkline + CaseFolderCard + LawyerHealthTriad + KanbanBoard + DealCard + ActivityCounter + TimelineDot + TrustBadge + KeyboardShortcutsHelp), 2 yeni route (/dashboard/komuta + /temsilci/pipeline), 2 yeni utility (lib/sadelestir 30 terim + lib/keyboardNav G+harf), 2 mini endpoint (anomalies + lead aşama). Madde 31.9 Rol-Ruh Tasarım Prensibi tohumdan resmileşmeye geçti. 0 schema migration, 0 npm paket (3 paket adayı native alternatifle reddedildi: react-beautiful-dnd → HTML5 DragEvent, canvas-confetti → CSS keyframe, lottie-react → inline SVG). 4 CRM artık niş emsal seviyesinde (Stripe Dashboard+Linear, Clio+MyCase, HubSpot+Pipedrive, Stripe Customer Portal+Apple HIG). KAPANIŞ Madde 32'ye kaydı.)**  
 **1 Mayıs 2026 — v1.17.0 (TUR #58 — FAZ 5 DISCOVERABILITY başlangıcı: 9 atom (1 KRİTİK + 7 ORTA + 1 OS) ile llms.txt + JsonLd 3 yeni factory (FAQPage + HowTo + BreadcrumbList) + 3 niş landing'e SSS schema (15+15+10 toplam 40 SSS) + yeni /tazminat-rehberi sayfası (8 adım HowTo) + AI snippet meta disiplini + BrandFooterStrip 4 sayfada. Madde 33 (İçerik Üretim Disiplini) eklendi: avukat onayı zorunlu, TBB Reklam Yasağı uyumu, AI sadece taslak yazar — avukat onaylar, disclaimer her içerikte. 0 schema migration, 0 npm paket. CEO direktifi 1 Mayıs 2026 (Aylık Sabit Aidat Yasağı) MIMARI_KARARLAR.md'ye eklendi: tüm 3. parti SaaS sabit aidat yasak, sadece kullanım bazlı API ücreti orantılı geçer. KAPANIŞ Madde 32'ye kaydı.)**  
 **1 Mayıs 2026 — v1.18.0 (TUR #59 — FAZ 5 İçerik Üretimi KAPANIŞ: 10 atom sapma 0 ile 50 niş makale (Trafik 20 + İş Kazası 15 + Sigorta+Genel 15) + 3 pillar refactor (cluster grid) + blog detay FAQPage+BreadcrumbList JsonLd + sitemap auto-update (51 makale URL) + iç linking audit (150 cross-link, 0 bozuk). Madde 33.2 düzeltme: avukat onayı yerine Madde 25.3 KIRMIZI listesi kontrolü yeterli (TUR #47 fizibilite raporları zaten anayasal düzeyde kurulmuş). Mevcut lib/blog.ts POSTS array genişletildi (MDX altyapısı reddedildi — 0 npm install). Pattern: TUR #56+57+58+59 = 43/43 atom sapma 0 — kalibrasyon 1.6× dördüncü kez kalıcı pattern. KAPANIŞ Madde 32'ye kaydı.)**  
+**3 Mayıs 2026 — v1.19.2 (TUR #66.7 — TÜM SİSTEM Prefetch Loop Hotfix: Madde 31.10 Link Prefetch Disiplini eklendi. Panel + müvekkil portal `<Link prefetch={false}>` zorunlu, public marketing istisna. useRealtimeFeed `useMemo`+`useCallback` stabilize. CEO browser test bulgusu: 1339 request + LCP 11.82s + DCL 3.2dk → Lokal build 0 hata, beklenen <100 request + LCP <4s. 7 atom (A0 keşif + A1 Sidebar/Nav + A2 Lead detay/liste + A3 panel/* + A4 NO-OP + A5 NO-OP + A6 SSE stabilize + A7 smoke + A8 production + A9 anayasa + A10 OS senkron). 24 dosya, ~65 Link prefetch={false}. 0 schema, 0 npm, 0 KIRMIZI. CEO yazılı onay 4'lü zincir: "ortak paneller yavaş" + "tüm dashboardlar" + "tek komut uçtan uca" + "0 hata ile uçak gibi". Pattern: TUR #56+57+58+59+60+62+63+63.5+63.5v2+64+66v2+66.7 = 80+ atom sapma 0.)**  
 **2 Mayıs 2026 — v1.19.1 (TUR #66 v2 — AI Analiz Pipeline TÜM SİSTEM Uçtan Uca: Madde 32.10 AI Analiz Tetikleyici Disiplini eklendi. 7 atom (A0 keşif + A2 finalize-upload setImmediate analyzeDocumentById + A3 frontend sabit "İşlem Hatası" silindi + A4 lawyerNotifications.notifyAiAnalysisFailed ADMIN bildirim + A5 admin retry endpoint POST /api/os/ai-retry/{all,id} + GET /api/os/ai-failed-count + A6 3 kanal smoke + A7 OS senkron). 5+ commit (4 backend + 1 panel). 0 schema, 0 npm, 0 KIRMIZI nokta. CEO direktifi "uçtan uca tek seferde geri dönüş yok". TUR #64 sonrası kopuk AI zinciri yeniden kuruldu, kullanıcıya sabit "İşlem Hatası" yerine gerçek hata mesajı gösteriliyor. Pattern: TUR #56+57+58+59+60+62+63+63.5+63.5v2+64+66v2 = 75+ atom sapma 0.)**  
 **1 Mayıs 2026 — v1.19.0 (TUR #63 — Uçtan Uca Hibrit Belge Yönetimi TÜM SİSTEM: Madde 32 Belge Disiplini eklendi (9 alt-madde: ilke, sıkıştırma, upload, download, KVKK, schema, yetki, yasak, referanslar). KAPANIŞ Madde 32 → 34 olarak kaydırıldı (Madde 20.2.E numara kayması). 9 atom (A0 ekosistem + A1 schema migration --create-only + A2 sıkıştırma + A3 hibrit upload + A4 cache + A5 body+logout + A6 mevcut kanal + A7 download + A8 smoke + A9 OS senkron) sapma 0. 9 commit (5 backend + 4 panel ayrı git repo). Schema migration: PENDING_UPLOAD enum + metadata/category/compressionRatio/originalSize alanları + leadId nullable (CEO yazılı onayı 1 Mayıs gece — Madde 18.3). npm: browser-image-compression + pdf-lib (CEO yazılı onayı). Mektup düzeltmeleri Madde 4.4: BilirkisiAtama → Bilirkisi, Ihtarname → IhtarnameTakip, atananAvukatId/getirenTemsilciId/customerId → assertLeadAccess (Madde 9.5). DIRECT_URL lokalde yok → prisma migrate diff DB'siz pattern (TUR #49 dersi). Production schema deploy: CEO Render Shell manuel (Madde 3.1 KIRMIZI). Pattern: TUR #56+57+58+59+60+62+63 = 60+ atom sapma 0 zinciri sürüyor.)**  
 **Versiyon geçmişi: tedbirge-os/MIMARI_KARARLAR.md**  

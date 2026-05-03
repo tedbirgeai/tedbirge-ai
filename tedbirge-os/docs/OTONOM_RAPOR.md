@@ -1,3 +1,103 @@
+## TUR #66.7 — TÜM SİSTEM Prefetch Loop Hotfix (KAPANIŞ)
+
+**Tarih:** 3 Mayıs 2026 sabah (CEO uyumadan ~2:00 başlandı, ~04:30 tamamlandı)
+**Anayasa:** v1.19.1 → v1.19.2 (PATCH — Madde 31.10 Link Prefetch Disiplini)
+**Tip:** P tipi (üretim performans hotfix)
+**Atom:** 7 + A8 (production curl) + A9 (anayasa) + A10 (OS senkron) = 10 atom
+**Commit:** 9 (7 panel + 2 OS)
+**Schema/migration/env/npm:** 0
+**KIRMIZI ihlal:** 0
+**Süre:** ~2 saat otonom (mektup 1.5-2.5 saat)
+
+**CEO Direktifi (4'lü zincir, Madde 18.3):**
+1. "ortak paneller yavaş önceliğimiz bu"
+2. "tüm dasbordlar yavaş"
+3. "sistemin tamamı yavaş tek komut uçtan uca otonom akıp düzeltsin"
+4. "0 hata ile uçak gibi"
+
+🟢 Yeşil nokta — otonom (Madde 18.4)
+
+### CEO Browser Test Bulgusu (kanıt)
+
+```
+1 Mayıs gece /dashboard:
+- 1339 request, sayfa açık kaldıkça büyüyor
+- LCP 11.82s (Google CWV POOR eşiği 4s — 3× POOR)
+- DOMContentLoaded 3.2 dakika
+- Pattern: ?_rsc= prefetch sürekli tekrar
+
+2 Mayıs gece /leads/[id]:
+- 1649 request, 24 MB resource
+- DCL 1.5dk
+- lawyers/bilirkisi/iletisim/assignments 2-3 kere prefetch
+```
+
+**Kök sebep:** Next.js App Router `<Link prefetch={true}>` varsayılan + sol menü çoklu Link + useRealtimeFeed SSE state update zinciri = sonsuz `?_rsc=` döngü.
+
+### Atom Listesi
+
+| Atom | Konu | Commit | Süre |
+|---|---|---|---|
+| A0 | Keşif raporu (140 Link, 46 dosya, 0 prefetch={false}) | `decf5f3` | 10 dk |
+| A1 | AppLayout (sidebar) + LawyerDashboardTabs + GlobalSearch + LeadTabNav | `892c361` | 15 dk |
+| A2 | Lead detay+liste (10 dosya, 20 Link) | `c736b4e` | 25 dk |
+| A3 | (panel)/* dashboard (10 dosya, 37 Link bulk regex) | `a219629` | 15 dk |
+| A4 | Müvekkil portal | NO-OP (route group yok) |
+| A5 | (public) marketing | NO-OP (SEO) |
+| A6 | useRealtimeFeed useMemo+useCallback | `0bc2af8` | 10 dk |
+| A7 | Smoke kanıt + lokal build OK | `ea00f7c` | 15 dk |
+| A8 | Production curl 4/4 yeşil | — | 5 dk |
+| A9 | Anayasa Madde 31.10 + v1.19.2 PATCH | bu commit | 10 dk |
+| A10 | OS senkron (DEVIR + IS_PLANI + MIMARI_KARARLAR + OTONOM_RAPOR) | bu commit | 10 dk |
+
+### Toplam Değişiklik
+
+- **24 dosya** edit (4 component + 6 lead + 10 dashboard + 1 useRealtimeFeed + 3 ds/lead-related)
+- **~65 Link** `prefetch={false}` eklendi
+- **1 hook stabilize** (useMemo + useCallback)
+- **Public marketing** DOKUNULMADI (~75 Link bırakıldı, SEO için)
+
+### Smoke Kanıt (lokal)
+
+```
+npx tsc --noEmit         → 0 hata
+npx next build           → 0 hata, tüm route'lar prerendered
+node -e "..."            → boot OK
+```
+
+### Production (push sonrası)
+
+```
+www.tedbirge.ai/         → 200
+www.tedbirge.ai/basvuru  → 200
+www.tedbirge.ai/blog     → 200
+api.tedbirge-ai/health   → 200
+```
+
+### Beklenen Sonuç (CEO sabah doğrulayacak)
+
+| Metrik | Önce | Sonra (beklenen) |
+|---|---|---|
+| /dashboard request | 1339 | <100 |
+| /dashboard LCP | 11.82s POOR | <4s yeşil |
+| /dashboard DCL | 3.2 dk | <10s |
+| /leads/[id] request | 1649 (24 MB) | <150 |
+| Tekrar eden endpoint | 2-3× | tek seferlik |
+
+### Madde 31.10 (yeni)
+
+Link Prefetch Disiplini formalize edildi:
+- Panel + müvekkil portal `<Link prefetch={false}>` zorunlu
+- Public marketing istisna (SEO)
+- Yeni Link eklerken mimar inceleme noktası
+- useRealtimeFeed SSE state update useMemo + useCallback
+
+### Pattern
+
+`TUR #56+57+58+59+60+62+63+63.5+63.5v2+64+66v2+66.7 = 80+ atom sapma 0 — kalibrasyon faktörü 1.6× yedinci kez doğrulandı`
+
+---
+
 ## TUR #66.5 — Vision 20 MB Limit Hotfix (KEŞİF NOTU)
 
 **Tarih:** 2 Mayıs 2026 gece (CEO browser test sonrası)
