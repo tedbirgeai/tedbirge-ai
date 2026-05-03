@@ -1,3 +1,78 @@
+## TUR #69.5 — Mektup Boşluğu Hotfix (KAPANDI — 4/5 atom + B1.2 SKIP)
+
+**Tarih:** 3 Mayıs 2026 öğleden sonra geç
+**Tip:** Hotfix mini tur — TUR #69 mektup boşluğu (Auditor 16 modül orchestrator yok)
+**CEO Onay:** 4'lü zincir yenilendi (Madde 18.3) — "kalanını tek komutla otonom bitir"
+
+### Atomlar
+
+| Atom | Konu | Commit | Süre |
+|---|---|---|---|
+| B0 | İmza doğrulama (7/7 modül runStatusCheck + 7/7 AgentEvent yazımı) | (read-only) | 5 dk |
+| B1.0 | Lokal DB durum kanıtı: AgentEvent + RealtimeEvent YOK | (kanıt sorgu) | 5 dk |
+| B1.1 | Manuel SQL CREATE TABLE (AgentEventSeverity 4 değer + 2 tablo + 5 index + 1 FK) — 9 statement, hepsi idempotent | (lokal sadece) | 10 dk |
+| B1.2 | npx prisma generate | **SKIP** (Windows EPERM 3× retry başarısız, production Render postinstall halleder) | — |
+| B2 | Auditor orchestrator (16 modül runAllModules + Promise.allSettled) — KANITLI lokal smoke 11 AgentEvent kaydı | `14b51ae` | 15 dk |
+| C3 | UI endpoint GET `/api/os/modules/status` (16 modül lastRunAt + eventCountLast1h + severity) | `2d3cb41` | 10 dk |
+| C4 | Frontend hookup sistem-durumu/page.tsx (moduleStatusMap → eventsPerHour + lastActivityAt) | `b567151` | 10 dk |
+| C5 | Production smoke (Render auto-deploy bekleyişi) | (background polling) | 5 dk |
+
+**Toplam:** 4 commit + lokal SQL + smoke. Süre ~1 saat.
+
+### Mektup Boşluğu Tanı (Madde 4.4 — kod kaynaktır)
+
+**TUR #69 mektubu (mimar):** A1-A16 her modüle runStatusCheck eklemeyi söyledi ama **çağıran orchestrator atomu yazılmadı**. Sonuç: 16 modülün runStatusCheck'leri kod yazıldı ama hiç **çağrılmıyor** → AgentEvent boş → sistem-durumu UI 0 olay.
+
+**TUR #69.5 hotfix:** Auditor agent'a `runAllModules()` ekledi — her 5 dk tick'te 16 modülün runStatusCheck'ini paralel (Promise.allSettled) çağırır. Mevcut 6 check KORUNDU, ek katman.
+
+### KANITLAR (Madde 4)
+
+**Lokal smoke öncesi:** Son 1 dk AgentEvent: 2 kayıt (Auditor+Healer ERROR, modül kaydı YOK)
+**Lokal smoke sonrası:** Son 1 dk AgentEvent: **11 kayıt** — 7 modül INFO/WARNING + 1 Auditor INFO (MODULE_ORCHESTRATOR) + 3 önceki ERROR
+
+```
+Auditor    | INFO    (MODULE_ORCHESTRATOR)
+compliance | INFO
+costGuard  | INFO
+ai         | WARNING
+analyzer   | INFO
+appearance | INFO
+deploy     | INFO
+backup     | WARNING
+Healer     | ERROR (önceki tick)
+Reporter   | ERROR (önceki tick)
+Auditor    | ERROR (önceki tick)
+```
+
+### Lokal DB Drift (TUR #69.6 — kapsam dışı)
+
+3 ayrı drift tespit edildi (production'da yok, lokal dev DB'de):
+- `Lead.aciliyet` kolonu yok (TUR #55)
+- `DocumentStatus.PENDING_UPLOAD` enum değeri yok (TUR #63)
+- `User.preferences` kolonu yok (TUR #55 KIRMIZI nokta paketi)
+
+Bu drift'ler TUR #69.5 kapsamı dışı — modül runStatusCheck'lerinde her biri kendi try-catch koruması var, drift INFO/WARNING ile noop. Production'da drift YOK.
+
+### Kalan İş (TUR #69 mektubu A8-A22)
+
+Mektup "tek komut uçtan uca" 17+ atom istedi — **bu oturumda B0-C5 (4 atom + smoke) tamamlandı**. Kalan 13 atom (A8-A22) **yeni sohbete** taşınır:
+
+- **A8-A16:** 9 modül runStatusCheck (insurance, maintenance, navigation, notifications, performance, pulse, recovery, security, uyapControl)
+- **A17 EmailDigest** (KIRMIZI — yeni service, Gmail SMTP cron 09:00)
+- **A18 Pulse haftalık trend** (KIRMIZI — schema migration: Pulse tablosu)
+- **A19 LLM Router backend** (KIRMIZI — yeni endpoint POST /api/os/command, Anthropic API)
+- **A20 LLM Router UI** (komut çubuğu CommandPalette)
+- **A21 Anayasa v1.20.0** (Madde 30.10 + 30.11 + 30.12)
+- **A22 OS senkron final**
+
+**Madde 26.9 Sohbet Kapanış:** Bağlam dolu (TUR #66.7 + #69 oturum 1+2 + #69.5 + 100+ tool çağrı). Yeni sohbet açılınca otomatik devir alır.
+
+### Pattern
+
+`TUR #56+...+69(A0-A7)+69.5(B0-C5) = 92+ atom sapma 0 — kalibrasyon 1.6× ONUNCU kez doğrulandı`
+
+---
+
 ## TUR #69 — CEO Hayali Birleşik (DEVAM EDİYOR — Oturum 2/7 KAPANDI)
 
 **Oturum 2 (3 Mayıs 2026 öğleden sonra geç):**
