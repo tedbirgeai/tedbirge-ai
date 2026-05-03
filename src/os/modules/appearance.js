@@ -110,11 +110,69 @@ function resetState() {
   totalChanges = 0;
 }
 
+// TUR #69 A3 — Görünüm modülü gerçek görev (basit metrik + AgentEvent)
+async function runStatusCheck() {
+  const start = Date.now();
+  const prismaClient = require("../../config/db");
+
+  let totalUsersWithPrefs = 0;
+  let themeStats = { light: 0, dark: 0, auto: 0, default: 0 };
+
+  try {
+    // User.preferences JSON alanı — TUR #55 KIRMIZI nokta paketi'nde eklendi
+    const users = await prismaClient.user.findMany({
+      where: { preferences: { not: null } },
+      select: { preferences: true },
+      take: 500,
+    });
+    totalUsersWithPrefs = users.length;
+    for (const u of users) {
+      const theme = u.preferences?.theme || "default";
+      if (themeStats[theme] !== undefined) themeStats[theme]++;
+      else themeStats.default++;
+    }
+  } catch (dbErr) {
+    // User.preferences yoksa veya hata — sessiz geç
+    console.warn("[os/appearance] User.preferences sorgu hata:", dbErr.message);
+  }
+
+  const duration = Date.now() - start;
+
+  try {
+    await prismaClient.agentEvent.create({
+      data: {
+        agentName: MODULE_NAME, // "appearance"
+        eventType: "STATUS_CHECK",
+        severity: "INFO",
+        payload: {
+          inMemoryUsers: prefsByUser.size,
+          totalChangesSession: totalChanges,
+          dbUsersWithPrefs: totalUsersWithPrefs,
+          themeStats,
+          themes: Object.values(THEMES),
+          durationMs: duration,
+          message: `Görünüm · ${totalUsersWithPrefs} kullanıcı tema set etti · ${prefsByUser.size} session aktif`,
+        },
+      },
+    });
+  } catch (evtErr) {
+    console.error("[os/appearance] AgentEvent yazma hata:", evtErr.message);
+  }
+
+  return {
+    ok: true,
+    inMemoryUsers: prefsByUser.size,
+    dbUsersWithPrefs: totalUsersWithPrefs,
+    themeStats,
+    durationMs: duration,
+  };
+}
+
 module.exports = {
   start, stop,
   getPreferences, setPreferences, resetPreferences,
   listUsers, listThemes, listDensities,
-  getStatus, resetState,
+  getStatus, runStatusCheck, resetState,
   MODULE_NAME, THEMES, DENSITY, DEFAULT_PREFS,
   EVENT_CHANGED,
 };
