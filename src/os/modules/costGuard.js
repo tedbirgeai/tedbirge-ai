@@ -426,7 +426,111 @@ async function policyHandler(policy, _prisma) {
 registerPolicyHandler(MODULE_NAME, policyHandler);
 
 // ============================================================================
-// SECTION 9 — EXPORTS
+// SECTION 9 — TUR #69 A6 — runStatusCheck (Document.aiAnalysis.usage aggregate)
+// ============================================================================
+
+/**
+ * Maliyet Bekçisi modülü gerçek görev:
+ *  - Document.aiAnalysis.usage JSON alanından son 24h input + output tokens topla
+ *  - Anthropic pricing (Sonnet 4.6): $3/MTok input, $15/MTok output (sabit, pricing.js olmadığı için inline)
+ *  - Bütçe eşik: 50 USD/24h CRITICAL, 30 USD WARNING
+ *  - Anthropic Usage API yok — yerel toplam
+ *  - agentName="costGuard" (UI MODULES key eşleşmesi — MODULE_NAME="cost-guard" kebab-case farkı)
+ */
+async function runStatusCheck() {
+  const startTs = Date.now();
+  const prismaClient = require("../../config/db");
+  const since = new Date(Date.now() - 24 * 60 * 60 * 1000);
+
+  // Anthropic pricing (sabit — pricing.js yok, inline)
+  // Sonnet 4.6: $3 / 1M input, $15 / 1M output
+  const PRICE_INPUT_PER_MTOK = 3.0;
+  const PRICE_OUTPUT_PER_MTOK = 15.0;
+
+  let inputTokens24h = 0;
+  let outputTokens24h = 0;
+  let aiCallCount = 0;
+  let usageMissing = 0;
+
+  try {
+    const recentDocs = await prismaClient.document.findMany({
+      where: {
+        aiAnalysis: { not: null },
+        updatedAt: { gte: since },
+      },
+      select: { aiAnalysis: true },
+      take: 1000,
+    });
+
+    for (const doc of recentDocs) {
+      aiCallCount++;
+      let analysis = doc.aiAnalysis;
+      if (typeof analysis === "string") {
+        try { analysis = JSON.parse(analysis); } catch (_) { analysis = null; }
+      }
+      const usage = analysis?.usage;
+      if (usage && (usage.input_tokens || usage.output_tokens)) {
+        inputTokens24h += Number(usage.input_tokens || 0);
+        outputTokens24h += Number(usage.output_tokens || 0);
+      } else {
+        usageMissing++;
+      }
+    }
+  } catch (dbErr) {
+    console.error("[os/costGuard] runStatusCheck DB hata:", dbErr.message);
+  }
+
+  const inputCostUsd = (inputTokens24h / 1_000_000) * PRICE_INPUT_PER_MTOK;
+  const outputCostUsd = (outputTokens24h / 1_000_000) * PRICE_OUTPUT_PER_MTOK;
+  const totalCostUsd = inputCostUsd + outputCostUsd;
+
+  const severity =
+    totalCostUsd > 50 ? "CRITICAL" : totalCostUsd > 30 ? "WARNING" : "INFO";
+
+  const payload = {
+    inputTokens24h,
+    outputTokens24h,
+    totalTokens24h: inputTokens24h + outputTokens24h,
+    aiCallCount,
+    usageMissing,
+    inputCostUsd: Math.round(inputCostUsd * 100) / 100,
+    outputCostUsd: Math.round(outputCostUsd * 100) / 100,
+    totalCostUsd: Math.round(totalCostUsd * 100) / 100,
+    threshold: { warning: 30, critical: 50 },
+    durationMs: Date.now() - startTs,
+    message: `Maliyet · 24h $${(Math.round(totalCostUsd * 100) / 100).toFixed(2)} (${aiCallCount} AI çağrı, ${usageMissing} usage yok)`,
+  };
+
+  try {
+    await prismaClient.agentEvent.create({
+      data: {
+        agentName: "costGuard", // UI MODULES key eşleşmesi (MODULE_NAME="cost-guard" farklı)
+        eventType: "STATUS_CHECK",
+        severity,
+        payload,
+      },
+    });
+  } catch (evtErr) {
+    console.error("[os/costGuard] AgentEvent yazma hata:", evtErr.message);
+  }
+
+  if (severity === "CRITICAL") {
+    try {
+      await prismaClient.realtimeEvent.create({
+        data: {
+          channel: "ADMIN_FEED",
+          eventType: "AI_COST_BURST",
+          payload: { totalCostUsd: payload.totalCostUsd, threshold: 50 },
+        },
+      });
+    } catch (_) {}
+  }
+
+  return { ok: severity !== "CRITICAL", severity, ...payload };
+}
+
+// ============================================================================
+// SECTION 10 — EXPORTS
 // ============================================================================
 
 module.exports = {
@@ -434,6 +538,7 @@ module.exports = {
   stop,
   recordUsage,
   runCheck,
+  runStatusCheck,
   getStatus,
   resetState,
   MODULE_NAME,
