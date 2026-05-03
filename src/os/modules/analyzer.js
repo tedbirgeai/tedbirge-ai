@@ -412,7 +412,117 @@ try {
 }
 
 // ============================================================================
-// SECTION 12 — EXPORTS
+// SECTION 12 — TUR #69 A2 — runStatusCheck (OCR/Vision pipeline + AgentEvent)
+// ============================================================================
+
+/**
+ * Belge Analizci modülü gerçek görev:
+ *   - Son 24h analiz sayısı (Document.aiAnalysis not null + status=ANALYZED)
+ *   - Son 24h FAILED sayısı
+ *   - Vision API limit hatası tespiti (aiAnalysis.error içinde "Vision" geçen)
+ *   - Aktif kuyruk sıkışması (PENDING_UPLOAD Document sayısı)
+ *   - In-memory queue durumu
+ */
+async function runStatusCheck() {
+  const start = Date.now();
+  const prismaClient = require("../../config/db");
+  const since = new Date(Date.now() - 24 * 60 * 60 * 1000);
+
+  let analyzed24h = 0;
+  let failed24h = 0;
+  let pendingUploads = 0;
+  let visionLimitErrors = 0;
+
+  try {
+    [analyzed24h, failed24h, pendingUploads] = await Promise.all([
+      prismaClient.document.count({
+        where: { status: "ANALYZED", updatedAt: { gte: since } },
+      }),
+      prismaClient.document.count({
+        where: { status: "FAILED", updatedAt: { gte: since } },
+      }),
+      prismaClient.document.count({
+        where: {
+          status: "PENDING_UPLOAD",
+          createdAt: { lt: new Date(Date.now() - 30 * 60 * 1000) },
+        },
+      }),
+    ]);
+
+    // Vision limit error sayısı (aiAnalysis JSON içinde "Vision" string match)
+    // Postgres jsonb_path_exists ile path query
+    const failedDocs = await prismaClient.document.findMany({
+      where: { status: "FAILED", updatedAt: { gte: since } },
+      select: { aiAnalysis: true },
+      take: 100,
+    });
+    visionLimitErrors = failedDocs.filter((d) => {
+      const raw = d.aiAnalysis;
+      if (!raw) return false;
+      const s = typeof raw === "string" ? raw : JSON.stringify(raw);
+      return /vision/i.test(s) && /(limit|20\s*MB)/i.test(s);
+    }).length;
+  } catch (dbErr) {
+    console.error("[os/analyzer] runStatusCheck DB hata:", dbErr.message);
+  }
+
+  // In-memory queue durumu (analyzer.start() ile yönetilen)
+  const queueDepth = typeof getQueueDepth === "function" ? getQueueDepth() : 0;
+
+  const duration = Date.now() - start;
+
+  const severity =
+    pendingUploads > 10 || visionLimitErrors > 3 || queueDepth > QUEUE_HIGH_THRESHOLD
+      ? "WARNING"
+      : "INFO";
+
+  try {
+    await prismaClient.agentEvent.create({
+      data: {
+        agentName: MODULE_NAME, // "analyzer"
+        eventType: "STATUS_CHECK",
+        severity,
+        payload: {
+          analyzed24h,
+          failed24h,
+          pendingUploads,
+          visionLimitErrors,
+          queueDepth,
+          durationMs: duration,
+          message: `Belge Analizci · ${analyzed24h} analiz/24h · ${failed24h} FAILED · ${pendingUploads} sıkışmış kuyruk · ${visionLimitErrors} Vision limit hatası`,
+        },
+      },
+    });
+  } catch (evtErr) {
+    console.error("[os/analyzer] AgentEvent yazma hata:", evtErr.message);
+  }
+
+  // Vision limit error patladıysa ADMIN bildirim
+  if (visionLimitErrors > 3) {
+    try {
+      await prismaClient.realtimeEvent.create({
+        data: {
+          channel: "ADMIN_FEED",
+          eventType: "VISION_LIMIT_BURST",
+          payload: { visionLimitErrors, since: since.toISOString() },
+        },
+      });
+    } catch (_) {}
+  }
+
+  return {
+    ok: true,
+    analyzed24h,
+    failed24h,
+    pendingUploads,
+    visionLimitErrors,
+    queueDepth,
+    durationMs: duration,
+  };
+}
+
+// ============================================================================
+// SECTION 13 — EXPORTS
 // ============================================================================
 
 module.exports = {
@@ -421,6 +531,7 @@ module.exports = {
   enqueue,
   runTick,
   runWorker,
+  runStatusCheck,
   getStatus,
   getQueue,
   getQueueDepth,
