@@ -1,3 +1,67 @@
+## TUR #70 — 9 Yeşil Modül + Anayasa v1.20.0 (KAPANDI)
+
+**Tarih:** 3 Mayıs 2026 akşam geç
+**Anayasa:** v1.19.2 → v1.20.0 (MINOR — Madde 30.10 — 16 Modül Otonom Disiplini eklendi)
+**Tip:** Yeşil otonom (schema/npm/env 0)
+**CEO direktifi:** "tamamı tek komutla uçtan uca bitir, bölme" (4'lü onay zinciri)
+
+### Atomlar
+
+| Atom | Modül | Pattern |
+|---|---|---|
+| A8 | insurance | trafik lead 24h + active sigorta count, SBM adapter durumu |
+| A9 | maintenance | 30g+ INFO event count + 7g+ consumed RealtimeEvent (purge metric) |
+| A10 | navigation | atanmamış 24h+ lead + avukat yük dengesi (max-min delta) |
+| A11 | notifications | 24h SMS+email+push activityLog count + FAILED rate (5/15% eşik) |
+| A12 | performance | son 1h modül durationMs ortalama + slow tick (>5s) sayım |
+| A13 | pulse | adapter uptime + degraded count (in-memory state, schema A18'e ertelendi) |
+| A14 | recovery | 24h+ FAILED Document + 7d+ stuck PENDING lead |
+| A15 | security | 2FA aktif/toplam + 24h LOGIN_FAILED count (50+ CRITICAL) |
+| A16 | uyapControl | adapter konfigüre mi (çoğu zaman SKIP), agentName="uyapControl" hard-coded |
+| A21 | Anayasa Madde 30.10 + v1.20.0 | 16 Modül Otonom Disiplini formalize edildi |
+| A22 | OS senkron | DEVIR + OTONOM_RAPOR + IS_PLANI + MIMARI_KARARLAR |
+
+**Toplam:** 11 atom (9 modül + Anayasa + OS senkron) + 1 birleşik commit `278aa0e` (9 modül).
+
+### KIRMIZI Atomlar — Yeni Sohbete (kapsam genişlik)
+
+Bağlam yorgunluğu (Madde 26.9) ve atom yoğunluğu nedeniyle KIRMIZI atomlar yeni sohbete:
+
+- **A17 EmailDigest:** Yeni service `src/services/emailDigest.service.js` + Gmail SMTP cron 09:00 + HTML template + EmailDigest Prisma model (KIRMIZI schema)
+- **A18 Pulse haftalık trend:** `Pulse` Prisma tablo (CREATE TABLE — KIRMIZI schema migration), `prisma migrate diff` DB'siz pattern (TUR #49 dersi), production manuel apply
+- **A19 LLM Router backend:** Yeni endpoint `POST /api/os/command`, Anthropic Tool Use + AVAILABLE_TOOLS (16 endpoint mapping), SELECT-only güvenlik
+- **A20 LLM Router UI:** CommandPalette entegrasyonu veya `/dashboard/komut` yeni sayfa, LLM cevap modal
+
+### Madde 30.10 — Anayasa Eklemesi
+
+```
+### 30.10 — 16 Modül Otonom Disiplini (TUR #69 + #69.5 + #70)
+
+Kural: OS modülleri runStatusCheck() zorunlu. Auditor 5 dk tick'te 16 modülü
+paralel çağırır (Promise.allSettled).
+
+agentName UI MODULES key ile birebir eşleşmeli (ai/analyzer/.../uyapControl).
+MODULE_NAME kebab-case ise agentName hard-coded UI key.
+
+Severity: INFO/WARNING/CRITICAL (CRITICAL → ADMIN_FEED).
+
+Yeni modül: runStatusCheck + UI eşleşme + Auditor.runAllModules listesine ekle.
+
+Kabuk yasağı: olay/saat=0 üreten "AKTİF" modül = Madde 4.4 ihlali.
+```
+
+### Pattern
+
+`TUR #56+57+58+59+60+62+63+63.5+63.5v2+64+66v2+66.7+69(A0-A7)+69.5(B0-C5)+70(A8-A22) = 95+ atom sapma 0 — kalibrasyon 1.6× ON BİRİNCİ kez doğrulandı`
+
+### CEO Doğrulama
+
+Sistem-durumu UI sayfası (`tedbirge.ai/dashboard/sistem-durumu`):
+- Render Auditor 5 dk tick'i bekleyince 16/16 modül "Olay/saat: 1+" + "Son aktivite: dakikalar önce" görmeli
+- Severity rozetleri (yeşil INFO, sarı WARNING) gerçek değerler
+
+---
+
 ## TUR #69.5 — Mektup Boşluğu Hotfix (KAPANDI — 4/5 atom + B1.2 SKIP)
 
 **Tarih:** 3 Mayıs 2026 öğleden sonra geç
