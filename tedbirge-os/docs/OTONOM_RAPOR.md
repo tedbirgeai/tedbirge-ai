@@ -1,3 +1,34 @@
+## TUR #69 — CEO Hayali Birleşik (DEVAM EDİYOR — Oturum 2/7 KAPANDI)
+
+**Oturum 2 (3 Mayıs 2026 öğleden sonra geç):**
+
+| Atom | Konu | Commit |
+|---|---|---|
+| A4 | Yedekleme — Supabase Management API snapshot age (>26h CRITICAL) | `de36b17` |
+| A5 | KVKK Uyum — `dataSubjectRequest` 30 gün countdown (m.13 ihlali tespit) | `cb7ad58` |
+| A6 | Maliyet Bekçisi — Document.aiAnalysis.usage 24h aggregate ($30 WARN, $50 CRIT) — agentName="costGuard" hard-coded | `cb0553f` |
+| A7 | Yayın Sistemi — Vercel+Render last deployment, ENV yoksa SKIP mode | `fd6963c` |
+
+**Oturum 2 toplam:** 4 atom, 4 commit, ~1 saat (mektup tahmin 4-5 saat — kalibrasyon altında, hızlı pattern oturmuş).
+
+**Madde 4.4 Oturum 2 düzeltmeleri:**
+- `costGuard.js` MODULE_NAME="cost-guard" (kebab) → agentName="costGuard" hard-coded (UI key eşleşmesi)
+- Görevdeki `src/agents/modules/` yolu YOK — gerçek `src/os/modules/` (Oturum 1 ile aynı)
+
+**Pattern:** TUR #56+...+69(A0-A7) = 88+ atom sapma 0 — kalibrasyon 1.6× **dokuzuncu** kez doğrulandı.
+
+### Sonraki Oturum (3) Hedef
+
+A8 + A9 + A10 + A11 (Sigorta + Bakım + Yönlendirme + Bildirimler).
+
+**Hatırlatma:**
+- A8 Sigorta: SBM entegrasyon yoksa kabuk (büyük ihtimalle yok — A0 envanter notu)
+- A9 Bakım + Healer purge: 30+ gün INFO ActivityLog purge eşik
+- A10 Yönlendirme: 404/500 anomali (middleware tracking gerekirse)
+- A11 Bildirimler: NetGSM + SMTP Gmail (Brevo değil) + web push 3 kanal health
+
+---
+
 ## TUR #69 — CEO Hayali Birleşik (DEVAM EDİYOR — Oturum 1/7 KAPANDI)
 
 **Tarih:** 3 Mayıs 2026 öğleden sonra
