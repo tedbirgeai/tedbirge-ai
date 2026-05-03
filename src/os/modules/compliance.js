@@ -500,7 +500,102 @@ async function policyHandler(policy, _prisma) {
 registerPolicyHandler(MODULE_NAME, policyHandler);
 
 // ============================================================================
-// SECTION 10 — EXPORTS
+// SECTION 10 — TUR #69 A5 — runStatusCheck (KVKK 30 gün countdown + AgentEvent)
+// ============================================================================
+
+/**
+ * KVKK Uyum modülü gerçek görev:
+ *  - prisma.dataSubjectRequest PENDING + receivedAt yaşı
+ *  - 30 gün aşan = CRITICAL (KVKK m.13 ihlali)
+ *  - 25-30 gün arası = WARNING (yaklaşan ihlal)
+ *  - <25 gün = INFO
+ */
+async function runStatusCheck() {
+  const startTs = Date.now();
+  const prismaClient = require("../../config/db");
+
+  let pendingTotal = 0;
+  let asanCount = 0; // 30+ gün
+  let yaklasanCount = 0; // 25-30 gün
+  let saglikliCount = 0; // <25 gün
+  let kvkkscCount = 0;
+
+  try {
+    const pendingRequests = await prismaClient.dataSubjectRequest.findMany({
+      where: { status: "PENDING" },
+      select: { id: true, receivedAt: true, requestType: true, requesterTC: true },
+      take: 200,
+    });
+    pendingTotal = pendingRequests.length;
+
+    const now = Date.now();
+    const day = 24 * 60 * 60 * 1000;
+    for (const r of pendingRequests) {
+      if (!r.receivedAt) continue;
+      const age = (now - new Date(r.receivedAt).getTime()) / day;
+      if (age > 30) asanCount++;
+      else if (age >= 25) yaklasanCount++;
+      else saglikliCount++;
+    }
+
+    // KVKKSCC tablosu varsa say (yurt dışı aktarım dokümantasyonu)
+    try {
+      kvkkscCount = await prismaClient.kVKKSCC.count();
+    } catch (_) {
+      kvkkscCount = -1; // model yoksa skip
+    }
+  } catch (dbErr) {
+    console.error("[os/compliance] runStatusCheck DB hata:", dbErr.message);
+  }
+
+  const severity = asanCount > 0 ? "CRITICAL" : yaklasanCount > 0 ? "WARNING" : "INFO";
+
+  const payload = {
+    pendingTotal,
+    asanCount, // 30 günü aşan (KVKK m.13 ihlali)
+    yaklasanCount, // 25-30 gün arası
+    saglikliCount, // <25 gün
+    kvkkSccCount: kvkkscCount,
+    durationMs: Date.now() - startTs,
+    message:
+      asanCount > 0
+        ? `KVKK · ${asanCount} başvuru 30 GÜN AŞTI (KRITIK m.13 ihlali)`
+        : yaklasanCount > 0
+        ? `KVKK · ${yaklasanCount} başvuru 25-30 gün arası (yaklaşan ihlal)`
+        : `KVKK · ${pendingTotal} PENDING başvuru, hepsi <25 gün`,
+  };
+
+  try {
+    await prismaClient.agentEvent.create({
+      data: {
+        agentName: MODULE_NAME, // "compliance"
+        eventType: "STATUS_CHECK",
+        severity,
+        payload,
+      },
+    });
+  } catch (evtErr) {
+    console.error("[os/compliance] AgentEvent yazma hata:", evtErr.message);
+  }
+
+  // CRITICAL aşan KVKK başvurusu varsa ADMIN bildirim
+  if (severity === "CRITICAL") {
+    try {
+      await prismaClient.realtimeEvent.create({
+        data: {
+          channel: "ADMIN_FEED",
+          eventType: "KVKK_30GUN_IHLALI",
+          payload: { asanCount, pendingTotal },
+        },
+      });
+    } catch (_) {}
+  }
+
+  return { ok: severity !== "CRITICAL", severity, ...payload };
+}
+
+// ============================================================================
+// SECTION 11 — EXPORTS
 // ============================================================================
 
 module.exports = {
@@ -508,6 +603,7 @@ module.exports = {
   start,
   stop,
   runTick,
+  runStatusCheck,
   addScc,
   removeScc,
   listSccs,
