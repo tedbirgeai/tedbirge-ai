@@ -862,3 +862,30 @@ model RealtimeEvent {
   @@index([channel, createdAt])
   @@index([userId, consumed])
 }
+
+// TUR #71 A23 — EmailDigest (sabah 09:00 inbox raporu)
+model EmailDigest {
+  id        String   @id @default(cuid())
+  sentAt    DateTime @default(now())
+  metrics   Json
+  status    String   @default("SENT")
+  error     String?
+
+  @@index([sentAt])
+}
+
+// TUR #71 A18 — Pulse haftalık trend snapshot
+model Pulse {
+  id        String          @id @default(cuid())
+  weekStart DateTime        @unique
+  metrics   Json
+  trendType PulseTrendType  @default(WEEKLY)
+  createdAt DateTime        @default(now())
+
+  @@index([weekStart])
+}
+
+enum PulseTrendType {
+  WEEKLY
+  MONTHLY
+}

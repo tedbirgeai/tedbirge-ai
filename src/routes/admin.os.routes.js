@@ -167,6 +167,60 @@ router.post(
   })
 );
 
+// TUR #71 A22 — Akış paneli: tek modül için son N AgentEvent (modül kartı expand)
+router.get(
+  "/modules/:agentName/events",
+  auth,
+  role("ADMIN"),
+  asyncHandler(async (req, res) => {
+    const { agentName } = req.params;
+    const limit = Math.min(parseInt(req.query.limit) || 10, 50);
+    const events = await prisma.agentEvent.findMany({
+      where: { agentName },
+      orderBy: { createdAt: "desc" },
+      take: limit,
+      select: { id: true, eventType: true, severity: true, payload: true, createdAt: true },
+    });
+    res.json({ success: true, events, agentName });
+  }),
+);
+
+// TUR #71 A24 — Global olay akışı (tüm modüller, son 50 AgentEvent)
+router.get(
+  "/events-feed",
+  auth,
+  role("ADMIN"),
+  asyncHandler(async (req, res) => {
+    const limit = Math.min(parseInt(req.query.limit) || 50, 200);
+    const events = await prisma.agentEvent.findMany({
+      orderBy: { createdAt: "desc" },
+      take: limit,
+      select: { id: true, agentName: true, eventType: true, severity: true, payload: true, createdAt: true },
+    });
+    res.json({ success: true, events });
+  }),
+);
+
+// TUR #71 A19 — LLM Router CEO komut çubuğu (Anthropic Tool Use, SELECT-only)
+router.post(
+  "/command",
+  auth,
+  role("ADMIN"),
+  asyncHandler(async (req, res) => {
+    const { query } = req.body;
+    if (!query || typeof query !== "string") {
+      return res.status(400).json({ success: false, error: "query string zorunlu" });
+    }
+    try {
+      const llmRouter = require("../services/llmRouter.service");
+      const result = await llmRouter.routeCommand(query);
+      res.json({ success: true, ...result });
+    } catch (err) {
+      res.status(500).json({ success: false, error: err.message });
+    }
+  }),
+);
+
 // TUR #69.5 C3 — UI endpoint: 16 modül son durum (lastRunAt + eventCountLast1h + severity)
 router.get(
   "/modules/status",

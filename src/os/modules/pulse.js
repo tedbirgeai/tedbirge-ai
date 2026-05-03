@@ -369,7 +369,92 @@ async function policyHandler(policy, _prisma) {
 registerPolicyHandler(MODULE_NAME, policyHandler);
 
 // ============================================================================
-// SECTION 10 — TUR #70 A13 — runStatusCheck (24h adapter uptime + AgentEvent)
+// SECTION 10 — TUR #71 A18 — weeklyRunner (Pazar 23:59 Pulse snapshot)
+// ============================================================================
+
+async function weeklyRunner() {
+  const prismaClient = require("../../config/db");
+  const now = new Date();
+  const dayMs = 24 * 60 * 60 * 1000;
+  const weekStart = new Date(now.getTime() - now.getDay() * dayMs);
+  weekStart.setUTCHours(0, 0, 0, 0);
+
+  const since = new Date(now.getTime() - 7 * dayMs);
+
+  let leadCount = 0;
+  let docCount = 0;
+  let revenueSum = 0;
+  let aiCallCount = 0;
+  let failedDocCount = 0;
+  let criticalEvents = 0;
+
+  try {
+    [leadCount, docCount, aiCallCount, failedDocCount, criticalEvents] = await Promise.all([
+      prismaClient.lead.count({ where: { createdAt: { gte: since } } }).catch(() => 0),
+      prismaClient.document.count({ where: { createdAt: { gte: since } } }).catch(() => 0),
+      prismaClient.document.count({
+        where: { aiAnalysis: { not: null }, updatedAt: { gte: since } },
+      }).catch(() => 0),
+      prismaClient.document.count({
+        where: { status: "FAILED", updatedAt: { gte: since } },
+      }).catch(() => 0),
+      prismaClient.agentEvent.count({
+        where: { severity: "CRITICAL", createdAt: { gte: since } },
+      }).catch(() => 0),
+    ]);
+
+    const tahsilat = await prismaClient.commissionLog.aggregate({
+      where: { createdAt: { gte: since } },
+      _sum: { tahsilatBrut: true },
+    }).catch(() => ({ _sum: { tahsilatBrut: 0 } }));
+    revenueSum = Number(tahsilat._sum?.tahsilatBrut || 0);
+  } catch (_) {}
+
+  const metrics = {
+    weekStart: weekStart.toISOString(),
+    leadCount,
+    docCount,
+    aiCallCount,
+    failedDocCount,
+    criticalEvents,
+    revenueSum,
+  };
+
+  try {
+    await prismaClient.pulse.upsert({
+      where: { weekStart },
+      create: { weekStart, metrics, trendType: "WEEKLY" },
+      update: { metrics },
+    });
+  } catch (err) {
+    console.error("[os/pulse] weeklyRunner Pulse.upsert hata:", err.message);
+  }
+
+  // 12 haftadan eski olanları temizle (3 ay tutar)
+  try {
+    const twelveWeeksAgo = new Date(now.getTime() - 12 * 7 * dayMs);
+    await prismaClient.pulse.deleteMany({
+      where: { weekStart: { lt: twelveWeeksAgo } },
+    });
+  } catch (_) {}
+
+  // AgentEvent
+  try {
+    await prismaClient.agentEvent.create({
+      data: {
+        agentName: "pulse",
+        eventType: "WEEKLY_SNAPSHOT",
+        severity: "INFO",
+        payload: { ...metrics, message: `Pulse haftalık snapshot · ${leadCount} lead · ${docCount} belge · ${revenueSum} TL` },
+      },
+    });
+  } catch (_) {}
+
+  return { ok: true, metrics };
+}
+
+// ============================================================================
+// SECTION 11 — TUR #70 A13 — runStatusCheck (24h adapter uptime + AgentEvent)
 // ============================================================================
 
 async function runStatusCheck() {
@@ -425,6 +510,7 @@ module.exports = {
   stop,
   runTick,
   runStatusCheck,
+  weeklyRunner,
   getStatus,
   calculateUptime,
   classifyAdapter,
