@@ -381,7 +381,148 @@ async function policyHandler(policy, _prisma) {
 registerPolicyHandler(MODULE_NAME, policyHandler);
 
 // ============================================================================
-// SECTION 8 — EXPORTS
+// SECTION 8 — TUR #69 A4 — runStatusCheck (Supabase backup yaşı + AgentEvent)
+// ============================================================================
+
+/**
+ * Yedekleme modülü gerçek görev:
+ *  - Supabase Management API ile son snapshot listele
+ *  - Son snapshot yaşı: <24h INFO, 24-26h WARNING, >26h CRITICAL
+ *  - SUPABASE_SERVICE_ROLE_KEY yoksa SKIP mode + WARNING
+ */
+async function runStatusCheck() {
+  const startTs = Date.now();
+  const prismaClient = require("../../config/db");
+  const apiKey = process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.SUPABASE_SERVICE_KEY;
+  const supabaseUrl = process.env.SUPABASE_URL || "";
+
+  let severity = "INFO";
+  let payload = {};
+
+  if (!apiKey || !supabaseUrl) {
+    severity = "WARNING";
+    payload = {
+      mode: "SKIP",
+      reason: "SUPABASE_SERVICE_ROLE_KEY veya SUPABASE_URL eksik",
+      message: "Yedekleme · ENV eksik, snapshot kontrolü atlandı",
+      durationMs: Date.now() - startTs,
+    };
+  } else {
+    // Project ref URL'den çıkar: https://abcd.supabase.co → abcd
+    const projectRef = supabaseUrl.replace(/^https?:\/\//, "").split(".")[0];
+    let snapshots = [];
+    let apiError = null;
+
+    try {
+      const controller = new AbortController();
+      const timer = setTimeout(() => controller.abort(), 10_000);
+      const res = await fetch(
+        `https://api.supabase.com/v1/projects/${projectRef}/database/backups`,
+        {
+          method: "GET",
+          headers: {
+            Authorization: `Bearer ${apiKey}`,
+            "content-type": "application/json",
+          },
+          signal: controller.signal,
+        },
+      );
+      clearTimeout(timer);
+      if (res.ok) {
+        const data = await res.json();
+        snapshots = Array.isArray(data?.backups) ? data.backups : Array.isArray(data) ? data : [];
+      } else {
+        apiError = `HTTP ${res.status}`;
+      }
+    } catch (err) {
+      apiError = err.message || "fetch error";
+    }
+
+    if (apiError) {
+      severity = "WARNING";
+      payload = {
+        mode: "API_ERROR",
+        apiError,
+        message: `Yedekleme · Supabase API erişim hatası: ${apiError}`,
+        durationMs: Date.now() - startTs,
+      };
+    } else {
+      // Son snapshot yaşı
+      const sortedTimes = snapshots
+        .map((s) => new Date(s.inserted_at || s.created_at || s.timestamp || s.completed_at).getTime())
+        .filter((t) => Number.isFinite(t))
+        .sort((a, b) => b - a);
+      const latestTime = sortedTimes[0] || null;
+      const ageHours = latestTime ? (Date.now() - latestTime) / (60 * 60 * 1000) : null;
+
+      if (ageHours === null) {
+        severity = "CRITICAL";
+        payload = {
+          snapshotCount: snapshots.length,
+          message: "Yedekleme · Snapshot yok veya tarih okunamadı",
+          durationMs: Date.now() - startTs,
+        };
+      } else if (ageHours > 26) {
+        severity = "CRITICAL";
+        payload = {
+          snapshotCount: snapshots.length,
+          latestSnapshot: new Date(latestTime).toISOString(),
+          ageHours: Math.round(ageHours * 10) / 10,
+          message: `Yedekleme · Son snapshot ${Math.round(ageHours)}h önce — KRITIK gecikme`,
+          durationMs: Date.now() - startTs,
+        };
+      } else if (ageHours >= 24) {
+        severity = "WARNING";
+        payload = {
+          snapshotCount: snapshots.length,
+          latestSnapshot: new Date(latestTime).toISOString(),
+          ageHours: Math.round(ageHours * 10) / 10,
+          message: `Yedekleme · Son snapshot ${Math.round(ageHours)}h önce — sınır`,
+          durationMs: Date.now() - startTs,
+        };
+      } else {
+        severity = "INFO";
+        payload = {
+          snapshotCount: snapshots.length,
+          latestSnapshot: new Date(latestTime).toISOString(),
+          ageHours: Math.round(ageHours * 10) / 10,
+          message: `Yedekleme · ${snapshots.length} snapshot, son ${Math.round(ageHours)}h önce`,
+          durationMs: Date.now() - startTs,
+        };
+      }
+    }
+  }
+
+  try {
+    await prismaClient.agentEvent.create({
+      data: {
+        agentName: MODULE_NAME, // "backup"
+        eventType: "STATUS_CHECK",
+        severity,
+        payload,
+      },
+    });
+  } catch (evtErr) {
+    console.error("[os/backup] AgentEvent yazma hata:", evtErr.message);
+  }
+
+  if (severity === "CRITICAL") {
+    try {
+      await prismaClient.realtimeEvent.create({
+        data: {
+          channel: "ADMIN_FEED",
+          eventType: "BACKUP_STALE",
+          payload,
+        },
+      });
+    } catch (_) {}
+  }
+
+  return { ok: severity !== "CRITICAL", severity, ...payload };
+}
+
+// ============================================================================
+// SECTION 9 — EXPORTS
 // ============================================================================
 
 module.exports = {
@@ -389,6 +530,7 @@ module.exports = {
   stop,
   runDatabaseBackup,
   runStorageBackup,
+  runStatusCheck,
   getStatus,
   getBackupHistory,
   resetState,
