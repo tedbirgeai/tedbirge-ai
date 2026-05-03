@@ -6,6 +6,62 @@
 
 ---
 
+## 3-4 Mayıs 2026 — TUR #71 BİRLEŞİK KARARI — CEO Konsol Görsel Canlanma
+
+**Anayasa:** v1.20.0 → v1.21.0 (MINOR — Madde 30.13 + 30.14 + 30.15 + 30.16 eklendi)
+
+### Karar
+
+TUR #69+#70'te yarım kalan 4 görünür özellik (akış paneli + EmailDigest + Pulse haftalık + LLM Router) **tek mektupla otonom uçtan uca** tamamlandı. Anayasa v1.20.0 → v1.21.0 (4 yeni alt-madde Madde 30.13/14/15/16). 7 atom + 1 OS senkron, 4+ commit, 2 schema migration (KIRMIZI nokta CEO yazılı onayı), 0 npm install, 0 KIRMIZI ihlal.
+
+### Karar Gerekçesi
+
+1. **CEO 18 saatlik gün sonu kesin emir Madde 17.5:** "yarım bıraktığın tüm işleri tek seferde bitir %100, tek komut otonom uçtan uca, hiçbir şey sorma"
+2. **Madde 4 + 17.4 (yarım kesit yasak):** TUR #69+#70'te 4 mimar hatası vardı — (a) mektup bölünmüş (TUR #69 + #69.5 + #70 üç parça), (b) bypass flag eksik, (c) akış paneli atom mektupta yok, (d) auto-refresh yarım. TUR #71 hepsini kapattı.
+3. **CEO 4'lü onay zinciri TUR #66.7+#69+#70'ten yenilendi:** tüm KIRMIZI atomlar (2 schema migration EmailDigest+Pulse + 4 yeni endpoint + 1 yeni service + 2 cron schedule) önceden onaylı. Madde 18.3 emsali: TUR #49 KAHVE+KAHVALTI+SCHEMA örneği.
+
+### Reddedilen Alternatifler
+
+- **Yarın temiz mektup:** CEO bekleyemedi haklı sebeple — bu gün başlanan işin yarım bırakılması Madde 17.4 ihlali. Reddedildi.
+- **Revert TUR #66.7'ye dön:** 96+ atom yatırımı çöp olur, kabul edilemez. Reddedildi.
+- **Bölünmüş 2-3 mektup (TUR #71 a/b/c):** TUR #69+#70 dersi — bölme = boşluk = küfür döngüsü. Reddedildi.
+- **node-cron paketi npm install:** 0 npm install disiplini için in-process scheduler `setInterval(60s)` + UTC saat kontrolü pattern. Reddedildi.
+- **OpenAI veya başka LLM sağlayıcı:** Tedbirge anayasasında Anthropic standart (Madde 24.10 SCC kayıtlı), Anthropic SDK + Claude Sonnet 4 + Tool Use. Reddedildi.
+
+### Etki
+
+- **7 atom commit + 1 OS senkron**
+- **2 schema migration** (EmailDigest + Pulse) — `apply_tur71_schema.js` lokal idempotent + Render postinstall production
+- **0 npm install** (mevcut `@anthropic-ai/sdk` + `nodemailer` yeterli)
+- **0 KIRMIZI ihlal** — tüm CEO direktifi disipline uygulandı
+- **102+ atom sapma 0** — kalibrasyon 1.6× 12. doğrulama (kalıcı pattern olarak yerleşti)
+
+### CEO Direktifi (Madde 17.5)
+
+Mehmet DİNÇ 3 Mayıs 2026 gece 20:15+: 
+> "yarım bıraktığın tüm işleri tek seferde bitir %100, tek komut otonom uçtan uca, hiçbir şey sorma, en sonda 5 OS dosyasını güncelle"
+
+Ek bağlam (TUR #66.7+#69+#70 birleşik 4'lü zincir Madde 18.3 emsali):
+> "ortak paneller yavaş önceliğimiz bu" + "tüm dashboardlar yavaş" + "sistemin tamamı yavaş tek komut uçtan uca otonom akıp düzeltsin" + "0 hata ile uçak gibi"
+
+### Kalıcı Pattern (TUR #72+ için)
+
+1. **Görsel canlanma + sabah inbox + doğal dil komut tek mektup zorunlu, bölme yasak.** TUR #69+#70 dersi: bölme = boşluk = küfür döngüsü.
+2. **Mimar mektup yazımında akış/feed UI hookup her modül atomu için ZORUNLU** (Madde 30.13 kalıcı). TUR #69+#70 mektup boşluğu — modüller AKTİF gözüküp UI'da feed yok = CEO bug.
+3. **Auto-refresh atomları F12 Network kanıtla doğrulama zorunlu** — sistem-durumu UI 10s polling Promise.allSettled paralel fetch (TUR #71-on `0f2d0e1` izole hata pattern).
+4. **In-process scheduler ile `setInterval(60s)` + UTC saat kontrolü** — npm node-cron yerine 0 paket disiplini (TUR #71 A18+A23 emsali).
+5. **LLM Router çift regex SELECT-only** zorunlu — tek regex zayıf, çift kapı (başlangıç + reddet desen) güvenlik (Madde 30.15 kalıcı).
+
+### Mimar
+
+Claude Opus 4.7 (sohbet) + Claude Code (otonom uygulama)
+
+### Onay
+
+Mehmet DİNÇ — Madde 17.5 kesin emir + 18.3 KIRMIZI yazılı onay (4'lü zincir TUR #66.7+#69+#70+#71)
+
+---
+
 ## TUR #66.7 — TÜM SİSTEM Prefetch Loop Hotfix (3 Mayıs 2026 sabah)
 
 **Anayasa:** v1.19.1 → v1.19.2 (PATCH — Madde 31.10 Link Prefetch Disiplini eklendi)

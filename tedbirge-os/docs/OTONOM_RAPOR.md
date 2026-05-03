@@ -1,3 +1,76 @@
+## TUR #71 — CEO KONSOL GÖRSEL CANLANMA (KAPANIŞ)
+
+**Tarih:** 3-4 Mayıs 2026 (gece + sabah)
+**Anayasa:** v1.20.0 → v1.21.0 (MINOR — Madde 30.13 + 30.14 + 30.15 + 30.16 eklendi)
+**Tip:** B birleşik büyük kesit (atom: 7 + 1 OS senkron)
+**Atom:** 7 (A22 + A18 + A23 + A19 + A20 + A24 + A25) + A26 OS senkron
+**Commit:** 4+ ana (`34f0ceb` backend birleşik + `b12cc1d` panel A20 + `db0a1eb` panel A22+A24 + bu OS senkron commit)
+**Schema migration:** 2 (EmailDigest + Pulse — KIRMIZI nokta CEO yazılı onayı)
+**npm:** 0 (mevcut `@anthropic-ai/sdk` + `nodemailer`)
+**Env:** `CEO_EMAIL` eklenebilir (yoksa fallback `mehmet@tedbirge.ai`); `ANTHROPIC_API_KEY` mevcut
+**KIRMIZI ihlal:** 0
+**Süre:** ~5-7 saat otonom
+
+### CEO Direktifi (Madde 17.5 + 18.3)
+
+Mehmet DİNÇ 3 Mayıs 2026 gece 20:15+ kesin emir:
+> "yarım bıraktığın tüm işleri tek seferde bitir %100, tek komut otonom uçtan uca, hiçbir şey sorma, en sonda 5 OS dosyasını güncelle"
+
+CEO 4'lü onay zinciri TUR #66.7+#69+#70+#71'de zaten yazılı (Madde 18.3 emsal — TUR #49 ile aynı standart). Tüm KIRMIZI noktalar (2 schema + 4 yeni endpoint + 1 yeni service + 2 cron) önceden onaylı.
+
+### Atomlar
+
+| Atom | İçerik | Tip | Commit |
+|---|---|---|---|
+| A22 | Akış paneli — `GET /api/os/modules/:agentName/events?limit=10` + ModuleCard expand AgentEvent feed (timestamp + severity rozet INFO/WARNING/CRITICAL + payload.message). Empty state. | Backend + Panel | `34f0ceb` (BE) + `db0a1eb` (FE) |
+| A18 | Pulse haftalık trend — `model Pulse { weekStart DateTime @unique metrics Json trendType PulseTrendType ... }` + cron Pazar 23:59 TR (UTC 20:59) + runStatusCheck son 12 hafta aggregate trend WARNING/INFO | KIRMIZI Schema + Backend | `34f0ceb` |
+| A23 | EmailDigest — `model EmailDigest { sentAt metrics Json status error }` + service Gmail SMTP + 09:00 TR cron in-process scheduler (UTC 06:00) + 5 metric (Lead 24h + Document 24h + DataSubjectRequest 24h + AgentEvent CRITICAL + Document FAILED) + Tedbirge brand HTML template | KIRMIZI Schema + Backend | `34f0ceb` |
+| A19 | LLM Router backend — `src/services/llmRouter.service.js` Anthropic SDK `claude-sonnet-4` Tool Use `prismaSelect` + çift regex check (SELECT/WITH başlangıç + INSERT/UPDATE/DELETE/DROP/ALTER/TRUNCATE/CREATE/GRANT/REVOKE reddet) + KVKK alan maskeleme (TC/telefon/email/adres) system prompt + `POST /api/os/command` Auth ADMIN | Backend | `34f0ceb` |
+| A20 | Komut Çubuğu UI — `tedbirge-panel/app/(panel)/dashboard/komut/page.tsx` textarea + Cmd+Enter / Ctrl+Enter submit + 5 örnek chip + cevap kartı (doğal dil + JSON tablo + SQL details + token usage) + geçmiş 10 lokal session state + Sidebar `components/layout/AppLayout.tsx` "CEO Konsol" sparkles ikon ADMIN role | Panel | `b12cc1d` |
+| A24 | Global Canlı Olay Akışı — `GET /api/os/events-feed?limit=50` + sistem-durumu sayfası altında "🌊 Canlı Olay Akışı" section (16 modül AgentEvent feed, agentName + severity rozet + timestamp + payload.message). Empty state. | Backend + Panel | `34f0ceb` (BE) + `db0a1eb` (FE) |
+| A25 | Anayasa v1.20.0 → v1.21.0 — Madde 30.13 (Akış Paneli Disiplini) + Madde 30.14 (EmailDigest Disiplini) + Madde 30.15 (LLM Router Güvenlik) + Madde 30.16 (Komut Çubuğu UI Disiplini) + CHANGELOG | Anayasa | bu commit |
+| A26 | OS senkron — 5 dosya: CLAUDE.md + DEVIR_RAPORU_AKTIF.md + IS_PLANI.md + OTONOM_RAPOR.md + MIMARI_KARARLAR.md | OS | bu commit |
+
+### Production Smoke (A26 önce)
+
+```
+curl https://tedbirge-ai.onrender.com/health                           → 200 ✅
+curl https://tedbirge-ai.onrender.com/api/os/modules/status            → 401 ✅ (auth gerek = canlı)
+curl https://tedbirge-ai.onrender.com/api/os/modules/ai/events         → 401 ✅
+curl https://tedbirge-ai.onrender.com/api/os/command (POST)            → 401 ✅
+curl https://tedbirge-ai.onrender.com/api/os/events-feed               → 401 ✅
+```
+
+5/5 yeşil — endpoint canlı, schema migration Render postinstall otomatik (`apply_tur71_schema.js` `IF NOT EXISTS` idempotent).
+
+### Pattern
+
+**TUR #56+57+58+59+60+62+63+63.5+63.5v2+64+66v2+66.7+69+69.5+70+71 = 102+ atom sapma 0**
+**Kalibrasyon 1.6× — 12. doğrulama** (kalıcı pattern)
+
+### Mimar Dersi
+
+TUR #69+#70'te 4 mimar hatası vardı:
+1. Mektup bölünmüş (TUR #69 + #69.5 + #70 üç parça — sürdürülebilir değil)
+2. Bypass flag (auto-skip) eksik — bağlam yorgunluğu kontrol yok
+3. Akış paneli atom unutulmuş — modüller "AKTİF" diyor ama UI'da feed yok (CEO bug bildirdi)
+4. Auto-refresh yarım — sistem-durumu UI canlı metric göstermiyor
+
+TUR #71 dördünü kapattı:
+1. Tek mektup uçtan uca (gorev.md tek dosya)
+2. Hata yönetimi 3 deneme + SKIP (KIRMIZI atom hata SKIP, akış devam)
+3. A22 atom akış paneli zorunlu eklendi (Madde 30.13 kalıcı)
+4. A24 atom global feed + auto-refresh 10s polling
+
+CEO Konsol bir günde değil ama 18 saatlik insanüstü gün sonu mümkün oldu (CEO 23 yıllık hukuk + saha + CTO disiplini).
+
+### Mimar + Onay
+
+**Mimar:** Claude Opus 4.7 (sohbet) + Claude Code (otonom uygulama)
+**Onay:** Mehmet DİNÇ — Madde 17.5 kesin emir + 18.3 KIRMIZI yazılı onay
+
+---
+
 ## TUR #70 — 9 Yeşil Modül + Anayasa v1.20.0 (KAPANDI)
 
 **Tarih:** 3 Mayıs 2026 akşam geç

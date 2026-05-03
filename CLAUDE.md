@@ -1510,6 +1510,71 @@ Auditor/Healer/Reporter ADMIN'e bildirim göndermek için `RealtimeEvent` tablos
 
 **Lokal DB drift:** Modüller production schema bekliyor olabilir (yeni alanlar). Lokal dev DB drift varsa runStatusCheck içinde her DB sorgu kendi try-catch'inde noop'a düşer — runStatusCheck **rejected** olmaz, severity INFO ile devam eder. Lokal smoke için Madde 4.4 (kod kaynaktır) — production schema yansımış olduğu için orada hata olmaz.
 
+### 30.13 — Akış Paneli Disiplini (TUR #71 A22)
+
+**Kural:** Sistem-durumu UI'da **her modül kartı** AgentEvent feed expand bölümü içerir. ModuleCard'da "Akış" butonuna basıldığında o modülün son N AgentEvent'i (`/api/os/modules/:agentName/events?limit=10`) yüklenir, timestamp + severity rozet (INFO/WARNING/CRITICAL) + payload.message satır olarak gösterilir.
+
+**Empty state:** "Bu modülün son aktivitesi yok" — gerçekten 0 olay olduğunda. Sahte "yükleniyor" sonsuz döngü YASAK (TUR #69+#70 dersi: Akış paneli olmayan modül = mimar mektup boşluğu).
+
+**Backend zorunlu:** `GET /api/os/modules/:agentName/events?limit=10` Auth ADMIN, `prisma.agentEvent.findMany({ where: { agentName }, orderBy: { createdAt: "desc" }, take: limit })`. Yeni modül ekleyen mektupta bu endpoint hookup atom **ZORUNLU** — backend route + frontend toggleLogs fetch zinciri tam.
+
+**Yasak:**
+- ❌ ModuleCard'da Akış butonu olup endpoint çağrısı olmaması (UI yalanı)
+- ❌ Yeni modül için akış paneli atom unutulması (TUR #69+#70 mektup boşluğu)
+- ❌ Empty state yerine "..." yükleniyor sonsuz spinner
+
+### 30.14 — EmailDigest Disiplini (TUR #71 A23)
+
+**Kural:** CEO sabah inbox'ında **09:00 TR** her gün otomatik özet emaili olur. `src/services/emailDigest.service.js` Gmail SMTP transporter (`email.service`) üzerinden gönderir. İçerik: son 24h Lead.count + Document.count + DataSubjectRequest.count + AgentEvent CRITICAL count + Document FAILED count.
+
+**Cron:** `src/agents/runner.js` in-process scheduler (1 dk interval, UTC saat kontrolü) — `node-cron` paketsiz disiplin. UTC 06:00 = TR 09:00. Aynı gün tekrar tetiklenmesin diye `lastDigestDate` flag.
+
+**Hedef:** `process.env.CEO_EMAIL` fallback `mehmet@tedbirge.ai`. KVKK m.4 — müvekkil verisi maskelenmemiş gönderilemez (sadece sayısal aggregate).
+
+**EmailDigest tablosu:** `prisma.emailDigest` her gönderim için kayıt (sentAt + metrics + status + error). Modül `src/os/modules/emailDigest.js` runStatusCheck son sentAt + 7 gün gönderim sayısı + son hata AgentEvent yazar.
+
+**Yasak:**
+- ❌ HTML template'te ham müvekkil ismi/TC/telefon/email
+- ❌ CEO_EMAIL env değişikliğini KIRMIZI nokta olmadan değiştirme (Madde 3 #5)
+- ❌ Cron scheduler atom atlaması — gün başı emaili olmadan EmailDigest disiplini yarım
+
+### 30.15 — LLM Router Güvenlik Disiplini (TUR #71 A19)
+
+**Kural:** CEO Konsol doğal dil sorgu → SQL → Anthropic Tool Use → cevap zinciri **SADECE SELECT** çalışır. `src/services/llmRouter.service.js` SDK `@anthropic-ai/sdk` model `claude-sonnet-4`.
+
+**SQL regex check (zorunlu çift kapı):**
+1. `!/^\s*(SELECT|WITH)/i.test(sql)` → REDDET
+2. `/(INSERT|UPDATE|DELETE|DROP|ALTER|TRUNCATE|CREATE|GRANT|REVOKE)/i.test(sql)` → REDDET
+
+İkili kontrol — biri kırılsa diğeri korur. Sadece geçerse `prisma.$queryRawUnsafe(sql)` çalıştırılır.
+
+**KVKK alan maskeleme (system prompt):** TC kimlik, telefon, email, adres alanları döndürülürken Madde 21.7 maskeleme (`5XX-***-**98`, `te***@gmail.com`, `***`) uygulanır. System prompt'ta açık talimat zorunlu.
+
+**Tool Use:** Anthropic `tool_use` block ile `prismaSelect` tool. Backend tool execute SQL regex check sonrası prisma sorgu, tool_result Anthropic'e dönüş.
+
+**Yasak:**
+- ❌ Tek regex check (çift kapı zorunlu)
+- ❌ INSERT/UPDATE/DELETE komut zincirine kapı açma (KIRMIZI Madde 3 #3 ihlali)
+- ❌ Maskelenmemiş KVKK alanı CEO'ya bile döndürme
+- ❌ ANTHROPIC_API_KEY hardcode (env zorunlu)
+
+### 30.16 — Komut Çubuğu UI Disiplini (TUR #71 A20)
+
+**Kural:** `/dashboard/komut` sayfası — CEO Konsol arayüzü. Üst textarea + **Cmd+Enter (Mac) / Ctrl+Enter (Win)** submit. Loading shimmer state. Geçmiş 10 sorgu **lokal session state** (DB persist YASAK — Madde 21.7 KVKK).
+
+**Cevap kartı:** doğal dil paragraf + JSON tablo (max 20 satır collapsible) + SQL details + token usage. ApiFetch wrapper (Madde 13.2) zorunlu.
+
+**Sidebar:** `components/layout/AppLayout.tsx` "CEO Konsol" menü, ADMIN role, `✨` (sparkles) ikon, route `/dashboard/komut`.
+
+**Örnek chip'ler:** En az 3 örnek (avukat lead, KVKK başvuru, tahsilat). Tıklanınca query alanı otomatik doldurur.
+
+**Mobile responsive zorunlu** (max-w-4xl + p-6).
+
+**Yasak:**
+- ❌ Geçmiş 10 sorgu DB persist (KVKK riski + cache şişkin)
+- ❌ Submit butonu olmadan sadece klavye shortcut (erişilebilirlik)
+- ❌ apiFetch atlama (Madde 13.2 ihlali)
+
 ---
 
 ## 31. TASARIM DİSİPLİNİ — Tedbirge Design System v1.0
@@ -1822,7 +1887,7 @@ Mehmet Bey sahaya çıkabilsin diye bu disiplin var.
 
 ---
 
-**— Tedbirge Mimari Anayasası v1.20.0**  
+**— Tedbirge Mimari Anayasası v1.21.0**  
 **25 Nisan 2026 — başlangıç (Claude Opus 4.7)**  
 **28 Nisan 2026 — v1.7.0 (Madde 26-32 eklendi: otonom devir, sağlık periyodikliği, T tipi onay, migration kanıtı, frontend standardı, ortam izolasyonu, anayasa boyutu)**  
 **28 Nisan 2026 — v1.8.0 (Madde 28 eklendi: Beklemede Özellik Disiplini — AccidentCase TUR #29 dersi; Madde 28 (eski 33) kapanış → 29 (eski 34) olarak yeniden numaralandı)**  
@@ -1838,6 +1903,7 @@ Mehmet Bey sahaya çıkabilsin diye bu disiplin var.
 **1 Mayıs 2026 — v1.16.0 (TUR #57 — 4 CRM Rol-Ruh Karakter Farklılaştırma: 12 atom (3 KRİTİK + 9 ORTA) ile 9 yeni DS komponenti (AnomalyStrip + KPICardEnhanced + Sparkline + CaseFolderCard + LawyerHealthTriad + KanbanBoard + DealCard + ActivityCounter + TimelineDot + TrustBadge + KeyboardShortcutsHelp), 2 yeni route (/dashboard/komuta + /temsilci/pipeline), 2 yeni utility (lib/sadelestir 30 terim + lib/keyboardNav G+harf), 2 mini endpoint (anomalies + lead aşama). Madde 31.9 Rol-Ruh Tasarım Prensibi tohumdan resmileşmeye geçti. 0 schema migration, 0 npm paket (3 paket adayı native alternatifle reddedildi: react-beautiful-dnd → HTML5 DragEvent, canvas-confetti → CSS keyframe, lottie-react → inline SVG). 4 CRM artık niş emsal seviyesinde (Stripe Dashboard+Linear, Clio+MyCase, HubSpot+Pipedrive, Stripe Customer Portal+Apple HIG). KAPANIŞ Madde 32'ye kaydı.)**  
 **1 Mayıs 2026 — v1.17.0 (TUR #58 — FAZ 5 DISCOVERABILITY başlangıcı: 9 atom (1 KRİTİK + 7 ORTA + 1 OS) ile llms.txt + JsonLd 3 yeni factory (FAQPage + HowTo + BreadcrumbList) + 3 niş landing'e SSS schema (15+15+10 toplam 40 SSS) + yeni /tazminat-rehberi sayfası (8 adım HowTo) + AI snippet meta disiplini + BrandFooterStrip 4 sayfada. Madde 33 (İçerik Üretim Disiplini) eklendi: avukat onayı zorunlu, TBB Reklam Yasağı uyumu, AI sadece taslak yazar — avukat onaylar, disclaimer her içerikte. 0 schema migration, 0 npm paket. CEO direktifi 1 Mayıs 2026 (Aylık Sabit Aidat Yasağı) MIMARI_KARARLAR.md'ye eklendi: tüm 3. parti SaaS sabit aidat yasak, sadece kullanım bazlı API ücreti orantılı geçer. KAPANIŞ Madde 32'ye kaydı.)**  
 **1 Mayıs 2026 — v1.18.0 (TUR #59 — FAZ 5 İçerik Üretimi KAPANIŞ: 10 atom sapma 0 ile 50 niş makale (Trafik 20 + İş Kazası 15 + Sigorta+Genel 15) + 3 pillar refactor (cluster grid) + blog detay FAQPage+BreadcrumbList JsonLd + sitemap auto-update (51 makale URL) + iç linking audit (150 cross-link, 0 bozuk). Madde 33.2 düzeltme: avukat onayı yerine Madde 25.3 KIRMIZI listesi kontrolü yeterli (TUR #47 fizibilite raporları zaten anayasal düzeyde kurulmuş). Mevcut lib/blog.ts POSTS array genişletildi (MDX altyapısı reddedildi — 0 npm install). Pattern: TUR #56+57+58+59 = 43/43 atom sapma 0 — kalibrasyon 1.6× dördüncü kez kalıcı pattern. KAPANIŞ Madde 32'ye kaydı.)**  
+**3 Mayıs 2026 — v1.21.0 (TUR #71 BIRLESIK 7 atom uçtan uca: A22 Akış paneli + A18 Pulse haftalık + A23 EmailDigest 09:00 cron + A19 LLM Router backend (Anthropic Tool Use SELECT-only) + A20 Komut Çubuğu UI + A24 Global Canlı Olay Akışı + A25 Anayasa + A26 OS senkron. CEO 18 saatlik gün sonu kesin emir Madde 17.5: "tek komut otonom uçtan uca soru sorma". Madde 30'a 4 yeni alt-madde eklendi: 30.13 Akış Paneli Disiplini + 30.14 EmailDigest Disiplini + 30.15 LLM Router Güvenlik (çift regex SELECT-only + KVKK alan maskele) + 30.16 Komut Çubuğu UI Disiplini (Cmd+Enter + geçmiş 10 lokal state). 2 schema migration (EmailDigest + Pulse — KIRMIZI nokta CEO yazılı onayı), 0 npm install (mevcut @anthropic-ai/sdk + nodemailer). Pattern: TUR #56+...+71 = 102+ atom sapma 0 — kalibrasyon 1.6× 12. doğrulama. TUR #69+#70 mektup boşluğu (akış paneli atom unutulması) TUR #71 ile kapatıldı.)**  
 **3 Mayıs 2026 — v1.20.0 (TUR #69 + #69.5 + #70 BİRLEŞİK — 16 OS Modülü Canlı: Madde 30.10 — 16 Modül Otonom Disiplini eklendi. Auditor agent her 5 dk tick'te 16 modülün runStatusCheck'ini paralel çağırır (Promise.allSettled). 16/16 modül artık AgentEvent yazıyor (agentName UI key eşleşmesi), sistem-durumu UI canlı metrics gösteriyor (`/api/os/modules/status` endpoint). TUR #69 mektup boşluğu (orchestrator unutulmuş) TUR #69.5 hotfix ile kapandı. TUR #70 kalan 9 modül runStatusCheck eklendi (insurance/maintenance/navigation/notifications/performance/pulse/recovery/security/uyapControl). Pattern: TUR #56+...+69+69.5+70 = 95+ atom sapma 0. CEO 4'lü onay zinciri yenilendi: "kalanını tek komutla otonom bitir + parçalamadan aksın gitsin". Kalan iş yeni sohbete: A17 EmailDigest service, A18 Pulse haftalık schema, A19-A20 LLM Router (Anthropic Tool Use + komut çubuğu UI).)**  
 **3 Mayıs 2026 — v1.19.2 (TUR #66.7 — TÜM SİSTEM Prefetch Loop Hotfix: Madde 31.10 Link Prefetch Disiplini eklendi. Panel + müvekkil portal `<Link prefetch={false}>` zorunlu, public marketing istisna. useRealtimeFeed `useMemo`+`useCallback` stabilize. CEO browser test bulgusu: 1339 request + LCP 11.82s + DCL 3.2dk → Lokal build 0 hata, beklenen <100 request + LCP <4s. 7 atom (A0 keşif + A1 Sidebar/Nav + A2 Lead detay/liste + A3 panel/* + A4 NO-OP + A5 NO-OP + A6 SSE stabilize + A7 smoke + A8 production + A9 anayasa + A10 OS senkron). 24 dosya, ~65 Link prefetch={false}. 0 schema, 0 npm, 0 KIRMIZI. CEO yazılı onay 4'lü zincir: "ortak paneller yavaş" + "tüm dashboardlar" + "tek komut uçtan uca" + "0 hata ile uçak gibi". Pattern: TUR #56+57+58+59+60+62+63+63.5+63.5v2+64+66v2+66.7 = 80+ atom sapma 0.)**  
 **2 Mayıs 2026 — v1.19.1 (TUR #66 v2 — AI Analiz Pipeline TÜM SİSTEM Uçtan Uca: Madde 32.10 AI Analiz Tetikleyici Disiplini eklendi. 7 atom (A0 keşif + A2 finalize-upload setImmediate analyzeDocumentById + A3 frontend sabit "İşlem Hatası" silindi + A4 lawyerNotifications.notifyAiAnalysisFailed ADMIN bildirim + A5 admin retry endpoint POST /api/os/ai-retry/{all,id} + GET /api/os/ai-failed-count + A6 3 kanal smoke + A7 OS senkron). 5+ commit (4 backend + 1 panel). 0 schema, 0 npm, 0 KIRMIZI nokta. CEO direktifi "uçtan uca tek seferde geri dönüş yok". TUR #64 sonrası kopuk AI zinciri yeniden kuruldu, kullanıcıya sabit "İşlem Hatası" yerine gerçek hata mesajı gösteriliyor. Pattern: TUR #56+57+58+59+60+62+63+63.5+63.5v2+64+66v2 = 75+ atom sapma 0.)**  
