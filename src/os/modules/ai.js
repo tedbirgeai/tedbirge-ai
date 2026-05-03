@@ -357,12 +357,141 @@ try {
 }
 
 // ============================================================================
-// SECTION 10 — EXPORTS
+// SECTION 10 — TUR #69 A1 — runStatusCheck (gerçek görev + AgentEvent persistence)
+// ============================================================================
+
+/**
+ * Auditor/manuel tick tarafından çağrılır.
+ * Anthropic API health + 24h AI metrics + AgentEvent kaydı.
+ */
+async function runStatusCheck() {
+  const start = Date.now();
+  const prisma = require("../../config/db");
+  const apiKey = process.env.ANTHROPIC_API_KEY;
+
+  let claudeOK = false;
+  let claudeError = null;
+
+  // 1. Anthropic health (lightweight ping — claude-haiku, max_tokens=10)
+  if (apiKey) {
+    try {
+      const controller = new AbortController();
+      const timer = setTimeout(() => controller.abort(), 10_000);
+      const res = await fetch("https://api.anthropic.com/v1/messages", {
+        method: "POST",
+        headers: {
+          "x-api-key": apiKey,
+          "anthropic-version": "2023-06-01",
+          "content-type": "application/json",
+        },
+        body: JSON.stringify({
+          model: "claude-haiku-4-5-20251001",
+          max_tokens: 10,
+          messages: [{ role: "user", content: "ping" }],
+        }),
+        signal: controller.signal,
+      });
+      clearTimeout(timer);
+      claudeOK = res.ok;
+      if (!res.ok) claudeError = `HTTP ${res.status}`;
+    } catch (err) {
+      claudeError = err.message || "fetch error";
+    }
+  } else {
+    claudeError = "ANTHROPIC_API_KEY missing";
+  }
+
+  // 2-4. DB metrics (24h pencere)
+  const since = new Date(Date.now() - 24 * 60 * 60 * 1000);
+  let aiRequests24h = 0;
+  let failed24h = 0;
+  let lastDocAt = null;
+
+  try {
+    [aiRequests24h, failed24h, lastDocAt] = await Promise.all([
+      prisma.document.count({
+        where: { aiAnalysis: { not: null }, updatedAt: { gte: since } },
+      }),
+      prisma.document.count({
+        where: { status: "FAILED", updatedAt: { gte: since } },
+      }),
+      prisma.document
+        .findFirst({
+          where: { aiAnalysis: { not: null } },
+          orderBy: { updatedAt: "desc" },
+          select: { updatedAt: true },
+        })
+        .then((d) => d?.updatedAt || null),
+    ]);
+  } catch (dbErr) {
+    console.error("[os/ai] runStatusCheck DB hata:", dbErr.message);
+  }
+
+  const duration = Date.now() - start;
+
+  // 5. In-memory ring buffer'dan circuit ve mock istatistikleri
+  const circuitOpen = isCircuitOpen();
+  const mockFallbacks = totalMockFallbacks;
+
+  // 6. AgentEvent yaz (agentName="ai" — sistem-durumu UI MODULES key eşleşmesi)
+  const severity = !claudeOK || circuitOpen ? "WARNING" : "INFO";
+  try {
+    await prisma.agentEvent.create({
+      data: {
+        agentName: MODULE_NAME, // "ai"
+        eventType: "STATUS_CHECK",
+        severity,
+        payload: {
+          claudeOK,
+          claudeError,
+          aiRequests24h,
+          failed24h,
+          lastDocAt: lastDocAt?.toISOString() || null,
+          circuitOpen,
+          mockFallbacks,
+          durationMs: duration,
+          message: claudeOK
+            ? `Yapay Zeka health OK · ${aiRequests24h} AI/24h · ${failed24h} FAILED`
+            : `Anthropic erişim hatası: ${claudeError}`,
+        },
+      },
+    });
+  } catch (evtErr) {
+    console.error("[os/ai] AgentEvent yazma hata:", evtErr.message);
+  }
+
+  // 7. KRITIK durumda RealtimeEvent ADMIN_FEED
+  if (severity === "WARNING" && (failed24h > 5 || circuitOpen)) {
+    try {
+      await prisma.realtimeEvent.create({
+        data: {
+          channel: "ADMIN_FEED",
+          eventType: "AI_HEALTH_DEGRADED",
+          payload: { failed24h, circuitOpen, claudeError },
+        },
+      });
+    } catch (_) {}
+  }
+
+  return {
+    ok: claudeOK,
+    aiRequests24h,
+    failed24h,
+    lastDocAt,
+    circuitOpen,
+    mockFallbacks,
+    durationMs: duration,
+  };
+}
+
+// ============================================================================
+// SECTION 11 — EXPORTS
 // ============================================================================
 
 module.exports = {
   complete,
   getStatus,
+  runStatusCheck,
   getRequestHistory,
   resetState,
   MODULE_NAME,
