@@ -404,7 +404,64 @@ try {
 }
 
 // ============================================================================
-// SECTION 11 — EXPORTS
+// SECTION 11 — TUR #70 A12 — runStatusCheck (in-memory latency + AgentEvent durations)
+// ============================================================================
+
+async function runStatusCheck() {
+  const startTs = Date.now();
+  const prismaClient = require("../../config/db");
+  const since = new Date(Date.now() - 60 * 60 * 1000);
+
+  let avgModuleDurationMs = 0;
+  let slowModuleEvents = 0;
+  try {
+    const recentEvents = await prismaClient.agentEvent.findMany({
+      where: {
+        createdAt: { gte: since },
+        eventType: "STATUS_CHECK",
+      },
+      select: { payload: true },
+      take: 200,
+    });
+    const durations = recentEvents
+      .map((e) => Number(e.payload?.durationMs))
+      .filter((d) => Number.isFinite(d) && d > 0);
+    if (durations.length > 0) {
+      avgModuleDurationMs = Math.round(
+        durations.reduce((a, b) => a + b, 0) / durations.length,
+      );
+      slowModuleEvents = durations.filter((d) => d > 5000).length;
+    }
+  } catch (_) {}
+
+  const inMem = typeof getStatus === "function" ? getStatus() : {};
+
+  const severity = avgModuleDurationMs > 3000 || slowModuleEvents > 5 ? "WARNING" : "INFO";
+
+  try {
+    await prismaClient.agentEvent.create({
+      data: {
+        agentName: MODULE_NAME,
+        eventType: "STATUS_CHECK",
+        severity,
+        payload: {
+          avgModuleDurationMs,
+          slowModuleEvents,
+          windowMinutes: 60,
+          inMemoryLatencyP95: inMem.p95Ms || null,
+          durationMs: Date.now() - startTs,
+          message: `Performans · son 1h ortalama modül süresi ${avgModuleDurationMs}ms · ${slowModuleEvents} yavaş tick (>5s)`,
+        },
+      },
+    });
+  } catch (e) {
+    console.error("[os/performance] AgentEvent yazma hata:", e.message);
+  }
+  return { ok: true, avgModuleDurationMs, slowModuleEvents };
+}
+
+// ============================================================================
+// SECTION 12 — EXPORTS
 // ============================================================================
 
 module.exports = {
@@ -413,6 +470,7 @@ module.exports = {
   recordLatency,
   recordThroughput,
   runTick,
+  runStatusCheck,
   getStatus,
   getCategoryStats,
   listCategories,

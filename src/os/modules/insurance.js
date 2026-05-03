@@ -175,8 +175,50 @@ try {
   });
 } catch (_) {}
 
+// TUR #70 A8 — Sigorta modülü gerçek görev (SBM/sigorta lead metrics)
+async function runStatusCheck() {
+  const startTs = Date.now();
+  const prismaClient = require("../../config/db");
+  const since = new Date(Date.now() - 24 * 60 * 60 * 1000);
+
+  let trafikLeads24h = 0;
+  let activeSigorta = 0;
+  try {
+    [trafikLeads24h, activeSigorta] = await Promise.all([
+      prismaClient.lead.count({
+        where: { accidentType: { contains: "trafik", mode: "insensitive" }, createdAt: { gte: since } },
+      }).catch(() => 0),
+      prismaClient.lead.count({
+        where: { status: { in: ["DOCS_PENDING", "ANALYZED", "OFFER_SENT", "ASSIGNED_TO_LAWYER"] } },
+      }).catch(() => 0),
+    ]);
+  } catch (_) {}
+
+  const inMem = typeof getStatus === "function" ? getStatus() : {};
+
+  try {
+    await prismaClient.agentEvent.create({
+      data: {
+        agentName: MODULE_NAME,
+        eventType: "STATUS_CHECK",
+        severity: "INFO",
+        payload: {
+          trafikLeads24h,
+          activeSigorta,
+          adapterConfigured: !!inMem.adapterConfigured,
+          durationMs: Date.now() - startTs,
+          message: `Sigorta · 24h ${trafikLeads24h} trafik lead, ${activeSigorta} aktif dosya · SBM entegrasyon: ${inMem.adapterConfigured ? "aktif" : "YOK (skip)"}`,
+        },
+      },
+    });
+  } catch (e) {
+    console.error("[os/insurance] AgentEvent yazma hata:", e.message);
+  }
+  return { ok: true, trafikLeads24h, activeSigorta };
+}
+
 module.exports = {
-  start, stop, runTick,
+  start, stop, runTick, runStatusCheck,
   queryPolice, queryKTT, requestEksper,
   getStatus, getQueryHistory, resetState,
   MODULE_NAME, TICK_INTERVAL_MS, HISTORY_SIZE,

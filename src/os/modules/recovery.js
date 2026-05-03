@@ -309,7 +309,56 @@ function resetState() {
 }
 
 // ============================================================================
-// SECTION 10 — EXPORTS
+// SECTION 10 — TUR #70 A14 — runStatusCheck (FAILED Document + stuck lead recovery)
+// ============================================================================
+
+async function runStatusCheck() {
+  const startTs = Date.now();
+  const prismaClient = require("../../config/db");
+  const day = 24 * 60 * 60 * 1000;
+  const since7d = new Date(Date.now() - 7 * day);
+  const since24h = new Date(Date.now() - day);
+
+  let oldFailedDocs = 0;
+  let stuckPendingLeads = 0;
+  try {
+    [oldFailedDocs, stuckPendingLeads] = await Promise.all([
+      prismaClient.document.count({
+        where: { status: "FAILED", updatedAt: { lt: since24h } },
+      }).catch(() => 0),
+      prismaClient.lead.count({
+        where: {
+          status: { in: ["NEW", "DOCS_PENDING", "CONTACTED"] },
+          updatedAt: { lt: since7d },
+        },
+      }).catch(() => 0),
+    ]);
+  } catch (_) {}
+
+  const severity = oldFailedDocs > 20 || stuckPendingLeads > 50 ? "WARNING" : "INFO";
+
+  try {
+    await prismaClient.agentEvent.create({
+      data: {
+        agentName: MODULE_NAME,
+        eventType: "STATUS_CHECK",
+        severity,
+        payload: {
+          oldFailedDocs24h: oldFailedDocs,
+          stuckPendingLeads7d: stuckPendingLeads,
+          durationMs: Date.now() - startTs,
+          message: `Kurtarma · ${oldFailedDocs} eski FAILED Document (24h+) · ${stuckPendingLeads} sıkışmış PENDING lead (7d+)`,
+        },
+      },
+    });
+  } catch (e) {
+    console.error("[os/recovery] AgentEvent yazma hata:", e.message);
+  }
+  return { ok: true, oldFailedDocs, stuckPendingLeads };
+}
+
+// ============================================================================
+// SECTION 11 — EXPORTS
 // ============================================================================
 
 module.exports = {
@@ -317,6 +366,7 @@ module.exports = {
   stop,
   handleHealthChange,
   decideAction,
+  runStatusCheck,
   getStatus,
   getHistory,
   resetState,

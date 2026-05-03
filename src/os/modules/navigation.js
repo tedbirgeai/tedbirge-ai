@@ -181,8 +181,58 @@ try {
   });
 } catch (_) {}
 
+// TUR #70 A10 — Yönlendirme modülü gerçek görev (atanmamış lead + avukat yük dengesi)
+async function runStatusCheck() {
+  const startTs = Date.now();
+  const prismaClient = require("../../config/db");
+  const since24h = new Date(Date.now() - 24 * 60 * 60 * 1000);
+
+  let unassigned24h = 0;
+  let lawyerLoadDelta = 0;
+  try {
+    unassigned24h = await prismaClient.lead.count({
+      where: {
+        createdAt: { lt: since24h },
+        status: { in: ["NEW", "CONTACTED", "DOCS_PENDING", "ANALYZED"] },
+        assignments: { none: {} },
+      },
+    }).catch(() => 0);
+
+    const loads = await prismaClient.assignment.groupBy({
+      by: ["lawyerId"],
+      where: { status: "ACTIVE" },
+      _count: { _all: true },
+    }).catch(() => []);
+    if (loads.length > 0) {
+      const counts = loads.map((l) => l._count._all);
+      lawyerLoadDelta = Math.max(...counts) - Math.min(...counts);
+    }
+  } catch (_) {}
+
+  const severity = unassigned24h > 10 || lawyerLoadDelta > 5 ? "WARNING" : "INFO";
+
+  try {
+    await prismaClient.agentEvent.create({
+      data: {
+        agentName: MODULE_NAME,
+        eventType: "STATUS_CHECK",
+        severity,
+        payload: {
+          unassigned24h,
+          lawyerLoadDelta,
+          durationMs: Date.now() - startTs,
+          message: `Yönlendirme · ${unassigned24h} atanmamış (24h+) · avukat yük farkı: ${lawyerLoadDelta}`,
+        },
+      },
+    });
+  } catch (e) {
+    console.error("[os/navigation] AgentEvent yazma hata:", e.message);
+  }
+  return { ok: true, unassigned24h, lawyerLoadDelta };
+}
+
 module.exports = {
-  start, stop, runTick,
+  start, stop, runTick, runStatusCheck,
   checkRoute, checkAllRoutes,
   getStatus, getCheckHistory, resetState,
   MODULE_NAME, TICK_INTERVAL_MS, FETCH_TIMEOUT_MS, HISTORY_SIZE, COOLDOWN_MS,

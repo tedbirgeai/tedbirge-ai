@@ -405,13 +405,67 @@ async function policyHandler(policy, _prisma) {
 registerPolicyHandler(MODULE_NAME, policyHandler);
 
 // ============================================================================
-// SECTION 11 — EXPORTS
+// SECTION 11 — TUR #70 A15 — runStatusCheck (2FA + LOGIN_FAILED + audit)
+// ============================================================================
+
+async function runStatusCheck() {
+  const startTs = Date.now();
+  const prismaClient = require("../../config/db");
+  const since = new Date(Date.now() - 24 * 60 * 60 * 1000);
+
+  let twoFAEnabled = 0;
+  let totalUsers = 0;
+  let loginFailed24h = 0;
+  try {
+    [twoFAEnabled, totalUsers, loginFailed24h] = await Promise.all([
+      prismaClient.user.count({ where: { twoFactorEnabled: true } }).catch(() => 0),
+      prismaClient.user.count({ where: { isActive: true } }).catch(() => 0),
+      prismaClient.activityLog.count({
+        where: {
+          createdAt: { gte: since },
+          OR: [
+            { action: { contains: "LOGIN_FAILED", mode: "insensitive" } },
+            { action: { contains: "AUTH_FAILED", mode: "insensitive" } },
+          ],
+        },
+      }).catch(() => 0),
+    ]);
+  } catch (_) {}
+
+  const twoFAPercent = totalUsers > 0 ? Math.round((twoFAEnabled / totalUsers) * 100) : 0;
+  const severity = loginFailed24h > 50 ? "CRITICAL" : loginFailed24h > 20 ? "WARNING" : "INFO";
+
+  try {
+    await prismaClient.agentEvent.create({
+      data: {
+        agentName: MODULE_NAME,
+        eventType: "STATUS_CHECK",
+        severity,
+        payload: {
+          twoFAEnabled,
+          totalUsers,
+          twoFAPercent,
+          loginFailed24h,
+          durationMs: Date.now() - startTs,
+          message: `Güvenlik · 2FA: ${twoFAEnabled}/${totalUsers} (%${twoFAPercent}) · 24h LOGIN_FAILED: ${loginFailed24h}`,
+        },
+      },
+    });
+  } catch (e) {
+    console.error("[os/security] AgentEvent yazma hata:", e.message);
+  }
+  return { ok: severity !== "CRITICAL", twoFAEnabled, totalUsers, loginFailed24h };
+}
+
+// ============================================================================
+// SECTION 12 — EXPORTS
 // ============================================================================
 
 module.exports = {
   start,
   stop,
   runTick,
+  runStatusCheck,
   recordLoginAttempt,
   recordRateLimit,
   recordAccessAnomaly,

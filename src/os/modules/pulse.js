@@ -369,13 +369,62 @@ async function policyHandler(policy, _prisma) {
 registerPolicyHandler(MODULE_NAME, policyHandler);
 
 // ============================================================================
-// SECTION 10 — EXPORTS
+// SECTION 10 — TUR #70 A13 — runStatusCheck (24h adapter uptime + AgentEvent)
+// ============================================================================
+
+async function runStatusCheck() {
+  const startTs = Date.now();
+  const prismaClient = require("../../config/db");
+
+  // pulse.js'in mevcut in-memory state'inden adapter uptime metrics
+  const status = typeof getStatus === "function" ? getStatus() : { adapters: [] };
+  const adapters = Array.isArray(status.adapters) ? status.adapters : [];
+
+  let degradedCount = 0;
+  let avgUptime = 0;
+  if (adapters.length > 0) {
+    degradedCount = adapters.filter((a) => a.status === "degraded").length;
+    avgUptime = Math.round(
+      (adapters.reduce((sum, a) => sum + (a.uptime24h || 100), 0) / adapters.length) * 10,
+    ) / 10;
+  } else {
+    avgUptime = 100; // henüz veri yok
+  }
+
+  const severity = degradedCount > 0 ? "WARNING" : "INFO";
+
+  try {
+    await prismaClient.agentEvent.create({
+      data: {
+        agentName: MODULE_NAME, // "pulse"
+        eventType: "STATUS_CHECK",
+        severity,
+        payload: {
+          adapterCount: adapters.length,
+          degradedCount,
+          avgUptime24hPercent: avgUptime,
+          totalTicks: status.totalTicks || 0,
+          isRunning: !!status.isRunning,
+          durationMs: Date.now() - startTs,
+          message: `Nabız · ${adapters.length} adapter, ${degradedCount} degraded, ortalama uptime %${avgUptime}`,
+        },
+      },
+    });
+  } catch (e) {
+    console.error("[os/pulse] AgentEvent yazma hata:", e.message);
+  }
+  return { ok: true, adapterCount: adapters.length, degradedCount, avgUptime };
+}
+
+// ============================================================================
+// SECTION 11 — EXPORTS
 // ============================================================================
 
 module.exports = {
   start,
   stop,
   runTick,
+  runStatusCheck,
   getStatus,
   calculateUptime,
   classifyAdapter,

@@ -497,13 +497,72 @@ function resetState() {
 }
 
 // ============================================================================
-// SECTION 11 — EXPORTS
+// SECTION 11 — TUR #70 A11 — runStatusCheck (24h bildirim sayım + FAILED rate)
+// ============================================================================
+
+async function runStatusCheck() {
+  const startTs = Date.now();
+  const prismaClient = require("../../config/db");
+  const since = new Date(Date.now() - 24 * 60 * 60 * 1000);
+
+  // ActivityLog'tan 24h bildirim eylemleri (SMS_SENT, EMAIL_SENT, PUSH_SENT, NOTIF_FAILED gibi pattern)
+  let total24h = 0;
+  let failed24h = 0;
+  try {
+    [total24h, failed24h] = await Promise.all([
+      prismaClient.activityLog.count({
+        where: {
+          createdAt: { gte: since },
+          OR: [
+            { action: { contains: "SMS", mode: "insensitive" } },
+            { action: { contains: "EMAIL", mode: "insensitive" } },
+            { action: { contains: "PUSH", mode: "insensitive" } },
+            { action: { contains: "NOTIF", mode: "insensitive" } },
+          ],
+        },
+      }).catch(() => 0),
+      prismaClient.activityLog.count({
+        where: {
+          createdAt: { gte: since },
+          action: { contains: "FAILED", mode: "insensitive" },
+        },
+      }).catch(() => 0),
+    ]);
+  } catch (_) {}
+
+  const failRate = total24h > 0 ? (failed24h / total24h) * 100 : 0;
+  const severity = failRate > 15 ? "CRITICAL" : failRate > 5 ? "WARNING" : "INFO";
+
+  try {
+    await prismaClient.agentEvent.create({
+      data: {
+        agentName: MODULE_NAME,
+        eventType: "STATUS_CHECK",
+        severity,
+        payload: {
+          total24h,
+          failed24h,
+          failRatePercent: Math.round(failRate * 10) / 10,
+          durationMs: Date.now() - startTs,
+          message: `Bildirimler · 24h ${total24h} bildirim, ${failed24h} FAILED (${(Math.round(failRate * 10) / 10)}%)`,
+        },
+      },
+    });
+  } catch (e) {
+    console.error("[os/notifications] AgentEvent yazma hata:", e.message);
+  }
+  return { ok: severity !== "CRITICAL", total24h, failed24h, failRate };
+}
+
+// ============================================================================
+// SECTION 12 — EXPORTS
 // ============================================================================
 
 module.exports = {
   start,
   stop,
   dispatch,
+  runStatusCheck,
   registerRule,
   clearRules,
   loadDefaultRules,

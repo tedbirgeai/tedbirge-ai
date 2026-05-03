@@ -361,7 +361,53 @@ async function policyHandler(policy, _prisma) {
 registerPolicyHandler(MODULE_NAME, policyHandler);
 
 // ============================================================================
-// SECTION 8 — EXPORTS
+// SECTION 8 — TUR #70 A9 — runStatusCheck (eski log + cache metrics)
+// ============================================================================
+
+async function runStatusCheck() {
+  const startTs = Date.now();
+  const prismaClient = require("../../config/db");
+  const day = 24 * 60 * 60 * 1000;
+  const since30d = new Date(Date.now() - 30 * day);
+  const since7d = new Date(Date.now() - 7 * day);
+
+  let oldInfoEvents = 0;
+  let oldConsumedRealtime = 0;
+  try {
+    [oldInfoEvents, oldConsumedRealtime] = await Promise.all([
+      prismaClient.agentEvent.count({
+        where: { severity: "INFO", createdAt: { lt: since30d } },
+      }).catch(() => 0),
+      prismaClient.realtimeEvent.count({
+        where: { consumed: true, createdAt: { lt: since7d } },
+      }).catch(() => 0),
+    ]);
+  } catch (_) {}
+
+  const severity = oldInfoEvents > 10000 ? "WARNING" : "INFO";
+
+  try {
+    await prismaClient.agentEvent.create({
+      data: {
+        agentName: MODULE_NAME,
+        eventType: "STATUS_CHECK",
+        severity,
+        payload: {
+          oldInfoEvents30d: oldInfoEvents,
+          oldConsumedRealtime7d: oldConsumedRealtime,
+          durationMs: Date.now() - startTs,
+          message: `Bakım · 30g+ INFO event: ${oldInfoEvents} · 7g+ tüketilmiş realtime: ${oldConsumedRealtime}${oldInfoEvents > 10000 ? " (purge önerilir)" : ""}`,
+        },
+      },
+    });
+  } catch (e) {
+    console.error("[os/maintenance] AgentEvent yazma hata:", e.message);
+  }
+  return { ok: true, oldInfoEvents, oldConsumedRealtime };
+}
+
+// ============================================================================
+// SECTION 9 — EXPORTS
 // ============================================================================
 
 module.exports = {
@@ -369,6 +415,7 @@ module.exports = {
   stop,
   runDailyMaintenance,
   runWeeklyMaintenance,
+  runStatusCheck,
   getStatus,
   getMaintenanceHistory,
   resetState,

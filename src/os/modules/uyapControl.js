@@ -487,7 +487,47 @@ try {
 }
 
 // ============================================================================
-// SECTION 11 — EXPORTS
+// SECTION 11 — TUR #70 A16 — runStatusCheck (UYAP entegrasyon health, çoğu zaman SKIP)
+// ============================================================================
+
+async function runStatusCheck() {
+  const startTs = Date.now();
+  const prismaClient = require("../../config/db");
+
+  // UYAP entegrasyonu mevcut değilse SKIP mode (env yok ya da adapter konfigüre değil)
+  const inMem = typeof getStatus === "function" ? getStatus() : {};
+  const adapterConfigured = !!inMem.adapterConfigured;
+
+  let openSessions = 0;
+  if (typeof getSession === "function") {
+    try { openSessions = inMem.openSessions || 0; } catch (_) {}
+  }
+
+  try {
+    await prismaClient.agentEvent.create({
+      data: {
+        agentName: "uyapControl", // UI key (MODULE_NAME="uyap-control" kebab — eşleşme için override)
+        eventType: "STATUS_CHECK",
+        severity: "INFO",
+        payload: {
+          adapterConfigured,
+          openSessions,
+          mode: adapterConfigured ? "ACTIVE" : "SKIP",
+          durationMs: Date.now() - startTs,
+          message: adapterConfigured
+            ? `UYAP Kontrol · ${openSessions} açık oturum`
+            : "UYAP Kontrol · entegrasyon yok (SKIP, yapılandırılmamış)",
+        },
+      },
+    });
+  } catch (e) {
+    console.error("[os/uyapControl] AgentEvent yazma hata:", e.message);
+  }
+  return { ok: true, adapterConfigured, openSessions };
+}
+
+// ============================================================================
+// SECTION 12 — EXPORTS
 // ============================================================================
 
 module.exports = {
@@ -495,6 +535,7 @@ module.exports = {
   stop,
   pollTebligat,
   runTick,
+  runStatusCheck,
   openSession,
   getSession,
   recordTebligat,
