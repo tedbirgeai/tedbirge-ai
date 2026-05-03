@@ -457,7 +457,156 @@ try {
 }
 
 // ============================================================================
-// SECTION 11 — EXPORTS
+// SECTION 11 — TUR #69 A7 — runStatusCheck (Vercel + Render last deployment)
+// ============================================================================
+
+/**
+ * Yayın Sistemi modülü gerçek görev:
+ *  - VERCEL_API_TOKEN + RENDER_API_KEY env kontrolü
+ *  - İkisi varsa son deployment status sorgula
+ *  - Boş ise SKIP mode + INFO "yayın sistemi disabled"
+ */
+async function runStatusCheck() {
+  const startTs = Date.now();
+  const prismaClient = require("../../config/db");
+
+  const vercelToken = process.env.VERCEL_API_TOKEN;
+  const vercelProject = process.env.VERCEL_PROJECT_ID;
+  const renderKey = process.env.RENDER_API_KEY;
+  const renderService = process.env.RENDER_SERVICE_ID;
+
+  const hasVercel = !!(vercelToken && vercelProject);
+  const hasRender = !!(renderKey && renderService);
+
+  let severity = "INFO";
+  let payload = {};
+
+  if (!hasVercel && !hasRender) {
+    payload = {
+      mode: "SKIP",
+      hasVercel: false,
+      hasRender: false,
+      message: "Yayın Sistemi · ENV (VERCEL_API_TOKEN/RENDER_API_KEY) eksik, SKIP mode",
+      durationMs: Date.now() - startTs,
+    };
+  } else {
+    let vercel = null;
+    let render = null;
+
+    if (hasVercel) {
+      try {
+        const controller = new AbortController();
+        const timer = setTimeout(() => controller.abort(), 10_000);
+        const teamSuffix = process.env.VERCEL_TEAM_ID ? `&teamId=${process.env.VERCEL_TEAM_ID}` : "";
+        const res = await fetch(
+          `https://api.vercel.com/v6/deployments?projectId=${vercelProject}&limit=1${teamSuffix}`,
+          { headers: { Authorization: `Bearer ${vercelToken}` }, signal: controller.signal },
+        );
+        clearTimeout(timer);
+        if (res.ok) {
+          const data = await res.json();
+          const d = data?.deployments?.[0];
+          if (d) {
+            vercel = {
+              state: d.state,
+              created: d.created,
+              ageMinutes: Math.round((Date.now() - d.created) / 60000),
+              url: d.url,
+            };
+          }
+        } else {
+          vercel = { error: `HTTP ${res.status}` };
+        }
+      } catch (err) {
+        vercel = { error: err.message || "fetch error" };
+      }
+    }
+
+    if (hasRender) {
+      try {
+        const controller = new AbortController();
+        const timer = setTimeout(() => controller.abort(), 10_000);
+        const res = await fetch(
+          `https://api.render.com/v1/services/${renderService}/deploys?limit=1`,
+          { headers: { Authorization: `Bearer ${renderKey}` }, signal: controller.signal },
+        );
+        clearTimeout(timer);
+        if (res.ok) {
+          const arr = await res.json();
+          const d = Array.isArray(arr) ? arr[0]?.deploy : null;
+          if (d) {
+            const created = new Date(d.createdAt || d.created_at).getTime();
+            render = {
+              status: d.status,
+              created: d.createdAt || d.created_at,
+              ageMinutes: Math.round((Date.now() - created) / 60000),
+              commit: d.commit?.id?.slice(0, 7) || null,
+            };
+          }
+        } else {
+          render = { error: `HTTP ${res.status}` };
+        }
+      } catch (err) {
+        render = { error: err.message || "fetch error" };
+      }
+    }
+
+    // Severity belirle
+    const vercelFailed = vercel?.state && /ERROR|FAILED|CANCELED/i.test(vercel.state);
+    const renderFailed = render?.status && /failed|deactivated/i.test(render.status);
+    const apiError = vercel?.error || render?.error;
+
+    if (vercelFailed || renderFailed) {
+      severity = "CRITICAL";
+    } else if (apiError) {
+      severity = "WARNING";
+    } else {
+      severity = "INFO";
+    }
+
+    payload = {
+      mode: "ACTIVE",
+      hasVercel,
+      hasRender,
+      vercel,
+      render,
+      durationMs: Date.now() - startTs,
+      message: vercelFailed || renderFailed
+        ? `Yayın · DEPLOY HATASI · vercel=${vercel?.state || '-'} render=${render?.status || '-'}`
+        : `Yayın · vercel=${vercel?.state || 'skip'} render=${render?.status || 'skip'}`,
+    };
+  }
+
+  try {
+    await prismaClient.agentEvent.create({
+      data: {
+        agentName: MODULE_NAME, // "deploy"
+        eventType: "STATUS_CHECK",
+        severity,
+        payload,
+      },
+    });
+  } catch (evtErr) {
+    console.error("[os/deploy] AgentEvent yazma hata:", evtErr.message);
+  }
+
+  if (severity === "CRITICAL") {
+    try {
+      await prismaClient.realtimeEvent.create({
+        data: {
+          channel: "ADMIN_FEED",
+          eventType: "DEPLOY_FAILED",
+          payload,
+        },
+      });
+    } catch (_) {}
+  }
+
+  return { ok: severity !== "CRITICAL", severity, ...payload };
+}
+
+// ============================================================================
+// SECTION 12 — EXPORTS
 // ============================================================================
 
 module.exports = {
@@ -465,6 +614,7 @@ module.exports = {
   stop,
   pollDeployments,
   runTick,
+  runStatusCheck,
   runPostDeployHealthCheck,
   getStatus,
   getDeployHistory,
