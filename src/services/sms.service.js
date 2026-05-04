@@ -77,9 +77,28 @@ function countSegments(text) {
 
 // ─── Mock mod ─────────────────────────────────────────────────────────────────
 
-function isMockMode() {
-  return !process.env.NETGSM_USERNAME || !process.env.NETGSM_PASSWORD;
+// TUR #77 Q1 — Backward compatible ENV tag fallback (Madde 30.30 R4)
+// Render'da NETGSM_USERNAME, eski kurulumlarda NETGSM_USERCODE / NETGSM_USER olabilir
+function getNetgsmUsername() {
+  return process.env.NETGSM_USERNAME
+      || process.env.NETGSM_USERCODE
+      || process.env.NETGSM_USER
+      || "";
 }
+
+function isMockMode() {
+  const username = getNetgsmUsername();
+  return !username || !process.env.NETGSM_PASSWORD;
+}
+
+// TUR #77 Q1 — Boot validation warn (Madde 30.30 R4)
+(function bootValidate() {
+  if (process.env.NODE_ENV === "test") return;
+  const username = getNetgsmUsername();
+  if (!username) console.warn("[NetGSM] EKSİK: NETGSM_USERNAME (veya NETGSM_USERCODE/NETGSM_USER fallback)");
+  if (!process.env.NETGSM_PASSWORD) console.warn("[NetGSM] EKSİK: NETGSM_PASSWORD");
+  if (!process.env.NETGSM_HEADER) console.warn("[NetGSM] EKSİK: NETGSM_HEADER (default 'TEDBIRGE' kullanılacak)");
+})();
 
 // ─── Gerçek gönderim — Netgsm HTTP GET API ────────────────────────────────────
 
@@ -92,8 +111,9 @@ async function sendSmsReal(to, message) {
     console.warn(`[SMS] Uyarı: ${segments} segment uzunluğunda mesaj (${message.length} karakter)`);
   }
 
+  // TUR #77 Q1 — Backward compatible username + API URL ENV desteği
   const params = new URLSearchParams({
-    usercode:  process.env.NETGSM_USERNAME,
+    usercode:  getNetgsmUsername(),
     password:  process.env.NETGSM_PASSWORD,
     gsmno:     phone,
     message,
@@ -101,14 +121,36 @@ async function sendSmsReal(to, message) {
     dil:       process.env.NETGSM_ENCODING || "TR",
   });
 
-  const url = `https://api.netgsm.com.tr/sms/send/get?${params.toString()}`;
+  // NETGSM_API_URL ENV mevcutsa kullan (CEO Render'da koymuş), yoksa default
+  const baseUrl = process.env.NETGSM_API_URL || "https://api.netgsm.com.tr/sms/send/get";
+  const url = `${baseUrl}${baseUrl.includes("?") ? "&" : "?"}${params.toString()}`;
 
+  // TUR #77 Q1 — Defensive logging (mask credentials)
+  console.log("[NetGSM] CALL", {
+    phoneMask: phone.slice(0, 4) + "***" + phone.slice(-2),
+    msgLen: message.length,
+    segments,
+    header: (process.env.NETGSM_HEADER || "TEDBIRGE").slice(0, 11),
+    apiUrl: baseUrl,
+  });
+
+  const startMs = Date.now();
   return new Promise((resolve, reject) => {
     https.get(url, { timeout: 10000 }, (res) => {
       let raw = "";
       res.on("data", (chunk) => (raw += chunk));
       res.on("end", () => {
         const result = parseNetgsmResponse(raw);
+        const ms = Date.now() - startMs;
+        // TUR #77 Q1 — Defensive logging response (Madde 30.30)
+        console.log("[NetGSM] RESPONSE", {
+          ok: result.success,
+          code: result.success ? "00" : (result.code || "?"),
+          bulkId: result.bulkId || null,
+          error: result.error || null,
+          ms,
+          rawSnippet: raw.trim().slice(0, 80),
+        });
         if (result.success) {
           resolve(result);
         } else {
