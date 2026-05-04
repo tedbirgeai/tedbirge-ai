@@ -372,6 +372,10 @@ model User {
   twoFactorBackupCodes       Json?
   twoFactorEnabledAt         DateTime?
   twoFactorMethod            TwoFactorMethod      @default(TOTP)
+  kvkkAcceptedAt             DateTime?
+  kvkkVersion                String?
+  platformAgreementAcceptedAt DateTime?
+  platformAgreementVersion   String?
   sozlesmeKabulIp            String?
   sozlesmeMetniHash          String?
   sozlesmeVersiyonu          String?              @default("v1.0-temsilci")

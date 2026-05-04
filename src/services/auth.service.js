@@ -10,6 +10,9 @@ async function register(data) {
     baroSicilNo, uzmanlik, hukukcuKomisyon,
     primOrani, bolge,
     sozlesmeVersiyonu, sozlesmeMetniHash, sozlesmeKabulIp,
+    // TUR #72.7 — KVKK + Platform Agreement kanit alanlari
+    kvkkAcceptedAt, kvkkVersion,
+    platformAgreementAcceptedAt, platformAgreementVersion,
   } = data;
 
   if (!fullName || !email || !password) {
@@ -38,6 +41,11 @@ async function register(data) {
       ...(sozlesmeVersiyonu && { sozlesmeVersiyonu }),
       ...(sozlesmeMetniHash && { sozlesmeMetniHash }),
       ...(sozlesmeKabulIp   && { sozlesmeKabulIp }),
+      // TUR #72.7 — KVKK + Platform Agreement kayit
+      ...(kvkkAcceptedAt && { kvkkAcceptedAt }),
+      ...(kvkkVersion && { kvkkVersion }),
+      ...(platformAgreementAcceptedAt && { platformAgreementAcceptedAt }),
+      ...(platformAgreementVersion && { platformAgreementVersion }),
       // Onay durumları — kayıt anında BEKLEMEDE
       ...(role === "LAWYER"         && { baroOnayDurumu: "BEKLEMEDE" }),
       ...(role === "REPRESENTATIVE" && { temsilciOnayDurumu: "BEKLEMEDE" }),

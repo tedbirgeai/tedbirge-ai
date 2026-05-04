@@ -392,10 +392,15 @@ exports.registerCustomer = asyncHandler(async (req, res) => {
 // ─── Hukukçu Kaydı ────────────────────────────────────────────────────────────
 
 exports.registerHukukcu = asyncHandler(async (req, res) => {
-  const { fullName, email, password, phone, baroSicilNo, uzmanlik, hukukcuKomisyon, otpKod } = req.body;
+  const { fullName, email, password, phone, baroSicilNo, uzmanlik, hukukcuKomisyon, otpKod, kvkkAccepted, kvkkVersion, platformAgreementAccepted, platformAgreementVersion } = req.body;
 
   if (!fullName || !email || !password || !phone || !baroSicilNo || !otpKod) {
     return res.status(400).json({ success: false, message: "Tüm zorunlu alanları doldurun." });
+  }
+
+  // TUR #72.7 — KVKK + Platform Agreement onay zorunlu
+  if (kvkkAccepted !== true || platformAgreementAccepted !== true) {
+    return res.status(400).json({ success: false, message: "KVKK Aydınlatma Metni ve Platform Sözleşmesi onayı zorunludur." });
   }
 
   // OTP doğrula
@@ -404,18 +409,33 @@ exports.registerHukukcu = asyncHandler(async (req, res) => {
   if (new Date(otp.expiresAt) < new Date()) return res.status(400).json({ success: false, message: "OTP süresi dolmuş." });
   await prisma.phoneOtp.delete({ where: { id: otp.id } });
 
+  const now = new Date();
   const { user, token } = await authService.register({
     fullName, email, password, phone, role: "LAWYER",
     baroSicilNo, uzmanlik: uzmanlik || null, hukukcuKomisyon: Number(hukukcuKomisyon) || 20,
+    kvkkAcceptedAt: now,
+    kvkkVersion: kvkkVersion || "v1.0",
+    platformAgreementAcceptedAt: now,
+    platformAgreementVersion: platformAgreementVersion || "v1.0-lawyer",
   });
 
-  res.status(201).json({ success: true, data: { user, token }, message: "Hukukçu kaydı oluşturuldu. Yönetici onayı bekleniyor." });
+  // TUR #72.7 — ADMIN bildirim (RealtimeEvent + AgentEvent)
+  try {
+    await prisma.realtimeEvent.create({
+      data: { channel: "ADMIN_FEED", eventType: "LAWYER_REGISTRATION_PENDING", payload: { userId: user.id, email: user.email, fullName: user.fullName } },
+    });
+    await prisma.agentEvent.create({
+      data: { agentName: "auth", eventType: "LAWYER_REGISTRATION_PENDING", severity: "INFO", payload: { userId: user.id, email: user.email } },
+    });
+  } catch (_) {}
+
+  res.status(201).json({ success: true, data: { user, token }, message: "Hukukçu kaydı oluşturuldu. Yönetici onayı bekleniyor (24-48 saat). Email ile bilgilendirileceksiniz." });
 });
 
 // ─── Temsilci Kaydı ───────────────────────────────────────────────────────────
 
 exports.registerTemsilci = asyncHandler(async (req, res) => {
-  const { fullName, email, password, phone, bolge, otpKod, sozlesmeVersiyonu, sozlesmeMetniHash } = req.body;
+  const { fullName, email, password, phone, bolge, otpKod, sozlesmeVersiyonu, sozlesmeMetniHash, kvkkAccepted, kvkkVersion } = req.body;
 
   if (!fullName || !email || !password || !phone || !otpKod) {
     return res.status(400).json({ success: false, message: "Tüm zorunlu alanları doldurun." });
@@ -428,6 +448,11 @@ exports.registerTemsilci = asyncHandler(async (req, res) => {
     });
   }
 
+  // TUR #72.7 — KVKK onay zorunlu (sözleşme onayı zaten sozlesmeVersiyonu ile geliyor)
+  if (kvkkAccepted !== true) {
+    return res.status(400).json({ success: false, message: "KVKK Aydınlatma Metni onayı zorunludur." });
+  }
+
   const sozlesmeKabulIp = req.ip || req.headers["x-forwarded-for"] || req.socket?.remoteAddress || null;
 
   // OTP doğrula
@@ -436,6 +461,7 @@ exports.registerTemsilci = asyncHandler(async (req, res) => {
   if (new Date(otp.expiresAt) < new Date()) return res.status(400).json({ success: false, message: "OTP süresi dolmuş." });
   await prisma.phoneOtp.delete({ where: { id: otp.id } });
 
+  const now = new Date();
   const { user, token } = await authService.register({
     fullName, email, password, phone, role: "REPRESENTATIVE",
     primOrani: 50,
@@ -443,9 +469,23 @@ exports.registerTemsilci = asyncHandler(async (req, res) => {
     sozlesmeVersiyonu,
     sozlesmeMetniHash,
     sozlesmeKabulIp,
+    kvkkAcceptedAt: now,
+    kvkkVersion: kvkkVersion || "v1.0",
+    platformAgreementAcceptedAt: now,
+    platformAgreementVersion: sozlesmeVersiyonu,
   });
 
-  res.status(201).json({ success: true, data: { user, token }, message: "Temsilci kaydı oluşturuldu. Yönetici onayı bekleniyor." });
+  // TUR #72.7 — ADMIN bildirim
+  try {
+    await prisma.realtimeEvent.create({
+      data: { channel: "ADMIN_FEED", eventType: "REPRESENTATIVE_REGISTRATION_PENDING", payload: { userId: user.id, email: user.email, fullName: user.fullName, bolge: user.bolge } },
+    });
+    await prisma.agentEvent.create({
+      data: { agentName: "auth", eventType: "REPRESENTATIVE_REGISTRATION_PENDING", severity: "INFO", payload: { userId: user.id, email: user.email } },
+    });
+  } catch (_) {}
+
+  res.status(201).json({ success: true, data: { user, token }, message: "Temsilci kaydı oluşturuldu. Yönetici onayı bekleniyor (24-48 saat). Email ile bilgilendirileceksiniz." });
 });
 
 // ─── 2FA Setup ────────────────────────────────────────────────────────────────
