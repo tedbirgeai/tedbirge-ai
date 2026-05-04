@@ -91,14 +91,77 @@ function isMockMode() {
   return !username || !process.env.NETGSM_PASSWORD;
 }
 
-// TUR #77 Q1 — Boot validation warn (Madde 30.30 R4)
+// TUR #81 W1 — ENV Slot Format Validation (Madde 30.35 — slot karışıklığı yakalama)
+// 20. mimar hatası emsali: NETGSM_HEADER='0850303724' (sayı dizisi) yazılmıştı,
+// doğru başlık 'tedbirge' (alfa, NetGSM panel onaylı). ENV slot karışıklığı reject.
+const NETGSM_SLOT_VALIDATIONS = {
+  NETGSM_USERNAME: {
+    expected: "sayı dizisi 8-11 hane (örn: 8503033724)",
+    validate: (v) => v && /^\d{8,11}$/.test(v),
+    hint: "NetGSM panel → Alt Kullanıcı Hesapları → Kullanıcı Adı (sadece rakam)",
+  },
+  NETGSM_PASSWORD: {
+    expected: "API şifre (4-32 karakter)",
+    validate: (v) => v && v.length >= 4 && v.length <= 32,
+    hint: "NetGSM panel → Alt Kullanıcı Hesapları → Şifre Oluştur",
+  },
+  NETGSM_HEADER: {
+    expected: "panelde onaylı alfanümerik başlık 3-11 karakter (örn: tedbirge)",
+    validate: (v) => v && /^[a-zA-Z0-9]{3,11}$/.test(v) && !/^0\d+$/.test(v),
+    hint: "NetGSM panel → SMS Ayarları → Başlık Listesi → Onaylı (alfa, sayı dizisi YASAK)",
+  },
+  NETGSM_API_URL: {
+    expected: "https://api.netgsm.com.tr/sms/send/(get|xml|otp)",
+    validate: (v) => !v || /^https?:\/\/api\.netgsm\.com\.tr\/sms\/send\/(get|xml|otp)\/?$/i.test(v),
+    hint: "Boş bırakılırsa default 'https://api.netgsm.com.tr/sms/send/get' kullanılır",
+  },
+};
+
+// TUR #77 Q1 + TUR #81 W1 — Boot validation (Madde 30.30 R4 + 30.35 ENV slot disiplini)
 (function bootValidate() {
   if (process.env.NODE_ENV === "test") return;
   const username = getNetgsmUsername();
+
+  // Eski uyarılar korunsun (geri uyumluluk)
   if (!username) console.warn("[NetGSM] EKSİK: NETGSM_USERNAME (veya NETGSM_USERCODE/NETGSM_USER fallback)");
   if (!process.env.NETGSM_PASSWORD) console.warn("[NetGSM] EKSİK: NETGSM_PASSWORD");
   if (!process.env.NETGSM_HEADER) console.warn("[NetGSM] EKSİK: NETGSM_HEADER (default 'TEDBIRGE' kullanılacak)");
+
+  // TUR #81 W1 — Format slot validation (Madde 30.35)
+  Object.entries(NETGSM_SLOT_VALIDATIONS).forEach(([key, spec]) => {
+    let value = process.env[key];
+    // USERNAME için fallback chain dikkate al
+    if (key === "NETGSM_USERNAME") value = username;
+    if (value && !spec.validate(value)) {
+      const masked = String(value).length > 4
+        ? String(value).slice(0, 2) + "***" + String(value).slice(-2)
+        : "***";
+      console.error(
+        `[ENV-SLOT] HATA: ${key}="${masked}" (uzunluk: ${String(value).length}) ` +
+        `geçersiz format. Beklenen: ${spec.expected}. İpucu: ${spec.hint}`,
+      );
+    }
+  });
 })();
+
+// TUR #81 W2+W3 — Header normalize + safe fallback (Madde 30.35)
+// Image 5 kanıt: NetGSM panel onaylı başlık 'tedbirge' (lowercase).
+// 20. mimar hatası: ENV'de "Tedbirge" (T büyük) yazılmıştı, NetGSM case-sensitive → kod 30.
+// Defensive: lowercase + trim + sayı dizisi reddi + safe fallback.
+function resolveNetgsmHeader() {
+  const raw = (process.env.NETGSM_HEADER || "").trim();
+  const SAFE_DEFAULT = "tedbirge"; // Image 5 panel onaylı kanıt
+  // Boş veya yanlış slot (sayı dizisi gibi 0850303724) → safe default
+  if (!raw) return SAFE_DEFAULT;
+  const isAlphanumeric = /^[a-zA-Z0-9]{3,11}$/.test(raw);
+  const isLeadingZeroNumeric = /^0\d+$/.test(raw); // "0850..." gibi
+  if (!isAlphanumeric || isLeadingZeroNumeric) {
+    console.warn(`[NetGSM] HEADER slot karışıklığı tespit edildi: '${raw}' → safe fallback '${SAFE_DEFAULT}' kullanıldı (Madde 30.35)`);
+    return SAFE_DEFAULT;
+  }
+  // Lowercase normalize (NetGSM case-sensitive — Image 5 'tedbirge' kanıtı)
+  return raw.toLowerCase();
+}
 
 // ─── Gerçek gönderim — Netgsm HTTP GET API ────────────────────────────────────
 
@@ -128,27 +191,31 @@ async function sendSmsReal(to, message) {
     console.warn(`[SMS] Uyarı: ${segments} segment uzunluğunda mesaj (${message.length} karakter)`);
   }
 
-  // TUR #77 Q1 + TUR #80 Z2 — Backward compatible username + safe API URL
+  // TUR #77 Q1 + TUR #80 Z2 + TUR #81 W2 — username + safe API URL + header normalize
+  const headerResolved = resolveNetgsmHeader();
   const params = new URLSearchParams({
     usercode:  getNetgsmUsername(),
     password:  process.env.NETGSM_PASSWORD,
     gsmno:     phone,
     message,
-    msgheader: (process.env.NETGSM_HEADER || "TEDBIRGE").slice(0, 11),
+    msgheader: headerResolved.slice(0, 11),
     dil:       process.env.NETGSM_ENCODING || "TR",
   });
 
   const baseUrl = resolveNetgsmApiUrl();
   const url = `${baseUrl}${baseUrl.includes("?") ? "&" : "?"}${params.toString()}`;
 
-  // TUR #77 Q1 + TUR #80 Z2 — Defensive logging (mask credentials, kanit zorunlu)
+  // TUR #77 Q1 + TUR #80 Z2 + TUR #81 W1 — Defensive logging (mask credentials, kanit zorunlu)
   const username = getNetgsmUsername();
+  const headerRawEnv = process.env.NETGSM_HEADER || "";
   console.log("[NetGSM] CALL", {
     phoneMask: phone.slice(0, 4) + "***" + phone.slice(-2),
     msgLen: message.length,
     segments,
-    header: (process.env.NETGSM_HEADER || "TEDBIRGE").slice(0, 11),
-    headerLen: (process.env.NETGSM_HEADER || "TEDBIRGE").length,
+    header: headerResolved,
+    headerLen: headerResolved.length,
+    headerRawEnvLen: headerRawEnv.length,
+    headerNormalized: headerRawEnv !== headerResolved, // case mismatch tespit kanıt
     apiUrl: baseUrl,
     usernameLen: username.length,
     passwordLen: (process.env.NETGSM_PASSWORD || "").length,
