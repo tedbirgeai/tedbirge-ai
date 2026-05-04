@@ -6,6 +6,66 @@
 
 ---
 
+## 4 Mayıs 2026 öğleden sonra — TUR #72.8 KARARI — 4 ROL LOGIN 500 BUG HOTFIX + MIGRATION DEPLOY
+
+**Anayasa:** v1.22.0 yürürlükte (Madde 30.22 alt-genişleme — patch sürüm yok)
+
+### Karar
+
+TUR #72.6'da User 2FA schema (5 kolon + 1 enum) + TUR #72.7'de User KVKK schema (4 kolon) eklendi. Migration dosyaları `apply_tur72_*.js` script formatında (TUR #49 dersi: shadow DB tutarsızlığı için idempotent SQL pattern). Lokal apply OK ama **production deploy hook (postinstall) kontrol atlandı** (mimar hatası 9). Sonuç: 4 rolde aynı login 500 hata "twoFactorBackupCodes does not exist". CEO öğleden sonra Yönetici + Temsilci sekme test, hata gördü. ADMIN login altı "Yönetici hesabı oluşturmak için sistem yöneticinizle iletişime geçin" yazısı anlamsız (ADMIN superuser self-register yok).
+
+TUR #72.8 6 atomda kapattı: `scripts/apply-pending-schemas.js` birleşik (TUR #71 + #72.6 + #72.7 13 idempotent SQL) + `package.json` postinstall hook genişletme + 4 rol login smoke 500→401 + ADMIN yazı kaldır + 2FA endpoint canlılık + Anayasa Madde 30.22.
+
+### Karar Gerekçesi
+
+1. **CEO kesin emir Madde 17.5:** "tek komut otonom düzelt eksik bir şey bırakma"
+2. **Madde 4.4 (kod kaynaktır + DB kaynaktır):** schema kod-DB drift = canlı kanıt bug. Lokal OK production drift = mimar hatası 9 emsali.
+3. **Madde 4.5 mimar şeffaflık:** TUR #72.6 + #72.7'de postinstall hook kontrol atlandı (mimar hatası 9 kayıt).
+4. **Madde 18.3 KIRMIZI:** schema migration production deploy CEO 4'lü zincirinde yazılı onay altında.
+5. **Madde 30.22 yeni:** schema değişikliği eklenen TUR sonunda postinstall hook + production smoke (login 401 NOT 500) zorunlu. Mimar hatası 9 emsali kalıcı önlem.
+
+### Reddedilen Alternatifler
+
+- **Schema rollback:** TUR #72.6 + #72.7 atom kaybı, kabul edilemez. Reddedildi.
+- **Manuel SQL apply Render Shell:** Postinstall standart, ekosistem ihlali (Madde 4.1). CEO'ya manuel iş yüklemek = mimar disiplin hatası. Reddedildi.
+- **ADMIN login yazısı bırak "sistem yöneticinizle iletişime geçin":** anlamsız (ADMIN tek = CEO Mehmet, mantık yok). Reddedildi.
+- **`prisma migrate diff` ile resmi migration üretme:** TUR #49 dersi — shadow DB tutarsızlığı, P3006 hatası riski. İdempotent SQL daha güvenli. Reddedildi.
+- **`apply_tur72_6_schema.js` + `apply_tur72_7_schema.js` ayrı postinstall chain:** Bakım zor (TUR sayısı arttıkça chain uzar). Tek birleşik `scripts/apply-pending-schemas.js` daha temiz. Reddedildi.
+
+### Etki
+
+- **6 atom + 3 commit** (`8604c6a` BE + `a93082e` FE + OS senkron)
+- **1 schema migration** production apply (TUR #72.6 + #72.7 catch-up — Render postinstall otomatik)
+- **0 npm install**
+- **0 KIRMIZI ihlal**
+- **149+ atom sapma 0** — kalibrasyon 1.6× 17. doğrulama
+- 4 rol login 500→401 (CEO öğleden sonra problem kapatıldı)
+- ADMIN /login altı yazısı temizlendi
+
+### CEO Direktifi (Madde 17.5)
+
+Mehmet DİNÇ 4 Mayıs 2026 öğleden sonra:
+> "4 rol login hata veriyor (Yönetici + Hukukçu + Temsilci + Müvekkil de varsa) + Yönetici hesabı oluşturmak yazısı kaldırılsın + 2FA durumu doğrulanson, tek komut otonom uçtan uca düzelt"
+
+### Kalıcı Pattern (TUR #73+ için)
+
+1. **Schema migration eklenen TUR sonunda Madde 30.22 zorunlu kontroller** (postinstall hook + production smoke 401 NOT 500)
+2. **Self-register / login akış değişen TUR sonunda 4 rol login canlı smoke zorunlu** (paylaşılan User tablosu, bir rol drift = hepsi etkilenir)
+3. **ADMIN superuser self-register yasak** (TUR #72.8 H3 ders): UI'de self-register linki **YOK** olmalı, "🔒 Yetkili kullanıcılar için" yeterli
+4. **`scripts/apply-pending-schemas.js` tek birleşik dosya** — yeni schema değişikliği eklenirken bu dosyaya statement append (chain dağıtmak yerine)
+5. **Postinstall hook zinciri:** `prisma generate && prisma migrate deploy && node scripts/apply-pending-schemas.js` (TUR #73+ standart)
+6. **Production deploy sonrası kanıt:** Sadece commit + push değil — `curl /endpoint` 500/401/200 doğrulama. "Render auto-deploy oldu" yetmez, **smoke kanıtı** gerek.
+
+### Mimar
+
+Claude Opus 4.7 (sohbet) + Claude Code (otonom uygulama)
+
+### Onay
+
+Mehmet DİNÇ — Madde 17.5 + 18.3
+
+---
+
 ## 4 Mayıs 2026 öğleden sonra — TUR #72.7 KARARI — LAWYER + REPRESENTATIVE SELF-REGISTER + ADMIN ONAY
 
 **Anayasa:** v1.22.0 yürürlükte (Madde 30.21 alt-genişleme — patch sürüm yok)

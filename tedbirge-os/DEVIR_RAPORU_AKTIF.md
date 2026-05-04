@@ -1,11 +1,31 @@
 # 🛡️ TEDBIRGE.AI — DEVİR RAPORU AKTİF
 
-**Son güncelleme:** 4 Mayıs 2026 öğleden sonra — TUR #72.7 KAPALI (LAWYER + REPRESENTATIVE self-register + ADMIN onay)
-**Anayasa:** v1.22.0 yürürlükte (Madde 30.21 alt-genişleme — patch sürüm yok)
-**Aktif kesit:** TUR #72.7 KAPALI ✅ — Self-register + KVKK kanıt + ADMIN onay flow uçtan uca
-**Son TUR:** #72.7 — LAWYER + REPRESENTATIVE self-register (mimar hatası 8 kapatma)
+**Son güncelleme:** 4 Mayıs 2026 öğleden sonra — TUR #72.8 KAPALI (4 rol login 500 bug + migration deploy)
+**Anayasa:** v1.22.0 yürürlükte (Madde 30.22 alt-genişleme — patch sürüm yok)
+**Aktif kesit:** TUR #72.8 KAPALI ✅ — schema drift kapatıldı, 4 rol login canlı, ADMIN yazısı temiz
+**Son TUR:** #72.8 — 4 rol login 500 bug hotfix + migration deploy (mimar hatası 9 kapatma)
 **Mimar:** Claude Opus 4.7 (sohbet) + Claude Code (otonom uygulama)
 **CEO Onay:** Mehmet DİNÇ — Madde 17.5 kesin emir + 18.3 KIRMIZI yazılı onay zinciri (TUR #66.7+#69+#70+#71+#72+#72.5)
+
+---
+
+## ✅ TUR #72.8 KAPANIŞ TABLOSU (4 Mayıs 2026 öğleden sonra — hotfix)
+
+| Atom | İçerik | Commit |
+|---|---|---|
+| **H1** | `scripts/apply-pending-schemas.js` (TUR #71 + #72.6 + #72.7 birleşik 13 idempotent SQL) + package.json postinstall hook (`prisma migrate deploy && node scripts/apply-pending-schemas.js`) | `8604c6a` |
+| **H2** | 4 rol login smoke 500→401 kanıt (Render postinstall sonrası) | (smoke kanıt) |
+| **H3** | ADMIN /login altı anlamsız "sistem yöneticinizle iletişime geçin" yazısı kaldırma → 🔒 "Yetkili kullanıcılar için" küçük gri text | `a93082e` |
+| **H4** | 2FA endpoint canlılık smoke (setup/verify/disable/login-2fa 401/400 kanıt) | (smoke kanıt) |
+| **H5** | Anayasa Madde 30.22 + CHANGELOG (Schema Migration Production Deploy Disiplini) | (bu commit) |
+| **H6** | OS senkron 5 dosya | (bu commit) |
+
+**Toplam:**
+- 6 atom + 3 commit (`8604c6a` BE + `a93082e` FE + bu OS)
+- 1 schema migration production apply (TUR #72.6 + #72.7 catch-up — Render postinstall otomatik)
+- 0 npm install
+- 0 KIRMIZI ihlal
+- ~1-2 saat otonom
 
 ---
 
@@ -177,9 +197,9 @@ Yukarı 🟡 CEO MANUEL İŞLER bölümüne taşındı (TUR #72.5 hotfix sonras�
 
 ## 📊 PATTERN
 
-**TUR #56+57+58+59+60+62+63+63.5+63.5v2+64+66v2+66.7+69+69.5+70+71+72+72.5+72.6+72.7 = 143+ atom sapma 0**
+**TUR #56+57+58+59+60+62+63+63.5+63.5v2+64+66v2+66.7+69+69.5+70+71+72+72.5+72.6+72.7+72.8 = 149+ atom sapma 0**
 
-**Kalibrasyon 1.6× — 16. doğrulama** (kalıcı pattern olarak yerleşti)
+**Kalibrasyon 1.6× — 17. doğrulama** (kalıcı pattern olarak yerleşti)
 
 ---
 
@@ -209,6 +229,6 @@ CEO sabah doğrulama:
 ---
 
 **— Tedbirge.ai mimarı**
-**TUR #72.7 KAPALI · 4 Mayıs 2026 öğleden sonra (LAWYER + REPRESENTATIVE self-register + ADMIN onay)**
-**Anayasa v1.22.0 yürürlükte (Madde 30.21 alt-genişleme — patch sürüm yok)**
-**Pattern: TUR #56+...+72.7 = 143+ atom sapma 0 — kalibrasyon 1.6× 16. doğrulama**
+**TUR #72.8 KAPALI · 4 Mayıs 2026 öğleden sonra (4 rol login 500 bug + migration deploy)**
+**Anayasa v1.22.0 yürürlükte (Madde 30.22 alt-genişleme — patch sürüm yok)**
+**Pattern: TUR #56+...+72.8 = 149+ atom sapma 0 — kalibrasyon 1.6× 17. doğrulama**

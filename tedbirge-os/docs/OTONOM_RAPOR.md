@@ -1,3 +1,116 @@
+## TUR #72.8 — 4 ROL LOGIN 500 BUG HOTFIX + MIGRATION DEPLOY (KAPANIŞ)
+
+**Tarih:** 4 Mayıs 2026 öğleden sonra
+**Anayasa:** v1.22.0 yürürlükte (Madde 30.22 alt-genişleme — patch sürüm yok)
+**Tip:** P tipi (üretim hotfix — schema drift + UI temizlik)
+**Atom:** 6 (H1-H6)
+**Commit:** 3 (`8604c6a` BE + `a93082e` FE + bu OS senkron)
+**Schema migration:** 1 production apply (TUR #72.6 + #72.7 catch-up — Render postinstall otomatik)
+**npm install:** 0
+**KIRMIZI ihlal:** 0 (önceden onaylı 4'lü zincir)
+**Süre:** ~1-2 saat otonom
+
+### CEO Direktifi (Madde 17.5 + 18.3)
+
+Mehmet DİNÇ 4 Mayıs 2026 öğleden sonra:
+> "4 rolde login hata veriyor (Yönetici + Hukukçu + Temsilci + Müvekkil de varsa), 'Yönetici hesabı oluşturmak için sistem yöneticinizle iletişime geçin' yazısı kaldırılsın, tek komut otonom uçtan uca, eksik bir şey bırakma"
+
+**Görsel kanıt:**
+```
+Login response error:
+"Invalid `prisma.user.findUnique()` invocation in
+/opt/render/project/src/src/services/auth.service.js:65:34
+The column `User.twoFactorBackupCodes` does not exist in the current database."
+```
+
+4 rolde aynı hata (User tablosu shared).
+
+### Mimar Hatası 9 — Schema Drift
+
+**Sebep zinciri:**
+- TUR #72.6'da User schema'ya 2FA kolonları eklendi (twoFactorEnabled mevcut, +twoFactorBackupCodes + twoFactorEnabledAt + twoFactorMethod + TwoFactorMethod enum)
+- TUR #72.7'de User schema'ya KVKK kanıt 4 alanı eklendi (kvkkAcceptedAt + kvkkVersion + platformAgreementAcceptedAt + platformAgreementVersion)
+- Migration apply lokal `apply_tur72_6_schema.js` + `apply_tur72_7_schema.js` ile yapıldı (idempotent IF NOT EXISTS)
+- **Production deploy hook kontrol atlandı** — `apply_tur72_*.js` script'leri postinstall'da çağrılmıyordu
+- Mevcut `package.json` postinstall: `prisma generate && prisma migrate deploy`
+- Ama TUR #72.6 + #72.7 için resmi `prisma/migrations/` klasörü altında migration YOK (TUR #49 dersi: shadow DB tutarsızlığı için manuel apply script tercih edildi)
+- Sonuç: production'da kolonlar yok, kod select ediyor → 500 internal error
+
+### TUR #72.8 Atomlar Detay
+
+**H1 — Migration deploy (commit `8604c6a`):**
+
+`scripts/apply-pending-schemas.js` (YENİ tek birleşik):
+- TUR #71 EmailDigest + Pulse + PulseTrendType enum (6 statement)
+- TUR #72.6 User 2FA + TwoFactorMethod enum (4 statement)
+- TUR #72.7 User KVKK + agreement (4 statement)
+- 13 statement IF NOT EXISTS / DO BEGIN duplicate_object idempotent
+- Hata olursa exit 0 (postinstall fail etmesin)
+
+`package.json` postinstall güncelleme:
+- ESKİ: `prisma generate && prisma migrate deploy`
+- YENİ: `prisma generate && prisma migrate deploy && node scripts/apply-pending-schemas.js`
+
+Render auto-deploy → postinstall otomatik çalıştı → schema drift kapandı.
+
+**H2 — 4 rol login smoke 500→401 (production deploy sonrası):**
+
+```
+curl -X POST .../api/auth/login -d '{"email":"olmayan@x.com","password":"y"}' → 401 ✅
+```
+
+(Tüm 4 rol için aynı endpoint kullanılır — User tablosu shared.)
+
+**H3 — ADMIN /login altı anlamsız yazı kaldırma (commit `a93082e`):**
+
+ESKİ: "Yönetici hesabı oluşturmak için sistem yöneticinizle iletişime geçin"
+YENİ: 🔒 "Yetkili kullanıcılar için" (küçük gri text)
+
+Sebep: ADMIN superuser, self-register YOK. "Sistem yöneticinizle iletişime geçin" mantıksız (ADMIN tek = CEO Mehmet, kim kime?).
+
+**H4 — 2FA endpoint canlılık smoke:**
+
+```
+/api/auth/setup-2fa → 401 ✅ (auth gerek = canlı)
+/api/auth/verify-2fa → 401 ✅
+/api/auth/disable-2fa → 401 ✅
+/api/auth/login-2fa → 400 ✅ (body eksik = canlı)
+/api/auth/login-backup-code → 400 ✅
+```
+
+**H5 — Anayasa Madde 30.22 (bu commit):**
+
+Schema Migration Production Deploy Disiplini:
+1. `prisma/migrations/` veya `scripts/apply-pending-schemas.js` zorunlu
+2. `package.json` postinstall hook `prisma migrate deploy && node scripts/apply-pending-schemas.js` zorunlu
+3. Production push sonrası Render postinstall otomatik
+4. Production smoke kanıt: schema-bağlı endpoint **401/200** (NOT 500)
+5. Node script kanıt: `findFirst select` yeni kolon → SCHEMA OK
+
+**H6 — OS senkron 5 dosya (bu commit).**
+
+### Pattern
+
+**TUR #56+...+72.8 = 149+ atom sapma 0**
+**Kalibrasyon 1.6× — 17. doğrulama**
+
+### Mimar Dersi
+
+TUR #72.6'da 2FA schema, TUR #72.7'de KVKK schema eklendi. Migration apply lokal OK (`apply_tur72_*.js`) ama postinstall hook'ta çağrılmıyordu. CEO öğleden sonra login dener → "twoFactorBackupCodes does not exist" 500 hata = schema kod-DB drift kanıtı.
+
+**Mimar hatası 9 — kalıcı pattern (TUR #73+ için):**
+- Schema değişikliği eklenen TUR sonunda **Madde 30.22 zorunlu kontroller** (postinstall hook + production smoke 401)
+- Schema değişikliği commit'inde **postinstall'a apply script chain** eklenmeli (yeni dosya unutulmasın)
+- TUR kapanışında **production smoke şart** — sadece deploy değil, deploy sonrası kanıt
+- Self-register / login akış değişen TUR sonunda **4 rol login canlı smoke** zorunlu (paylaşılan User tablosu)
+
+### Mimar + Onay
+
+**Mimar:** Claude Opus 4.7 (sohbet) + Claude Code (otonom uygulama)
+**Onay:** Mehmet DİNÇ — Madde 17.5 kesin emir + 18.3 KIRMIZI yazılı
+
+---
+
 ## TUR #72.7 — LAWYER + REPRESENTATIVE SELF-REGISTER + ADMIN ONAY (KAPANIŞ)
 
 **Tarih:** 4 Mayıs 2026 öğleden sonra
