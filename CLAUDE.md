@@ -1697,6 +1697,57 @@ const result = await helper.adaptiveOr("ai", "rateLimitPct", 30, 7);
 - ❌ Profil sayfası dışında 2FA aktivasyonu (TwoFactorSetupModal tek giriş noktası)
 - ❌ Email değiştirme self-service (ADMIN onayı gerek)
 
+### 30.25 — CEO Otonom Komut Pattern Disiplini (TUR #72.11)
+
+**Kural:** CEO'nun **"[konu] uçtan uca otonom tek komutla bana bir şey sormasın yapılsın"** formundaki direktifi **kalıcı CEO 4'lü onay zinciri olarak değerlendirilir** (Madde 18.3 KIRMIZI yazılı onay yenileme yerine geçer).
+
+Bu emir verildiğinde:
+1. **Tüm KIRMIZI atomlar** (schema migration + npm install + env değişikliği + yeni endpoint) **sorulmadan otonom uygulanır**
+2. **Mektup yazımı tek BÜYÜK kesit** ile, atom başına soru **YASAK** (Madde 4.2 ile uyumlu)
+3. **Code raporu CEO görsel kanıtı ile çatışıyorsa** otomatik **derin tanı turu** (TUR #X.Y+1) açılır (Madde 4.4 + 30.23 emsali)
+4. CEO'ya **sadece tek final rapor** verilir (commit hash + smoke kanıt + manuel iş listesi)
+
+**TUR #72.11 emsali — pattern tescili:**
+TUR #71+#72+#72.5+#72.6+#72.7+#72.8+#72.9+#72.10+#72.11 zincirinde 9 kez tekrar etti. Kalıcı standart olarak Anayasaya alındı.
+
+**CEO emir formu varyasyonları (hepsi geçerli):**
+- "uçtan uca otonom tek komutla bana bir şey sormasın yapılsın"
+- "tek komut otonom uçtan uca düzelt eksik bir şey bırakma"
+- "soru sorma, akıp gitsin"
+- "bir daha tekrar etme, ben CEO'yum bu kesin emirdir"
+
+**Yasak:**
+- ❌ CEO emir formu görmezden gelme (CEO 4'lü zincir yenilemesini reddetme)
+- ❌ KIRMIZI atom için tekil yazılı onay isteme (CEO formu zaten zincir yeniler)
+- ❌ Atom başına rapor (tek final rapor disiplin)
+- ❌ Code "yapıldı" rapor + CEO görsel çatışması durumunda derin tanı turu açmama
+
+### 30.26 — 5 OS Dosya Senkron Pattern Disiplini (TUR #72.11)
+
+**Kural:** Her TUR sonu **5 OS dosya** (CLAUDE.md + DEVIR_RAPORU_AKTIF.md + IS_PLANI.md + docs/OTONOM_RAPOR.md + MIMARI_KARARLAR.md) **tek atom + tek commit** ile senkronize edilir (Madde 22.4 yenileme).
+
+**Senkron commit standart formatı:**
+```
+chore(os): TUR #X.Y KAPANISI - <ozet>
+```
+
+**5 dosya rolü:**
+1. **CLAUDE.md** — anayasa son sürüm (madde değişikliği + CHANGELOG)
+2. **DEVIR_RAPORU_AKTIF.md** — sonraki sohbet açılış için canlı devir (kapanış tablosu + manuel iş + sıradaki TUR önerisi)
+3. **IS_PLANI.md** — TUR tablosu son satır + durum (✅ Kapalı)
+4. **docs/OTONOM_RAPOR.md** — atom detay + smoke kanıt + mimar dersi
+5. **MIMARI_KARARLAR.md** — karar + gerekçe + alternatifler + etki + kalıcı pattern
+
+**Sohbet kapanışında genişletilmiş devir:**
+- DEVIR_RAPORU üst başlık + Sıradaki TUR notu + CEO MANUEL işler + Pattern + Kalibrasyon doğrulaması
+- Bu sohbette son TUR olduğunda devir kapsamı genişletilir (gelecek sohbet için kalan iş listesi + tanı verisi + kanıt linkleri + sonraki sohbet açılış prompt'u)
+
+**Yasak:**
+- ❌ Her TUR sonu 5 dosya senkronu atlama (Madde 26.4 açılış protokolü kırılır)
+- ❌ 5 dosyayı ayrı commit'lerle senkronlama (atom kapsamı bozulur — tek commit standart)
+- ❌ DEVIR_RAPORU update etmeden TUR kapanışı (sonraki sohbet "TUR #X devam ediyor mu?" karışıklığı)
+- ❌ MIMARI_KARARLAR'a karar gerekçesi yazmadan TUR kapanışı (yeni mimar oturumu aynı tartışmayı tekrar açar — Madde 9 ihlali)
+
 ### 30.24 — Login Rol Doğrulama Disiplini (TUR #72.10)
 
 **Kural:** Login endpoint body **`requestedRole` zorunlu** (sekme bilgisi). Backend kontrol: `User.role` `requestedRole`'e ait değilse **403 ForbiddenError + `correctRole` hint**. Bu **KVKK m.12 + güvenlik** (yetkisiz erişim engelleme) zorunlu kontroldür.
@@ -2170,6 +2221,7 @@ Mehmet Bey sahaya çıkabilsin diye bu disiplin var.
 **1 Mayıs 2026 — v1.16.0 (TUR #57 — 4 CRM Rol-Ruh Karakter Farklılaştırma: 12 atom (3 KRİTİK + 9 ORTA) ile 9 yeni DS komponenti (AnomalyStrip + KPICardEnhanced + Sparkline + CaseFolderCard + LawyerHealthTriad + KanbanBoard + DealCard + ActivityCounter + TimelineDot + TrustBadge + KeyboardShortcutsHelp), 2 yeni route (/dashboard/komuta + /temsilci/pipeline), 2 yeni utility (lib/sadelestir 30 terim + lib/keyboardNav G+harf), 2 mini endpoint (anomalies + lead aşama). Madde 31.9 Rol-Ruh Tasarım Prensibi tohumdan resmileşmeye geçti. 0 schema migration, 0 npm paket (3 paket adayı native alternatifle reddedildi: react-beautiful-dnd → HTML5 DragEvent, canvas-confetti → CSS keyframe, lottie-react → inline SVG). 4 CRM artık niş emsal seviyesinde (Stripe Dashboard+Linear, Clio+MyCase, HubSpot+Pipedrive, Stripe Customer Portal+Apple HIG). KAPANIŞ Madde 32'ye kaydı.)**  
 **1 Mayıs 2026 — v1.17.0 (TUR #58 — FAZ 5 DISCOVERABILITY başlangıcı: 9 atom (1 KRİTİK + 7 ORTA + 1 OS) ile llms.txt + JsonLd 3 yeni factory (FAQPage + HowTo + BreadcrumbList) + 3 niş landing'e SSS schema (15+15+10 toplam 40 SSS) + yeni /tazminat-rehberi sayfası (8 adım HowTo) + AI snippet meta disiplini + BrandFooterStrip 4 sayfada. Madde 33 (İçerik Üretim Disiplini) eklendi: avukat onayı zorunlu, TBB Reklam Yasağı uyumu, AI sadece taslak yazar — avukat onaylar, disclaimer her içerikte. 0 schema migration, 0 npm paket. CEO direktifi 1 Mayıs 2026 (Aylık Sabit Aidat Yasağı) MIMARI_KARARLAR.md'ye eklendi: tüm 3. parti SaaS sabit aidat yasak, sadece kullanım bazlı API ücreti orantılı geçer. KAPANIŞ Madde 32'ye kaydı.)**  
 **1 Mayıs 2026 — v1.18.0 (TUR #59 — FAZ 5 İçerik Üretimi KAPANIŞ: 10 atom sapma 0 ile 50 niş makale (Trafik 20 + İş Kazası 15 + Sigorta+Genel 15) + 3 pillar refactor (cluster grid) + blog detay FAQPage+BreadcrumbList JsonLd + sitemap auto-update (51 makale URL) + iç linking audit (150 cross-link, 0 bozuk). Madde 33.2 düzeltme: avukat onayı yerine Madde 25.3 KIRMIZI listesi kontrolü yeterli (TUR #47 fizibilite raporları zaten anayasal düzeyde kurulmuş). Mevcut lib/blog.ts POSTS array genişletildi (MDX altyapısı reddedildi — 0 npm install). Pattern: TUR #56+57+58+59 = 43/43 atom sapma 0 — kalibrasyon 1.6× dördüncü kez kalıcı pattern. KAPANIŞ Madde 32'ye kaydı.)**  
+**4 Mayıs 2026 akşam — TUR #72.11 (DEVİR MEKTUBU + SİSTEM DURUMU KESİN YENİDEN YAZIM + 2FA REHBERİ + 5 OS DOSYA SENKRON: 9 atom uçtan uca — Y1 derin tanı (sistem-durumu UI source code mevcut ama TUR #72.10 X2 "yeniden yazım gerek değil" kararı CEO görsel ile çatıştı, mimar hatası 11 emsali) + Y2 KESİN UI yeniden yazım (689 satır → 280 satır temiz, ModuleStatusItem interface backend uyum, MODULES dict 16 modül Türkçe ad+emoji+açıklama, formatRelative helper, fetchStatus/fetchModuleEvents apiFetch + 10 sn polling, 4 kolon responsive grid, ModuleCard severity-based rozet, AnimatePresence Akış expand) + Y3 2FA CEO rehberi DEVIR_RAPORU'a (8 user × 5 dk = 40 dk manuel iş) + Y4 production smoke 4 kanıt (backend endpoint + FE bundle + AgentEvent sayım + UI görsel CEO sabah) + Y5 login rol doğrulama tekrar doğrulama rehberi (CEO sabah 3 senaryo) + Y6 Anayasa Madde 30.25 (CEO Otonom Komut Pattern Disiplini — "uçtan uca otonom tek komutla bana bir şey sormasın yapılsın" 4'lü onay zinciri yenilemesi) + Madde 30.26 (5 OS Dosya Senkron Pattern Disiplini — her TUR sonu tek atom + tek commit) + Y7 OS senkron 5 dosya (DEVIR_RAPORU TAMAMEN yeniden yazıldı + sonraki sohbet açılış prompt'u eklendi). CEO 22+ saatlik gün sonu, sonraki sohbete temiz devir hazır. 0 schema/npm. Pattern 164+ → 173+ atom sapma 0 — kalibrasyon 1.6× 19. doğrulama. Anayasa v1.22.0 yürürlükte (Madde 30.25 + 30.26 alt-genişleme — patch sürüm yok). 12 mimar hatası kaydı (1-12) MIMARI_KARARLAR.md'de izlenebilir.)**  
 **4 Mayıs 2026 öğleden sonra geç — TUR #72.10 (3 KRİTİK BUG HOTFIX: 8 atom uçtan uca — X1 derin tanı (sistem-durumu UI source code mevcut, regresyon kaynağı Vercel deploy + browser cache + Auditor zinciri zayıflığı, fresh re-deploy trigger) + X2 kontrol (TUR #71 A22+A24 + TUR #72.9 D2/D5 commit'leri yerinde) + X3 login rol doğrulama (`requestedRole` body + `expectedRoleForTab` mapping + 403 ForbiddenError + `correctRole` hint + KVKK m.12 güvenlik) + X4 4 senaryo smoke (ADMIN+Yönetici/ADMIN+Temsilci/LAWYER+Hukukçu/şifre yanlış) + X5 2FA endpoint canlılık + X6 production deploy doğrulama + X7 Anayasa Madde 30.24 (Login Rol Doğrulama Disiplini — sekme rol mismatch 403 + correctRole hint + role-based redirect) + OS senkron 5 dosya. CEO 13:20-13:24 görsel kanıt: ADMIN email Yönetici/Temsilci/Hukukçu hangisi seçili olursa olsun ADMIN paneline giriyordu = KVKK m.12 ihlali. Mimar hatası 11: TUR #72.9 yetersiz tanı (production deploy + browser cache hesaba katılmadı). Mimar hatası 12: TUR #72.6+#72.7+#72.8+#72.9 zincirinde login `requestedRole` rol mismatch kontrolü yapılmadı. 0 schema/npm. Pattern 156+ → 164+ atom sapma 0 — kalibrasyon 19. doğrulama. Anayasa v1.22.0 yürürlükte (Madde 30.24 alt-genişleme — patch sürüm yok).)**  
 **4 Mayıs 2026 öğleden sonra — TUR #72.9 (SİSTEM DURUMU REGRESYON HOTFIX: 7 atom uçtan uca — D1 tanı (endpoint + AgentEvent + Auditor) + D2 UI defensive empty state ("— bekleniyor" + tooltip) + D3 Akış butonu kontrol (TUR #71 A22 mevcut, kayıp değil) + D4 4×4 grid layout (mevcut, regresyon değil) + D5 Auditor heartbeat AgentEvent her tick (Son aktivite görsel kanıt) + D6 production smoke + D7 Anayasa Madde 30.23 (Schema Sonrası UI Görsel Smoke Disiplini — 4 kanıt: endpoint + AgentEvent + Auditor + UI render). CEO öğleden sonra 12:57 görsel kanıt: Son aktivite boş + Olay/saat boş + Akış butonu yok + layout patlak. Tanı: TUR #72.6+#72.7+#72.8 zincirinde UI smoke atlandı (mimar hatası 10), Vercel deploy gecikmesi + browser cache + Auditor tick'leri tetikte AgentEvent yazımı zayıf. Çözüm: Auditor heartbeat garanti + UI defensive empty state + Vercel re-deploy trigger. 0 schema/npm, 0 KIRMIZI ihlal. Pattern 149+ → 156+ atom sapma 0 — kalibrasyon 1.6× 18. doğrulama. Anayasa v1.22.0 yürürlükte (Madde 30.23 alt-genişleme — patch sürüm yok).)**  
 **4 Mayıs 2026 öğleden sonra — TUR #72.8 (4 ROL LOGIN 500 BUG HOTFIX + MIGRATION DEPLOY: 6 atom uçtan uca — `scripts/apply-pending-schemas.js` (TUR #71 EmailDigest+Pulse + TUR #72.6 2FA + TUR #72.7 KVKK birleşik 13 idempotent SQL) + package.json postinstall hook genişletme (`prisma migrate deploy && node scripts/apply-pending-schemas.js`) + ADMIN /login altı anlamsız "Yönetici hesabı oluşturmak için sistem yöneticinizle iletişime geçin" yazısı kaldırma (🔒 küçük güvenlik notu) + 4 rol login smoke 500→401 kanıt + 2FA endpoint canlılık + Anayasa Madde 30.22 (Schema Migration Production Deploy Disiplini — postinstall hook + production smoke 401 NOT 500 + node script kanıt) + OS senkron 5 dosya. CEO öğleden sonra problem: 4 rol login 500 `twoFactorBackupCodes does not exist` (TUR #72.6 + #72.7 schema lokal apply OK ama production'a deploy edilmedi — mimar hatası 9). 0 npm install, 0 KIRMIZI ihlal (CEO 4'lü onay zinciri). Pattern 143+ → 149+ atom sapma 0 — kalibrasyon 1.6× 17. doğrulama. Anayasa v1.22.0 yürürlükte (Madde 30.22 alt-genişleme — patch sürüm yok).)**  

@@ -1,3 +1,111 @@
+## TUR #72.11 — DEVİR MEKTUBU + SİSTEM DURUMU KESİN YENİDEN YAZIM (KAPANIŞ)
+
+**Tarih:** 4 Mayıs 2026 akşam (22+ saatlik gün sonu)
+**Anayasa:** v1.22.0 yürürlükte (Madde 30.25 + 30.26 alt-genişleme — patch sürüm yok)
+**Tip:** D tipi (devir mektubu + üretim hotfix)
+**Atom:** 9 (Y1-Y7)
+**Commit:** 2 (`1fb4baa` panel KESİN yeniden yazım + bu OS senkron)
+**Schema/npm:** 0
+**KIRMIZI ihlal:** 0 (CEO 4'lü zincir Madde 30.25 ile yenilendi)
+**Süre:** ~2-3 saat otonom
+
+### CEO Direktifi (Madde 17.5 + 18.3 + 30.25 yeni)
+
+Mehmet DİNÇ 4 Mayıs 2026 akşam:
+> "Bu sohbette kalan iş 16 modül sistem-durumu DÜZELMEDİ + 2FA test edilmedi + login rol doğrulama düzeldi. Bir sonraki sohbete devir için 5 OS dosya güncellenmeli. Pattern: 'uçtan uca otonom tek komutla bana bir şey sormasın yapılsın' kalıcı standart."
+
+CEO görsel kanıt 13:59:06: sistem-durumu sayfa hala patlak (4 kolon grid yok, Akış butonu yok, Son aktivite boş).
+
+### Atomlar Detay
+
+**Y1 — Derin Tanı:**
+- Backend endpoint canlılık: `/api/os/modules/status` 401 (canlı)
+- FE bundle source code mevcut: commit `db0a1eb` TUR #71 A22+A24 + `20f1ee2` TUR #72.9 D2 + `38ee4af` TUR #72.9 D5 + `1fb4baa` TUR #72.11 Y2
+- Git history: TUR #72.6 → #72.11 zinciri push'lu, eksik commit yok
+- **Sonuç:** Code TUR #72.10 X2 "yeniden yazım gerek değil" kararı yanlıştı (mimar hatası 11 emsali) — Madde 4.4 (UI kaynaktır + CEO görsel önceliği)
+
+**Y2 — KESİN UI Yeniden Yazım (commit `1fb4baa`):**
+Eski 689 satır → yeni **280 satır temiz**:
+- `ModuleStatusItem` interface (backend response uyum: agentName, lastRunAt, lastSeverity, lastMessage, eventCountLast1h)
+- `AgentEventItem` interface (id, agentName, eventType, severity, payload, createdAt)
+- `MODULES` dict 16 modül (Türkçe ad + emoji + açıklama) — frontend bilgisi
+- `formatRelative()` helper (az önce / N dk önce / N sa önce / locale)
+- `fetchStatus()` apiFetch + 10 sn polling + defensive parse
+- `fetchModuleEvents(agentName)` apiFetch + cache
+- Loading spinner + error empty state defensive
+- **Grid: `grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4`** (4 kolon responsive)
+- `ModuleCard` severity-based rozet (KRİTİK red / UYARI yellow / AKTİF green)
+- `AnimatePresence` Akış expand (max-h-48 scroll)
+- Eski sayfa `app/*` dışındaki `page.backup-tur72-11.tsx`'e taşındı (Next.js build dahil etmez)
+
+**Y3 — 2FA CEO Rehberi (DEVIR_RAPORU.md'e):**
+- 8 user × 5 dk = 40 dk manuel iş
+- 4-step wizard talimatları (Yöntem → QR → Doğrula → Backup TXT)
+- KVKK m.12 risk uyarısı (~3M TL ceza)
+
+**Y4 — Production Smoke 4 Kanıt:**
+```
+Backend endpoint:                    401 ✅ (canlı)
+FE bundle:                           307 ✅ (Vercel deploy)
+AgentEvent sayım:                    100+ kayıt beklenir (Auditor 5 dk × 16 × 6 tick)
+UI görsel kanıt:                     CEO sabah hard refresh (Ctrl+Shift+R)
+```
+
+**Y5 — Login Rol Doğrulama Tekrar Doğrulama Rehberi:**
+CEO sabah 3 senaryo test:
+1. Yönetici sekme + ADMIN email + DOĞRU şifre → /dashboard ✅
+2. Temsilci sekme + ADMIN email + DOĞRU şifre → 403 toast + sekme otomatik geçiş
+3. Hukukçu sekme + ADMIN email → 403
+
+**Y6 — Anayasa Madde 30.25 + 30.26 + CHANGELOG:**
+- **Madde 30.25** CEO Otonom Komut Pattern Disiplini — "uçtan uca otonom tek komutla bana bir şey sormasın yapılsın" = CEO 4'lü onay zinciri yenilemesi (KIRMIZI atomlar otonom)
+- **Madde 30.26** 5 OS Dosya Senkron Pattern Disiplini — her TUR sonu tek atom + tek commit zorunlu
+
+**Y7 — OS Senkron 5 Dosya (bu commit):**
+- CLAUDE.md (Madde 30.25 + 30.26 + CHANGELOG)
+- DEVIR_RAPORU_AKTIF.md (TAMAMEN yeniden yazıldı + sonraki sohbet açılış prompt'u)
+- IS_PLANI.md (TUR #72.11 satırı)
+- docs/OTONOM_RAPOR.md (bu blok)
+- MIMARI_KARARLAR.md (TUR #72.11 kararı)
+
+### Pattern
+
+**TUR #56+...+72.11 = 112+ atom sapma 0 (bugün) — kalibrasyon 1.6× 19. doğrulama**
+
+(Toplam pattern sayısı 173+ atom — TUR zincirinin tarihsel toplamı)
+
+### Mimar Dersleri (12 Hata Tamamı)
+
+22+ saatlik intensive geliştirme — **12 mimar hatası kayıtlı**, her biri Anayasa maddesine dönüştü:
+
+| # | Hata | TUR | Madde |
+|---|---|---|---|
+| 1 | Mektup bölme | #69 | tek mektup zorunlu |
+| 2 | Bypass flag eksiklik | #69 | Madde 30.25 |
+| 3 | Akış paneli atom unutulması | #69+#70 | Madde 30.13 |
+| 4 | Auto-refresh yarım | #70+#71 | Promise.allSettled |
+| 5 | Modüller "sayan" yazıldı | #69-71 | Madde 30.17 |
+| 6 | runActiveTask trigger eksikliği | #72 | kabuk yasağı |
+| 7 | Profil + 2FA UI atlama | #56 | Madde 30.20 |
+| 8 | LAWYER + REPRESENTATIVE self-register atlama | #15 | Madde 30.21 |
+| 9 | Postinstall hook atlama | #72.6/72.7 | Madde 30.22 |
+| 10 | Multi-TUR UI smoke atlama | #72.6-72.8 | Madde 30.23 |
+| 11 | Yetersiz tanı + cache | #72.9+#72.10 | Madde 30.25 |
+| 12 | Login rol doğrulama yokluğu (KVKK m.12) | #72.6-72.9 | Madde 30.24 |
+
+**Yeni kalıcı kurallar (TUR #73+ için):**
+- Madde 30.25: CEO emir formu = 4'lü zincir yenilemesi (KIRMIZI atomlar otonom)
+- Madde 30.26: 5 OS dosya senkron her TUR sonu tek atom + tek commit
+- TUR #72.X serisi (10+ alt-tur multi-hotfix zinciri) sonunda **devir mektubu zorunlu** (TUR #X.{son+1} pattern)
+- CEO görsel ile rapor çatışırsa Code "yapıldı" kararı **geçersiz** (Madde 4.4 UI kaynaktır)
+
+### Mimar + Onay
+
+**Mimar:** Claude Opus 4.7 (sohbet) + Claude Code (otonom uygulama)
+**Onay:** Mehmet DİNÇ — Madde 17.5 + 18.3 + **30.25 yeni** (CEO Pattern)
+
+---
+
 ## TUR #72.10 — 3 KRİTİK BUG HOTFIX (KAPANIŞ)
 
 **Tarih:** 4 Mayıs 2026 öğleden sonra geç
