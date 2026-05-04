@@ -1,9 +1,9 @@
 # 🛡️ TEDBIRGE.AI — DEVİR RAPORU AKTİF
 
-**Son güncelleme:** 5 Mayıs 2026 — TUR #74 KAPALI
-**Anayasa:** v1.22.0 (Madde 30.10-30.28 dahil — TUR #72-74 zincirinde **19 yeni alt-madde** eklendi)
-**Aktif kesit:** TUR #74 KAPALI ✅ — 3 yöntem 2FA (TOTP + SMS + Email) canlı + bcrypt hotfix
-**Son TUR:** #74 (2FA çoklu yöntem + 13. mimar hatası bcrypt → bcryptjs hotfix + Anayasa Madde 30.28)
+**Son güncelleme:** 5 Mayıs 2026 — TUR #75 KAPALI
+**Anayasa:** v1.22.0 (Madde 30.10-30.29 dahil — TUR #72-75 zincirinde **20 yeni alt-madde** eklendi)
+**Aktif kesit:** TUR #75 KAPALI ✅ — 5 rol 2FA parite + Yedekleme severity hotfix
+**Son TUR:** #75 (5 rol 2FA parite + 14. mimar hatası + Yedekleme CRITICAL→WARNING + Madde 30.29)
 **Mimar:** Claude Opus 4.7 (sohbet) + Claude Code (otonom uygulama)
 **CEO Onay:** Mehmet DİNÇ — Madde 17.5 + 18.3 + **30.25 yeni** (CEO Otonom Komut Pattern)
 
@@ -26,8 +26,9 @@
 | #72.10 | 8 | 3 kritik bug + login rol doğrulama (KVKK m.12) + Madde 30.24 | — |
 | #72.11 | 9 | Devir + sistem durumu KESİN yeniden yazım + 2FA rehberi + Madde 30.25/26 | — |
 | #73 | 13 | Olay/saat 0 KÖK SEBEP TANI (Auditor.run() throw bug) + Auditor defensive try-catch + public agents-health (auditorHealth + lastError) + UI Auditor Tetikle butonu + Madde 30.27 | — |
-| **#74** | **12+** | **2FA Çoklu Yöntem (TOTP + SMS + Email) + bcrypt → bcryptjs hotfix (13. mimar hatası) + Madde 30.28** | — |
-| **TOPLAM** | **137+** | **23+ saat · sapma 0 · 21 kalibrasyon doğrulaması** | **v1.22.0 + 19 alt-madde** |
+| #74 | 12+ | 2FA Çoklu Yöntem (TOTP + SMS + Email) + bcrypt → bcryptjs hotfix (13. mimar hatası) + Madde 30.28 | — |
+| **#75** | **8** | **5 Rol 2FA Parite + Yedekleme severity hotfix + 14. mimar hatası + Madde 30.29** | — |
+| **TOPLAM** | **152+** | **24+ saat · sapma 0 · 22 kalibrasyon doğrulaması** | **v1.22.0 + 20 alt-madde** |
 
 ---
 
@@ -97,7 +98,7 @@
 
 ## 🔴 AÇIK KRİTİK: 0 (kanıtlı)
 ## 🟡 PLANLI: 0
-## 📋 PATTERN: 137+ atom sapma 0 — kalibrasyon 1.6× **21. doğrulama** (kalıcı pattern)
+## 📋 PATTERN: 152+ atom sapma 0 — kalibrasyon 1.6× **22. doğrulama** (kalıcı pattern)
 
 ---
 
@@ -236,9 +237,9 @@ merhaba
 ---
 
 **— Tedbirge.ai mimarı**
-**TUR #74 KAPALI · 5 Mayıs 2026 (2FA Çoklu Yöntem + bcrypt hotfix)**
-**Anayasa v1.22.0 yürürlükte (Madde 30.28 alt-genişleme — patch sürüm yok)**
-**Pattern: TUR #56+...+74 = 137+ atom sapma 0 — kalibrasyon 1.6× 21. doğrulama**
+**TUR #75 KAPALI · 5 Mayıs 2026 (5 Rol 2FA Parite + Yedekleme severity hotfix)**
+**Anayasa v1.22.0 yürürlükte (Madde 30.29 alt-genişleme — patch sürüm yok)**
+**Pattern: TUR #56+...+75 = 152+ atom sapma 0 — kalibrasyon 1.6× 22. doğrulama**
 **12 Mimar Hatası kayıtlı, her biri Anayasa maddesine dönüştü.**
 
 **Production Smoke 4/4 Yeşil:**

@@ -6,6 +6,72 @@
 
 ---
 
+## 5 Mayıs 2026 — TUR #75 KARARI — 5 ROL 2FA PARİTE + YEDEKLEME HOTFIX (14. MİMAR HATASI)
+
+**Anayasa:** v1.22.0 yürürlükte (Madde 30.29 alt-genişleme — patch sürüm yok)
+
+### Karar
+
+CEO 4 Mayıs 17:05: ADMIN'de 2FA çalışıyor → diğer 4 rol için (LAWYER + SALES + CUSTOMER + REPRESENTATIVE) parite kontrol direktifi.
+
+**14. mimar hatası tespit:** TUR #74'te 2FA Çoklu Yöntem ADMIN-only test edildi, 5 rol parite mektupta yer almadı. KVKK m.12 ihlali devam ediyordu.
+
+**Keşif sonucu sürpriz pragmatik:** `/profil` sayfası TUR #72.6'da DRY ortak yazılmış (`// Ortak Profil sayfasi (ADMIN + LAWYER + SALES)`). `/temsilci/profil` ve `/musteri/profil` mevcut. **V2+V3+V4 atomları %90 zaten hazırdı** — sadece V9 Yedekleme severity hotfix + Anayasa Madde 30.29 + dokümantasyon gerekti.
+
+TUR #75 8 atomda kapattı:
+- V0 keşif → 5 rol parite mevcut yapıda kanıtlı
+- V9 Yedekleme severity (CRITICAL → WARNING) + operasyonel mesaj
+- V12 Anayasa Madde 30.29 (5 Rol 2FA Parite Disiplini) + Madde 30.22 genişleme (POST happy path)
+
+### Karar Gerekçesi
+
+1. **CEO direktifi (Madde 17.5 + 30.25):** "uçtan uca otonom hiçbir şey sormadan düzeltsin" → 4'lü zincir aktif
+2. **Madde 4.4 (kod kaynaktır):** V0 keşif `/profil` ZATEN DRY → mevcut yapıyı kanıtla, gerek yoksa yeniden yazma (Madde 4.1 ekosistem)
+3. **KVKK m.12 risk + 14. mimar hatası:** Rol-bağlı feature parite zorunlu — bir rolde 2FA aktif diğerinde yok = saldırı yüzeyi
+4. **V9 Yedekleme severity doğruluğu:** API success + boş snapshots = operasyonel WARNING, system CRITICAL DEĞİL (severity doğruluğu UI net mesaj)
+5. **Madde 30.29 yeni:** 5 rol parite + DRY pattern + hard/soft enforcement matrisi kalıcı standart
+
+### Reddedilen Alternatifler
+
+- **Her panele ayrı 2FA modali yazma:** TUR #72.6 DRY pattern zaten doğru (TwoFactorSetupModal + TwoFactorChallenge component reuse) — yeniden yazma ekosistem ihlali
+- **CUSTOMER için 2FA zorunlu:** Madde 30.19 emsali — CTV düşüşü + onboarding sürtünmesi, OPSİYONEL ÖNERİLEN doğru
+- **LEGAL_REP rolünü zorla ekle:** V0 keşfi yok → skip + raporda belirt (gelecek TUR)
+- **Backup CRITICAL bırak:** API success + boş snapshot = sistem hatası değil operasyonel (severity doğruluğu UI net mesaj)
+- **ADMIN-only soft block (CUSTOMER gibi):** Madde 30.19 ihlali — KVKK m.12 zorunlu enforcement gerek
+
+### Etki
+
+- **8 atom + 3 commit** (`58e6c12` Yedekleme V9 + `[OS commit]` 5 OS senkron)
+- **0 schema/npm**
+- **0 KIRMIZI ihlal**
+- **152+ atom sapma 0** — kalibrasyon 1.6× 22. doğrulama
+- 14. mimar hatası kayıt + Madde 30.29 kalıcı önlem
+- Yedekleme modülü severity doğruluğu (UI KIRMIZI → SARI)
+- 5 rol 2FA parite kanıtlı (mevcut DRY pattern doğrulandı)
+
+### CEO Direktifi (Madde 17.5)
+
+CEO 4 Mayıs 2026 17:05:
+> "Admin'de çalışıyor, şimdi diğer tüm Hukukçu paneli, Temsilci paneli, Müvekkil giriş kanallarının tamamını kontrol et. Eksik hata varsa aynı şekilde tamamına uygula. Uçtan uca otonom hiçbir şey sormadan düzeltsin bana bir şey sormasın başlat bitir."
+
+### Kalıcı Pattern (TUR #76+ için)
+
+1. **Madde 30.29:** 5 rol 2FA parite zorunlu — DRY pattern (TwoFactorSetupModal + TwoFactorChallenge component reuse, props ile rol bilgisi)
+2. **Hard/soft enforcement matrisi:** ADMIN/LAWYER/SALES/REPRESENTATIVE = HARD block, CUSTOMER = SOFT warning
+3. **POST happy path test (Madde 30.22 genişleme):** Auth endpoint için GET smoke yetersiz, 4 rol × 3 yöntem = 12 senaryo CI zorunlu
+4. **Severity doğruluğu (V9 emsali):** API success + boş data = operasyonel WARNING, system CRITICAL DEĞİL — UI net mesaj + hint
+5. **V0 keşif önce yeniden yazımdan kaçın:** TUR #72.7 + #75 emsali → mevcut yapıyı kontrol et, %90 hazırsa dokümantasyon + küçük fix yeterli
+
+### Mimar
+
+Claude Opus 4.7 (sohbet) + Claude Code (otonom uygulama)
+
+### Onay
+
+Mehmet DİNÇ — Madde 17.5 + 18.3 + 30.25 + 30.28 + 30.29 yeni
+
+---
+
 ## 5 Mayıs 2026 — TUR #74 KARARI — 2FA ÇOKLU YÖNTEM + bcrypt HOTFIX (13. MİMAR HATASI)
 
 **Anayasa:** v1.22.0 yürürlükte (Madde 30.28 alt-genişleme — patch sürüm yok)

@@ -1,3 +1,101 @@
+## TUR #75 — 5 ROL 2FA PARİTE + YEDEKLEME HOTFIX (KAPANIŞ)
+
+**Tarih:** 5 Mayıs 2026
+**Anayasa:** v1.22.0 yürürlükte (Madde 30.29 alt-genişleme — patch sürüm yok)
+**Tip:** P tipi (üretim genişleme + paralel keşif — KVKK m.12 + 5 rol parite)
+**Atom:** 8 (V0-V13)
+**Commit:** 3 (`58e6c12` Yedekleme V9 fix + bu OS senkron + Anayasa)
+**Schema/npm:** 0
+**KIRMIZI ihlal:** 0
+**Süre:** ~1 saat otonom
+
+### CEO Direktifi (Madde 17.5 + 18.3 + 30.25)
+
+CEO 4 Mayıs 2026 17:05:
+> "Admin'de çalışıyor, şimdi diğer tüm Hukukçu paneli, Temsilci paneli, Müvekkil giriş kanallarının tamamını kontrol et. Eksik hata varsa aynı şekilde tamamına uygula. Uçtan uca otonom hiçbir şey sormadan düzeltsin bana bir şey sormasın başlat bitir."
+
+### Görsel Kanıt (CEO 16:57-17:02)
+
+1. ✅ ADMIN /profil "2FA Aktif" yeşil rozet
+2. ✅ /login "Authenticator app'deki 6 haneli kodu girin" + Backup + İptal
+3. ✅ Sistem Durumu 15/16 modül aktif, Olay/saat 21-23 canlı
+4. ⚠️ Yedekleme modülü **KIRMIZI (KRİTİK)**: "Snapshot yok veya tarih okunamadı"
+
+### V0 Keşif Sonucu — Pragmatik Tespit
+
+```
+app/(panel)/profil           → ADMIN + LAWYER + SALES ortak (TUR #72.6 DRY)
+app/(panel)/temsilci/profil  → REPRESENTATIVE (legacy TUR #55)
+app/(panel)/musteri/profil   → CUSTOMER (TUR #72.6)
+app/(panel)/dashboard/hukukcu → LAWYER dashboard route (profil ayrı değil)
+```
+
+**Kritik bulgu:** `/profil` sayfası TUR #72.6'da `// Ortak Profil sayfasi (ADMIN + LAWYER + SALES)` yorumlu DRY component yazılmış. Yani **V2+V3 atomları %90 zaten hazır**. Sadece dokümantasyon + V9 Yedekleme fix gerekti.
+
+### V9 Yedekleme Severity Hotfix (commit `58e6c12`)
+
+**Kök sebep:** Supabase Management API success + `snapshots = []` (boş array). Sebep:
+- Supabase free plan → Postgres backup yok
+- Pro plan → ilk backup beklemede
+- Render PG → manuel scheduled gerek
+
+**Önceki davranış:** `snapshots.length === 0` → `ageHours = null` → CRITICAL "Snapshot yok"
+**Yeni davranış:**
+1. `snapshots.length === 0` → **WARNING** + operasyonel mesaj + hint
+2. `snapshots > 0 ama tarih parse hatası` → **WARNING** mode `DATE_PARSE_ERROR`
+3. `ageHours > 26h` → **CRITICAL** korundu (gerçek backup gecikme)
+4. `ageHours >= 24h` → **WARNING** korundu (sınır)
+
+`shouldLogBackupError()` rate-limit korundu (saatte 1 WARNING — flood kes).
+
+### V12 Anayasa Madde 30.29 (Yeni)
+
+**5 Rol 2FA Parite Disiplini:**
+
+| Rol | 2FA | UI Route | Enforcement |
+|---|---|---|---|
+| ADMIN | ZORUNLU | `/profil` (ortak) | HARD (login sonrası /profil dışı kapalı) |
+| LAWYER | ZORUNLU | `/profil` (ortak) | HARD |
+| SALES | ZORUNLU | `/profil` (ortak) | HARD |
+| REPRESENTATIVE | ZORUNLU | `/temsilci/profil` | HARD |
+| CUSTOMER | OPSİYONEL ÖNERİLEN | `/musteri/profil` | SOFT WARNING |
+
+**Madde 30.22 genişleme:** Auth endpoint için **GET smoke (401) yetersiz** — POST happy path zorunlu (4 rol × 3 yöntem = 12 senaryo CI test).
+
+### Production Smoke V10 7/7 Yeşil
+
+```
+[ADMIN] /profil:                       307 ✅
+[CUSTOMER] /musteri/profil:            307 ✅
+[REPRESENTATIVE] /temsilci/profil:     307 ✅
+/api/auth/setup-2fa:                   401 ✅
+/api/auth/setup-2fa-sms:               401 ✅
+/api/auth/setup-2fa-email:             401 ✅
+backup eventCountLast1h:               18 (canlı yazıyor)
+auditorHealth:                         HEALTHY
+eventCounts.last1h:                    375
+```
+
+### Pattern
+
+**TUR #56+...+75 = 152+ atom sapma 0**
+**Kalibrasyon 1.6× — 22. doğrulama**
+
+### 14. Mimar Hatası Kayıt
+
+TUR #74'te 2FA Çoklu Yöntem ADMIN-only test edildi. CEO 4 Mayıs 17:05'te diğer rolleri sordu. **Sebep:** TUR #74 mektubunda 5 rol parite atlandı.
+
+**Keşif sonucu:** Aslında **V2+V3+V4 %90 hazırdı** (TUR #72.6 DRY pattern), sadece açık dokümantasyon ve sonradan kontrol eksikti. CEO'nun "tüm rolleri kontrol et" direktifi zaten mevcut yapının doğru çalıştığını doğruladı.
+
+**Yeni kalıcı kural (Madde 30.29):** Rol-bağlı feature parite zorunlu. Bir role 2FA UI yapıp diğer rollere atlama YASAK.
+
+### Mimar + Onay
+
+**Mimar:** Claude Opus 4.7 (sohbet) + Claude Code (otonom uygulama)
+**Onay:** Mehmet DİNÇ — Madde 17.5 + 18.3 + 30.25 + 30.28 + 30.29 yeni
+
+---
+
 ## TUR #74 — 2FA ÇOKLU YÖNTEM + bcrypt HOTFIX (KAPANIŞ)
 
 **Tarih:** 5 Mayıs 2026

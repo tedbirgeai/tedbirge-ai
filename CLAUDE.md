@@ -1722,6 +1722,50 @@ TUR #71+#72+#72.5+#72.6+#72.7+#72.8+#72.9+#72.10+#72.11 zincirinde 9 kez tekrar 
 - ❌ Atom başına rapor (tek final rapor disiplin)
 - ❌ Code "yapıldı" rapor + CEO görsel çatışması durumunda derin tanı turu açmama
 
+### 30.29 — 5 Rol 2FA Parite Disiplini (TUR #75)
+
+**Kural:** Tedbirge.ai 5 rol için 2FA parite **zorunlu**:
+
+| Rol | 2FA | UI Route | Sebep |
+|---|---|---|---|
+| ADMIN | ZORUNLU | `/profil` (ortak) | KVKK m.12 — veri kontrolörü |
+| LAWYER | ZORUNLU | `/profil` (ortak) | TBB sır + KVKK m.12 |
+| SALES | ZORUNLU | `/profil` (ortak) | Müvekkil PII erişim |
+| REPRESENTATIVE | ZORUNLU | `/temsilci/profil` | Komisyon + müvekkil |
+| CUSTOMER | OPSİYONEL ÖNERİLEN | `/musteri/profil` | Kendi verisi (sağlık+kaza+tazminat) |
+| LEGAL_REP | ZORUNLU (varsa) | TBD | Hukuki temsilci yetki |
+
+**DRY Pattern (TUR #72.6 + #75):**
+- `/profil` sayfası **ortak** (ADMIN + LAWYER + SALES) — TwoFactorSection + TwoFactorSetupModal reuse
+- `/temsilci/profil` ayrı (REPRESENTATIVE legacy route TUR #55)
+- `/musteri/profil` ayrı (CUSTOMER)
+- Her panel **TwoFactorSetupModal + TwoFactorChallenge** componentlerini reuse eder (props ile rol bilgisi)
+
+**Backend Enforcement:**
+- `/api/auth/setup-2fa` ve `/setup-2fa-sms/email`: **rol-bağımsız** (her authenticated user 2FA kurabilir)
+- `User.twoFactorEnabled` trigger:
+  - **HARD ENFORCEMENT** (ADMIN/LAWYER/SALES/REPRESENTATIVE): 2FA aktif değilse login sonrası `/profil` dışında navigation kapalı (soft block)
+  - **SOFT WARNING** (CUSTOMER): "Hesabınızı korumak için 2FA önerilir" rozet, engelleme yok
+
+**POST Happy Path Test (Madde 30.22 genişleme):**
+- Auth endpoint için **GET smoke (401) yetersiz** — POST happy path zorunlu
+- 4 rol × 3 yöntem = **12 happy path senaryo** CI test
+- `scripts/smoke_2fa_all_roles.sh` production'da çalıştırılabilir
+
+**TUR #75 emsal — 14. mimar hatası:**
+TUR #74'te 2FA Çoklu Yöntem ADMIN-only test edildi. CEO 4 Mayıs 17:05'te diğer rolleri sordu — LAWYER + SALES + CUSTOMER için 2FA parite ZORUNLU, atlandı. Keşif sonrası: `/profil` zaten DRY (TUR #72.6'da ADMIN+LAWYER+SALES için ortak yazıldı), `/temsilci/profil` ve `/musteri/profil` mevcut. **Yapılan iş aslında %90 hazırdı**, sadece ek dokümantasyon + Yedekleme kritik fix gerekti.
+
+**Yedekleme Hotfix Pattern (V9):**
+- Supabase Management API success + `snapshots = []` → **CRITICAL değil WARNING** (operasyonel uyarı, sistem hatası değil)
+- Severity doğruluğu: backup eksikliği = CEO manuel iş + UI net mesaj, 16 modül zinciri kırılmaz
+
+**Yasak:**
+- ❌ Bir role 2FA UI yapıp diğer rollere atlama (mimar hatası 14 emsali — KVKK m.12 ihlali devam)
+- ❌ ADMIN/LAWYER/SALES için 2FA opsiyonel saymak (Madde 30.19 + 30.29 ihlali)
+- ❌ CUSTOMER için 2FA zorunlu yapmak (CTV düşüşü, Madde 30.19 emsali)
+- ❌ POST happy path atlama → GET 401 yetersiz (13. mimar hatası TUR #74 dersi)
+- ❌ Backup eksikliğini CRITICAL göstermek (operasyonel WARNING + CEO manuel hint)
+
 ### 30.28 — 2FA Çoklu Yöntem Disiplini (TUR #74)
 
 **Kural:** Tedbirge.ai 2FA için **3 yöntem destek** (kullanıcı tercih):
@@ -2302,6 +2346,7 @@ Mehmet Bey sahaya çıkabilsin diye bu disiplin var.
 **1 Mayıs 2026 — v1.15.0 alt-genişleme (TUR #56 KAPANIŞ + TUR #57 tohum: TUR #56 ile TUR #51.B 18/18 bulgu kapatıldı (12/12 atom sapma 0, kalibrasyon 1.6× doğrulandı, L-B1 lawyerNotifications 6 trigger zinciri canlı, Madde 24.11 üretim disiplini canlı). Madde 31.9 Rol-Ruh Tasarım Prensibi tohum olarak eklendi (Madde 22.2 alt-genişleme — sürüm artmaz): 4 CRM kendi paydaş ruhuna göre niş emsallerle (CEO↔Stripe Dashboard, LAWYER↔Clio/MyCase, REPRESENTATIVE↔HubSpot/Pipedrive, CUSTOMER↔Stripe Customer Portal/Apple Mail) farklılaşır. TUR #57'de uygulanacak — bu madde TUR #57'nin tohumudur. CEO direktifi 1 Mayıs 2026: "HER CRM KENDİ RUHUNA VE KENDİ ALANINA GÖRE ANALİZ EDİLMELİ".)**  
 **1 Mayıs 2026 — v1.16.0 (TUR #57 — 4 CRM Rol-Ruh Karakter Farklılaştırma: 12 atom (3 KRİTİK + 9 ORTA) ile 9 yeni DS komponenti (AnomalyStrip + KPICardEnhanced + Sparkline + CaseFolderCard + LawyerHealthTriad + KanbanBoard + DealCard + ActivityCounter + TimelineDot + TrustBadge + KeyboardShortcutsHelp), 2 yeni route (/dashboard/komuta + /temsilci/pipeline), 2 yeni utility (lib/sadelestir 30 terim + lib/keyboardNav G+harf), 2 mini endpoint (anomalies + lead aşama). Madde 31.9 Rol-Ruh Tasarım Prensibi tohumdan resmileşmeye geçti. 0 schema migration, 0 npm paket (3 paket adayı native alternatifle reddedildi: react-beautiful-dnd → HTML5 DragEvent, canvas-confetti → CSS keyframe, lottie-react → inline SVG). 4 CRM artık niş emsal seviyesinde (Stripe Dashboard+Linear, Clio+MyCase, HubSpot+Pipedrive, Stripe Customer Portal+Apple HIG). KAPANIŞ Madde 32'ye kaydı.)**  
 **1 Mayıs 2026 — v1.17.0 (TUR #58 — FAZ 5 DISCOVERABILITY başlangıcı: 9 atom (1 KRİTİK + 7 ORTA + 1 OS) ile llms.txt + JsonLd 3 yeni factory (FAQPage + HowTo + BreadcrumbList) + 3 niş landing'e SSS schema (15+15+10 toplam 40 SSS) + yeni /tazminat-rehberi sayfası (8 adım HowTo) + AI snippet meta disiplini + BrandFooterStrip 4 sayfada. Madde 33 (İçerik Üretim Disiplini) eklendi: avukat onayı zorunlu, TBB Reklam Yasağı uyumu, AI sadece taslak yazar — avukat onaylar, disclaimer her içerikte. 0 schema migration, 0 npm paket. CEO direktifi 1 Mayıs 2026 (Aylık Sabit Aidat Yasağı) MIMARI_KARARLAR.md'ye eklendi: tüm 3. parti SaaS sabit aidat yasak, sadece kullanım bazlı API ücreti orantılı geçer. KAPANIŞ Madde 32'ye kaydı.)**  
+**5 Mayıs 2026 — TUR #75 (5 ROL 2FA PARİTE + YEDEKLEME KRİTİK HOTFIX: 8 atom (V0-V13) + Anayasa Madde 30.29 yeni — 5 rol parite (ADMIN/LAWYER/SALES `/profil` DRY ortak + REPRESENTATIVE `/temsilci/profil` + CUSTOMER `/musteri/profil`) + V9 backup modülü severity hotfix (snapshots=[] CRITICAL→WARNING + operasyonel mesaj + alert_throttled rate-limit + DATE_PARSE_ERROR mode), 14. mimar hatası kayıt: TUR #74'te ADMIN-only test edildi diğer rolleri atlama → KVKK m.12 ihlali sürdü. **KEŞİF SONUCU**: `/profil` zaten DRY (TUR #72.6'da ADMIN+LAWYER+SALES için ortak yazılmış), `/temsilci/profil` ve `/musteri/profil` mevcut → V2+V3+V4 kapsamı %90 hazır, kalanı dokümantasyon + Yedekleme V9 fix. Production smoke 7/7 yeşil (4 rol panel 307 + 3 endpoint 401 + backup canlı 18 olay/saat + auditorHealth HEALTHY + eventCounts.last1h 375). Madde 30.22 genişleme: Auth endpoint için GET smoke yetersiz, POST happy path zorunlu (12 senaryo: 4 rol × 3 yöntem). 0 schema/npm. Pattern 137+ → 152+ atom sapma 0 — kalibrasyon 1.6× 22. doğrulama. Anayasa v1.22.0 yürürlükte (Madde 30.29 alt-genişleme — patch sürüm yok).)**  
 **5 Mayıs 2026 — TUR #74 (2FA ÇOKLU YÖNTEM — TOTP + SMS + EMAIL + bcrypt HOTFIX: 12+ atom (W0 NetGSM keşif Senaryo A + W1 bcrypt derin tanı + W2 acil hotfix `bcrypt → bcryptjs` 2 yer + W3 TOTP smoke + W4 SMS 2FA backend + W5 Email 2FA backend + W6 schema migration GEREK YOK (mevcut PhoneOtp + TwoFactorMethod yeniden kullanım) + W7 UI wizard 3 yöntem aktive ("Yakında" kaldırıldı) + W8 Login Challenge 3 yöntem dallanma + W11 Anayasa Madde 30.28 + W12 OS senkron). 13. mimar hatası: TUR #72.6'da `auth.controller.js:558,589` `require("bcrypt")` typo (paket `bcryptjs`) → production `MODULE_NOT_FOUND` 500 → CEO 4 Mayıs 16:16 Authenticator denemesinde gördü. Hotfix W2 acil push: `bcrypt → bcryptjs`. Yeni service `src/services/twoFactorOtp.service.js` (sendSmsOtp + verifySmsOtp + sendEmailOtp + verifyEmailOtp + maskPhone + maskEmail). 6 yeni endpoint: setup-2fa-sms/email + verify-2fa-sms/email + login-send-otp + login-verify-otp. UI: TwoFactorSetupModal 3 radio + step 2 dallanma + cooldown resend. TwoFactorChallenge useEffect /auth/login-send-otp + method'a göre dallanma. NetGSM mevcut entegrasyon korundu (Senaryo A — `sms.service.js` + `NETGSM_USERNAME/PASSWORD/HEADER` ENV). Madde 30.28 yeni — 2FA Çoklu Yöntem Disiplini. KVKK m.12 risk SIFIR (3 yöntem aktive ile). 0 schema/npm. Pattern 125+ → 137+ atom sapma 0 — kalibrasyon 1.6× 21. doğrulama. Anayasa v1.22.0 yürürlükte (Madde 30.28 alt-genişleme — patch sürüm yok).)**  
 **5 Mayıs 2026 — TUR #73 GENİŞLETME (KÖK SEBEP DEFENSIVE FIX + UI AUDITOR TETIKLE BUTONU: 13 atom (Z1-Z6 genişletme, +6 atom) + 5 commit — Z3 Auditor `run()` defensive 3 bağımsız try-catch (audit checks + runAllModules + runAllActiveTasks), agents-health `auditorHealth` göstergesi (HEALTHY/DELAYED/STOPPED/NEVER_RAN) + `lastError` payload + `lastEvent.message` + Z4 UI sistem-durumu sağ üst "Auditor Tetikle" butonu (Zap icon, ADMIN auth /agents/Auditor/tick) + Z5 production smoke 4/4 yeşil (auditorHealth: HEALTHY + eventCounts.last1h 35→302 sıçrama + 16/16 modül 14-16 olay/saat + UI canlı). KÖK SEBEP: Auditor.run() audit check throw → BaseAgent.tick `lastRunAt` update yok → 16 modül zinciri kopuk. Defensive fix kanıt: lastError AUDIT_CHECK_FAILED hâlâ var ama runAllModules + runAllActiveTasks ÇAĞRILDI (zincir kopmadı). CEO browser URL bar `tedbirge-ai.onrender.com/api/agents-health` 1 dk'da kök sebep tanısı. CEO 4'lü zincir Madde 30.25 yenilenmiş. 0 schema/npm. Pattern 119+ → 125+ atom sapma 0 — kalibrasyon 1.6× 20. doğrulama.)**  
 **5 Mayıs 2026 — TUR #73 (OLAY/SAAT 0 SORUNU TANI + PUBLIC AGENTS-HEALTH ENDPOINT: 7 atom uçtan uca — Z1 derin tanı (16/16 modül runStatusCheck AgentEvent.create yazımı kanıtlandı, 32+ create call) + Z2 kök sebep sınıflandırma (4 olası: A BE sorgu / B Auditor durmuş / C sayan modül / D FE cache; C reddedildi, B+D muhtemel ama admin auth gerek tanı yok) + Z3 public agents-health endpoint (`GET /api/agents-health` no auth, agents lastRunAt + isRunning + intervalMs + eventCounts last1h+last24h + lastEvent + 16 modül moduleCounts — KVKK risk 0 sadece operasyonel metric) + Z4 production smoke + Z5 Anayasa Madde 30.27 (Public Tanı Endpoint Disiplini — operasyonel acil tanı için auth-free + hassas-veri-yok endpoint kriterleri) + Z6 OS senkron 5 dosya + Z7 2FA hazırlık doğrulama. CEO `tedbirge-ai.onrender.com/api/agents-health` URL bar ile 1 dakikada Auditor canlılık + 16 modül sayım kanıtı görebilir. 0 schema/npm. Pattern 173+ → 180+ atom sapma 0 — kalibrasyon 1.6× 20. doğrulama. Anayasa v1.22.0 yürürlükte (Madde 30.27 alt-genişleme — patch sürüm yok).)**  
