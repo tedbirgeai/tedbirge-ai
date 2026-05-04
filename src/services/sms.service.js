@@ -102,6 +102,23 @@ function isMockMode() {
 
 // ─── Gerçek gönderim — Netgsm HTTP GET API ────────────────────────────────────
 
+// TUR #80 Z2 — NetGSM API URL safe resolver (Madde 30.31 R1 + 30.33 R1)
+// Eski (initial 9dc080a — TUR pre-#74 calisan kod) hardcoded:
+//   "https://api.netgsm.com.tr/sms/send/get"
+// CEO Render'da NETGSM_API_URL var fakat path eksik olabilir (root domain).
+// ENV varsa kullan, fakat path "/sms/send/get" iceriyor mu validate et.
+function resolveNetgsmApiUrl() {
+  const HARDCODED = "https://api.netgsm.com.tr/sms/send/get";
+  const env = (process.env.NETGSM_API_URL || "").trim();
+  if (!env) return HARDCODED;
+  // Path eksikse (sadece domain, ya da yanlis path) hardcoded'a dus
+  if (!/\/sms\/send\/(get|xml|otp)/i.test(env)) {
+    console.warn(`[NetGSM] NETGSM_API_URL path eksik veya hatali ('${env}') — hardcoded fallback kullanildi: ${HARDCODED}`);
+    return HARDCODED;
+  }
+  return env;
+}
+
 async function sendSmsReal(to, message) {
   const phone = normalizePhone(to);
   if (!phone) throw new Error(`Geçersiz telefon numarası: ${to}`);
@@ -111,7 +128,7 @@ async function sendSmsReal(to, message) {
     console.warn(`[SMS] Uyarı: ${segments} segment uzunluğunda mesaj (${message.length} karakter)`);
   }
 
-  // TUR #77 Q1 — Backward compatible username + API URL ENV desteği
+  // TUR #77 Q1 + TUR #80 Z2 — Backward compatible username + safe API URL
   const params = new URLSearchParams({
     usercode:  getNetgsmUsername(),
     password:  process.env.NETGSM_PASSWORD,
@@ -121,17 +138,21 @@ async function sendSmsReal(to, message) {
     dil:       process.env.NETGSM_ENCODING || "TR",
   });
 
-  // NETGSM_API_URL ENV mevcutsa kullan (CEO Render'da koymuş), yoksa default
-  const baseUrl = process.env.NETGSM_API_URL || "https://api.netgsm.com.tr/sms/send/get";
+  const baseUrl = resolveNetgsmApiUrl();
   const url = `${baseUrl}${baseUrl.includes("?") ? "&" : "?"}${params.toString()}`;
 
-  // TUR #77 Q1 — Defensive logging (mask credentials)
+  // TUR #77 Q1 + TUR #80 Z2 — Defensive logging (mask credentials, kanit zorunlu)
+  const username = getNetgsmUsername();
   console.log("[NetGSM] CALL", {
     phoneMask: phone.slice(0, 4) + "***" + phone.slice(-2),
     msgLen: message.length,
     segments,
     header: (process.env.NETGSM_HEADER || "TEDBIRGE").slice(0, 11),
+    headerLen: (process.env.NETGSM_HEADER || "TEDBIRGE").length,
     apiUrl: baseUrl,
+    usernameLen: username.length,
+    passwordLen: (process.env.NETGSM_PASSWORD || "").length,
+    envApiUrlSet: !!process.env.NETGSM_API_URL,
   });
 
   const startMs = Date.now();
