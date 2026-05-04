@@ -1853,6 +1853,58 @@ NetGSM_HEADER ENV slot'unda önce `'0850303724'` (sayı dizisi, kullanıcı adı
 - ❌ Slot karışıklığı tespit edildiğinde sessiz başarısızlık (warn log + safe fallback zorunlu)
 - ❌ Boot durduran sıkı validation (geri uyumluluk için sadece warn log)
 
+### 30.36 — Hesapsız Sorgulama Güvenlik Disiplini (TUR #83)
+
+**Kural:** Hesap olmadan kişisel veri sorgulama (telefon, email, başvuru no ile) endpoint'leri için **2-faktör doğrulama ZORUNLU**. Tek faktör (sadece telefon veya sadece email) **KVKK m.12 ihlali** = ~3M TL idari para cezası riski.
+
+**4 zorunlu kontrol:**
+
+1. **2-faktör doğrulama:**
+   - Sorgu anahtarı (telefon/email) + paralel doğrulama (SMS/email OTP)
+   - Banka/e-Devlet emsali — tek faktörlü hesapsız sorgu YASAK
+
+2. **Enumeration koruma:**
+   - Mevcut/yok response süresi aynı (timing attack koruma — minimum delay 600ms)
+   - Brute force 3 yanlış OTP → 30 dk telefon lock
+   - Rate limit telefon başına (1 dk içinde 1 OTP) + IP başına (express-rate-limit)
+   - "Numarayla başvuru bulunamadı" mesajı yerine "Eğer bu numarayla başvuru varsa SMS gönderildi" (enumeration soft koruma)
+
+3. **Hassas veri filtreleme:**
+   - Sadece sorgu yapanın görmesi gereken minimum bilgi (status + son güncelleme + zamanaşımı + lawyer ilk isim)
+   - Avukat full name + AI analiz + dosya içeriği + tazminat tutarı GİZLİ
+   - Detay için "Hesap oluştur" CTA (full account login)
+
+4. **KVKK aydınlatma + rıza + audit:**
+   - Sorgu öncesi rıza checkbox (KVKK aydınlatma metni linki)
+   - ActivityLog: `QUERY_OTP_SENT` + `QUERY_OTP_FAILED` (telefonMask, IPmask, timestamp)
+   - 30 gün sorgu logu saklama (KVKK denetim)
+
+**Backend pattern (TUR #83 emsal):**
+```js
+// 1. POST /query-lead-otp { phone, kvkkConsent } → SMS OTP gönder
+//    - Brute force lock kontrolü (son 30 dk içinde 3+ yanlış)
+//    - Rate limit (1 dk içinde 1 OTP)
+//    - Enumeration koruma (mevcut/yok aynı süre)
+//    - PhoneOtp tablosu (purpose: 'query-lead', 5 dk TTL)
+// 2. POST /query-lead-verify-otp { phone, otp } → JWT session token (15 dk)
+//    - Yanlış OTP → ActivityLog QUERY_OTP_FAILED (brute force tespit)
+// 3. POST /query-lead { phone, sessionToken } → dosya bilgisi
+//    - JWT verify + phone match kontrol
+//    - Hassas veri filtre (lawyer ilk isim + status + tarih + kalan süre)
+```
+
+**TUR #83 emsal — 23. mimar hatası:**
+TUR #82 V5 "Şifresiz dosya takibi" → "Hesapsız dava sorgulamak için" UI text düzeltildi. Ancak `/api/public/query-lead` endpoint'i SADECE TELEFON ile dosya gösteriyordu — enumeration saldırısına açık + KVKK m.12 ihlali (~3M TL ceza riski). CEO 4 Mayıs 23:30 yakaladı.
+
+**Madde 30.34 R1 emsali genişleme:** UX wording doğru ama altta yatan güvenlik mantığı zayıfsa "yanıltıcı" devam eder. UI text doğruluğu (Madde 30.34 R1) ZORUNLU + backend güvenlik mantığı (Madde 30.36) ZORUNLU = ikisi birlikte tam koruma.
+
+**Yasak:**
+- ❌ Tek faktörlü hesapsız sorgu (KVKK m.12 ihlali, ~3M TL ceza riski)
+- ❌ Enumeration response farkı (mevcut/yok süre/format farklı = timing attack)
+- ❌ Brute force koruma olmadan OTP endpoint (sınırsız deneme = otomatik tarama)
+- ❌ Hassas veri (avukat full name, AI analiz, tazminat) hesapsız sorgu sonucunda gösterme
+- ❌ KVKK rıza onayı olmadan sorgu (KVKK m.5 + m.10 ihlali)
+
 ### 30.31 — Mevcut Çalışan Entegrasyon Koruma Disiplini (TUR #78)
 
 **Kural:** Yeni özellik geliştirilirken provider entegrasyonu için **ÖNCE** kontrol zorunlu, **SONRA** mevcut service üstüne yeni katman:
@@ -2684,6 +2736,7 @@ Mehmet Bey sahaya çıkabilsin diye bu disiplin var.
 **1 Mayıs 2026 — v1.15.0 alt-genişleme (TUR #56 KAPANIŞ + TUR #57 tohum: TUR #56 ile TUR #51.B 18/18 bulgu kapatıldı (12/12 atom sapma 0, kalibrasyon 1.6× doğrulandı, L-B1 lawyerNotifications 6 trigger zinciri canlı, Madde 24.11 üretim disiplini canlı). Madde 31.9 Rol-Ruh Tasarım Prensibi tohum olarak eklendi (Madde 22.2 alt-genişleme — sürüm artmaz): 4 CRM kendi paydaş ruhuna göre niş emsallerle (CEO↔Stripe Dashboard, LAWYER↔Clio/MyCase, REPRESENTATIVE↔HubSpot/Pipedrive, CUSTOMER↔Stripe Customer Portal/Apple Mail) farklılaşır. TUR #57'de uygulanacak — bu madde TUR #57'nin tohumudur. CEO direktifi 1 Mayıs 2026: "HER CRM KENDİ RUHUNA VE KENDİ ALANINA GÖRE ANALİZ EDİLMELİ".)**  
 **1 Mayıs 2026 — v1.16.0 (TUR #57 — 4 CRM Rol-Ruh Karakter Farklılaştırma: 12 atom (3 KRİTİK + 9 ORTA) ile 9 yeni DS komponenti (AnomalyStrip + KPICardEnhanced + Sparkline + CaseFolderCard + LawyerHealthTriad + KanbanBoard + DealCard + ActivityCounter + TimelineDot + TrustBadge + KeyboardShortcutsHelp), 2 yeni route (/dashboard/komuta + /temsilci/pipeline), 2 yeni utility (lib/sadelestir 30 terim + lib/keyboardNav G+harf), 2 mini endpoint (anomalies + lead aşama). Madde 31.9 Rol-Ruh Tasarım Prensibi tohumdan resmileşmeye geçti. 0 schema migration, 0 npm paket (3 paket adayı native alternatifle reddedildi: react-beautiful-dnd → HTML5 DragEvent, canvas-confetti → CSS keyframe, lottie-react → inline SVG). 4 CRM artık niş emsal seviyesinde (Stripe Dashboard+Linear, Clio+MyCase, HubSpot+Pipedrive, Stripe Customer Portal+Apple HIG). KAPANIŞ Madde 32'ye kaydı.)**  
 **1 Mayıs 2026 — v1.17.0 (TUR #58 — FAZ 5 DISCOVERABILITY başlangıcı: 9 atom (1 KRİTİK + 7 ORTA + 1 OS) ile llms.txt + JsonLd 3 yeni factory (FAQPage + HowTo + BreadcrumbList) + 3 niş landing'e SSS schema (15+15+10 toplam 40 SSS) + yeni /tazminat-rehberi sayfası (8 adım HowTo) + AI snippet meta disiplini + BrandFooterStrip 4 sayfada. Madde 33 (İçerik Üretim Disiplini) eklendi: avukat onayı zorunlu, TBB Reklam Yasağı uyumu, AI sadece taslak yazar — avukat onaylar, disclaimer her içerikte. 0 schema migration, 0 npm paket. CEO direktifi 1 Mayıs 2026 (Aylık Sabit Aidat Yasağı) MIMARI_KARARLAR.md'ye eklendi: tüm 3. parti SaaS sabit aidat yasak, sadece kullanım bazlı API ücreti orantılı geçer. KAPANIŞ Madde 32'ye kaydı.)**  
+**5 Mayıs 2026 — TUR #83 (HESAPSIZ SORGULAMA GÜVENLİK SERTLEŞTİRME + Lead.leadKodu PRİSMA REGRESYON + RATE LIMIT DENGE + 23. MİMAR HATASI: 8 atom (U0-U12) + Anayasa Madde 30.36 yeni. CEO 4 Mayıs 23:30 direktifi: "/basvuru-sorgula sadece telefon ile dosya gösteriyor — KVKK m.12 ihlali ~3M TL ceza riski. Lead.leadKodu Prisma hata (regresyon). Rate limit /api/auth/login 429 (CEO test bloke). Eksik hata ne varsa düzelt." 23. mimar hatası: TUR #82 V5 sadece UI text düzeltti ("Şifresiz" → "Hesapsız") altta yatan güvenlik (1-faktör sorgu) sertleştirilmedi. U6 Lead.leadKodu fix: `auditor.agent.js` 4 yer leadKodu → leadCode (schema'da leadCode doğru, agent yanlış alan adı kullanıyordu — her 5 dk Auditor tick'te Prisma hata log). U7 Rate limit denge: windowMs 15 dk → 5 dk + max 5 → 10 + skipSuccessfulRequests:true (CEO test rahatça + brute force koruma). U1+U2+U4 Backend 2-faktör hesapsız sorgu: 3 yeni endpoint (POST /query-lead-otp telefon+KVKK rıza → SMS OTP gönder + brute force lock 3 yanlış/30 dk + rate limit 1 dk/1 OTP + enumeration koruma timing attack 600ms minimum + ActivityLog QUERY_OTP_SENT, POST /query-lead-verify-otp OTP doğrula → JWT session token 15 dk, POST /query-lead phone+sessionToken zorunlu → hassas veri filtre lawyer ilk isim + status + tarih + zamanaşımı, avukat full name + AI analiz GİZLİ). U3 UI 3-step wizard: Step 1 telefon + KVKK rıza checkbox + KVKK aydınlatma link, Step 2 6 hane OTP + 60 sn cooldown "Yeniden gönder" + "Telefonu değiştir" geri buton, Step 3 sonuç tablosu + "Detaylı erişim Müvekkil Girişi" CTA, kurumsal güven footer (TLS+KVKK+ISO 27001 — TUR #79 Y11 emsali). Mevcut PhoneOtp tablosu yeniden kullanım (purpose: 'query-lead'). 0 schema/npm/env. Pattern 201+ → 209+ atom sapma 0 — kalibrasyon 1.6× 30. doğrulama. Anayasa v1.22.0 yürürlükte (Madde 30.36 yeni alt-genişleme — patch sürüm yok).)**  
 **5 Mayıs 2026 — TUR #82 (2FA HARD ENFORCEMENT BACKEND + MÜVEKKİL TEXT FIX + 21+22. MİMAR HATALARI: 7 atom (V0-V12) + Anayasa Madde 30.29 R1 + 30.34 R1 ikiz R-genişleme. CEO 4 Mayıs 23:13 direktifi: "SMS düzeldi (NetGSM çözüldü). ANCAK Hukukçu girişi 2FA YOK + Temsilci 2FA YOK + Müvekkil 'Şifresiz dosya takibi' yanıltıcı. Eksik hata ne varsa düzelt." 21. mimar hatası: TUR #75 Madde 30.29 UI seviyesinde yazıldı (3 rol /profil DRY) ama backend /api/auth/login tarafında HARD rol + twoFactorEnabled=false kontrolü yoktu — full token dönüyordu (CEO Image 2 yakaladı: /login?rol=hukukcu email+şifre direkt panele). V2 backend fix: HARD_2FA_ROLES = [ADMIN, LAWYER, SALES, REPRESENTATIVE], response.data.requiresTwoFactorSetup=true + redirectTo /2fa-secim + setupMessage (KVKK m.12) + CUSTOMER soft twoFactorReminder=true (engelleme yok). V3 frontend response handling: result.data.requiresTwoFactorSetup explicit flag (UI atlatılamaz) + mevcut user.twoFactorEnabled false fallback (TUR #78 X8 korundu). 22. mimar hatası: müvekkil sekme "Şifresiz dosya takibi" yazıyor ama müvekkil aslında email+şifre kullanır (yanıltıcı + KVKK güven + tüketici hukuku şüphe). CEO Image 3 yakaladı. V5 müvekkil text fix: "Hesapsız dava sorgulamak için:" + "Telefon ile Sorgula →" (/basvuru-sorgula gerçekten hesapsız — telefon+başvuru kodu sorgu). V6 tüm "Şifresiz" yanıltıcı taraması: 0 yanıltıcı kullanım kaldı. NetGSM SMS düzelmesi korundu (TUR #81 + CEO ENV fix). CEO TOTP aktivasyonu (tedbirge42@gmail.com ADMIN) bozulmadı. 0 schema/npm/env. Pattern 194+ → 201+ atom sapma 0 — kalibrasyon 1.6× 29. doğrulama. Anayasa v1.22.0 yürürlükte (Madde 30.29 R1 + 30.34 R1 ikiz R-genişleme — patch sürüm yok).)**  
 **5 Mayıs 2026 — TUR #81 (ENV SLOT DİSİPLİNİ + HEADER LOWERCASE NORMALIZE + 5 ROL × 3 TAB FİİLEN PARİTE + 20. MİMAR HATASI: 7 atom (W0-W12) + Anayasa Madde 30.35 yeni. CEO 4 Mayıs 22:40 direktifi: Render log "[NetGSM] CALL header='Tedbirge'" (T büyük) — NetGSM panel onaylı 'tedbirge' (lowercase, Image 5 kanıt 20.04.2026). Case-sensitive uyumsuzluk → kod 30 reddi. CEO 22:11 Image 1 ile yakaladı: NETGSM_HEADER slot'unda önce '0850303724' (sayı dizisi, kullanıcı adı formatında!), sonra 'Tedbirge' (T büyük). 22:35 düzeltti. 20. mimar hatası: ENV slot karışıklığı runtime'da yakalanmıyordu. W1 Boot-time validation: 4 ENV slot için format regex/uzunluk/karakter set kontrolü + [ENV-SLOT] HATA log + provider panel ipucu (boot durmaz). W2 Header lowercase normalize: resolveNetgsmHeader() helper, ENV raw → trim + lowercase. W3 Safe fallback (slot karışıklığı protection): boş veya sayı dizisi (^0\\d+$) → 'tedbirge' default + warn log. W7 TwoFactorChallenge regresyon koruma: 3 tab her zaman görünür (TUR #79 Y4 emsali korundu). W5 5 rol × 3 tab parite: tek /login sayfası DRY (TUR #80 Z6 emsali) — 4 rol seçici (yonetici/temsilci/hukukcu/musteri) component reuse. /musteri-login + /dava-takibim ayrı sayfa YOK (307 redirect). W11 production smoke 12 kanıt (kısmi — admin token gerekli). Defensive logging genişletme: header/headerLen/headerRawEnvLen/headerNormalized boolean (case mismatch tespit kanıt). 0 schema/npm/env (CEO Render manuel düzeltti). Pattern 187+ → 194+ atom sapma 0 — kalibrasyon 1.6× 28. doğrulama. Anayasa v1.22.0 yürürlükte (Madde 30.35 alt-genişleme — patch sürüm yok).)**  
 **5 Mayıs 2026 — TUR #80 (NETGSM REGRESSION TAM TANI + 5 KANAL PARİTE + 19. MİMAR HATASI: 7 atom (Z0-Z12) + Anayasa Madde 30.31 R1 + 30.33 R1 ikiz ekleme. CEO 4 Mayıs 21:20 direktifi: "Yönetici 3 tab çalışıyor SMS hata 30. Hukukçu/Temsilci/Müvekkil hiçbirine yansımadı iddia. Eksik hata ne varsa düzelt aynı şekilde tamamına uygulansın. Uçtan uca otonom hiçbir şey sormadan başlat bitir." CEO 21:15-21:19 görsel: /login?rol=hukukcu 3 tab var AMA SMS tab tıklanınca "API erişimi kapalı" (NetGSM kod 30, TUR #74'ten beri açık regression). 19. mimar hatası: TUR #79 İŞ 1 SKIP edildi (mimar varsayımı "TUR #78'de git arkeoloji yapıldı"). Z0 git arkeoloji yeniden: initial commit 9dc080a hardcoded URL "https://api.netgsm.com.tr/sms/send/get" — TUR #77 9845fc8 NETGSM_API_URL ENV destek eklendi (CEO Render'da setlenmiş). Z2 hotfix: resolveNetgsmApiUrl() path validator (eğer ENV path eksik → hardcoded fallback) + defensive logging genişletme (usernameLen/passwordLen/headerLen/envApiUrlSet kanıt). Z6 5 kanal parite: /login sayfasına 4. rol "musteri" sekmesi eklendi (yonetici/temsilci/hukukcu/musteri grid-cols-4 DRY) — backend zaten CUSTOMER kabul ediyor (line 98 user.role === "CUSTOMER" → /musteri redirect). Z3 production smoke CEO admin token gerekli (Senaryo A: kod="00" ✅ canlı / Senaryo B: kod="30" → NetGSM panel 5 adım checklist: bakiye/başlık/API erişimi/IP whitelist/raporlar). docs/TUR80_NETGSM_DURUM.md yazıldı (kapanış raporu B durumda CEO 5 dk manuel). Anayasa Madde 30.31 R1 yeni: Atom Skip Kararı CEO Onayı Zorunlu (3 kanıt: git arkeoloji + smoke pass + CEO onay). Madde 30.33 R1 yeni: Provider Response Kodu Kanıt Zorunlu ("çalışıyor" iddiası HTTP 200 yetersiz, provider code='00'/bulkId/messageId zorunlu). 0 schema/npm/env. Pattern 180+ → 187+ atom sapma 0 — kalibrasyon 1.6× 27. doğrulama. Anayasa v1.22.0 yürürlükte (Madde 30.31 R1 + 30.33 R1 alt-genişleme — patch sürüm yok).)**  

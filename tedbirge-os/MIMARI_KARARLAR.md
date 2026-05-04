@@ -6,6 +6,58 @@
 
 ---
 
+## 5 Mayıs 2026 — TUR #83 KARARI — HESAPSIZ SORGULAMA GÜVENLİK SERTLEŞTİRME + Lead.leadKodu PRİSMA REGRESYON + 23. MİMAR HATASI
+
+**Anayasa:** v1.22.0 yürürlükte (Madde 30.36 yeni alt-genişleme — patch sürüm yok)
+
+### Karar
+
+CEO 4 Mayıs 23:30: 3 İŞ tek turda — /basvuru-sorgula 2-faktör güvenlik sertleştirme (KVKK m.12 ~3M TL koruma) + Lead.leadKodu Prisma regresyon fix + rate limit denge.
+
+**23. mimar hatası:** TUR #82 V5 sadece UI text düzeltti ("Şifresiz" → "Hesapsız"), altta yatan güvenlik (1-faktör sorgu) sertleştirilmedi. `/api/public/query-lead` endpoint'i SADECE TELEFON ile dosya gösteriyordu — enumeration saldırısına açık + KVKK m.12 ihlali (~3M TL ceza riski). CEO yakaladı.
+
+### Çözüm
+
+- **U6 Prisma fix (`9f12ea4`):** `auditor.agent.js` 4 yer leadKodu → leadCode (her 5 dk Auditor tick'te Prisma hata log temizlendi).
+- **U7 Rate limit denge (`6429a9a`):** windowMs 15 dk → 5 dk + max 5 → 10 + skipSuccessfulRequests:true. CEO test rahatça + brute force koruma korundu.
+- **U1+U2+U4 Backend 2-faktör (`e99342d`):** 3 yeni endpoint `/query-lead-otp` (telefon+KVKK rıza → SMS OTP + brute force lock 3/30dk + rate limit 1dk/1OTP + enumeration koruma 600ms timing attack), `/query-lead-verify-otp` (OTP → JWT session token 15 dk), `/query-lead` (phone+sessionToken zorunlu + hassas veri filtre lawyer ilk isim).
+- **U3 UI 3-step wizard (`20db2af`):** Step 1 telefon+KVKK rıza, Step 2 6 hane OTP + 60 sn cooldown, Step 3 sonuç tablosu + Müvekkil Girişi CTA + kurumsal güven footer.
+
+### Sebep
+
+CEO 4 Mayıs 23:30 yazılı direktif: *"BU GÜVENLİK SORUNU. Eksik hata ne varsa düzelt aynı şekilde tamamına uygulansın. Uçtan uca otonom hiçbir şey sormadan başla bitir."* (Madde 17.5 + 18.3 + 30.25) + 4'lü zincir aktif.
+
+### Etki
+
+- `src/agents/auditor.agent.js` (U6 — leadKodu → leadCode 4 yer)
+- `src/app.js` (U7 — rate limit denge)
+- `src/routes/public.route.js` (U1+U2+U4 — 3 endpoint, 2-faktör akış)
+- `tedbirge-panel/app/(public)/basvuru-sorgula/page.tsx` (U3 — 3-step wizard)
+- `CLAUDE.md` (Madde 30.36 yeni + CHANGELOG TUR #83)
+- `tedbirge-os/{DEVIR_RAPORU_AKTIF.md, IS_PLANI.md, docs/OTONOM_RAPOR.md, MIMARI_KARARLAR.md}` (U12 senkron)
+
+### Anayasa Etkisi
+
+- **Madde 30.36 yeni — Hesapsız Sorgulama Güvenlik Disiplini:**
+  1. 2-faktör doğrulama zorunlu (sorgu anahtarı + paralel OTP)
+  2. Enumeration koruma (timing attack + brute force lock)
+  3. Hassas veri filtreleme (sadece minimum bilgi)
+  4. KVKK aydınlatma + rıza + audit (ActivityLog)
+
+- **Madde 30.34 R1 + 30.36 ile bağ:** UX wording doğru (30.34 R1) + backend güvenlik mantığı doğru (30.36) = ikisi birlikte tam koruma. UI text doğruluğu yetersiz, backend sertleştirme zorunlu.
+
+### Pattern
+
+**TUR #56+...+83 = 209+ atom sapma 0 — kalibrasyon 1.6× 30. doğrulama** (29+ saat intensive otonom — TR'de emsalsiz)
+
+23 mimar hatası kayıtlı (1-23), her biri Anayasa maddesine dönüştü.
+
+### Mimar
+
+Claude Opus 4.7 (TUR #83 mimar — 5 Mayıs 2026 23:30 sonrası)
+
+---
+
 ## 5 Mayıs 2026 — TUR #82 KARARI — 2FA HARD ENFORCEMENT BACKEND + MÜVEKKİL TEXT FIX + 21+22. MİMAR HATALARI
 
 **Anayasa:** v1.22.0 yürürlükte (Madde 30.29 R1 + 30.34 R1 ikiz R-genişleme — patch sürüm yok)

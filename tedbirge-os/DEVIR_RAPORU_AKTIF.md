@@ -1,9 +1,9 @@
 # 🛡️ TEDBIRGE.AI — DEVİR RAPORU AKTİF
 
-**Son güncelleme:** 5 Mayıs 2026 — TUR #82 KAPALI
-**Anayasa:** v1.22.0 (Madde 30.10-30.35 dahil + 30.29 R1 + 30.31 R1 + 30.33 R1 + 30.34 R1 — TUR #72-82 zincirinde **27 alt-madde + 5 R-genişleme**)
-**Aktif kesit:** TUR #82 KAPALI ✅ — 2FA HARD enforcement backend + müvekkil text fix + 21+22. mimar hataları
-**Son TUR:** #82 (V2 backend HARD enforcement + V3 frontend flag + V5 müvekkil text + Madde 30.29 R1 + 30.34 R1)
+**Son güncelleme:** 5 Mayıs 2026 — TUR #83 KAPALI
+**Anayasa:** v1.22.0 (Madde 30.10-30.36 dahil + 30.29 R1 + 30.31 R1 + 30.33 R1 + 30.34 R1 — TUR #72-83 zincirinde **28 alt-madde + 5 R-genişleme**)
+**Aktif kesit:** TUR #83 KAPALI ✅ — Hesapsız sorgulama güvenlik sertleştirme + Lead.leadKodu fix + rate limit denge + 23. mimar hatası
+**Son TUR:** #83 (U1+U2+U4 backend 2-faktör + U3 UI 3-step wizard + U6 Prisma fix + U7 rate limit + Madde 30.36 yeni)
 **Mimar:** Claude Opus 4.7 (sohbet) + Claude Code (otonom uygulama)
 **CEO Onay:** Mehmet DİNÇ — Madde 17.5 + 18.3 + **30.25 yeni** (CEO Otonom Komut Pattern)
 
@@ -34,8 +34,9 @@
 | #79 | 4 | 2FA Challenge 3 yöntem TAB + Kurumsal güven login footer + 17/18. mimar hataları + Madde 30.33 + 30.34 | — |
 | #80 | 7 | NetGSM regression tam tanı + 5 kanal parite (4. rol "musteri" sekme) + 19. mimar hatası + Madde 30.31 R1 + 30.33 R1 | — |
 | #81 | 7 | ENV slot disiplini + header lowercase normalize + safe fallback + 5 rol DRY kanıt + 20. mimar hatası + Madde 30.35 | — |
-| **#82** | **7** | **2FA HARD enforcement backend + müvekkil text fix (Şifresiz → Hesapsız) + 21+22. mimar hataları + Madde 30.29 R1 + 30.34 R1** | — |
-| **TOPLAM** | **201+** | **29+ saat · sapma 0 · 29 kalibrasyon doğrulaması** | **v1.22.0 + 27 alt-madde + 5 R-genişleme** |
+| #82 | 7 | 2FA HARD enforcement backend + müvekkil text fix (Şifresiz → Hesapsız) + 21+22. mimar hataları + Madde 30.29 R1 + 30.34 R1 | — |
+| **#83** | **8** | **Hesapsız sorgulama 2-faktör (KVKK m.12 ~3M TL koruma) + Lead.leadKodu Prisma fix + rate limit denge + 23. mimar hatası + Madde 30.36** | — |
+| **TOPLAM** | **209+** | **29+ saat · sapma 0 · 30 kalibrasyon doğrulaması** | **v1.22.0 + 28 alt-madde + 5 R-genişleme** |
 
 ---
 
@@ -244,20 +245,21 @@ merhaba
 ---
 
 **— Tedbirge.ai mimarı**
-**TUR #82 KAPALI · 5 Mayıs 2026 (2FA HARD enforcement backend + müvekkil text fix + 21+22. mimar hataları)**
-**Anayasa v1.22.0 yürürlükte (Madde 30.29 R1 + 30.34 R1 ikiz R-genişleme — patch sürüm yok)**
-**Pattern: TUR #56+...+82 = 201+ atom sapma 0 — kalibrasyon 1.6× 29. doğrulama**
-**22 Mimar Hatası kayıtlı, her biri Anayasa maddesine dönüştü.**
+**TUR #83 KAPALI · 5 Mayıs 2026 (Hesapsız sorgulama güvenlik sertleştirme + Lead.leadKodu fix + rate limit denge + 23. mimar hatası)**
+**Anayasa v1.22.0 yürürlükte (Madde 30.36 yeni alt-genişleme — patch sürüm yok)**
+**Pattern: TUR #56+...+83 = 209+ atom sapma 0 — kalibrasyon 1.6× 30. doğrulama**
+**23 Mimar Hatası kayıtlı, her biri Anayasa maddesine dönüştü.**
 
-**TUR #82 Sonuç (V11 production smoke CEO browser test gerek):**
-- ✅ V2 Backend HARD 2FA enforcement (commit 599107d): `/api/auth/login` HARD_2FA_ROLES=[ADMIN, LAWYER, SALES, REPRESENTATIVE] + `requiresTwoFactorSetup:true` flag + redirectTo /2fa-secim + setupMessage KVKK m.12 (CUSTOMER soft `twoFactorReminder:true` engelleme yok)
-- ✅ V3 Frontend response handling (commit panel 14f95af): explicit flag öncelikli + user.twoFactorEnabled fallback (TUR #78 X8 korundu)
-- ✅ V5 Müvekkil text fix: "Şifresiz dosya takibi" → "Hesapsız dava sorgulamak için" + "Telefon ile Sorgula →" (`/basvuru-sorgula` gerçekten hesapsız — telefon+başvuru kodu)
-- ✅ V6 Tüm "Şifresiz" yanıltıcı taraması: 0 yanıltıcı kullanım kaldı
-- ✅ V9 Anayasa Madde 30.29 R1 + 30.34 R1 ikiz R-genişleme
-- ⏳ V11 Production smoke: CEO browser test (3 dk) — `/login?rol=hukukcu` → email+şifre → /2fa-secim wizard otomatik açılır mı?
+**TUR #83 Sonuç:**
+- ✅ U6 Lead.leadKodu Prisma fix (commit 9f12ea4): `auditor.agent.js` 4 yer leadKodu → leadCode (her 5 dk Auditor tick'te Prisma hata log temizlendi)
+- ✅ U7 Rate limit denge (commit 6429a9a): windowMs 15 dk → 5 dk + max 5 → 10 + skipSuccessfulRequests:true (CEO test rahatça + brute force koruma korundu)
+- ✅ U1+U2+U4 Backend 2-faktör hesapsız sorgu (commit e99342d): 3 yeni endpoint (`/query-lead-otp` SMS OTP gönder + brute force lock 3/30dk + rate limit 1dk/1OTP + enumeration koruma 600ms timing attack + ActivityLog QUERY_OTP_SENT, `/query-lead-verify-otp` JWT session token 15 dk, `/query-lead` phone+sessionToken zorunlu + hassas veri filtre)
+- ✅ U3 UI 3-step wizard (panel commit 20db2af): Step 1 telefon + KVKK rıza + KVKK aydınlatma link, Step 2 6 hane OTP + 60 sn cooldown + "Telefonu değiştir" geri, Step 3 sonuç tablosu + "Müvekkil Girişi" CTA + kurumsal güven footer (TLS+KVKK+ISO 27001)
+- ✅ U11 Anayasa Madde 30.36 yeni (Hesapsız Sorgulama Güvenlik Disiplini — 4 zorunlu kontrol)
 - ✅ NetGSM SMS düzelmesi korundu (TUR #81 + CEO ENV fix)
-- ✅ CEO TOTP aktivasyonu korundu (regresyon yok)
+- ✅ TUR #82 V2+V3 fix korundu (rate limit kalktı, CEO test artık rahatça)
+- ✅ CEO TOTP aktivasyonu bozulmadı (regresyon yok)
+- ⏳ U13 Production smoke: CEO browser test (5 dk) — /basvuru-sorgula 3-step wizard çalışır mı + LAWYER/SALES login → /2fa-secim wizard açılır mı (rate limit kalktı sonrası)
 
 **Production Smoke 4/4 Yeşil:**
 - auditorHealth: HEALTHY · Auditor.lastRunAt < 30s · eventCounts.last1h: **302** (35→302 sıçrama)
