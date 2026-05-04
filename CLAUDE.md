@@ -1722,6 +1722,56 @@ TUR #71+#72+#72.5+#72.6+#72.7+#72.8+#72.9+#72.10+#72.11 zincirinde 9 kez tekrar 
 - ❌ Atom başına rapor (tek final rapor disiplin)
 - ❌ Code "yapıldı" rapor + CEO görsel çatışması durumunda derin tanı turu açmama
 
+### 30.28 — 2FA Çoklu Yöntem Disiplini (TUR #74)
+
+**Kural:** Tedbirge.ai 2FA için **3 yöntem destek** (kullanıcı tercih):
+
+1. **TOTP** (Authenticator App) — önerilen, internet gerekmez
+2. **SMS** — NetGSM Türkiye-içi KVKK uyumlu (mevcut `src/services/sms.service.js`)
+3. **E-posta** — Nodemailer (mevcut `src/services/email.service.js`)
+
+**Her yöntem ortak:**
+- 6 haneli rastgele kod (`crypto.randomInt(100000, 1000000)`)
+- TOTP: 30sn pencere ±1 (speakeasy)
+- SMS: 5 dk geçerlilik + 1 dk rate limit (NetGSM ücreti)
+- E-posta: 10 dk geçerlilik + 2 dk rate limit
+- 10 backup kod, bcryptjs hash, tek kullanım
+- KVKK ActivityLog: `SMS_OTP_SENT` / `EMAIL_OTP_SENT` (phoneMask + emailMask)
+
+**Schema (mevcut yapı yeniden kullanım):**
+- `User.twoFactorMethod`: TOTP | SMS | EMAIL (TUR #72.6'da eklenmişti)
+- `User.phone` / `User.email` (mevcut)
+- `PhoneOtp` tablosu (mevcut, `purpose: '2fa-sms' | '2fa-email'` field'ı kullan)
+- **Yeni schema migration GEREK YOK** (TUR #74 emsali — mevcut yapıyı yeniden kullan)
+
+**Endpoint'ler:**
+- `POST /auth/setup-2fa` (TOTP, mevcut)
+- `POST /auth/verify-2fa` (TOTP, mevcut)
+- `POST /auth/setup-2fa-sms` (TUR #74 yeni)
+- `POST /auth/verify-2fa-sms` (TUR #74 yeni)
+- `POST /auth/setup-2fa-email` (TUR #74 yeni)
+- `POST /auth/verify-2fa-email` (TUR #74 yeni)
+- `POST /auth/login-2fa` (TOTP, mevcut)
+- `POST /auth/login-send-otp` (SMS/EMAIL, TUR #74 yeni — tempToken sonrası OTP gönder)
+- `POST /auth/login-verify-otp` (SMS/EMAIL, TUR #74 yeni — tempToken + otpToken + method)
+- `POST /auth/login-backup-code` (3 yöntem ortak, mevcut)
+
+**UI Pattern:**
+- `TwoFactorSetupModal.tsx`: 4-step wizard, Step 1'de 3 yöntem radio (Yakında YASAK), Step 2 yönteme göre dallanır
+- `TwoFactorChallenge.tsx`: Login akışında `User.twoFactorMethod`'a göre otomatik OTP gönder + 6 haneli kod + Resend cooldown
+
+**ADMIN/LAWYER/SALES için zorunlu** (Madde 30.19 + 30.28).
+
+**Yasak:**
+- ❌ "Yakında" placeholder ile yöntem devre dışı bırakma (TUR #72.6 → #74 dersi: CEO 4 Mayıs'ta talep etti, hemen aktif)
+- ❌ Yeni schema migration eklemek varsa mevcut yapı yeniden kullanma (PhoneOtp + User.twoFactorMethod)
+- ❌ SMS/Email rate limit olmadan endpoint açma (NetGSM ücreti + spam riski)
+- ❌ Login akışında method-bağımsız endpoint (her yöntem ayrı validation, cross-method DoS riski)
+- ❌ Raw OTP kod DB'de saklamak istisnası SMS/Email TTL kısa olsa bile (PhoneOtp pattern: kullanıldığında delete)
+
+**TUR #74 emsal — 13. mimar hatası kaydı:**
+TUR #72.6'da backup codes eklerken `auth.controller.js:558,589` `require("bcrypt")` typo (paket `bcryptjs`). Production: `MODULE_NOT_FOUND` → 500 throw → CEO 4 Mayıs 16:16 ilk Authenticator denemesinde gördü. **Yeni kural (Madde 30.22 genişleme TUR #75'te):** Auth endpoint için GET smoke + POST happy path zorunlu (sadece 401 yetmez, deploy sonrası gerçek call test).
+
 ### 30.27 — Public Tanı Endpoint Disiplini (TUR #73)
 
 **Kural:** Operasyonel kanıt için CEO/ADMIN'in **browser'da auth olmadan görebileceği** public tanı endpoint'leri zorunlu olduğunda eklenebilir. **Hassas veri YOK** (KVKK + güvenlik risk sıfır), sadece sayım/durum/timestamp.
@@ -2252,6 +2302,7 @@ Mehmet Bey sahaya çıkabilsin diye bu disiplin var.
 **1 Mayıs 2026 — v1.15.0 alt-genişleme (TUR #56 KAPANIŞ + TUR #57 tohum: TUR #56 ile TUR #51.B 18/18 bulgu kapatıldı (12/12 atom sapma 0, kalibrasyon 1.6× doğrulandı, L-B1 lawyerNotifications 6 trigger zinciri canlı, Madde 24.11 üretim disiplini canlı). Madde 31.9 Rol-Ruh Tasarım Prensibi tohum olarak eklendi (Madde 22.2 alt-genişleme — sürüm artmaz): 4 CRM kendi paydaş ruhuna göre niş emsallerle (CEO↔Stripe Dashboard, LAWYER↔Clio/MyCase, REPRESENTATIVE↔HubSpot/Pipedrive, CUSTOMER↔Stripe Customer Portal/Apple Mail) farklılaşır. TUR #57'de uygulanacak — bu madde TUR #57'nin tohumudur. CEO direktifi 1 Mayıs 2026: "HER CRM KENDİ RUHUNA VE KENDİ ALANINA GÖRE ANALİZ EDİLMELİ".)**  
 **1 Mayıs 2026 — v1.16.0 (TUR #57 — 4 CRM Rol-Ruh Karakter Farklılaştırma: 12 atom (3 KRİTİK + 9 ORTA) ile 9 yeni DS komponenti (AnomalyStrip + KPICardEnhanced + Sparkline + CaseFolderCard + LawyerHealthTriad + KanbanBoard + DealCard + ActivityCounter + TimelineDot + TrustBadge + KeyboardShortcutsHelp), 2 yeni route (/dashboard/komuta + /temsilci/pipeline), 2 yeni utility (lib/sadelestir 30 terim + lib/keyboardNav G+harf), 2 mini endpoint (anomalies + lead aşama). Madde 31.9 Rol-Ruh Tasarım Prensibi tohumdan resmileşmeye geçti. 0 schema migration, 0 npm paket (3 paket adayı native alternatifle reddedildi: react-beautiful-dnd → HTML5 DragEvent, canvas-confetti → CSS keyframe, lottie-react → inline SVG). 4 CRM artık niş emsal seviyesinde (Stripe Dashboard+Linear, Clio+MyCase, HubSpot+Pipedrive, Stripe Customer Portal+Apple HIG). KAPANIŞ Madde 32'ye kaydı.)**  
 **1 Mayıs 2026 — v1.17.0 (TUR #58 — FAZ 5 DISCOVERABILITY başlangıcı: 9 atom (1 KRİTİK + 7 ORTA + 1 OS) ile llms.txt + JsonLd 3 yeni factory (FAQPage + HowTo + BreadcrumbList) + 3 niş landing'e SSS schema (15+15+10 toplam 40 SSS) + yeni /tazminat-rehberi sayfası (8 adım HowTo) + AI snippet meta disiplini + BrandFooterStrip 4 sayfada. Madde 33 (İçerik Üretim Disiplini) eklendi: avukat onayı zorunlu, TBB Reklam Yasağı uyumu, AI sadece taslak yazar — avukat onaylar, disclaimer her içerikte. 0 schema migration, 0 npm paket. CEO direktifi 1 Mayıs 2026 (Aylık Sabit Aidat Yasağı) MIMARI_KARARLAR.md'ye eklendi: tüm 3. parti SaaS sabit aidat yasak, sadece kullanım bazlı API ücreti orantılı geçer. KAPANIŞ Madde 32'ye kaydı.)**  
+**5 Mayıs 2026 — TUR #74 (2FA ÇOKLU YÖNTEM — TOTP + SMS + EMAIL + bcrypt HOTFIX: 12+ atom (W0 NetGSM keşif Senaryo A + W1 bcrypt derin tanı + W2 acil hotfix `bcrypt → bcryptjs` 2 yer + W3 TOTP smoke + W4 SMS 2FA backend + W5 Email 2FA backend + W6 schema migration GEREK YOK (mevcut PhoneOtp + TwoFactorMethod yeniden kullanım) + W7 UI wizard 3 yöntem aktive ("Yakında" kaldırıldı) + W8 Login Challenge 3 yöntem dallanma + W11 Anayasa Madde 30.28 + W12 OS senkron). 13. mimar hatası: TUR #72.6'da `auth.controller.js:558,589` `require("bcrypt")` typo (paket `bcryptjs`) → production `MODULE_NOT_FOUND` 500 → CEO 4 Mayıs 16:16 Authenticator denemesinde gördü. Hotfix W2 acil push: `bcrypt → bcryptjs`. Yeni service `src/services/twoFactorOtp.service.js` (sendSmsOtp + verifySmsOtp + sendEmailOtp + verifyEmailOtp + maskPhone + maskEmail). 6 yeni endpoint: setup-2fa-sms/email + verify-2fa-sms/email + login-send-otp + login-verify-otp. UI: TwoFactorSetupModal 3 radio + step 2 dallanma + cooldown resend. TwoFactorChallenge useEffect /auth/login-send-otp + method'a göre dallanma. NetGSM mevcut entegrasyon korundu (Senaryo A — `sms.service.js` + `NETGSM_USERNAME/PASSWORD/HEADER` ENV). Madde 30.28 yeni — 2FA Çoklu Yöntem Disiplini. KVKK m.12 risk SIFIR (3 yöntem aktive ile). 0 schema/npm. Pattern 125+ → 137+ atom sapma 0 — kalibrasyon 1.6× 21. doğrulama. Anayasa v1.22.0 yürürlükte (Madde 30.28 alt-genişleme — patch sürüm yok).)**  
 **5 Mayıs 2026 — TUR #73 GENİŞLETME (KÖK SEBEP DEFENSIVE FIX + UI AUDITOR TETIKLE BUTONU: 13 atom (Z1-Z6 genişletme, +6 atom) + 5 commit — Z3 Auditor `run()` defensive 3 bağımsız try-catch (audit checks + runAllModules + runAllActiveTasks), agents-health `auditorHealth` göstergesi (HEALTHY/DELAYED/STOPPED/NEVER_RAN) + `lastError` payload + `lastEvent.message` + Z4 UI sistem-durumu sağ üst "Auditor Tetikle" butonu (Zap icon, ADMIN auth /agents/Auditor/tick) + Z5 production smoke 4/4 yeşil (auditorHealth: HEALTHY + eventCounts.last1h 35→302 sıçrama + 16/16 modül 14-16 olay/saat + UI canlı). KÖK SEBEP: Auditor.run() audit check throw → BaseAgent.tick `lastRunAt` update yok → 16 modül zinciri kopuk. Defensive fix kanıt: lastError AUDIT_CHECK_FAILED hâlâ var ama runAllModules + runAllActiveTasks ÇAĞRILDI (zincir kopmadı). CEO browser URL bar `tedbirge-ai.onrender.com/api/agents-health` 1 dk'da kök sebep tanısı. CEO 4'lü zincir Madde 30.25 yenilenmiş. 0 schema/npm. Pattern 119+ → 125+ atom sapma 0 — kalibrasyon 1.6× 20. doğrulama.)**  
 **5 Mayıs 2026 — TUR #73 (OLAY/SAAT 0 SORUNU TANI + PUBLIC AGENTS-HEALTH ENDPOINT: 7 atom uçtan uca — Z1 derin tanı (16/16 modül runStatusCheck AgentEvent.create yazımı kanıtlandı, 32+ create call) + Z2 kök sebep sınıflandırma (4 olası: A BE sorgu / B Auditor durmuş / C sayan modül / D FE cache; C reddedildi, B+D muhtemel ama admin auth gerek tanı yok) + Z3 public agents-health endpoint (`GET /api/agents-health` no auth, agents lastRunAt + isRunning + intervalMs + eventCounts last1h+last24h + lastEvent + 16 modül moduleCounts — KVKK risk 0 sadece operasyonel metric) + Z4 production smoke + Z5 Anayasa Madde 30.27 (Public Tanı Endpoint Disiplini — operasyonel acil tanı için auth-free + hassas-veri-yok endpoint kriterleri) + Z6 OS senkron 5 dosya + Z7 2FA hazırlık doğrulama. CEO `tedbirge-ai.onrender.com/api/agents-health` URL bar ile 1 dakikada Auditor canlılık + 16 modül sayım kanıtı görebilir. 0 schema/npm. Pattern 173+ → 180+ atom sapma 0 — kalibrasyon 1.6× 20. doğrulama. Anayasa v1.22.0 yürürlükte (Madde 30.27 alt-genişleme — patch sürüm yok).)**  
 **1 Mayıs 2026 — v1.18.0 (TUR #59 — FAZ 5 İçerik Üretimi KAPANIŞ: 10 atom sapma 0 ile 50 niş makale (Trafik 20 + İş Kazası 15 + Sigorta+Genel 15) + 3 pillar refactor (cluster grid) + blog detay FAQPage+BreadcrumbList JsonLd + sitemap auto-update (51 makale URL) + iç linking audit (150 cross-link, 0 bozuk). Madde 33.2 düzeltme: avukat onayı yerine Madde 25.3 KIRMIZI listesi kontrolü yeterli (TUR #47 fizibilite raporları zaten anayasal düzeyde kurulmuş). Mevcut lib/blog.ts POSTS array genişletildi (MDX altyapısı reddedildi — 0 npm install). Pattern: TUR #56+57+58+59 = 43/43 atom sapma 0 — kalibrasyon 1.6× dördüncü kez kalıcı pattern. KAPANIŞ Madde 32'ye kaydı.)**  

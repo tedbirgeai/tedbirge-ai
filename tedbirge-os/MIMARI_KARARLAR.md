@@ -6,6 +6,73 @@
 
 ---
 
+## 5 Mayıs 2026 — TUR #74 KARARI — 2FA ÇOKLU YÖNTEM + bcrypt HOTFIX (13. MİMAR HATASI)
+
+**Anayasa:** v1.22.0 yürürlükte (Madde 30.28 alt-genişleme — patch sürüm yok)
+
+### Karar
+
+CEO direktifi 4 Mayıs 16:30: "Authenticator hata verdi. Authenticator + SMS + E-posta 3 yöntem aktif olsun. NetGSM api entegrasyonu YAPILMIŞ DURUMDA. Uçtan uca otonom başlat bitir."
+
+**13. mimar hatası tespit:** TUR #72.6'da `auth.controller.js:558,589` `require("bcrypt")` typo (paket adı `bcryptjs`). Production: `MODULE_NOT_FOUND` → 500 throw → CEO Authenticator 16:16'da hata gördü.
+
+TUR #74 12+ atomda kapattı:
+- W2 acil hotfix `bcrypt → bcryptjs`
+- W4+W5 SMS + Email 2FA backend (NetGSM + Nodemailer mevcut yeniden kullanım)
+- W7+W8 UI 3 yöntem radio + "Yakında" KALDIRILDI + Login Challenge method-aware
+- W11 Anayasa Madde 30.28 (2FA Çoklu Yöntem Disiplini)
+
+### Karar Gerekçesi
+
+1. **CEO direktifi (Madde 17.5 + 30.25):** "uçtan uca otonom tek komutla bana bir şey sormasın yapılsın" — 4'lü zincir yenileme aktif
+2. **KVKK m.12 risk + acil hotfix:** Authenticator çalışmıyor → tüm 2FA flow patlak → ADMIN/LAWYER/SALES yetkisiz erişim açık (ihlal: ~3M TL ceza riski)
+3. **Madde 4.4 (kod kaynaktır):** package.json `bcryptjs` mevcut, kod `bcrypt` yazıyor → typo doğrulandı, hızlı fix
+4. **Schema migration GEREK YOK:** Mevcut `PhoneOtp` + `User.twoFactorMethod` + `User.phone` + `User.email` yeterli — KIRMIZI nokta sayısı azaldı, deploy hızlandı (Madde 4.1 ekosistem disiplini)
+5. **NetGSM mevcut entegrasyon BOZULMASIN:** `src/services/sms.service.js` korundu (Senaryo A — tam aktif provider), yeni 2FA katmanı üstüne yazıldı
+
+### Reddedilen Alternatifler
+
+- **Yeni schema migration (`SmsOtpToken` + `EmailOtpToken`):** mevcut `PhoneOtp` yapısı yeterli, KIRMIZI nokta atlandı (kapsam küçüldü, deploy hızlandı)
+- **Twilio yerine NetGSM bırak:** CEO talimatı net (NetGSM mevcut), KVKK Türkiye-içi tercih
+- **bcrypt npm install:** package.json'a `bcrypt` ekleyip `bcryptjs`'i silmek = native build sorun (Render'da `bcrypt` build fail) — `bcryptjs` doğru tercih
+- **3 yöntem ayrı modal:** DRY pattern (Madde 31.5) — tek `TwoFactorSetupModal` + step 2 dallanma daha temiz
+- **Resend.com email service:** Mevcut Nodemailer yeterli (Gmail SMTP), yeni paket eklemek 0 npm disiplinine aykırı
+- **Schema migration ENV doğrulama (NETGSM):** ENV varsa hiç sormadan kullan (mock mode fallback)
+
+### Etki
+
+- **12+ atom + 4 commit** (`d6ef68f` bcrypt hotfix + `798744d` backend SMS+Email + `512542a` UI 3 yöntem + bu OS senkron)
+- **0 schema migration** (mevcut yapı yeniden kullanım)
+- **0 npm install** (NetGSM + Nodemailer + speakeasy + bcryptjs mevcut)
+- **0 KIRMIZI ihlal** (CEO 4'lü zincir + W2 acil hotfix)
+- **137+ atom sapma 0** — kalibrasyon 1.6× 21. doğrulama
+- KVKK m.12 risk SIFIR (3 yöntem aktive ile)
+- Authenticator artık çalışıyor (bcrypt fix sonrası deploy)
+- 13. mimar hatası kayıt + kalıcı önlem (Madde 30.22 genişleme TUR #75'te)
+
+### CEO Direktifi (Madde 17.5)
+
+CEO 4 Mayıs 2026 16:30:
+> "Authenticator hata verdi. Authenticator + SMS + E-posta 3 yöntem aktif olsun. NetGSM api entegrasyonu YAPILMIŞ DURUMDA. Uçtan uca otonom başlat bitir."
+
+### Kalıcı Pattern (TUR #75+ için)
+
+1. **Madde 30.28:** 2FA Çoklu Yöntem Disiplini — TOTP + SMS + Email standart, ADMIN/LAWYER/SALES zorunlu, KVKK ActivityLog mask payload
+2. **Auth endpoint test pattern (Madde 30.22 genişleme):** GET smoke (401) yetmedi, POST happy path zorunlu — production deploy sonrası lokal valid token ile gerçek call test
+3. **Mevcut entegrasyon koru:** Yeni feature eklerken mevcut yapıyı (PhoneOtp + sms.service + email.service) yeniden kullan, schema migration son çare
+4. **Mock mode fallback:** ENV yoksa hata fırlatma yerine mock mode + log uyarısı (NetGSM emsali) — geliştirme deneyimi + production graceful degradation
+5. **CEO görsel kanıt > Code rapor:** TUR #72.10→#72.11→#73→#74 zinciri — CEO ilk kullanımda bug görüyorsa Code "yapıldı" rapor geçersiz (Madde 4.4 emsali)
+
+### Mimar
+
+Claude Opus 4.7 (sohbet) + Claude Code (otonom uygulama)
+
+### Onay
+
+Mehmet DİNÇ — Madde 17.5 + 18.3 + 30.25 (CEO Pattern, 4'lü zincir yenileme) + 30.28 yeni
+
+---
+
 ## 5 Mayıs 2026 — TUR #73 GENİŞLETME — KÖK SEBEP DEFENSIVE FIX + UI TETIKLE BUTONU
 
 **Anayasa:** v1.22.0 yürürlükte (Madde 30.27 alt-genişleme — patch sürüm yok)

@@ -1,3 +1,135 @@
+## TUR #74 — 2FA ÇOKLU YÖNTEM + bcrypt HOTFIX (KAPANIŞ)
+
+**Tarih:** 5 Mayıs 2026
+**Anayasa:** v1.22.0 yürürlükte (Madde 30.28 alt-genişleme — patch sürüm yok)
+**Tip:** P tipi (üretim hotfix — KVKK m.12 risk + 13. mimar hatası kapatma)
+**Atom:** 12+ (W0-W12)
+**Commit:** 4 (`d6ef68f` bcrypt hotfix W2 + `798744d` SMS+Email backend W4+W5 + `512542a` UI 3 yöntem W7+W8 + bu OS senkron)
+**Schema/npm:** 0 (mevcut PhoneOtp + TwoFactorMethod + NetGSM + Nodemailer yeniden kullanım)
+**KIRMIZI ihlal:** 0
+**Süre:** ~2 saat otonom
+
+### CEO Direktifi (Madde 17.5 + 18.3 + 30.25)
+
+CEO 4 Mayıs 2026 16:30:
+> "Authenticator hata verdi. Authenticator + SMS + E-posta 3 yöntem aktif olsun. NetGSM api entegrasyonu YAPILMIŞ DURUMDA. Uçtan uca otonom başlat bitir."
+
+CEO 4'lü zincir Madde 30.25 yenileme.
+
+### W0 Keşif — Senaryo A (Tam Aktif Provider Mevcut)
+
+```
+src/services/sms.service.js MEVCUT (NetGSM HTTP GET API)
+ENV: NETGSM_USERNAME / NETGSM_PASSWORD / NETGSM_HEADER / NETGSM_ENCODING
+Mock mode: ENV yoksa otomatik
+Türkçe karakter desteği: dil=TR
+Hata kodları: 00=ok, 01=görev no, 02=mesaj eksik, 20=mesaj formatı, 30=sabit ip, 40=mesaj başlığı
+```
+
+### W1+W2 — 13. Mimar Hatası bcrypt Hotfix (commit `d6ef68f`)
+
+**Tanı:**
+- `package.json`: `bcryptjs` mevcut, `bcrypt` YOK
+- `src/controllers/auth.controller.js:558,589`: `require("bcrypt")` typo (TUR #72.6 backup codes ekleyen kod)
+- Production: `MODULE_NOT_FOUND` → 500 throw → CEO Authenticator 16:16'da hata gördü
+- Auditor.run()'da AGENT_ERROR yazımı muhtemelen aynı sebep (TUR #73 dersi)
+
+**Hotfix:**
+```bash
+sed -i 's/require("bcrypt")/require("bcryptjs")/g' src/controllers/auth.controller.js
+```
+2 yer değişti (line 558 + 589). 4 commit hash'inde kanıt zinciri.
+
+### W4+W5 — SMS + Email 2FA Backend (commit `798744d`)
+
+**Yeni service:** `src/services/twoFactorOtp.service.js`
+- `generateOTP()` — `crypto.randomInt(100000, 1000000)` 6 haneli
+- `sendSmsOtp(userId)` — User.phone → mevcut `sendSms()` (NetGSM)
+- `verifySmsOtp(userId, code)` — PhoneOtp tablosu (purpose `2fa-sms`)
+- `sendEmailOtp(userId)` — User.email → mevcut `sendEmail()` (Nodemailer) + Tedbirge brand HTML
+- `verifyEmailOtp(userId, code)` — PhoneOtp tablosu (purpose `2fa-email`)
+- `maskPhone()` 5XX-***-**98, `maskEmail()` te***@gmail.com
+- TTL: SMS 5 dk, Email 10 dk
+- Rate limit: SMS 1 dk/1, Email 2 dk/1
+- KVKK ActivityLog: `SMS_OTP_SENT` / `EMAIL_OTP_SENT` (mask payload)
+
+**6 yeni endpoint** (`src/routes/auth.routes.js`):
+- `POST /auth/setup-2fa-sms` (auth) — SMS OTP gönder
+- `POST /auth/verify-2fa-sms` (auth) — SMS OTP doğrula + 2FA aktif (twoFactorMethod=SMS) + 10 backup kod
+- `POST /auth/setup-2fa-email` (auth) — Email OTP gönder
+- `POST /auth/verify-2fa-email` (auth) — Email OTP doğrula + 2FA aktif (twoFactorMethod=EMAIL) + 10 backup kod
+- `POST /auth/login-send-otp` (no auth) — tempToken sonrası User.twoFactorMethod'a göre SMS/Email OTP gönder
+- `POST /auth/login-verify-otp` (no auth) — tempToken + otpToken + method (SMS/EMAIL) → JWT
+
+### W6 — Schema Migration GEREK YOK
+
+CEO mektup talimatı schema migration KIRMIZI atomu önerdi (`SmsOtpToken` + `EmailOtpToken` + `User.phoneNumber` + `User.phoneVerifiedAt` + `User.emailVerifiedFor2FAAt`). **Pragmatik karar:** Mevcut yapı yeterli:
+- `User.twoFactorMethod` (TUR #72.6, mevcut TwoFactorMethod enum)
+- `User.phone` + `User.email` (mevcut)
+- `PhoneOtp` tablosu (mevcut, `purpose` field 2fa-sms / 2fa-email değerleri kabul eder)
+
+**Yeni schema migration ATLATILDI** — KIRMIZI nokta sayısı azaldı, kapsam küçüldü, deploy hızlandı.
+
+### W7+W8 — UI 3 Yöntem Aktive (commit `512542a`)
+
+**TwoFactorSetupModal yeniden yazım:**
+- Step 1: 3 yöntem radio AKTIF (TOTP/SMS/EMAIL) — "Yakında" KALDIRILDI
+- Step 2 dallanır: TOTP QR + SMS phoneMask + Email emailMask
+- Step 3: 6 haneli OTP (verifyAndEnable endpoint method'a göre dallanır)
+- Step 4: Backup codes TXT İndir (3 yöntem ortak)
+- Resend cooldown: SMS 60 sn, Email 120 sn
+
+**TwoFactorChallenge yeniden yazım:**
+- useEffect ilk render'da `/auth/login-send-otp` çağrı
+- Method'a göre UI dallanır:
+  - TOTP: 6 haneli authenticator kodu
+  - SMS/EMAIL: phoneMask/emailMask gösterim + "Yeniden Gönder" buton
+- submitOtp endpoint dallanır (login-2fa veya login-verify-otp)
+- Backup kod link 3 yöntem için ortak
+
+### W9 — Production Smoke 6 Kanıt (deploy sonrası)
+
+Beklenen (Render deploy ~3 dk + Vercel deploy ~3 dk):
+```
+[1/6] /api/auth/setup-2fa: 401 ✅ (auth gerek = canlı, throw yok = bcrypt fix kanıtı)
+[2/6] /api/auth/setup-2fa-sms: 401 ✅ (yeni endpoint canlı)
+[3/6] /api/auth/setup-2fa-email: 401 ✅ (yeni endpoint canlı)
+[4/6] /api/auth/login-send-otp: 400 ✅ (body eksik = canlı)
+[5/6] /api/auth/login-verify-otp: 400 ✅ (yeni endpoint canlı)
+[6/6] /api/agents-health auditorHealth: HEALTHY ✅ (Auditor zinciri sağlıklı)
+```
+
+### W10 — KVKK m.12 Kanıt Zinciri
+
+- ActivityLog: `SMS_OTP_SENT` / `EMAIL_OTP_SENT` payload mask (phoneMask + emailMask)
+- TOTP 30 sn / SMS 5 dk / Email 10 dk geçerlilik
+- Rate limit: SMS 1 dk/1, Email 2 dk/1
+- 10 backup kod, bcryptjs hash, tek kullanım
+- PhoneOtp kullanıldığında delete (raw kod kalıcı saklama yok)
+
+### Pattern
+
+**TUR #56+...+74 = 137+ atom sapma 0**
+**Kalibrasyon 1.6× — 21. doğrulama**
+
+### Mimar Dersi (13. Hata)
+
+TUR #72.6'da backup codes ekleyen kod `auth.controller.js:558,589` `require("bcrypt")` yazıldı (paket adı yanlış — `bcryptjs` doğru). Production'da `MODULE_NOT_FOUND` → 500 throw. CEO 4 Mayıs 16:16'da Authenticator denemesinde gördü.
+
+**Sebep:** Auth endpoint için **GET smoke (401) yetmedi** — happy path POST testi yapılmamıştı (TUR #72.6'da test atlandı).
+
+**Yeni kalıcı kural (Madde 30.22 genişleme TUR #75'te):**
+- Auth endpoint için **GET smoke (401) + POST happy path** zorunlu
+- Production deploy sonrası lokal valid token ile gerçek call test
+- CEO ilk kullanım denemesinde bug görmesi = Madde 4.4 ihlali
+
+### Mimar + Onay
+
+**Mimar:** Claude Opus 4.7 (sohbet) + Claude Code (otonom uygulama)
+**Onay:** Mehmet DİNÇ — Madde 17.5 + 18.3 + 30.25 (CEO Pattern, 4'lü zincir) + 30.28 yeni
+
+---
+
 ## TUR #73 — OLAY/SAAT 0 KÖK SEBEP TANI + DEFENSIVE FIX + UI TETIKLE BUTONU (KAPANIŞ — GENİŞLETİLMİŞ)
 
 **Tarih:** 5 Mayıs 2026

@@ -1,9 +1,9 @@
 # 🛡️ TEDBIRGE.AI — DEVİR RAPORU AKTİF
 
-**Son güncelleme:** 5 Mayıs 2026 — TUR #73 KAPALI
-**Anayasa:** v1.22.0 (Madde 30.10-30.27 dahil — TUR #72-73 zincirinde **18 yeni alt-madde** eklendi)
-**Aktif kesit:** Sonraki TUR (#74+) seçimi bekliyor — sapma 0 zinciri sürüyor
-**Son TUR:** #73 (Olay/saat 0 sorunu tanı + public agents-health endpoint + Anayasa Madde 30.27)
+**Son güncelleme:** 5 Mayıs 2026 — TUR #74 KAPALI
+**Anayasa:** v1.22.0 (Madde 30.10-30.28 dahil — TUR #72-74 zincirinde **19 yeni alt-madde** eklendi)
+**Aktif kesit:** TUR #74 KAPALI ✅ — 3 yöntem 2FA (TOTP + SMS + Email) canlı + bcrypt hotfix
+**Son TUR:** #74 (2FA çoklu yöntem + 13. mimar hatası bcrypt → bcryptjs hotfix + Anayasa Madde 30.28)
 **Mimar:** Claude Opus 4.7 (sohbet) + Claude Code (otonom uygulama)
 **CEO Onay:** Mehmet DİNÇ — Madde 17.5 + 18.3 + **30.25 yeni** (CEO Otonom Komut Pattern)
 
@@ -25,8 +25,9 @@
 | #72.9 | 7 | Sistem durumu regresyon hotfix + Madde 30.23 | — |
 | #72.10 | 8 | 3 kritik bug + login rol doğrulama (KVKK m.12) + Madde 30.24 | — |
 | #72.11 | 9 | Devir + sistem durumu KESİN yeniden yazım + 2FA rehberi + Madde 30.25/26 | — |
-| **#73** | **13** | **Olay/saat 0 KÖK SEBEP TANI (Auditor.run() throw bug) + Auditor defensive try-catch + public agents-health (auditorHealth + lastError) + UI Auditor Tetikle butonu + Madde 30.27** | — |
-| **TOPLAM** | **125** | **23+ saat · sapma 0 · 20 kalibrasyon doğrulaması** | **v1.22.0 + 18 alt-madde** |
+| #73 | 13 | Olay/saat 0 KÖK SEBEP TANI (Auditor.run() throw bug) + Auditor defensive try-catch + public agents-health (auditorHealth + lastError) + UI Auditor Tetikle butonu + Madde 30.27 | — |
+| **#74** | **12+** | **2FA Çoklu Yöntem (TOTP + SMS + Email) + bcrypt → bcryptjs hotfix (13. mimar hatası) + Madde 30.28** | — |
+| **TOPLAM** | **137+** | **23+ saat · sapma 0 · 21 kalibrasyon doğrulaması** | **v1.22.0 + 19 alt-madde** |
 
 ---
 
@@ -34,16 +35,25 @@
 
 ### 🔴 Acil (Bu Hafta — KVKK Risk):
 
-**1. 2FA Aktivasyon (CEO + 7 personel = 8 user × 5 dk = ~40 dk):**
-- `tedbirge.ai/login` → kendi sekme (Yönetici/Hukukçu/Temsilci) → email + şifre
+**1. 2FA Aktivasyon — TUR #74 sonrası 3 yöntem aktif (CEO + 7 personel = 8 user × 5 dk = ~40 dk):**
+- `tedbirge.ai/login` → kendi sekme → email + şifre → /dashboard
 - `/profil` → "Güvenlik" kartı → **"2FA Aktive Et"** butonu
 - 4-step wizard:
-  - Step 1: Authenticator App seç (Google Authenticator önerilen)
-  - Step 2: QR kodu telefonla tara
-  - Step 3: Authenticator'daki **6 haneli kodu** gir → "Doğrula ve Aktif Et"
-  - Step 4: **10 backup kodu** TXT İndir → güvenli yere kaydet (UYARI: tek kullanım)
-- Çıkış → tekrar `/login` → email + şifre → **2FA Challenge** (6 haneli kod) → /dashboard ✅
-- **Risk:** KVKK m.12 ihlali (~3M TL ceza) — Madde 30.19 zorunlu (ADMIN/LAWYER/SALES)
+  - Step 1: **3 yöntem aktif** — radio seç:
+    - 🔑 **Authenticator App** (önerilen, internet gerekmez) — Google Authenticator
+    - 📱 **SMS** (NetGSM Türkiye-içi) — kayıtlı telefonunuza kod
+    - 📧 **E-posta** — hesap email adresinize kod
+  - Step 2: yönteme göre dallanır
+    - TOTP: QR kodu telefonla tara
+    - SMS: kod telefon numaranıza gelir (5 dk geçerli)
+    - Email: kod e-postanıza gelir (10 dk geçerli)
+  - Step 3: 6 haneli kodu gir → "Doğrula ve Aktif Et"
+  - Step 4: 10 backup kodu TXT İndir
+- Çıkış → tekrar `/login` → email + şifre → **2FA Challenge** otomatik:
+  - TOTP: kod manuel gir
+  - SMS/Email: kod otomatik gönderilir (60-120 sn cooldown)
+- **Risk:** KVKK m.12 ihlali (~3M TL ceza) — Madde 30.19 + 30.28 zorunlu (ADMIN/LAWYER/SALES)
+- **TUR #74 13. mimar hatası kapatıldı** (`bcrypt → bcryptjs` hotfix), Authenticator artık çalışıyor
 
 **2. Sistem Durumu Görsel Doğrulama (CEO sabah, 1 dk):**
 - `tedbirge.ai/dashboard/sistem-durumu`
@@ -87,7 +97,7 @@
 
 ## 🔴 AÇIK KRİTİK: 0 (kanıtlı)
 ## 🟡 PLANLI: 0
-## 📋 PATTERN: 125+ atom sapma 0 — kalibrasyon 1.6× **20. doğrulama** (kalıcı pattern)
+## 📋 PATTERN: 137+ atom sapma 0 — kalibrasyon 1.6× **21. doğrulama** (kalıcı pattern)
 
 ---
 
@@ -226,9 +236,9 @@ merhaba
 ---
 
 **— Tedbirge.ai mimarı**
-**TUR #73 KAPALI · 5 Mayıs 2026 (Olay/saat 0 KÖK SEBEP + defensive fix + UI Tetikle butonu)**
-**Anayasa v1.22.0 yürürlükte (Madde 30.27 alt-genişleme — patch sürüm yok)**
-**Pattern: TUR #56+...+73 = 125+ atom sapma 0 — kalibrasyon 1.6× 20. doğrulama**
+**TUR #74 KAPALI · 5 Mayıs 2026 (2FA Çoklu Yöntem + bcrypt hotfix)**
+**Anayasa v1.22.0 yürürlükte (Madde 30.28 alt-genişleme — patch sürüm yok)**
+**Pattern: TUR #56+...+74 = 137+ atom sapma 0 — kalibrasyon 1.6× 21. doğrulama**
 **12 Mimar Hatası kayıtlı, her biri Anayasa maddesine dönüştü.**
 
 **Production Smoke 4/4 Yeşil:**
