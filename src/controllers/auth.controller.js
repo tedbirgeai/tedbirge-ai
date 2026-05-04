@@ -656,7 +656,8 @@ exports.verify2faEmail = asyncHandler(async (req, res) => {
 
 // TUR #74 — Login akisi: SMS/Email yontemli kullanici icin login sirasi OTP gonder
 exports.loginSendOtp = asyncHandler(async (req, res) => {
-  const { tempToken } = req.body;
+  // TUR #79 Y4 — body'e opsiyonel `method` parametresi (kullanici 3 yontem secebilir, Madde 30.33)
+  const { tempToken, method: requestedMethod } = req.body;
   if (!tempToken) return res.status(400).json({ success: false, message: "tempToken gerekli." });
   const jwt = require("jsonwebtoken");
   let payload;
@@ -671,16 +672,26 @@ exports.loginSendOtp = asyncHandler(async (req, res) => {
     select: { id: true, twoFactorMethod: true, phone: true, email: true },
   });
   if (!user) return res.status(404).json({ success: false, message: "Kullanıcı bulunamadı." });
+
+  // TUR #79 Y4 — Kullanici tab degistirmis ise requestedMethod oncelik (Madde 30.33)
+  const effectiveMethod = requestedMethod || user.twoFactorMethod;
+
   try {
-    if (user.twoFactorMethod === "SMS") {
+    if (effectiveMethod === "SMS") {
+      if (!user.phone) {
+        return res.status(400).json({ success: false, message: "SMS kanalı için telefon kayıtlı değil. /profil → telefon ekleyin." });
+      }
       const r = await twoFactorOtp.sendSmsOtp(user.id);
       return res.json({ success: true, method: "SMS", phoneMask: r.phoneMask, expiresAt: r.expiresAt, mock: r.mock });
     }
-    if (user.twoFactorMethod === "EMAIL") {
+    if (effectiveMethod === "EMAIL") {
+      if (!user.email) {
+        return res.status(400).json({ success: false, message: "E-posta kayıtlı değil." });
+      }
       const r = await twoFactorOtp.sendEmailOtp(user.id);
       return res.json({ success: true, method: "EMAIL", emailMask: r.emailMask, expiresAt: r.expiresAt });
     }
-    return res.status(400).json({ success: false, message: "Bu yöntem login OTP gerektirmez (TOTP authenticator kullanır)." });
+    return res.status(400).json({ success: false, message: "TOTP authenticator app'iniz kullanır, kod gönderme gerek yok." });
   } catch (err) {
     res.status(400).json({ success: false, message: err.message });
   }
