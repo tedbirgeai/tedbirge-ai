@@ -555,7 +555,7 @@ exports.verify2fa = asyncHandler(async (req, res) => {
   if (!verified) return res.status(400).json({ success: false, message: "Geçersiz OTP kodu." });
 
   // TUR #72.6 — Backup codes uretim + bcrypt hash
-  const bcrypt = require("bcrypt");
+  const bcrypt = require("bcryptjs");
   const plainCodes = generateBackupCodes(10);
   const hashedCodes = await Promise.all(plainCodes.map((c) => bcrypt.hash(c, 10)));
 
@@ -586,7 +586,7 @@ exports.verifyBackupCode = asyncHandler(async (req, res) => {
   if (payload.type !== "2fa_pending") {
     return res.status(400).json({ success: false, message: "Geçersiz token tipi." });
   }
-  const bcrypt = require("bcrypt");
+  const bcrypt = require("bcryptjs");
   const user = await prisma.user.findUnique({
     where: { id: payload.id },
     select: { id: true, email: true, role: true, fullName: true, twoFactorBackupCodes: true },
