@@ -468,8 +468,19 @@ exports.setup2fa = asyncHandler(async (req, res) => {
   });
 
   const qrDataUrl = await qrcode.toDataURL(secret.otpauth_url);
-  res.json({ success: true, data: { secret: secret.base32, qrCode: qrDataUrl } });
+  res.json({ success: true, data: { secret: secret.base32, qrCode: qrDataUrl, otpauthUrl: secret.otpauth_url } });
 });
+
+// TUR #72.6 — Backup codes generate (10 × 8-haneli, bcrypt hash)
+function generateBackupCodes(count = 10) {
+  const codes = [];
+  for (let i = 0; i < count; i++) {
+    let code = "";
+    for (let j = 0; j < 8; j++) code += Math.floor(Math.random() * 10).toString();
+    codes.push(code);
+  }
+  return codes;
+}
 
 // ─── 2FA Verify & Activate ────────────────────────────────────────────────────
 
@@ -494,8 +505,74 @@ exports.verify2fa = asyncHandler(async (req, res) => {
 
   if (!verified) return res.status(400).json({ success: false, message: "Geçersiz OTP kodu." });
 
-  await prisma.user.update({ where: { id: userId }, data: { twoFactorEnabled: true } });
-  res.json({ success: true, message: "2FA etkinleştirildi." });
+  // TUR #72.6 — Backup codes uretim + bcrypt hash
+  const bcrypt = require("bcrypt");
+  const plainCodes = generateBackupCodes(10);
+  const hashedCodes = await Promise.all(plainCodes.map((c) => bcrypt.hash(c, 10)));
+
+  await prisma.user.update({
+    where: { id: userId },
+    data: {
+      twoFactorEnabled: true,
+      twoFactorEnabledAt: new Date(),
+      twoFactorBackupCodes: hashedCodes,
+    },
+  });
+  res.json({ success: true, message: "2FA etkinleştirildi.", data: { backupCodes: plainCodes } });
+});
+
+// TUR #72.6 — Login verify ek: backup code alternatifi
+exports.verifyBackupCode = asyncHandler(async (req, res) => {
+  const { tempToken, backupCode } = req.body;
+  if (!tempToken || !backupCode) {
+    return res.status(400).json({ success: false, message: "tempToken ve backupCode zorunludur." });
+  }
+  const jwt = require("jsonwebtoken");
+  let payload;
+  try {
+    payload = jwt.verify(tempToken, process.env.JWT_SECRET);
+  } catch {
+    return res.status(401).json({ success: false, message: "Geçersiz veya süresi dolmuş temp token." });
+  }
+  if (payload.type !== "2fa_pending") {
+    return res.status(400).json({ success: false, message: "Geçersiz token tipi." });
+  }
+  const bcrypt = require("bcrypt");
+  const user = await prisma.user.findUnique({
+    where: { id: payload.id },
+    select: { id: true, email: true, role: true, fullName: true, twoFactorBackupCodes: true },
+  });
+  if (!user) return res.status(404).json({ success: false, message: "Kullanıcı bulunamadı." });
+
+  const codes = Array.isArray(user.twoFactorBackupCodes) ? user.twoFactorBackupCodes : [];
+  if (codes.length === 0) {
+    return res.status(400).json({ success: false, message: "Backup kod kullanılamaz." });
+  }
+
+  let matchIdx = -1;
+  for (let i = 0; i < codes.length; i++) {
+    if (await bcrypt.compare(String(backupCode), codes[i])) { matchIdx = i; break; }
+  }
+  if (matchIdx === -1) {
+    return res.status(400).json({ success: false, message: "Geçersiz backup kod." });
+  }
+  // Kullanılan kodu sil (tek kullanım)
+  const remaining = [...codes.slice(0, matchIdx), ...codes.slice(matchIdx + 1)];
+  await prisma.user.update({ where: { id: user.id }, data: { twoFactorBackupCodes: remaining } });
+
+  const finalToken = jwt.sign(
+    { userId: user.id, role: user.role },
+    process.env.JWT_SECRET,
+    { expiresIn: "24h" }
+  );
+  res.json({
+    success: true,
+    data: {
+      token: finalToken,
+      user: { id: user.id, email: user.email, role: user.role, fullName: user.fullName },
+      remainingBackupCodes: remaining.length,
+    },
+  });
 });
 
 // ─── 2FA Disable ─────────────────────────────────────────────────────────────

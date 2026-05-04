@@ -369,6 +369,9 @@ model User {
   temsilciOnayDurumu         String?              @default("BEKLEMEDE")
   twoFactorEnabled           Boolean              @default(false)
   twoFactorSecret            String?
+  twoFactorBackupCodes       Json?
+  twoFactorEnabledAt         DateTime?
+  twoFactorMethod            TwoFactorMethod      @default(TOTP)
   sozlesmeKabulIp            String?
   sozlesmeMetniHash          String?
   sozlesmeVersiyonu          String?              @default("v1.0-temsilci")
@@ -888,4 +891,11 @@ model Pulse {
 enum PulseTrendType {
   WEEKLY
   MONTHLY
+}
+
+// TUR #72.6 — 5 Rol 2FA: TOTP standart, SMS/EMAIL gelecekte
+enum TwoFactorMethod {
+  TOTP
+  SMS
+  EMAIL
 }

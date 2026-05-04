@@ -489,8 +489,12 @@ async function runActiveTask() {
   let totalUsers = 0;
   let emailSent = false;
 
+  let lawyerNo2fa = 0;
+  let representativeNo2fa = 0;
+  let customerNo2fa = 0;
+
   try {
-    // TUR #72.5 H3 — ADMIN 2FA off detay (KVKK m.12 ihlali)
+    // TUR #72.5 H3 + TUR #72.6 P5 — 5 rol 2FA matrisi
     const adminUsers = await prismaClient.user.findMany({
       where: { role: "ADMIN", isActive: true, twoFactorEnabled: false },
       select: { id: true, email: true },
@@ -499,15 +503,26 @@ async function runActiveTask() {
     adminUsersCount = adminUsers.length;
     adminUsersNo2fa = adminUsers.map((u) => maskEmail(u.email));
 
-    // Tum kullanici 2FA durumu (CEO ekran kanit: 2FA 0/7)
-    [allUsersNo2faCount, totalUsers] = await Promise.all([
+    // TUR #72.6 — LAWYER + REPRESENTATIVE + CUSTOMER 2FA off sayim
+    [lawyerNo2fa, representativeNo2fa, customerNo2fa, allUsersNo2faCount, totalUsers] = await Promise.all([
+      prismaClient.user.count({ where: { role: "LAWYER", isActive: true, twoFactorEnabled: false } }).catch(() => 0),
+      prismaClient.user.count({ where: { role: "REPRESENTATIVE", isActive: true, twoFactorEnabled: false } }).catch(() => 0),
+      prismaClient.user.count({ where: { role: "CUSTOMER", isActive: true, twoFactorEnabled: false } }).catch(() => 0),
       prismaClient.user.count({ where: { isActive: true, twoFactorEnabled: false } }).catch(() => 0),
       prismaClient.user.count({ where: { isActive: true } }).catch(() => 0),
     ]);
 
+    // Madde 30.19 zorunluluk matrisi:
+    // ADMIN + LAWYER 2FA off = CRITICAL (KVKK m.12)
+    // REPRESENTATIVE 2FA off = WARNING (haftalik 1 hatirlatma)
+    // CUSTOMER 2FA off = INFO (opsiyonel)
     if (adminUsersCount > 0) {
       criticalAlerts++;
       alertType = "ADMIN_2FA_OFF";
+    }
+    if (lawyerNo2fa > 0) {
+      criticalAlerts++;
+      alertType = alertType ? "ROLE_2FA_OFF" : "LAWYER_2FA_OFF";
     }
 
     // 24h LOGIN_FAILED
@@ -578,9 +593,12 @@ async function runActiveTask() {
           action_taken: {
             critical_alerts: criticalAlerts,
             alert_type: alertType,
-            admin_users_count: adminUsersCount,
+            admin_no_2fa: adminUsersCount,
             admin_users_no_2fa: adminUsersNo2fa,
-            total_users_no_2fa: allUsersNo2faCount,
+            lawyer_no_2fa: lawyerNo2fa,
+            representative_no_2fa: representativeNo2fa,
+            customer_no_2fa: customerNo2fa,
+            total_no_2fa: allUsersNo2faCount,
             total_users: totalUsers,
             email_sent: emailSent,
             suspicious_logins: suspiciousLogins,

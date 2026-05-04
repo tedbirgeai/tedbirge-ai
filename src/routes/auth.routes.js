@@ -23,10 +23,11 @@ router.get("/users", auth, role("ADMIN"), controller.listUsers);
 router.get("/lawyers", auth, role("ADMIN", "SALES", "REPRESENTATIVE"), controller.listLawyers);
 
 // 2FA
-router.post("/setup-2fa",    auth, controller.setup2fa);
-router.post("/verify-2fa",   auth, controller.verify2fa);
-router.post("/disable-2fa",  auth, controller.disable2fa);
-router.post("/login-2fa",    controller.loginVerify2fa);
+router.post("/setup-2fa",       auth, controller.setup2fa);
+router.post("/verify-2fa",      auth, controller.verify2fa);
+router.post("/disable-2fa",     auth, controller.disable2fa);
+router.post("/login-2fa",       controller.loginVerify2fa);
+router.post("/login-backup-code", controller.verifyBackupCode); // TUR #72.6
 
 // Admin Onay Yonetimi
 router.get ("/pending-approvals",      auth, role("ADMIN"), controller.listPendingApprovals);
@@ -48,6 +49,7 @@ router.get("/me", auth, async (req, res) => {
         id: true, fullName: true, email: true, phone: true, role: true, bolge: true,
         baroSicilNo: true, uzmanlik: true, isActive: true,
         iban: true, vergiKimlikNo: true, vergiDairesi: true, preferences: true,
+        twoFactorEnabled: true, twoFactorEnabledAt: true, twoFactorMethod: true,
       },
     });
     if (!user) return res.status(404).json({ error: "Kullanici bulunamadi" });
