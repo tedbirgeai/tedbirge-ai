@@ -14,15 +14,24 @@ const app = express();
 // Render / reverse proxy arkasında gerçek IP için
 app.set("trust proxy", 1);
 
+// TUR #83 U7 — Rate limit denge: CEO test rahatça + brute force koruma
+// Eski: 15 dk windowMs + 5 max (CEO test bloke kaldı, /login 429)
+// Yeni: 5 dk windowMs + 10 max + skipSuccessful (başarılı login sayılmaz)
+// Brute force pratik imkansız (5 dk'da 10 yanlış deneme zorlu) + CEO test rahat
 const loginLimiter = rateLimit({
-  windowMs: 15 * 60 * 1000,
-  max: 5,
-  message: { success: false, message: "Çok fazla giriş denemesi. 15 dakika bekleyin." },
+  windowMs: 5 * 60 * 1000,
+  max: 10,
+  skipSuccessfulRequests: true, // başarılı login limit'e dahil değil
+  standardHeaders: true,
+  legacyHeaders: false,
+  message: { success: false, message: "Çok fazla giriş denemesi. 5 dakika bekleyin." },
 });
 
 const apiLimiter = rateLimit({
   windowMs: 60 * 1000,
   max: 100,
+  standardHeaders: true,
+  legacyHeaders: false,
 });
 
 app.use(helmet());
