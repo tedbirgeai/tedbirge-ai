@@ -1,9 +1,9 @@
 # 🛡️ TEDBIRGE.AI — DEVİR RAPORU AKTİF
 
-**Son güncelleme:** 5 Mayıs 2026 — TUR #81 KAPALI
-**Anayasa:** v1.22.0 (Madde 30.10-30.35 dahil + 30.31 R1 + 30.33 R1 — TUR #72-81 zincirinde **27 alt-madde + 3 R-genişleme**)
-**Aktif kesit:** TUR #81 KAPALI ✅ — ENV slot disiplini + header lowercase normalize + 20. mimar hatası
-**Son TUR:** #81 (W1-W3 ENV slot validation + header normalize + Madde 30.35 yeni)
+**Son güncelleme:** 5 Mayıs 2026 — TUR #82 KAPALI
+**Anayasa:** v1.22.0 (Madde 30.10-30.35 dahil + 30.29 R1 + 30.31 R1 + 30.33 R1 + 30.34 R1 — TUR #72-82 zincirinde **27 alt-madde + 5 R-genişleme**)
+**Aktif kesit:** TUR #82 KAPALI ✅ — 2FA HARD enforcement backend + müvekkil text fix + 21+22. mimar hataları
+**Son TUR:** #82 (V2 backend HARD enforcement + V3 frontend flag + V5 müvekkil text + Madde 30.29 R1 + 30.34 R1)
 **Mimar:** Claude Opus 4.7 (sohbet) + Claude Code (otonom uygulama)
 **CEO Onay:** Mehmet DİNÇ — Madde 17.5 + 18.3 + **30.25 yeni** (CEO Otonom Komut Pattern)
 
@@ -33,8 +33,9 @@
 | #78 | 8+ | Regression tanı + /2fa-secim İlk Giriş Wizard + 16. mimar hatası + Madde 30.31 + 30.32 | — |
 | #79 | 4 | 2FA Challenge 3 yöntem TAB + Kurumsal güven login footer + 17/18. mimar hataları + Madde 30.33 + 30.34 | — |
 | #80 | 7 | NetGSM regression tam tanı + 5 kanal parite (4. rol "musteri" sekme) + 19. mimar hatası + Madde 30.31 R1 + 30.33 R1 | — |
-| **#81** | **7** | **ENV slot disiplini + header lowercase normalize + safe fallback + 5 rol DRY kanıt + 20. mimar hatası + Madde 30.35** | — |
-| **TOPLAM** | **194+** | **28+ saat · sapma 0 · 28 kalibrasyon doğrulaması** | **v1.22.0 + 27 alt-madde + 3 R-genişleme** |
+| #81 | 7 | ENV slot disiplini + header lowercase normalize + safe fallback + 5 rol DRY kanıt + 20. mimar hatası + Madde 30.35 | — |
+| **#82** | **7** | **2FA HARD enforcement backend + müvekkil text fix (Şifresiz → Hesapsız) + 21+22. mimar hataları + Madde 30.29 R1 + 30.34 R1** | — |
+| **TOPLAM** | **201+** | **29+ saat · sapma 0 · 29 kalibrasyon doğrulaması** | **v1.22.0 + 27 alt-madde + 5 R-genişleme** |
 
 ---
 
@@ -243,21 +244,20 @@ merhaba
 ---
 
 **— Tedbirge.ai mimarı**
-**TUR #81 KAPALI · 5 Mayıs 2026 (ENV slot disiplini + header lowercase normalize + 20. mimar hatası)**
-**Anayasa v1.22.0 yürürlükte (Madde 30.35 alt-genişleme — patch sürüm yok)**
-**Pattern: TUR #56+...+81 = 194+ atom sapma 0 — kalibrasyon 1.6× 28. doğrulama**
-**20 Mimar Hatası kayıtlı, her biri Anayasa maddesine dönüştü.**
+**TUR #82 KAPALI · 5 Mayıs 2026 (2FA HARD enforcement backend + müvekkil text fix + 21+22. mimar hataları)**
+**Anayasa v1.22.0 yürürlükte (Madde 30.29 R1 + 30.34 R1 ikiz R-genişleme — patch sürüm yok)**
+**Pattern: TUR #56+...+82 = 201+ atom sapma 0 — kalibrasyon 1.6× 29. doğrulama**
+**22 Mimar Hatası kayıtlı, her biri Anayasa maddesine dönüştü.**
 
-**TUR #81 Sonuç (W4 production smoke CEO admin token gerek):**
-- ✅ W1 boot-time ENV slot format validation (4 ENV slot için regex/uzunluk kontrol — commit 8725853)
-- ✅ W2 header lowercase normalize (resolveNetgsmHeader() helper — Image 5 'tedbirge' kanıt)
-- ✅ W3 safe fallback (slot karışıklığı protection — sayı dizisi → 'tedbirge' default)
-- ✅ W7 TwoFactorChallenge regresyon koruma (3 tab her zaman görünür, TUR #79 Y4 emsali korundu)
-- ✅ W5 5 rol × 3 tab parite kanıt (tek /login DRY — yonetici/temsilci/hukukcu/musteri grid-cols-4)
-- ✅ W9 Anayasa Madde 30.35 yeni (ENV Slot Disiplini)
-- ⏳ W4 SMS provider smoke: CEO admin token + `POST /api/auth/test-2fa-channel` → providerCode kanıt
-- ✅ TOTP + Email 2FA tam çalışıyor (Madde 30.28 emsali)
-- 🟢 CEO 4 Mayıs 22:35 NETGSM_HEADER='tedbirge' Render'da düzeltti (W2 backend defensive normalize ekstra koruma)
+**TUR #82 Sonuç (V11 production smoke CEO browser test gerek):**
+- ✅ V2 Backend HARD 2FA enforcement (commit 599107d): `/api/auth/login` HARD_2FA_ROLES=[ADMIN, LAWYER, SALES, REPRESENTATIVE] + `requiresTwoFactorSetup:true` flag + redirectTo /2fa-secim + setupMessage KVKK m.12 (CUSTOMER soft `twoFactorReminder:true` engelleme yok)
+- ✅ V3 Frontend response handling (commit panel 14f95af): explicit flag öncelikli + user.twoFactorEnabled fallback (TUR #78 X8 korundu)
+- ✅ V5 Müvekkil text fix: "Şifresiz dosya takibi" → "Hesapsız dava sorgulamak için" + "Telefon ile Sorgula →" (`/basvuru-sorgula` gerçekten hesapsız — telefon+başvuru kodu)
+- ✅ V6 Tüm "Şifresiz" yanıltıcı taraması: 0 yanıltıcı kullanım kaldı
+- ✅ V9 Anayasa Madde 30.29 R1 + 30.34 R1 ikiz R-genişleme
+- ⏳ V11 Production smoke: CEO browser test (3 dk) — `/login?rol=hukukcu` → email+şifre → /2fa-secim wizard otomatik açılır mı?
+- ✅ NetGSM SMS düzelmesi korundu (TUR #81 + CEO ENV fix)
+- ✅ CEO TOTP aktivasyonu korundu (regresyon yok)
 
 **Production Smoke 4/4 Yeşil:**
 - auditorHealth: HEALTHY · Auditor.lastRunAt < 30s · eventCounts.last1h: **302** (35→302 sıçrama)

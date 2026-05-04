@@ -6,6 +6,62 @@
 
 ---
 
+## 5 Mayıs 2026 — TUR #82 KARARI — 2FA HARD ENFORCEMENT BACKEND + MÜVEKKİL TEXT FIX + 21+22. MİMAR HATALARI
+
+**Anayasa:** v1.22.0 yürürlükte (Madde 30.29 R1 + 30.34 R1 ikiz R-genişleme — patch sürüm yok)
+
+### Karar
+
+CEO 4 Mayıs 23:13: 3 BUG fix tek turda — backend 2FA enforcement gap (BUG 1+3) + müvekkil text yanıltıcı (BUG 2).
+
+**21. mimar hatası:** TUR #75 Madde 30.29 5 rol parite UI tarafında yazıldı (3 rol için /profil DRY) ama backend `/api/auth/login` HARD rol + `twoFactorEnabled=false` kontrolü yoktu — full token dönüyordu (CEO Image 2 yakaladı: `/login?rol=hukukcu` 2FA bypass).
+
+**22. mimar hatası:** Müvekkil sekme "Şifresiz dosya takibi" yazısı — müvekkil aslında email+şifre kullanır (yanıltıcı + KVKK güven sarsıcı + tüketici hukuku şüphesi). CEO Image 3 yakaladı.
+
+### Çözüm
+
+- **V2 Backend (`599107d`):** HARD_2FA_ROLES = [ADMIN, LAWYER, SALES, REPRESENTATIVE], `/api/auth/login` response.data'ya `requiresTwoFactorSetup:true` flag + `redirectTo: "/2fa-secim"` + `setupMessage: "Hesabınızı korumak için 2FA aktivasyonu zorunludur (KVKK m.12)"`. CUSTOMER soft: `twoFactorReminder:true` (engelleme yok).
+- **V3 Frontend (`14f95af`):** Explicit flag öncelikli + `user.twoFactorEnabled` fallback (TUR #78 X8 korundu).
+- **V5 Müvekkil text (`14f95af`):** "Şifresiz dosya takibi:" → "Hesapsız dava sorgulamak için:" + "Dava Takibine Git →" → "Telefon ile Sorgula →".
+- **V6 Şifresiz tarama:** 0 yanıltıcı kullanım kaldı (sadece historical yorum bloğunda kelime düzeltildi).
+
+### Sebep
+
+CEO 4 Mayıs 23:13 yazılı direktif: *"Eksik hata ne varsa düzelt aynı şekilde tamamına uygulansın. Uçtan uca otonom hiçbir şey sormadan başla bitir."* (Madde 17.5 + 18.3 + 30.25) + 4'lü zincir aktif.
+
+### Etki
+
+- `src/controllers/auth.controller.js` (backend V2 — HARD_2FA_ROLES + response flag)
+- `tedbirge-panel/app/(public)/login/page.tsx` (panel V3+V5+V6 — frontend flag handling + müvekkil text)
+- `CLAUDE.md` (Madde 30.29 R1 + 30.34 R1 yeni + CHANGELOG TUR #82)
+- `tedbirge-os/{DEVIR_RAPORU_AKTIF.md, IS_PLANI.md, docs/OTONOM_RAPOR.md, MIMARI_KARARLAR.md}` (V10 senkron)
+
+### Anayasa Etkisi
+
+- **Madde 30.29 R1 yeni — Backend HARD Enforcement Zorunlu:**
+  - 2FA enforcement UI seviyesinde göstermek YETMEZ
+  - Backend explicit response flag (requiresTwoFactorSetup) zorunlu
+  - HARD/SOFT ayrımı backend tarafında, frontend trust eder
+  - 30.29 (UI) + 30.29 R1 (backend) = tam koruma
+
+- **Madde 30.34 R1 yeni — UX Wording Doğruluk Disiplini:**
+  - Yanıltıcı kelime YASAK ("Şifresiz", "Otomatik", "Anonim", "Tek tıkla", "Ücretsiz")
+  - Türkçe dilbilgisi disiplini (kısa, net, profesyonel, aktif çatı)
+  - Madde 25.3 KIRMIZI listesi ile uyumlu
+  - 30.34 (kurumsal güven UI) + 30.34 R1 (wording doğruluk) = bütünleşik B2B müvekkil deneyimi
+
+### Pattern
+
+**TUR #56+...+82 = 201+ atom sapma 0 — kalibrasyon 1.6× 29. doğrulama** (29+ saat intensive otonom — TR'de emsalsiz)
+
+22 mimar hatası kayıtlı (1-22), her biri Anayasa maddesine dönüştü.
+
+### Mimar
+
+Claude Opus 4.7 (TUR #82 mimar — 5 Mayıs 2026 23:13 sonrası)
+
+---
+
 ## 5 Mayıs 2026 — TUR #81 KARARI — ENV SLOT DİSİPLİNİ + HEADER LOWERCASE NORMALIZE + 20. MİMAR HATASI
 
 **Anayasa:** v1.22.0 yürürlükte (Madde 30.35 yeni alt-genişleme — patch sürüm yok)

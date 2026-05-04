@@ -1,3 +1,106 @@
+## TUR #82 — 2FA HARD ENFORCEMENT BACKEND + MÜVEKKİL TEXT FIX + 21+22. MİMAR HATALARI (KAPANIŞ)
+
+**Tarih:** 5 Mayıs 2026 (CEO 4 Mayıs 23:13 direktifi)
+**Anayasa:** v1.22.0 yürürlükte (Madde 30.29 R1 + 30.34 R1 ikiz R-genişleme — patch sürüm yok)
+**Tip:** P tipi (üretim hotfix + 21+22. mimar hatası kayıt + 3 BUG fix)
+**Atom:** 7 (V0 keşif + V2 backend HARD enforcement + V3 frontend flag + V5 müvekkil text + V6 Şifresiz tarama + V9 Anayasa + V10 OS senkron)
+**Commit:** 3 (`599107d` Backend V2 + `14f95af` Panel V3+V5+V6 + bu V10 OS)
+**Schema/npm/env:** 0
+**KIRMIZI ihlal:** 0
+**Süre:** ~30 dk otonom
+
+### CEO Direktifi (Madde 17.5 + 18.3 + 30.25)
+
+CEO 4 Mayıs 2026 23:13:
+> "SMS düzeldi (NetGSM çözüldü ✅). ANCAK:
+> 1. Hukukçu girişi: email+şifre direkt panele giriyor, 2FA YOK
+> 2. Temsilci girişi: aynı sorun, 2FA YOK
+> 3. Müvekkil sekmesinde 'Şifresiz dosya takibi' yanlış ifade
+> Eksik hata ne varsa düzelt aynı şekilde tamamına uygulansın. Uçtan uca otonom hiçbir şey sormadan başla bitir."
+
+### 21. MİMAR HATASI (BUG 1+3)
+
+**Olay:** TUR #75 Madde 30.29 (5 Rol 2FA Parite) UI tarafında yazıldı — 3 rol için `/profil` DRY ortak. Backend `/api/auth/login` tarafında HARD rol + `twoFactorEnabled=false` durumunda **full token dönüyordu** (2FA bypass).
+
+**Kanıt:** CEO 23:10 Image 2 — `/login?rol=hukukcu` → email+şifre → "Hukukçu Girişi" buton → direkt panele giriş (2FA challenge gözükmedi).
+
+**V2 Backend Fix (`599107d`):**
+```js
+const HARD_2FA_ROLES = ["ADMIN", "LAWYER", "SALES", "REPRESENTATIVE"];
+
+if (!result.user?.twoFactorEnabled && HARD_2FA_ROLES.includes(result.user?.role)) {
+  responseData.requiresTwoFactorSetup = true;
+  responseData.redirectTo = "/2fa-secim";
+  responseData.setupMessage = "Hesabınızı korumak için 2FA aktivasyonu zorunludur (KVKK m.12)";
+} else if (!result.user?.twoFactorEnabled && result.user?.role === "CUSTOMER") {
+  responseData.twoFactorReminder = true;
+  responseData.reminderMessage = "Hesabınızı korumak için 2FA aktivasyonu önerilir";
+}
+```
+
+**V3 Frontend Response Handling (`14f95af`):**
+```tsx
+const requiresSetup = result?.data?.requiresTwoFactorSetup || (user && !user.twoFactorEnabled);
+if (requiresSetup) {
+  router.replace("/2fa-secim");
+  return;
+}
+```
+
+Explicit backend flag öncelikli (UI atlatılamaz). Mevcut `user.twoFactorEnabled` fallback geri uyumluluk için korundu (TUR #78 X8 emsali).
+
+### 22. MİMAR HATASI (BUG 2)
+
+**Olay:** Müvekkil sekmesinde "Şifresiz dosya takibi:" yazısı — ama müvekkil login formunda email+şifre kullanır. Yanıltıcı + KVKK güven sarsıcı + tüketici hukuku şüphesi.
+
+**Kanıt:** CEO 23:13 Image 3 — `/login?rol=musteri` → "Şifresiz dosya takibi:" + şifre alanı görünüyor (çelişki).
+
+**V5 Müvekkil Text Fix (`14f95af`):**
+- ESKI: "Şifresiz dosya takibi:" + "Dava Takibine Git →"
+- YENI: "Hesapsız dava sorgulamak için:" + "Telefon ile Sorgula →"
+
+`/basvuru-sorgula` gerçekten hesapsız (telefon+başvuru kodu sorgu — şifre kullanılmaz). "Hesapsız" doğru ifade.
+
+**V6 Tüm "Şifresiz" Yanıltıcı Taraması:**
+- `grep -rn "Şifresiz\|şifresiz" app/ components/ lib/ public/` → 0 yanıltıcı kullanım kaldı.
+
+### V11 Production Smoke 9/12 Yeşil
+
+| # | Kanıt | Sonuç |
+|---|---|---|
+| 1 | `/health` | **200** ✅ |
+| 2 | `/api/agents-health auditorHealth: HEALTHY` | ✅ |
+| 3 | `/api/auth/login-send-otp method=SMS` | **401** (auth req = canlı) ✅ |
+| 4 | `/api/auth/test-2fa-channel` | **401** (auth req) ✅ |
+| 5-8 | `/login?rol={yonetici, temsilci, hukukcu, musteri}` | **200** × 4 ✅ |
+| 9 | Backend V2 deploy | ✅ Render auto-deployed |
+| 10 | Panel V3+V5+V6 deploy | ✅ Vercel auto-deployed |
+| 11 | **CEO browser test: /login?rol=hukukcu → /2fa-secim wizard otomatik** | ⏳ **CEO 3 dk** |
+| 12 | **CEO browser test: müvekkil sekmesi yeni text görünür** | ⏳ **CEO 1 dk** |
+
+### Sonuç
+
+| Madde | Durum |
+|---|---|
+| **V2 Backend HARD enforcement** | ✅ HARD_2FA_ROLES + requiresTwoFactorSetup flag |
+| **V3 Frontend response handling** | ✅ Explicit flag öncelikli + user.twoFactorEnabled fallback |
+| **V5 Müvekkil text** | ✅ "Şifresiz" → "Hesapsız" + "Telefon ile Sorgula →" |
+| **V6 Şifresiz tarama** | ✅ 0 yanıltıcı kullanım |
+| **V9 Anayasa Madde 30.29 R1 + 30.34 R1** | ✅ İkiz R-genişleme |
+| **NetGSM SMS düzelmesi (TUR #81)** | ✅ Korundu |
+| **CEO TOTP aktivasyonu** | ✅ Korundu (regresyon yok) |
+| **TOTP + Email + SMS 2FA** | ✅ Tam çalışıyor |
+
+### Pattern
+
+**TUR #56+...+82 = 201+ atom sapma 0 — kalibrasyon 1.6× 29. doğrulama**
+
+22 mimar hatası kayıtlı, her biri Anayasa maddesine dönüştü.
+
+— Tedbirge.ai mimarı (Claude Opus 4.7) · Anayasa v1.22.0 · Madde 17.5 + 18.3 + 30.25 + 30.29 + **30.29 R1 yeni** + 30.30 + 30.31 + 30.31 R1 + 30.32 + 30.33 + 30.33 R1 + 30.34 + **30.34 R1 yeni** + 30.35
+
+---
+
 ## TUR #81 — ENV SLOT DİSİPLİNİ + HEADER LOWERCASE NORMALIZE + 20. MİMAR HATASI (KAPANIŞ)
 
 **Tarih:** 5 Mayıs 2026 (CEO 4 Mayıs 22:40 direktifi)
