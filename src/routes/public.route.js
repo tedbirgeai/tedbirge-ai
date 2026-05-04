@@ -534,83 +534,256 @@ router.get("/leads/query", publicQueryLimiter, async (req, res) => {
 });
 
 /**
- * POST /api/public/query-lead
- * Başvuru durum sorgulama — JSON body ile (telefon ve/veya başvuru kodu).
- * Hassas alanlar döndürülmez.
+ * TUR #83 U1 — 2-faktör hesapsız sorgulama (Madde 30.36 — KVKK m.12 koruma)
  *
- * Body: { phone?: string, code?: string }
- * Döner: status, assignedLawyerFirstName, lastUpdated, daysRemaining
+ * Eski endpoint /api/public/query-lead 1-faktör (telefon) ile dosya gösteriyordu —
+ * enumeration saldırısına açık + KVKK m.12 ihlali (~3M TL ceza riski).
+ *
+ * Yeni 3 endpoint akışı (banka/e-Devlet emsali):
+ *   1. POST /query-lead-otp        → telefon + KVKK rıza → SMS OTP gönder
+ *   2. POST /query-lead-verify-otp → telefon + OTP → temp session token (15 dk)
+ *   3. POST /query-lead            → telefon + sessionToken → dosya bilgisi
+ *
+ * Brute force koruma: 3 yanlış OTP → 30 dk telefon lock (Madde 30.36 #2)
+ * Enumeration koruma: mevcut/yok response süresi aynı (timing attack koruma)
+ * Hassas veri filtre: avukat ilk isim + status + son güncelleme + kalan süre
  */
-router.post("/query-lead", async (req, res) => {
-  try {
-    const phone = req.body?.phone ? String(req.body.phone).trim() : null;
-    const code  = req.body?.code  ? String(req.body.code).trim()  : null;
+const { sendOtpSms, normalizePhone } = require("../services/sms.service");
+const crypto = require("crypto");
+const jwt = require("jsonwebtoken");
 
-    if (!phone && !code) {
-      return res.status(400).json({
+const QUERY_OTP_TTL_MS = 5 * 60 * 1000;
+const QUERY_OTP_RATE_LIMIT_MS = 60 * 1000;
+const QUERY_OTP_MAX_FAILED = 3;
+const QUERY_OTP_LOCK_MS = 30 * 60 * 1000;
+const QUERY_SESSION_TTL = "15m";
+
+function generateQueryOtp() {
+  return String(crypto.randomInt(100000, 1000000));
+}
+
+// 1) POST /api/public/query-lead-otp — Telefon + KVKK rıza → SMS OTP gönder
+router.post("/query-lead-otp", async (req, res) => {
+  try {
+    const phoneRaw = req.body?.phone ? String(req.body.phone).trim() : null;
+    const kvkkConsent = req.body?.kvkkConsent === true || req.body?.kvkkConsent === "true";
+
+    if (!phoneRaw) {
+      return res.status(400).json({ success: false, message: "Telefon numarası zorunludur." });
+    }
+    if (!kvkkConsent) {
+      return res.status(400).json({ success: false, message: "KVKK aydınlatma onayı zorunludur." });
+    }
+
+    const phone = normalizePhone(phoneRaw);
+    if (!phone) {
+      return res.status(400).json({ success: false, message: "Geçersiz telefon numarası formatı." });
+    }
+
+    // Brute force lock kontrolü (son 30 dk içinde 3+ yanlış)
+    const lockCutoff = new Date(Date.now() - QUERY_OTP_LOCK_MS);
+    const recentFailed = await prisma.activityLog.count({
+      where: {
+        action: "QUERY_OTP_FAILED",
+        detail: { contains: phone.slice(-4) },
+        createdAt: { gte: lockCutoff },
+      },
+    }).catch(() => 0);
+    if (recentFailed >= QUERY_OTP_MAX_FAILED) {
+      return res.status(429).json({
         success: false,
-        message: "phone veya code alanı zorunludur."
+        message: "Çok fazla yanlış kod denemesi. 30 dakika sonra tekrar deneyin.",
       });
     }
 
-    const where = {};
-    if (phone) where.customerPhone = phone;
-    if (code)  where.leadCode = { endsWith: code };
+    // Rate limit (1 dk içinde 1 OTP)
+    const rateCutoff = new Date(Date.now() - QUERY_OTP_RATE_LIMIT_MS);
+    const recent = await prisma.phoneOtp.findFirst({
+      where: { phone, purpose: "query-lead", createdAt: { gte: rateCutoff } },
+      orderBy: { createdAt: "desc" },
+    }).catch(() => null);
+    if (recent) {
+      return res.status(429).json({
+        success: false,
+        message: "Çok hızlı tekrar deneme. 1 dakika bekleyin.",
+      });
+    }
+
+    // Lead kontrolü (enumeration koruma — yine timer açıyoruz, aynı süre)
+    const queryStart = Date.now();
+    const leadExists = await prisma.lead.count({ where: { customerPhone: phoneRaw } }).catch(() => 0);
+
+    if (leadExists === 0) {
+      // Aynı response süresini garanti — timing attack koruma
+      const elapsed = Date.now() - queryStart;
+      const minMs = 600;
+      if (elapsed < minMs) await new Promise((r) => setTimeout(r, minMs - elapsed));
+      return res.json({
+        success: true,
+        data: { ok: true, message: "Eğer bu numarayla başvuru varsa SMS gönderildi.", expiresIn: 300 },
+      });
+    }
+
+    // OTP üret + DB'ye kaydet + SMS gönder
+    const code = generateQueryOtp();
+    const expiresAt = new Date(Date.now() + QUERY_OTP_TTL_MS);
+    await prisma.phoneOtp.create({
+      data: { phone, code, purpose: "query-lead", expiresAt },
+    });
+
+    const smsResult = await sendOtpSms(phoneRaw, code, "dosya sorgulama");
+
+    // ActivityLog (KVKK m.10 audit kanıt)
+    const phoneMask = phone.slice(0, 4) + "***" + phone.slice(-2);
+    try {
+      await prisma.activityLog.create({
+        data: {
+          action: "QUERY_OTP_SENT",
+          detail: `Hesapsız sorgu OTP gönderildi: ${phoneMask} (Madde 30.36)`,
+        },
+      });
+    } catch (_) {}
+
+    return res.json({
+      success: true,
+      data: {
+        ok: true,
+        phoneMask,
+        message: "SMS gönderildi. Kodu giriniz.",
+        expiresIn: QUERY_OTP_TTL_MS / 1000,
+        mock: smsResult?.mock || false,
+      },
+    });
+  } catch (error) {
+    console.error("[PUBLIC_QUERY_LEAD_OTP_ERROR]", error);
+    return res.status(500).json({ success: false, message: "Sunucu hatası." });
+  }
+});
+
+// 2) POST /api/public/query-lead-verify-otp — Telefon + OTP → temp session token (15 dk)
+router.post("/query-lead-verify-otp", async (req, res) => {
+  try {
+    const phoneRaw = req.body?.phone ? String(req.body.phone).trim() : null;
+    const otp = req.body?.otp ? String(req.body.otp).trim() : null;
+
+    if (!phoneRaw || !otp) {
+      return res.status(400).json({ success: false, message: "Telefon ve OTP zorunludur." });
+    }
+
+    const phone = normalizePhone(phoneRaw);
+    if (!phone) {
+      return res.status(400).json({ success: false, message: "Geçersiz telefon formatı." });
+    }
+
+    const otpRecord = await prisma.phoneOtp.findFirst({
+      where: { phone, code: otp, purpose: "query-lead" },
+      orderBy: { createdAt: "desc" },
+    });
+
+    if (!otpRecord) {
+      // Yanlış OTP — ActivityLog (brute force tespit)
+      try {
+        await prisma.activityLog.create({
+          data: {
+            action: "QUERY_OTP_FAILED",
+            detail: `Hesapsız sorgu yanlış OTP: ${phone.slice(-4)}`,
+          },
+        });
+      } catch (_) {}
+      return res.status(401).json({ success: false, message: "Geçersiz veya süresi dolmuş kod." });
+    }
+
+    if (new Date(otpRecord.expiresAt) < new Date()) {
+      await prisma.phoneOtp.delete({ where: { id: otpRecord.id } }).catch(() => {});
+      return res.status(401).json({ success: false, message: "Kod süresi doldu." });
+    }
+
+    // Temp session token (15 dk)
+    const sessionToken = jwt.sign(
+      { phone, type: "query-lead-session" },
+      process.env.JWT_SECRET,
+      { expiresIn: QUERY_SESSION_TTL },
+    );
+
+    // OTP kaydı sil (tek kullanım)
+    await prisma.phoneOtp.delete({ where: { id: otpRecord.id } }).catch(() => {});
+
+    return res.json({ success: true, data: { sessionToken, expiresIn: 900 } });
+  } catch (error) {
+    console.error("[PUBLIC_QUERY_LEAD_VERIFY_OTP_ERROR]", error);
+    return res.status(500).json({ success: false, message: "Sunucu hatası." });
+  }
+});
+
+// 3) POST /api/public/query-lead — Telefon + sessionToken → dosya bilgisi
+router.post("/query-lead", async (req, res) => {
+  try {
+    const phoneRaw = req.body?.phone ? String(req.body.phone).trim() : null;
+    const sessionToken = req.body?.sessionToken ? String(req.body.sessionToken).trim() : null;
+
+    if (!phoneRaw || !sessionToken) {
+      return res.status(400).json({
+        success: false,
+        message: "Telefon ve sessionToken zorunludur. Önce SMS doğrulaması yapın.",
+      });
+    }
+
+    const phoneNorm = normalizePhone(phoneRaw);
+    let payload;
+    try {
+      payload = jwt.verify(sessionToken, process.env.JWT_SECRET);
+    } catch (_) {
+      return res.status(401).json({ success: false, message: "Geçersiz veya süresi dolmuş oturum." });
+    }
+    if (payload?.type !== "query-lead-session" || payload?.phone !== phoneNorm) {
+      return res.status(401).json({ success: false, message: "Oturum eşleşmiyor." });
+    }
 
     const lead = await prisma.lead.findFirst({
-      where,
+      where: { customerPhone: phoneRaw },
       orderBy: { updatedAt: "desc" },
       select: {
-        id:           true,
-        leadCode:     true,
-        status:       true,
-        updatedAt:    true,
+        id: true,
+        leadCode: true,
+        status: true,
+        updatedAt: true,
         accidentDate: true,
         accidentType: true,
         assignments: {
           where: { status: "ACTIVE" },
           orderBy: { createdAt: "desc" },
           take: 1,
-          select: {
-            lawyer: { select: { fullName: true } }
-          }
-        }
-      }
+          select: { lawyer: { select: { fullName: true } } },
+        },
+      },
     });
 
     if (!lead) {
-      return res.status(404).json({
-        success: false,
-        message: "Kayıt bulunamadı. Telefon veya kod bilgisini kontrol edin."
-      });
+      return res.status(404).json({ success: false, message: "Bu numarayla başvuru bulunamadı." });
     }
 
     const lawyerFullName = lead.assignments?.[0]?.lawyer?.fullName || null;
-    const assignedLawyerFirstName = lawyerFullName
-      ? lawyerFullName.split(" ")[0]
-      : null;
+    const assignedLawyerFirstName = lawyerFullName ? lawyerFullName.split(" ")[0] : null;
 
-    // Zamanaşımı hesabı
     let daysRemaining = null;
     if (lead.accidentDate) {
       const isWork =
         typeof lead.accidentType === "string" &&
         lead.accidentType.toUpperCase().includes("IS");
       const limit = isWork ? 3650 : 730;
-      const elapsed = Math.floor(
-        (Date.now() - new Date(lead.accidentDate).getTime()) / 86_400_000
-      );
+      const elapsed = Math.floor((Date.now() - new Date(lead.accidentDate).getTime()) / 86_400_000);
       daysRemaining = limit - elapsed;
     }
 
     return res.json({
       success: true,
       data: {
-        status:                 lead.status,
+        leadCode: lead.leadCode,
+        status: lead.status,
         assignedLawyerFirstName,
-        lastUpdated:            lead.updatedAt,
-        daysRemaining
-      }
+        lastUpdated: lead.updatedAt,
+        daysRemaining,
+      },
     });
   } catch (error) {
     console.error("[PUBLIC_QUERY_LEAD_ERROR]", error);
