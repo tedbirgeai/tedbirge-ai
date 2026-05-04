@@ -16,6 +16,62 @@ router.get("/agents/status", auth, role("ADMIN"), (req, res) => {
   }
 });
 
+// TUR #73 — Public agent canlilik kaniti (no auth, hassas veri yok)
+// CEO browser'da direkt erisim: tedbirge-ai.onrender.com/api/os/agents-health
+router.get("/agents-health", async (req, res) => {
+  try {
+    const agentStatus = runner.getStatus();
+    const oneHourAgo = new Date(Date.now() - 60 * 60 * 1000);
+    const oneDayAgo = new Date(Date.now() - 24 * 60 * 60 * 1000);
+
+    const [count1h, count24h, lastEvent] = await Promise.all([
+      prisma.agentEvent.count({ where: { createdAt: { gte: oneHourAgo } } }),
+      prisma.agentEvent.count({ where: { createdAt: { gte: oneDayAgo } } }),
+      prisma.agentEvent.findFirst({
+        orderBy: { createdAt: "desc" },
+        select: { createdAt: true, agentName: true, eventType: true, severity: true },
+      }),
+    ]);
+
+    const moduleNames = [
+      "ai", "analyzer", "appearance", "backup", "compliance",
+      "costGuard", "deploy", "insurance", "maintenance", "navigation",
+      "notifications", "performance", "pulse", "recovery", "security", "uyapControl",
+    ];
+
+    const moduleCounts = await Promise.all(
+      moduleNames.map(async (name) => {
+        const c = await prisma.agentEvent.count({
+          where: { agentName: name, createdAt: { gte: oneHourAgo } },
+        });
+        return { agentName: name, eventCountLast1h: c };
+      }),
+    );
+
+    res.json({
+      success: true,
+      generatedAt: new Date().toISOString(),
+      agents: agentStatus,
+      eventCounts: {
+        last1h: count1h,
+        last24h: count24h,
+      },
+      lastEvent: lastEvent
+        ? {
+            agentName: lastEvent.agentName,
+            eventType: lastEvent.eventType,
+            severity: lastEvent.severity,
+            createdAt: lastEvent.createdAt,
+            ageSeconds: Math.floor((Date.now() - lastEvent.createdAt.getTime()) / 1000),
+          }
+        : null,
+      moduleCounts,
+    });
+  } catch (e) {
+    res.status(500).json({ success: false, error: e.message });
+  }
+});
+
 // Manuel tick
 router.post("/agents/:name/tick", auth, role("ADMIN"), async (req, res) => {
   try {
