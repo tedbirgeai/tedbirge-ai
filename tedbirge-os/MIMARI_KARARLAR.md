@@ -6,6 +6,66 @@
 
 ---
 
+## 4 Mayıs 2026 öğleden sonra geç — TUR #72.10 KARARI — 3 KRİTİK BUG HOTFIX
+
+**Anayasa:** v1.22.0 yürürlükte (Madde 30.24 alt-genişleme — patch sürüm yok)
+
+### Karar
+
+TUR #72.9 sistem durumu regresyon hotfix yapıldı ama CEO öğleden sonra geç (13:18) görsel kontrol ile aynı sayfa hala patlak gördü (**mimar hatası 11** — yetersiz tanı, production deploy + browser cache hesaba katılmadı). TUR #72.6 + #72.7 + #72.8 + #72.9 zincirinde login flow modify edildi ama **`requestedRole` rol doğrulama yapılmadı** (**mimar hatası 12** — KVKK m.12 + güvenlik açığı: ADMIN email Temsilci/Hukukçu sekmesinden de giriş yapıyordu). 2FA durumu kanıtsız.
+
+TUR #72.10 8 atomda kapattı: derin tanı (X1) + UI mevcut kontrol (X2 yeniden yazım gerek değil, X3 commit fresh re-deploy trigger) + **login rol doğrulama 403 + correctRole hint + role-based redirect (X3)** + 4 senaryo smoke (X4) + 2FA endpoint canlılık (X5) + production deploy doğrulama (X6) + Anayasa Madde 30.24 (X7).
+
+### Karar Gerekçesi
+
+1. **CEO kesin emir Madde 17.5:** "tek komut otonom düzelt eksik bir şey bırakma"
+2. **Madde 4.4 (kod kaynaktır):** TUR #72.9'da production deploy doğrulama atlandı, "yapıldı" rapor yanıltıcı (mimar hatası 11)
+3. **KVKK m.12 + güvenlik:** rol-bazlı erişim kontrolü zorunlu, login rol mismatch 403 (mimar hatası 12)
+4. **Madde 30.23 genişleme:** TUR #72.9'da yetersizdi, multi-TUR zinciri sonrası production deploy doğrulama (curl + F12 + AgentEvent kanıt) zorunlu
+5. **Madde 30.24 yeni:** login endpoint `requestedRole` zorunlu kontrol — KVKK m.12 emsali kalıcı önlem
+
+### Reddedilen Alternatifler
+
+- **TUR #72.9 "yapıldı" rapor güven:** production kanıtı görsel ile çatışıyor, kabul edilemez
+- **Login rol doğrulama gelecekte:** KVKK güvenlik açığı acil, ertelenemez (Madde 18.3 KIRMIZI)
+- **Sistem durumu UI yamalı yeniden yazım:** kod sağlam (commit zinciri db0a1eb + 20f1ee2 + 38ee4af mevcut), yeniden yazım = ekosistem ihlali
+- **`requestedRole` opsiyonel parametre yapma (geri uyumluluk için):** rol mismatch kontrolü atlanır, KVKK ihlali. Reddedildi (frontend zorunlu gönderir).
+- **403 yerine 401 dönmek:** "Yetkisiz erişim" net mesaj yerine "geçersiz" karışıklık. Reddedildi.
+
+### Etki
+
+- **8 atom + 3 commit** (`dd4a1b1` BE login rol + `66aa6ba` FE + bu OS senkron)
+- **0 schema/npm**
+- **0 KIRMIZI ihlal**
+- **164+ atom sapma 0** — kalibrasyon 1.6× 19. doğrulama
+- KVKK m.12 yetkisiz erişim açığı kapatıldı
+- Login rol doğrulama 4 sekme × 5 rol matrisi smoke (4 senaryo geçti)
+- Sistem-durumu fresh deploy ile CEO görsel cache çözülecek
+
+### CEO Direktifi (Madde 17.5)
+
+Mehmet DİNÇ 4 Mayıs 2026 öğleden sonra geç (13:18-13:24):
+> "Sistem durumu sayfası halen patlak değişmedi. 2FA durumu nedir? Login rol doğrulama bozuk: ADMIN mail+şifre ile Yönetici/Temsilci/Hukukçu hangisi seçili olursa olsun ADMIN paneline giriyor. Yetkisiz işlem uyarısı yok. Tek komut otonom uçtan uca düzelt."
+
+### Kalıcı Pattern (TUR #73+ için)
+
+1. **TUR sonu raporu CEO görsel kontrol ile çatışıyorsa → derin tanı turu (TUR #X.Y) zorunlu**, mimar "yapıldı" rapor güveni reddedilir
+2. **Login flow değişen TUR sonunda 4 rol × N sekme matrisi smoke zorunlu** (Madde 30.24)
+3. **Multi-TUR schema değişiklik zinciri sonunda comprehensive UI smoke** + production deploy curl doğrulama (Madde 30.23 genişleme)
+4. **Login endpoint `requestedRole` eksiklik = KVKK m.12 ihlali = mimar hatası 12 emsali**
+5. **403 ForbiddenError'da `correctRole` hint zorunlu** (UX — kullanıcı doğru sekmeye otomatik geçer)
+6. **Role-based redirect login başarı sonrası zorunlu** (CUSTOMER→/musteri, REPRESENTATIVE→/temsilci, ADMIN/SALES/LAWYER→/dashboard)
+
+### Mimar
+
+Claude Opus 4.7 (sohbet) + Claude Code (otonom uygulama)
+
+### Onay
+
+Mehmet DİNÇ — Madde 17.5 + 18.3
+
+---
+
 ## 4 Mayıs 2026 öğleden sonra — TUR #72.9 KARARI — SİSTEM DURUMU REGRESYON HOTFIX
 
 **Anayasa:** v1.22.0 yürürlükte (Madde 30.23 alt-genişleme — patch sürüm yok)

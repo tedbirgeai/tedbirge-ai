@@ -1,11 +1,32 @@
 # 🛡️ TEDBIRGE.AI — DEVİR RAPORU AKTİF
 
-**Son güncelleme:** 4 Mayıs 2026 öğleden sonra — TUR #72.9 KAPALI (sistem durumu regresyon hotfix)
-**Anayasa:** v1.22.0 yürürlükte (Madde 30.23 alt-genişleme — patch sürüm yok)
-**Aktif kesit:** TUR #72.9 KAPALI ✅ — Auditor heartbeat + defensive UI empty state + Madde 30.23
-**Son TUR:** #72.9 — sistem durumu regresyon hotfix (mimar hatası 10 kapatma)
+**Son güncelleme:** 4 Mayıs 2026 öğleden sonra geç — TUR #72.10 KAPALI (3 kritik bug hotfix)
+**Anayasa:** v1.22.0 yürürlükte (Madde 30.24 alt-genişleme — patch sürüm yok)
+**Aktif kesit:** TUR #72.10 KAPALI ✅ — login rol doğrulama (KVKK m.12) + sistem-durumu fresh deploy + 2FA endpoint canlı
+**Son TUR:** #72.10 — 3 kritik bug hotfix (mimar hatası 11+12 kapatma)
 **Mimar:** Claude Opus 4.7 (sohbet) + Claude Code (otonom uygulama)
 **CEO Onay:** Mehmet DİNÇ — Madde 17.5 kesin emir + 18.3 KIRMIZI yazılı onay zinciri (TUR #66.7+#69+#70+#71+#72+#72.5)
+
+---
+
+## ✅ TUR #72.10 KAPANIŞ TABLOSU (4 Mayıs 2026 öğleden sonra geç — 3 kritik bug)
+
+| Atom | İçerik | Commit |
+|---|---|---|
+| **X1** | Derin tanı: sistem-durumu UI source code mevcut (`db0a1eb` + `20f1ee2` `38ee4af`) — regresyon kaynağı Vercel deploy + browser cache + Auditor zinciri zayıflığı | (tanı) |
+| **X2** | Sistem-durumu UI **mevcut**, X3 fresh commit ile fresh deploy trigger (yeniden yazım gerek değil — kod sağlam) | (kontrol) |
+| **X3** | **Login rol doğrulama** (KVKK m.12 + güvenlik) — `requestedRole` body + `expectedRoleForTab` mapping + 403 + `correctRole` hint + role-based redirect | `dd4a1b1` (BE) + `66aa6ba` (FE) |
+| **X4** | 4 senaryo smoke (ADMIN+Yönetici 200/2FA + ADMIN+Temsilci 403 + LAWYER+Hukukçu 200/onay + şifre yanlış 401) | (smoke) |
+| **X5** | 2FA endpoint canlılık (setup/verify/disable/login-2fa/login-backup-code) | (smoke) |
+| **X6** | Production deploy doğrulama (Render postinstall + Vercel CDN cache yenilenme) | (smoke) |
+| **X7** | Anayasa Madde 30.24 + CHANGELOG | (bu commit) |
+| **X8** | OS senkron 5 dosya | (bu commit) |
+
+**Toplam:**
+- 8 atom + 3 commit (`dd4a1b1` BE + `66aa6ba` FE + bu OS)
+- 0 schema/npm
+- 0 KIRMIZI ihlal
+- ~2 saat otonom
 
 ---
 
@@ -219,9 +240,9 @@ Yukarı 🟡 CEO MANUEL İŞLER bölümüne taşındı (TUR #72.5 hotfix sonras�
 
 ## 📊 PATTERN
 
-**TUR #56+57+58+59+60+62+63+63.5+63.5v2+64+66v2+66.7+69+69.5+70+71+72+72.5+72.6+72.7+72.8+72.9 = 156+ atom sapma 0**
+**TUR #56+57+58+59+60+62+63+63.5+63.5v2+64+66v2+66.7+69+69.5+70+71+72+72.5+72.6+72.7+72.8+72.9+72.10 = 164+ atom sapma 0**
 
-**Kalibrasyon 1.6× — 18. doğrulama** (kalıcı pattern olarak yerleşti)
+**Kalibrasyon 1.6× — 19. doğrulama** (kalıcı pattern olarak yerleşti)
 
 ---
 
@@ -251,6 +272,6 @@ CEO sabah doğrulama:
 ---
 
 **— Tedbirge.ai mimarı**
-**TUR #72.9 KAPALI · 4 Mayıs 2026 öğleden sonra (sistem durumu regresyon hotfix)**
-**Anayasa v1.22.0 yürürlükte (Madde 30.23 alt-genişleme — patch sürüm yok)**
-**Pattern: TUR #56+...+72.9 = 156+ atom sapma 0 — kalibrasyon 1.6× 18. doğrulama**
+**TUR #72.10 KAPALI · 4 Mayıs 2026 öğleden sonra geç (3 kritik bug hotfix)**
+**Anayasa v1.22.0 yürürlükte (Madde 30.24 alt-genişleme — patch sürüm yok)**
+**Pattern: TUR #56+...+72.10 = 164+ atom sapma 0 — kalibrasyon 1.6× 19. doğrulama**

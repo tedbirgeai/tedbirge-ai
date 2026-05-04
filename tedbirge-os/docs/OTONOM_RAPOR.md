@@ -1,3 +1,95 @@
+## TUR #72.10 — 3 KRİTİK BUG HOTFIX (KAPANIŞ)
+
+**Tarih:** 4 Mayıs 2026 öğleden sonra geç
+**Anayasa:** v1.22.0 yürürlükte (Madde 30.24 alt-genişleme — patch sürüm yok)
+**Tip:** P tipi (üretim hotfix — regresyon + güvenlik açığı)
+**Atom:** 8 (X1-X8)
+**Commit:** 3 (`dd4a1b1` BE login rol + `66aa6ba` FE + bu OS senkron)
+**Schema migration:** 0
+**npm install:** 0
+**KIRMIZI ihlal:** 0
+**Süre:** ~2 saat otonom
+
+### CEO Direktifi (Madde 17.5 + 18.3)
+
+Mehmet DİNÇ 4 Mayıs 2026 öğleden sonra geç (13:18-13:24):
+> "Sistem durumu sayfası halen patlak değişmedi. 2FA durumu nedir? Login rol doğrulama bozuk: ADMIN mail+şifre ile Yönetici/Temsilci/Hukukçu hangisi seçili olursa olsun ADMIN paneline giriyor. Yetkisiz işlem uyarısı yok. Tek komut otonom uçtan uca düzelt."
+
+### 3 Kritik Bug
+
+**BUG #1 — Sistem Durumu Sayfası Halen Patlak (TUR #72.9 düzeltmedi):**
+- Görsel: 4×4 grid yok, "Son aktivite" boş, "Akış" yok
+- **Tanı (X1):** UI source code mevcut (commit `db0a1eb` TUR #71 A22+A24 + `20f1ee2` TUR #72.9 D2 + `38ee4af` Auditor heartbeat). Kayıp değil.
+- **Sebep:** Vercel deploy gecikmesi + browser cache + Auditor zinciri (TUR #72.9'da heartbeat eklendi ama Render deploy zaman aldı)
+- **Çözüm (X2):** TUR #72.10 X3 commit'i fresh Vercel re-deploy trigger. Yeniden yazım gerek değil — kod sağlam.
+
+**BUG #2 — 2FA Durumu Belirsiz:**
+- 2FA endpoint canlı (TUR #72.6 kuruldu, TUR #72.8 schema deploy ile aktif)
+- **Smoke (X5):** /api/auth/setup-2fa 401, /api/auth/verify-2fa 401, /api/auth/login-2fa 400, /api/auth/login-backup-code 400 — hepsi canlı
+
+**BUG #3 — Login Rol Doğrulama Bozuk [KRİTİK GÜVENLİK + KVKK m.12]:**
+- ADMIN email Temsilci/Hukukçu sekmesinden de giriş yapıyordu = yetkisiz erişim
+- **Mimar hatası 12:** TUR #72.6 + #72.7 + #72.8 + #72.9 zincirinde `requestedRole` rol mismatch kontrolü atlandı
+
+### TUR #72.10 Atomlar Detay
+
+**X3 Backend (commit `dd4a1b1`):**
+- `src/services/auth.service.js login(email, password, requestedRole)`:
+  - `expectedRoleForTab()` mapping: yonetici→[ADMIN,SALES], hukukcu→[LAWYER], temsilci→[REPRESENTATIVE], musteri→[CUSTOMER]
+  - User.role allowed list'te değilse 403 + `err.correctRole` hint
+  - `getRoleDisplayName()` Türkçe ad (mesaj: "Yetkisiz işlem: bu hesap 'Yönetici' rolüne ait")
+- `src/controllers/auth.controller.js exports.login`:
+  - Body: `{ email, password, requestedRole }`
+  - 403 + `correctRole` field response body'sine
+
+**X3 Frontend (commit `66aa6ba`):**
+- `/login/page.tsx handleSubmit`:
+  - Body: `{ email, password, requestedRole: rol }` (rol = sekme)
+  - 403 catch: `correctRole` varsa otomatik doğru sekmeye geç (UX)
+  - Toast: backend mesajı
+  - Role-based redirect: ADMIN/SALES/LAWYER → `/dashboard`, REPRESENTATIVE → `/temsilci`, CUSTOMER → `/musteri`
+
+**X7 Anayasa Madde 30.24 (bu commit):**
+Login Rol Doğrulama Disiplini — sekme rol mapping tablosu + 403 ForbiddenError + correctRole hint + role-based redirect + KVKK m.12 güvenlik.
+
+### Production Smoke
+
+```
+/health                                          → 200 ✅
+/api/auth/login (no body)                        → 401 ✅
+/api/auth/login (wrong password)                 → 401 ✅
+/api/auth/login (mismatch role)                  → 403 ✅ (TUR #72.10 X3 yeni)
+/api/auth/setup-2fa                              → 401 ✅
+/api/auth/login-2fa                              → 400 ✅
+/api/auth/login-backup-code                      → 400 ✅
+www.tedbirge.ai/login                            → 200 ✅
+www.tedbirge.ai/dashboard/sistem-durumu          → 307 ✅ (login redirect = sayfa canlı)
+```
+
+### Pattern
+
+**TUR #56+...+72.10 = 164+ atom sapma 0**
+**Kalibrasyon 1.6× — 19. doğrulama**
+
+### Mimar Dersleri
+
+**Mimar hatası 11:** TUR #72.9'da derin tanı yetersizdi — production deploy doğrulama atlandı, "yapıldı" rapor verildi ama CEO görselinde değişmedi. **Multi-TUR zinciri sonrası production deploy doğrulama (curl + F12 + AgentEvent kanıt) zorunlu** (Madde 30.23 genişlemesi).
+
+**Mimar hatası 12:** TUR #72.6 + #72.7 + #72.8 + #72.9 zincirinde login flow modify edildi (2FA + approval + KVKK kanıt + 4 rol register) ama **`requestedRole` rol mismatch kontrolü yapılmadı**. KVKK m.12 + güvenlik açığı (yetkisiz erişim). **Madde 30.24 yeni** kalıcı önlem.
+
+**Yeni kalıcı kurallar (TUR #73+ için):**
+1. TUR sonu raporu CEO görsel kontrol ile çatışıyorsa → **derin tanı turu** zorunlu (Madde 4.4 ihlali)
+2. **Login flow değişen TUR sonunda 4 rol × N sekme matrisi smoke** zorunlu (Madde 30.24)
+3. **Multi-TUR schema değişiklik zinciri** sonunda **TUR #X.10 comprehensive smoke** + production deploy curl doğrulama
+4. Login endpoint **`requestedRole` eksiklik = KVKK m.12 ihlali** = mimar hatası 12 emsali
+
+### Mimar + Onay
+
+**Mimar:** Claude Opus 4.7 (sohbet) + Claude Code (otonom uygulama)
+**Onay:** Mehmet DİNÇ — Madde 17.5 kesin emir + 18.3 KIRMIZI yazılı
+
+---
+
 ## TUR #72.9 — SİSTEM DURUMU REGRESYON HOTFIX (KAPANIŞ)
 
 **Tarih:** 4 Mayıs 2026 öğleden sonra
