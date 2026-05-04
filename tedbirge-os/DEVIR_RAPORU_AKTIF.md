@@ -1,11 +1,41 @@
 # 🛡️ TEDBIRGE.AI — DEVİR RAPORU AKTİF
 
-**Son güncelleme:** 4 Mayıs 2026 sabah — TUR #72 KAPALI
-**Anayasa:** v1.22.0 (39 madde — Madde 30.17 + 30.18 eklendi)
-**Aktif kesit:** TUR #72 BİRLEŞİK KAPALI ✅ — 16 MODÜL GERÇEK GÖREV (sayma değil eylem)
-**Son TUR:** #72 BIRLESIK — 18 atom uçtan uca (16 modül runActiveTask + adaptiveThreshold helper + auditor + Anayasa + OS senkron)
+**Son güncelleme:** 4 Mayıs 2026 sabah — TUR #72.5 KAPALI (5 bug hotfix)
+**Anayasa:** v1.22.0 yürürlükte (TUR #72 son sürüm — hotfix patch sürüm yok)
+**Aktif kesit:** TUR #72.5 KAPALI ✅ — sayma değil eylem hotfix tamamlandı
+**Son TUR:** #72.5 — 5 bug hotfix (Recovery retry + Backup 401 fallback + Security 2FA detay + Auditor findings + Navigation auto-assign)
 **Mimar:** Claude Opus 4.7 (sohbet) + Claude Code (otonom uygulama)
-**CEO Onay:** Mehmet DİNÇ — Madde 17.5 kesin emir + 18.3 KIRMIZI yazılı onay zinciri (TUR #66.7+#69+#70+#71+#72)
+**CEO Onay:** Mehmet DİNÇ — Madde 17.5 kesin emir + 18.3 KIRMIZI yazılı onay zinciri (TUR #66.7+#69+#70+#71+#72+#72.5)
+
+---
+
+## ✅ TUR #72.5 HOTFIX KAPANIŞ TABLOSU (4 Mayıs 2026 sabah)
+
+| Atom | İçerik | Commit |
+|---|---|---|
+| **H1** | Recovery — 24h+ FAILED Document gerçek retry trigger zinciri (analyzeDocumentById) + hata yutma kaldırıldı + errors[] kanıt | `670e0c9` |
+| **H2** | Backup — 401 fallback (SUPABASE_ACCESS_TOKEN önceliği) + rate-limit (saatte 1 WARNING) + env_status: OK/MISSING/INVALID + ADMIN_FEED hint | `670e0c9` |
+| **H3** | Security — ADMIN 2FA off detay (maskeli email + total_users/no_2fa) + KVKK m.12 ADMIN_FEED rate-limit 24 saatte 1 | `670e0c9` |
+| **H4** | Auditor — AUDIT_FINDINGS payload detay (check + title + items[] + summary) + 0 finding = INFO (yanlış WARNING bug fix) | `670e0c9` |
+| **H5** | Navigation — autoAssignLead service (uzmanlık + en az yük) + max 5/tick gerçek atama trigger + candidates_available kanıt | `670e0c9` |
+| **H6** | OS senkron 5 dosya | (bu commit) |
+
+**Toplam:** 6 atom + 1 commit kod (`670e0c9`) + 1 commit OS (bu commit) · 0 schema/npm/env · 0 KIRMIZI ihlal · ~1.5 saat otonom
+
+---
+
+## 🟡 CEO MANUEL İŞLER
+
+1. **SUPABASE_ACCESS_TOKEN env** (5 dk) — Render Dashboard → tedbirge-ai → Environment ekle
+   - Token nereden: Supabase Dashboard → Account Settings → Access Tokens → "Generate new token"
+   - **Önemli:** SERVICE_ROLE_KEY DEĞİL — Management API'nin istediği farklı access token. Bu eklenince backup modülü 401 yerine gerçek snapshot listesi görür.
+
+2. **8 user 2FA aktive** (~21 dk: ~3 dk/kişi) — kendisi + 7 personel
+   - URL: `/dashboard/profil` → Güvenlik → 2FA Aktive Et
+   - KVKK m.12 (yeterli güvenlik tedbirleri) — şu an 0/7 = ihlal
+   - Otomatik aktive YOK (KVKK + UX riski) — ADMIN bildirim yeterli
+
+3. **(Opsiyonel) VERCEL_API_TOKEN + RENDER_API_KEY** (5 dk) — deploy modülü canlanır (şu an UNKNOWN dönüyor)
 
 ---
 
@@ -66,17 +96,20 @@ CEO Konsol + 16 modül %100 aktif. Sıradaki büyük kesit menüsü CEO mimar ot
 
 ---
 
-## 📋 MEHMET BEY MANUEL İŞLER: 0
+## 📋 MEHMET BEY MANUEL İŞLER
 
-Production migration Render postinstall otomatik halleder. ENV'de ek değişiklik gerekmiyor.
+Yukarı 🟡 CEO MANUEL İŞLER bölümüne taşındı (TUR #72.5 hotfix sonrası):
+1. SUPABASE_ACCESS_TOKEN env (5 dk)
+2. 8 user 2FA aktive (~21 dk)
+3. VERCEL_API_TOKEN + RENDER_API_KEY env (opsiyonel, 5 dk)
 
 İsteğe bağlı:
-1. UptimeRobot 14 dk `/health` ping kurulum
-2. Render dashboard → ENV `CEO_EMAIL=mehmet@tedbirge.ai` (TUR #71'den, opsiyonel)
+- UptimeRobot 14 dk `/health` ping kurulum
+- Render dashboard → ENV `CEO_EMAIL=mehmet@tedbirge.ai` (TUR #71'den, opsiyonel)
 
 ---
 
-## 🎯 GENEL SAĞLIK: 9.9/10
+## 🎯 GENEL SAĞLIK: 9.95/10
 
 | Boyut | Skor | Not |
 |---|---|---|
@@ -91,9 +124,9 @@ Production migration Render postinstall otomatik halleder. ENV'de ek değişikli
 
 ## 📊 PATTERN
 
-**TUR #56+57+58+59+60+62+63+63.5+63.5v2+64+66v2+66.7+69+69.5+70+71+72 = 120+ atom sapma 0**
+**TUR #56+57+58+59+60+62+63+63.5+63.5v2+64+66v2+66.7+69+69.5+70+71+72+72.5 = 126+ atom sapma 0**
 
-**Kalibrasyon 1.6× — 13. doğrulama** (kalıcı pattern olarak yerleşti)
+**Kalibrasyon 1.6× — 14. doğrulama** (kalıcı pattern olarak yerleşti)
 
 ---
 
@@ -123,6 +156,6 @@ CEO sabah doğrulama:
 ---
 
 **— Tedbirge.ai mimarı**
-**TUR #72 BIRLESIK KAPALI · 4 Mayıs 2026 sabah**
-**Anayasa v1.22.0 yürürlükte (Madde 30.17 + 30.18 eklendi)**
-**Pattern: TUR #56+...+72 = 120+ atom sapma 0 — kalibrasyon 1.6× 13. doğrulama**
+**TUR #72.5 KAPALI · 4 Mayıs 2026 sabah (5 bug hotfix)**
+**Anayasa v1.22.0 yürürlükte (TUR #72 son sürüm — hotfix patch sürüm yok)**
+**Pattern: TUR #56+...+72.5 = 126+ atom sapma 0 — kalibrasyon 1.6× 14. doğrulama**

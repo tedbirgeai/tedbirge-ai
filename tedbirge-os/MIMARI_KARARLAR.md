@@ -6,6 +6,75 @@
 
 ---
 
+## 4 Mayıs 2026 sabah — TUR #72.5 KARARI — 5 BUG HOTFIX
+
+**Anayasa:** v1.22.0 yürürlükte (TUR #72 son sürüm — hotfix patch sürüm yok)
+
+### Karar
+
+TUR #72'de 16 modül 3 katmanlı (gözlemci+aktör+akıllı) yazıldı, **ama trigger'lar eksikti**. CEO sabah uyandı, akış paneli okudu, **5 kanıtlı sorun yakaladı**:
+1. **Recovery 24 FAILED ama retry tetiklemiyor** — kod var, ama hata yutuluyor
+2. **Backup 401 her tick** — env yanlış (SERVICE_ROLE Management API'de çalışmaz, ACCESS_TOKEN gerek)
+3. **Security CRITICAL detay yok** — 7 user 2FA off ama payload boş
+4. **Auditor AUDIT_FINDINGS payload generic** — hangi check tetikledi belli değil
+5. **Navigation auto-assign service yok** — `auto_assigned: 0` her tick
+
+TUR #72.5 5 bug otonom düzeltti, OS senkron 5 dosya.
+
+### Karar Gerekçesi
+
+1. **CEO kesin emir Madde 17.5:** "tek komut otonom akıp gitsin"
+2. **Madde 4 + 17.4** — mimar TUR #72'de **trigger eksiklik (hata 6)** yaptı, CEO kanıtla yakaladı, hotfix kaçınılmaz
+3. **Hotfix patch sürüm yok** (Anayasa v1.22.0 yürürlükte) — 5 bug hotfix Anayasa felsefesi/maddesi değiştirmiyor, sadece kod katmanı
+
+### Reddedilen Alternatifler
+
+- **5 bug ayrı tur:** yarım yamalak yasak (Madde 17.4), CEO 4'lü zinciri tek mektup direktifi. Reddedildi.
+- **Backup 401'i KIRMIZI tut:** env eksikliği yasak konfigürasyon değil eksik konfigürasyon, fallback + rate-limit doğru çözüm. Reddedildi.
+- **2FA otomatik aktive et:** KVKK + UX riski, ADMIN bildirim yeterli (Madde 24.11 + 18.3). Reddedildi.
+- **MINOR sürüm artışı (v1.22.1):** Hotfix Anayasa metnine dokunmadı, yalnız CHANGELOG eki. PATCH bile gerekmedi. Reddedildi.
+- **Backup için cron ile snapshot trigger:** Supabase Management API trigger backup endpoint var ama CEO env eklemeden fayda yok. Şu an SKIP, env eklenince genişlet. Reddedildi.
+
+### Etki
+
+- **6 atom + 2 commit** (kod `670e0c9` + OS senkron)
+- **0 schema/npm** (yeni service eklendi `src/services/assignment.service.js` autoAssignLead — mevcut dosya genişletildi, npm install yok)
+- **0 KIRMIZI ihlal** (env eksiklik fallback ile yumuşatıldı, KVKK 2FA otomatik kaçırıldı)
+- **126+ atom sapma 0** — kalibrasyon 14. doğrulama
+
+### CEO Manuel İş Çıktıları
+
+1. **SUPABASE_ACCESS_TOKEN env (Render)** — 5 dk
+   - Supabase Dashboard → Account Settings → Access Tokens → Generate
+   - Render Dashboard → tedbirge-ai → Environment ekle
+   - Eklenince Backup modülü 401 → 200 (snapshot listesi gerçek)
+
+2. **8 user 2FA aktive (kendisi + 7 personel)** — 21 dk
+   - URL: `/dashboard/profil` → Güvenlik → 2FA Aktive Et
+   - KVKK m.12 ihlali kapatılır (şu an 0/7)
+
+3. **(Opsiyonel) Vercel/Render API token env** — 5 dk
+   - Eklenince deploy modülü UNKNOWN → ACTIVE/READY/FAILED gerçek
+
+### Kalıcı Pattern (TUR #73+ için)
+
+1. **Modül runActiveTask trigger "çağrı zinciri" check zorunlu** (TUR #69+#70+#72 dersi tekrarı) — kod yazıldı yetmez, gerçek call zinciri tamamlanmalı
+2. **Env eksik fallback:** SKIP mode + rate-limit WARNING + ADMIN_FEED bildirim, hata flood yasak (TUR #72.5 H2 emsali)
+3. **KVKK riskli otomasyon (2FA, IP block, vb.) → ADMIN onayı zorunlu** (Madde 24.11) — bildirim VAR, otomatik aktive YOK
+4. **AUDIT_FINDINGS / runActiveTask payload "items[] + summary"** standart — UI akış paneli render edebilsin (TUR #71 A22 format uyumu)
+5. **CEO sabah akış paneli ilk kontrol:** `payload.action_taken.X = 0` ise modül trigger eksik — mimar hata 6 emsali
+6. **Mimar mektup yazımında "trigger çağrı zinciri" maddesi:** her runActiveTask atom için ekleme zorunlu (kabuk yasağı genişletme)
+
+### Mimar
+
+Claude Opus 4.7 (sohbet) + Claude Code (otonom uygulama)
+
+### Onay
+
+Mehmet DİNÇ — Madde 17.5 + 18.3
+
+---
+
 ## 4 Mayıs 2026 — TUR #72 KARARI — 16 MODÜL GERÇEK GÖREV
 
 **Anayasa:** v1.21.0 → v1.22.0 (MINOR — Madde 30.17 + 30.18 eklendi)

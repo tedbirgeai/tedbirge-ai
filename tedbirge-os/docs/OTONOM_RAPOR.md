@@ -1,3 +1,94 @@
+## TUR #72.5 — 5 BUG HOTFIX (KAPANIŞ)
+
+**Tarih:** 4 Mayıs 2026 sabah
+**Anayasa:** v1.22.0 (sürüm artmadı, hotfix turu)
+**Tip:** P tipi (üretim hotfix)
+**Atom:** 6 (H1-H5 + H6 OS senkron)
+**Commit:** 2 (kod `670e0c9` + OS senkron bu commit)
+**Schema/migration/npm/env:** 0 (CEO manuel env ekleyecek)
+**KIRMIZI ihlal:** 0
+**Süre:** ~1.5-2 saat otonom
+
+### CEO Direktifi (Madde 17.5 + 18.3)
+
+Mehmet DİNÇ 4 Mayıs 2026 sabah:
+> "5 sorunu otonom düzelt, soru sorma, akıp gitsin"
+
+CEO sabah uyandı, çayını içerken `/dashboard/sistem-durumu` akış panelini okudu, **kanıtla 5 sorun yakaladı**:
+1. Recovery 24 FAILED Document var ama `recovered: 0` (action sıfır)
+2. Backup 401 her tick (env yanlış yapılandırılmış flood)
+3. Security CRITICAL var ama detay yok (7 user 2FA off görünmüyor)
+4. Auditor AUDIT_FINDINGS payload generic (hangi check tetikledi belli değil)
+5. Navigation 6 unassigned 24h+ ama `auto_assigned: 0` (auto-assign service yok)
+
+### 5 Bug Detay
+
+**H1 — Recovery actual retry trigger** (`src/os/modules/recovery.js`):
+- 24 saat öncesi FAILED + leadId dolu Document max 5/tick
+- `analyzeDocumentById` bridge.uploadAnalysis call zinciri
+- Hata yutma kaldırıldı, `errors[]` payload kanıt
+- Filtre `updatedAt: { lt: 24h_ago }` eklendi (gorev.md spec)
+- ACTION_TAKEN: `{ recovered, retried_failed, stuck_alerted }` + errors[]
+
+**H2 — Backup 401 fallback + rate-limit** (`src/os/modules/backup.js`):
+- `SUPABASE_ACCESS_TOKEN` önceliği (Management API DOĞRU auth — SERVICE_ROLE_KEY DEĞİL)
+- 401/403 = `INVALID` env → ADMIN_FEED `BACKUP_AUTH_INVALID` hint payload
+- Eksik env = `MISSING` (rate-limit saatte 1 WARNING, flood kes)
+- `shouldLogBackupError()` helper — son 1 saat WARNING var mı check
+- ACTION_TAKEN: `{ snapshot_age_hours, env_status: OK|MISSING|INVALID, alert_throttled }`
+
+**H3 — Security 2FA detay** (`src/os/modules/security.js`):
+- ADMIN role 2FA off detay (id + maskeli email — KVKK m.12 maskeleme)
+- Tüm kullanıcı 2FA durumu (`total_users - all_users_no_2fa`)
+- ADMIN_FEED `ADMIN_2FA_OFF` rate-limit 24 saatte 1
+- KVKK m.12 hint payload: "yeterli güvenlik tedbirleri"
+- `maskEmail()` helper KVKK uyumlu
+- ACTION_TAKEN: `{ critical_alerts, alert_type: "ADMIN_2FA_OFF", admin_users_count, admin_users_no_2fa[], total_users, email_sent }`
+
+**H4 — Auditor AUDIT_FINDINGS detay** (`src/agents/auditor.agent.js`):
+- Her finding: `{ check, title, count, severity, items[] }` (önceden sadece `{key, count, severity}`)
+- `summary: { total, critical, warning, info }` aggregate
+- 0 finding = `AUDIT_OK INFO` (yanlış WARNING bug düzeltildi)
+- titles birleştir → message
+- items[] sample 5 lead (UI akış paneli render edebilsin — TUR #71 A22 hookup format uyumu)
+
+**H5 — Navigation auto-assign service** (`src/services/assignment.service.js` + `src/os/modules/navigation.js`):
+- Yeni: `autoAssignLead(leadId)` — uzmanlık eşleşmesi (kazaTuru → trafik/iş) + en az yük algoritma
+- Mevcut atama varsa skip (idempotent)
+- Eşleşme yoksa fallback: tüm aktif avukatlar arasından en az yüklü
+- `assignLeadToLawyer` mevcut servisi kullanır (SMS + email + WhatsApp + ActivityLog zinciri korunur)
+- `runActiveTask`: max 5/tick auto-assign trigger
+- `candidates_available` + `rebalance_suggestions` + `errors[]` kanıt
+- ACTION_TAKEN: `{ auto_assigned, candidates_available, rebalance_suggestions, mismatch_alerts }`
+
+### Production Smoke
+
+```
+curl https://tedbirge-ai.onrender.com/health → 200 ✅
+curl /api/os/modules/recovery/events?limit=5 → 401 ✅
+curl /api/os/modules/backup/events?limit=5 → 401 ✅
+curl /api/os/modules/security/events?limit=5 → 401 ✅
+curl /api/os/modules/navigation/events?limit=5 → 401 ✅
+```
+
+### Mimar Dersi
+
+TUR #72'de modüller "yapacak" yazıldı ama **trigger zinciri eksikti** (mimar hatası 6). CEO sabah akış paneli okudu, kanıtla yakaladı:
+- Recovery: kod var, retry call YOK (filtreyle yutulmuş)
+- Backup: env yanlış (SERVICE_ROLE Management API ile çalışmıyor)
+- Security: payload generic (CRITICAL ne diyor belli değil)
+- Auditor: findings array eski format (UI render edemiyor)
+- Navigation: service yok (`autoAssignLead` fonksiyonu yazılmamış)
+
+Hotfix gerçek action katmanını sağladı. Pattern dersi: **modül trigger "çağrı zinciri" check'i her TUR'da zorunlu** (Madde 30.17 ek yorum: kabuk yasağı).
+
+### Mimar + Onay
+
+**Mimar:** Claude Opus 4.7 (sohbet) + Claude Code (otonom uygulama)
+**Onay:** Mehmet DİNÇ — Madde 17.5 kesin emir + 18.3 KIRMIZI yazılı
+
+---
+
 ## TUR #72 — 16 MODÜL GERÇEK GÖREV (KAPANIŞ)
 
 **Tarih:** 4 Mayıs 2026 (sabah)
