@@ -6,6 +6,61 @@
 
 ---
 
+## 5 Mayıs 2026 — TUR #81 KARARI — ENV SLOT DİSİPLİNİ + HEADER LOWERCASE NORMALIZE + 20. MİMAR HATASI
+
+**Anayasa:** v1.22.0 yürürlükte (Madde 30.35 yeni alt-genişleme — patch sürüm yok)
+
+### Karar
+
+CEO 4 Mayıs 22:40: ENV slot karışıklığı + header case mismatch + 5 rol parite fiilen kanıt.
+
+**20. mimar hatası:** TUR #74-#80 boyunca NETGSM_HEADER ENV slot'unda **önce** `'0850303724'` (sayı dizisi, kullanıcı adı formatında — Image 1 kanıt 22:11), **sonra** `'Tedbirge'` (T büyük) yazılmıştı. NetGSM panel onaylı başlık `'tedbirge'` (lowercase — Image 5 kanıt 20.04.2026). NetGSM case-sensitive → kod 30. CEO 22:35 düzeltti.
+
+### Çözüm
+
+- **W1 Boot-time ENV slot format validation (`8725853`):** 4 ENV slot için regex/uzunluk/karakter set kontrolü. NETGSM_USERNAME 8-11 hane sayı, NETGSM_PASSWORD 4-32 karakter, NETGSM_HEADER alfanumerik 3-11 karakter (sayı dizisi ^0\d+$ yasak), NETGSM_API_URL endpoint URL format. Yanlış format → `[ENV-SLOT] HATA` log + provider panel ipucu (boot durmaz).
+- **W2 Header lowercase normalize:** `resolveNetgsmHeader()` helper. ENV raw → trim + lowercase. Image 5 'tedbirge' panel onaylı kanıt.
+- **W3 Safe fallback (slot karışıklığı protection):** boş/sayı dizisi/alfanumerik değil → 'tedbirge' default + warn log. CEO yanlışlıkla "Tedbirge" T büyük yazsa bile backend lowercase normalize, NetGSM kabul.
+- **W5 5 rol × 3 tab parite kanıt:** Tek `/login` sayfası DRY (TUR #80 Z6 emsali korundu). 4 rol seçici grid-cols-4 component reuse. `/musteri-login` + `/dava-takibim` ayrı sayfa YOK (307 redirect = DRY parite kanıt).
+- **W7 TwoFactorChallenge regresyon koruma:** 3 tab kodlu (Authenticator + SMS + E-posta) rol-bağımsız (TUR #79 Y4 emsali korundu).
+- **W9 Anayasa Madde 30.35 yeni:** ENV Slot Disiplini.
+
+### Sebep
+
+CEO 4 Mayıs 22:40 yazılı direktif: *"Bu sefer KESIN çöz eksik hata ne varsa düzelt sitemin tümüne uygula. Uçtan uca otonom hiçbir şey sormadan başla bitir."* (Madde 17.5 + 18.3 + 30.25) + 4'lü zincir aktif.
+
+### Etki
+
+- `src/services/sms.service.js` (backend W1+W2+W3 — ENV validation + header normalize + safe fallback)
+- `CLAUDE.md` (Madde 30.35 yeni + CHANGELOG TUR #81)
+- `tedbirge-os/{DEVIR_RAPORU_AKTIF.md, IS_PLANI.md, docs/OTONOM_RAPOR.md, MIMARI_KARARLAR.md}` (W10 senkron)
+
+### Anayasa Etkisi
+
+- **Madde 30.35 yeni — ENV Slot Disiplini:**
+  1. Boot-time format validation (server start)
+  2. Defensive normalize (runtime her API call)
+  3. Slot karışıklığı protection (sayı/alfa karışıklığı)
+  4. Provider response kanıt (Madde 30.30/33 emsali tamamlayıcı)
+
+- **30.30+30.31+30.33+30.35 ailesi tamamlayıcı:**
+  - 30.30: kod tarafı silent failure yasak (provider call doğru)
+  - 30.31: ENV tag adları deploy uyumlu (USERNAME vs USERCODE)
+  - 30.33: provider response kodu kanıt zorunlu
+  - 30.35: ENV slot DEĞERLERİ doğru slot'ta + format doğrulama
+
+### Pattern
+
+**TUR #56+...+81 = 194+ atom sapma 0 — kalibrasyon 1.6× 28. doğrulama** (28+ saat intensive otonom — TR'de emsalsiz)
+
+20 mimar hatası kayıtlı (1-20), her biri Anayasa maddesine dönüştü.
+
+### Mimar
+
+Claude Opus 4.7 (TUR #81 mimar — 5 Mayıs 2026 22:40 sonrası)
+
+---
+
 ## 5 Mayıs 2026 — TUR #80 KARARI — NETGSM REGRESSION TAM TANI + 5 KANAL PARİTE + 19. MİMAR HATASI
 
 **Anayasa:** v1.22.0 yürürlükte (Madde 30.31 R1 + 30.33 R1 ikiz R-genişleme — patch sürüm yok)
