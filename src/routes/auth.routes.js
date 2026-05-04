@@ -28,6 +28,13 @@ router.post("/verify-2fa",      auth, controller.verify2fa);
 router.post("/disable-2fa",     auth, controller.disable2fa);
 router.post("/login-2fa",       controller.loginVerify2fa);
 router.post("/login-backup-code", controller.verifyBackupCode); // TUR #72.6
+// TUR #74 — SMS + Email 2FA (NetGSM + Nodemailer mevcut)
+router.post("/setup-2fa-sms",     auth, controller.setup2faSms);
+router.post("/verify-2fa-sms",    auth, controller.verify2faSms);
+router.post("/setup-2fa-email",   auth, controller.setup2faEmail);
+router.post("/verify-2fa-email",  auth, controller.verify2faEmail);
+router.post("/login-send-otp",    controller.loginSendOtp);
+router.post("/login-verify-otp",  controller.loginVerify2faOtp);
 
 // Admin Onay Yonetimi
 router.get ("/pending-approvals",      auth, role("ADMIN"), controller.listPendingApprovals);

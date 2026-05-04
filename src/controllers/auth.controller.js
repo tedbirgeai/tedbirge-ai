@@ -520,6 +520,142 @@ exports.setup2fa = asyncHandler(async (req, res) => {
   res.json({ success: true, data: { secret: secret.base32, qrCode: qrDataUrl, otpauthUrl: secret.otpauth_url } });
 });
 
+// TUR #74 W4+W5 — SMS + Email 2FA endpoints (NetGSM + Nodemailer mevcut)
+const twoFactorOtp = require("../services/twoFactorOtp.service");
+
+exports.setup2faSms = asyncHandler(async (req, res) => {
+  const userId = req.user?.id;
+  if (!userId) return res.status(401).json({ success: false, message: "Kimlik doğrulama gerekli." });
+  try {
+    const r = await twoFactorOtp.sendSmsOtp(userId);
+    res.json({ success: true, message: "SMS gönderildi.", data: { phoneMask: r.phoneMask, expiresAt: r.expiresAt, mock: r.mock } });
+  } catch (err) {
+    res.status(400).json({ success: false, message: err.message });
+  }
+});
+
+exports.verify2faSms = asyncHandler(async (req, res) => {
+  const userId = req.user?.id;
+  const { code } = req.body;
+  if (!userId) return res.status(401).json({ success: false, message: "Kimlik doğrulama gerekli." });
+  if (!code) return res.status(400).json({ success: false, message: "Kod zorunlu." });
+  try {
+    await twoFactorOtp.verifySmsOtp(userId, code);
+    const bcrypt = require("bcryptjs");
+    const plainCodes = generateBackupCodes(10);
+    const hashedCodes = await Promise.all(plainCodes.map((c) => bcrypt.hash(c, 10)));
+    await prisma.user.update({
+      where: { id: userId },
+      data: { twoFactorEnabled: true, twoFactorEnabledAt: new Date(), twoFactorMethod: "SMS", twoFactorBackupCodes: hashedCodes },
+    });
+    res.json({ success: true, message: "SMS 2FA etkinleştirildi.", data: { backupCodes: plainCodes } });
+  } catch (err) {
+    res.status(400).json({ success: false, message: err.message });
+  }
+});
+
+exports.setup2faEmail = asyncHandler(async (req, res) => {
+  const userId = req.user?.id;
+  if (!userId) return res.status(401).json({ success: false, message: "Kimlik doğrulama gerekli." });
+  try {
+    const r = await twoFactorOtp.sendEmailOtp(userId);
+    res.json({ success: true, message: "Doğrulama e-postası gönderildi.", data: { emailMask: r.emailMask, expiresAt: r.expiresAt } });
+  } catch (err) {
+    res.status(400).json({ success: false, message: err.message });
+  }
+});
+
+exports.verify2faEmail = asyncHandler(async (req, res) => {
+  const userId = req.user?.id;
+  const { code } = req.body;
+  if (!userId) return res.status(401).json({ success: false, message: "Kimlik doğrulama gerekli." });
+  if (!code) return res.status(400).json({ success: false, message: "Kod zorunlu." });
+  try {
+    await twoFactorOtp.verifyEmailOtp(userId, code);
+    const bcrypt = require("bcryptjs");
+    const plainCodes = generateBackupCodes(10);
+    const hashedCodes = await Promise.all(plainCodes.map((c) => bcrypt.hash(c, 10)));
+    await prisma.user.update({
+      where: { id: userId },
+      data: { twoFactorEnabled: true, twoFactorEnabledAt: new Date(), twoFactorMethod: "EMAIL", twoFactorBackupCodes: hashedCodes },
+    });
+    res.json({ success: true, message: "E-posta 2FA etkinleştirildi.", data: { backupCodes: plainCodes } });
+  } catch (err) {
+    res.status(400).json({ success: false, message: err.message });
+  }
+});
+
+// TUR #74 — Login akisi: SMS/Email yontemli kullanici icin login sirasi OTP gonder
+exports.loginSendOtp = asyncHandler(async (req, res) => {
+  const { tempToken } = req.body;
+  if (!tempToken) return res.status(400).json({ success: false, message: "tempToken gerekli." });
+  const jwt = require("jsonwebtoken");
+  let payload;
+  try {
+    payload = jwt.verify(tempToken, process.env.JWT_SECRET);
+  } catch {
+    return res.status(401).json({ success: false, message: "Geçersiz veya süresi dolmuş temp token." });
+  }
+  if (payload.type !== "2fa_pending") return res.status(400).json({ success: false, message: "Geçersiz token tipi." });
+  const user = await prisma.user.findUnique({
+    where: { id: payload.id },
+    select: { id: true, twoFactorMethod: true, phone: true, email: true },
+  });
+  if (!user) return res.status(404).json({ success: false, message: "Kullanıcı bulunamadı." });
+  try {
+    if (user.twoFactorMethod === "SMS") {
+      const r = await twoFactorOtp.sendSmsOtp(user.id);
+      return res.json({ success: true, method: "SMS", phoneMask: r.phoneMask, expiresAt: r.expiresAt, mock: r.mock });
+    }
+    if (user.twoFactorMethod === "EMAIL") {
+      const r = await twoFactorOtp.sendEmailOtp(user.id);
+      return res.json({ success: true, method: "EMAIL", emailMask: r.emailMask, expiresAt: r.expiresAt });
+    }
+    return res.status(400).json({ success: false, message: "Bu yöntem login OTP gerektirmez (TOTP authenticator kullanır)." });
+  } catch (err) {
+    res.status(400).json({ success: false, message: err.message });
+  }
+});
+
+// TUR #74 — Login verify: SMS/Email kodlu giriş tamamla (TOTP icin login-2fa endpointi mevcut)
+exports.loginVerify2faOtp = asyncHandler(async (req, res) => {
+  const { tempToken, otpToken, method } = req.body;
+  if (!tempToken || !otpToken || !method) {
+    return res.status(400).json({ success: false, message: "tempToken, otpToken, method zorunludur." });
+  }
+  const jwt = require("jsonwebtoken");
+  let payload;
+  try {
+    payload = jwt.verify(tempToken, process.env.JWT_SECRET);
+  } catch {
+    return res.status(401).json({ success: false, message: "Geçersiz veya süresi dolmuş temp token." });
+  }
+  if (payload.type !== "2fa_pending") return res.status(400).json({ success: false, message: "Geçersiz token tipi." });
+
+  const user = await prisma.user.findUnique({
+    where: { id: payload.id },
+    select: { id: true, email: true, role: true, fullName: true, twoFactorMethod: true },
+  });
+  if (!user) return res.status(404).json({ success: false, message: "Kullanıcı bulunamadı." });
+
+  try {
+    if (method === "SMS") await twoFactorOtp.verifySmsOtp(user.id, otpToken);
+    else if (method === "EMAIL") await twoFactorOtp.verifyEmailOtp(user.id, otpToken);
+    else return res.status(400).json({ success: false, message: "Geçersiz yöntem." });
+  } catch (err) {
+    return res.status(400).json({ success: false, message: err.message });
+  }
+
+  const finalToken = jwt.sign({ userId: user.id, role: user.role }, process.env.JWT_SECRET, { expiresIn: "24h" });
+  res.json({
+    success: true,
+    data: {
+      token: finalToken,
+      user: { id: user.id, email: user.email, role: user.role, fullName: user.fullName },
+    },
+  });
+});
+
 // TUR #72.6 — Backup codes generate (10 × 8-haneli, bcrypt hash)
 function generateBackupCodes(count = 10) {
   const codes = [];
