@@ -512,11 +512,29 @@ async function runStatusCheck() {
       const latestTime = sortedTimes[0] || null;
       const ageHours = latestTime ? (Date.now() - latestTime) / (60 * 60 * 1000) : null;
 
-      if (ageHours === null) {
-        severity = "CRITICAL";
+      // TUR #75 V9 — snapshot 0 ise WARNING (CRITICAL degil): API basarili ama backup henuz yok
+      // (Supabase free plan = backup yok; Pro plan = ilk backup beklemede; Render PG manuel)
+      if (snapshots.length === 0) {
+        const shouldLog = await shouldLogBackupError();
+        severity = shouldLog ? "WARNING" : "INFO";
         payload = {
+          mode: "NO_BACKUP",
+          snapshotCount: 0,
+          alert_throttled: !shouldLog,
+          message: "Yedekleme · Supabase Management API'da snapshot yok (Pro plan veya manuel pg_dump gerek)",
+          hint: "Supabase Dashboard → Project Settings → Backups · veya Render PG manual scheduled backup",
+          durationMs: Date.now() - startTs,
+        };
+      } else if (ageHours === null) {
+        // Snapshot var ama tarih parse hatasi (alan ismi farkli olabilir)
+        const shouldLog = await shouldLogBackupError();
+        severity = shouldLog ? "WARNING" : "INFO";
+        payload = {
+          mode: "DATE_PARSE_ERROR",
           snapshotCount: snapshots.length,
-          message: "Yedekleme · Snapshot yok veya tarih okunamadı",
+          alert_throttled: !shouldLog,
+          message: `Yedekleme · ${snapshots.length} snapshot var ama tarih parse edilemedi (alan ismi degismis olabilir)`,
+          hint: "Manuel kontrol: Supabase Dashboard → Backups",
           durationMs: Date.now() - startTs,
         };
       } else if (ageHours > 26) {
