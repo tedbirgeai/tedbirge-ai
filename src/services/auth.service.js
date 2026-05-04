@@ -61,12 +61,54 @@ async function register(data) {
   return { user, token };
 }
 
-async function login(email, password) {
+// TUR #72.10 X3 — Rol Türkçe ad helper (frontend hata mesajları için)
+function getRoleDisplayName(role) {
+  return {
+    ADMIN: "Yönetici",
+    LAWYER: "Hukukçu",
+    REPRESENTATIVE: "Temsilci",
+    CUSTOMER: "Müvekkil",
+    SALES: "Satış",
+  }[role] ?? role;
+}
+
+// TUR #72.10 X3 — Sekme rol → User.role beklenen mapping
+function expectedRoleForTab(requestedRole) {
+  if (!requestedRole) return null;
+  const map = {
+    yonetici: ["ADMIN", "SALES"],
+    hukukcu: ["LAWYER"],
+    temsilci: ["REPRESENTATIVE"],
+    musteri: ["CUSTOMER"],
+    ADMIN: ["ADMIN"],
+    LAWYER: ["LAWYER"],
+    REPRESENTATIVE: ["REPRESENTATIVE"],
+    CUSTOMER: ["CUSTOMER"],
+    SALES: ["SALES"],
+  };
+  return map[requestedRole] || map[requestedRole.toLowerCase()] || null;
+}
+
+async function login(email, password, requestedRole) {
   const user = await prisma.user.findUnique({ where: { email }, omit: { passwordHash: false } });
   if (!user) throw new ApiError(401, "Gecersiz kullanici bilgileri");
 
   const valid = await bcrypt.compare(password, user.passwordHash);
   if (!valid) throw new ApiError(401, "Gecersiz kullanici bilgileri");
+
+  // TUR #72.10 X3 — Rol mismatch kontrolü (KVKK m.12 + güvenlik)
+  if (requestedRole) {
+    const allowedRoles = expectedRoleForTab(requestedRole);
+    if (allowedRoles && !allowedRoles.includes(user.role)) {
+      const userRoleTr = getRoleDisplayName(user.role);
+      const err = new ApiError(
+        403,
+        `Yetkisiz işlem: bu hesap '${userRoleTr}' rolüne ait. Lütfen '${userRoleTr}' sekmesinden giriş yapın.`,
+      );
+      err.correctRole = user.role;
+      throw err;
+    }
+  }
 
   // Onay durumu kontrolleri
   if (user.role === "LAWYER") {

@@ -135,21 +135,30 @@ exports.setupCustomerPassword = asyncHandler(async (req, res) => {
 });
 
 exports.login = asyncHandler(async (req, res) => {
-  const { email, password } = req.body;
-  const result = await authService.login(email, password);
+  // TUR #72.10 X3 — requestedRole rol mismatch kontrolü için body'den okunur
+  const { email, password, requestedRole } = req.body;
+  try {
+    const result = await authService.login(email, password, requestedRole);
 
-  // 2FA etkinse: gerçek JWT yerine kısa ömürlü temp token döndür
-  if (result.user?.twoFactorEnabled) {
-    const jwt = require("jsonwebtoken");
-    const tempToken = jwt.sign(
-      { id: result.user.id, type: "2fa_pending" },
-      process.env.JWT_SECRET,
-      { expiresIn: "5m" }
-    );
-    return res.json({ success: true, data: { requires2fa: true, tempToken } });
+    // 2FA etkinse: gerçek JWT yerine kısa ömürlü temp token döndür
+    if (result.user?.twoFactorEnabled) {
+      const jwt = require("jsonwebtoken");
+      const tempToken = jwt.sign(
+        { id: result.user.id, type: "2fa_pending" },
+        process.env.JWT_SECRET,
+        { expiresIn: "5m" }
+      );
+      return res.json({ success: true, data: { requires2fa: true, tempToken } });
+    }
+
+    res.json({ success: true, data: result });
+  } catch (err) {
+    // TUR #72.10 X3 — correctRole hint'i frontend'e ilet
+    if (err.statusCode === 403 && err.correctRole) {
+      return res.status(403).json({ success: false, message: err.message, correctRole: err.correctRole });
+    }
+    throw err;
   }
-
-  res.json({ success: true, data: result });
 });
 
 exports.listUsers = asyncHandler(async (_req, res) => {
