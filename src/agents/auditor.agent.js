@@ -11,12 +11,25 @@ class AuditorAgent extends BaseAgent {
   async run() {
     const checks = [];
 
+    // TUR #72.5 H4 — her finding detay payload (UI akis paneli render edebilsin)
+
     // 1. Aciliyet KRITIK olan + 7 günden eski
     const eskiKritik = await prisma.lead.count({
       where: { aciliyet: "KRITIK", updatedAt: { lt: new Date(Date.now() - 7 * 86_400_000) } },
     });
     if (eskiKritik > 0) {
-      checks.push({ key: "ESKI_KRITIK_LEAD", count: eskiKritik, severity: "WARNING" });
+      const items = await prisma.lead.findMany({
+        where: { aciliyet: "KRITIK", updatedAt: { lt: new Date(Date.now() - 7 * 86_400_000) } },
+        select: { id: true, leadKodu: true, status: true, updatedAt: true },
+        take: 5,
+      });
+      checks.push({
+        check: "ESKI_KRITIK_LEAD",
+        title: "Eski KRITIK Lead",
+        count: eskiKritik,
+        severity: "WARNING",
+        items: items.map((l) => ({ id: l.id, leadKodu: l.leadKodu, status: l.status, updatedAt: l.updatedAt })),
+      });
     }
 
     // 2. AI guven skoru < 0.7 ve onay BEKLIYOR
@@ -24,7 +37,13 @@ class AuditorAgent extends BaseAgent {
       where: { aiAnalizOnay: "BEKLIYOR", muhatapGuvenSkoru: { lt: 0.7 } },
     });
     if (aiOnayBekleyen > 0) {
-      checks.push({ key: "AI_ONAY_BEKLEYEN", count: aiOnayBekleyen, severity: "INFO" });
+      checks.push({
+        check: "AI_ONAY_BEKLEYEN",
+        title: "AI Onay Bekleyen (guven < 0.7)",
+        count: aiOnayBekleyen,
+        severity: "INFO",
+        items: [],
+      });
     }
 
     // 3. KVKK PENDING + 25 günden eski (30 gün cevap zorunlu)
@@ -32,7 +51,13 @@ class AuditorAgent extends BaseAgent {
       where: { status: "PENDING", receivedAt: { lt: new Date(Date.now() - 25 * 86_400_000) } },
     });
     if (kvkkRiski > 0) {
-      checks.push({ key: "KVKK_30GUN_RISK", count: kvkkRiski, severity: "CRITICAL" });
+      checks.push({
+        check: "KVKK_30GUN_RISK",
+        title: "KVKK 30 gun risk (PENDING > 25g)",
+        count: kvkkRiski,
+        severity: "CRITICAL",
+        items: [],
+      });
     }
 
     // 4. CommissionLog BEKLIYOR + 14 günden eski
@@ -40,7 +65,13 @@ class AuditorAgent extends BaseAgent {
       where: { durum: "BEKLIYOR", createdAt: { lt: new Date(Date.now() - 14 * 86_400_000) } },
     });
     if (commBekleyen > 0) {
-      checks.push({ key: "COMMISSION_GECIKME", count: commBekleyen, severity: "WARNING" });
+      checks.push({
+        check: "COMMISSION_GECIKME",
+        title: "Komisyon BEKLIYOR > 14g",
+        count: commBekleyen,
+        severity: "WARNING",
+        items: [],
+      });
     }
 
     // 5. Atanmamis aktif lead
@@ -52,7 +83,22 @@ class AuditorAgent extends BaseAgent {
       },
     });
     if (atanmamis > 0) {
-      checks.push({ key: "ATANMAMIS_LEAD", count: atanmamis, severity: "WARNING" });
+      const items = await prisma.lead.findMany({
+        where: {
+          status: { in: ["NEW", "CONTACTED", "DOCS_PENDING", "ANALYZED"] },
+          assignments: { none: {} },
+          createdAt: { lt: new Date(Date.now() - 3 * 86_400_000) },
+        },
+        select: { id: true, leadKodu: true, status: true, createdAt: true },
+        take: 5,
+      });
+      checks.push({
+        check: "ATANMAMIS_LEAD",
+        title: "Atanmamis Aktif Lead (3g+)",
+        count: atanmamis,
+        severity: "WARNING",
+        items: items.map((l) => ({ id: l.id, leadKodu: l.leadKodu, status: l.status, createdAt: l.createdAt })),
+      });
     }
 
     // 6. Boş gercekTazminat ama WON status
@@ -60,15 +106,37 @@ class AuditorAgent extends BaseAgent {
       where: { status: "WON", gercekTazminat: null },
     });
     if (wonAmaTazminatYok > 0) {
-      checks.push({ key: "WON_TAZMINAT_YOK", count: wonAmaTazminatYok, severity: "WARNING" });
+      checks.push({
+        check: "WON_TAZMINAT_YOK",
+        title: "WON ama Tazminat Yok",
+        count: wonAmaTazminatYok,
+        severity: "WARNING",
+        items: [],
+      });
     }
 
+    // TUR #72.5 H4 — 0 finding ise WARNING degil INFO (yanlis uyari bug)
     if (checks.length === 0) {
-      await this.log("AUDIT_OK", "INFO", { message: "Tum kontroller temiz" });
+      await this.log("AUDIT_OK", "INFO", {
+        message: "Tum kontroller temiz",
+        findings: [],
+        summary: { total: 0, critical: 0, warning: 0, info: 0 },
+      });
     } else {
       const maxSev = checks.some(c => c.severity === "CRITICAL") ? "CRITICAL"
         : checks.some(c => c.severity === "WARNING") ? "WARNING" : "INFO";
-      await this.log("AUDIT_FINDINGS", maxSev, { findings: checks });
+      const summary = {
+        total: checks.length,
+        critical: checks.filter((c) => c.severity === "CRITICAL").length,
+        warning: checks.filter((c) => c.severity === "WARNING").length,
+        info: checks.filter((c) => c.severity === "INFO").length,
+      };
+      const titles = checks.map((c) => `${c.title} (${c.count})`).join(" · ");
+      await this.log("AUDIT_FINDINGS", maxSev, {
+        findings: checks,
+        summary,
+        message: `Auditor · ${summary.total} bulgu — ${titles}`,
+      });
 
       // ADMIN feed event
       try {
@@ -76,7 +144,7 @@ class AuditorAgent extends BaseAgent {
           data: {
             channel: "ADMIN_FEED",
             eventType: "AUDITOR_FINDINGS",
-            payload: { findings: checks, severity: maxSev },
+            payload: { findings: checks, summary, severity: maxSev },
           },
         });
       } catch (e) {}

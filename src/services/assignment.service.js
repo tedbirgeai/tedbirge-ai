@@ -76,4 +76,57 @@ async function assignLeadToLawyer({ leadId, lawyerId, note, caller = null }) {
   return assignment;
 }
 
-module.exports = { assignLeadToLawyer };
+// TUR #72.5 H5 — Otomatik atama: kazaTuru -> uzmanlik eslesmesi + en az yuk
+async function autoAssignLead(leadId) {
+  const lead = await prisma.lead.findUnique({ where: { id: leadId } });
+  if (!lead) return { ok: false, reason: "lead_not_found" };
+
+  // Mevcut atama varsa skip
+  const existing = await prisma.assignment.count({
+    where: { leadId, status: "ACTIVE" },
+  });
+  if (existing > 0) return { ok: false, reason: "already_assigned" };
+
+  // Aktif avukatlar + ACTIVE assignment sayisi
+  const lawyers = await prisma.user.findMany({
+    where: { role: "LAWYER", isActive: true },
+    select: {
+      id: true,
+      fullName: true,
+      uzmanlik: true,
+      _count: { select: { assignments: { where: { status: "ACTIVE" } } } },
+    },
+  });
+  if (lawyers.length === 0) return { ok: false, reason: "no_active_lawyer" };
+
+  // Uzmanlik eslesmesi (kazaTuru -> string match)
+  const kazaTipi = (lead.kazaTuru || "").toLowerCase();
+  const matched = lawyers.filter((l) => {
+    const uz = Array.isArray(l.uzmanlik) ? l.uzmanlik.join(" ").toLowerCase() : "";
+    if (!uz) return false;
+    if (kazaTipi.includes("trafik") && uz.includes("trafik")) return true;
+    if (kazaTipi.includes("is") && uz.includes("is")) return true;
+    return false;
+  });
+
+  // Eslesme yoksa: tum aktif avukatlar arasindan en az yuklu
+  const candidates = matched.length > 0 ? matched : lawyers;
+  candidates.sort((a, b) => a._count.assignments - b._count.assignments);
+  const chosen = candidates[0];
+
+  if (!chosen) return { ok: false, reason: "no_candidate" };
+
+  try {
+    await assignLeadToLawyer({
+      leadId,
+      lawyerId: chosen.id,
+      note: "Otomatik atama (TUR #72.5 navigation)",
+      caller: null,
+    });
+    return { ok: true, lawyerId: chosen.id, lawyerName: chosen.fullName, matchType: matched.length > 0 ? "uzmanlik" : "yuk_dengesi" };
+  } catch (err) {
+    return { ok: false, reason: err.message?.slice(0, 80) };
+  }
+}
+
+module.exports = { assignLeadToLawyer, autoAssignLead };

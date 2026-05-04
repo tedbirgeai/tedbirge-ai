@@ -241,27 +241,62 @@ async function runActiveTask() {
   const prismaClient = require("../../config/db");
   const day = 24 * 60 * 60 * 1000;
   let autoAssigned = 0;
+  let candidatesAvailable = 0;
   let rebalanceSuggestions = 0;
   let mismatchAlerts = 0;
+  const errors = [];
 
   try {
     const since24h = new Date(Date.now() - day);
-    const unassigned = await prismaClient.lead.count({
+
+    // TUR #72.5 H5 — gercek auto-assign trigger (max 5/tick)
+    const unassignedLeads = await prismaClient.lead.findMany({
       where: {
         status: { in: ["NEW", "CONTACTED", "DOCS_PENDING", "ANALYZED"] },
         assignments: { none: {} },
         createdAt: { lt: since24h },
       },
+      select: { id: true, kazaTuru: true },
+      orderBy: { createdAt: "asc" },
+      take: 5,
     });
-    if (unassigned > 0) {
+    candidatesAvailable = unassignedLeads.length;
+
+    if (unassignedLeads.length > 0) {
+      let autoAssignFn;
+      try {
+        const svc = require("../../services/assignment.service");
+        autoAssignFn = svc.autoAssignLead;
+      } catch (e) {
+        errors.push(`service load: ${e.message?.slice(0, 60)}`);
+      }
+      if (typeof autoAssignFn === "function") {
+        for (const lead of unassignedLeads) {
+          try {
+            const r = await autoAssignFn(lead.id);
+            if (r?.ok) autoAssigned++;
+            else if (r?.reason && r.reason !== "already_assigned") errors.push(r.reason.slice(0, 60));
+          } catch (assignErr) {
+            errors.push(`lead ${lead.id.slice(0, 8)}: ${assignErr.message?.slice(0, 60)}`);
+          }
+        }
+      }
+    }
+
+    // ADMIN_FEED bildirim (en az 1 unassigned varsa)
+    if (candidatesAvailable > 0) {
       try {
         await prismaClient.realtimeEvent.create({
-          data: { channel: "ADMIN_FEED", eventType: "NAV_UNASSIGNED_24H", payload: { count: unassigned } },
+          data: {
+            channel: "ADMIN_FEED",
+            eventType: "NAV_UNASSIGNED_24H",
+            payload: { count: candidatesAvailable, auto_assigned: autoAssigned },
+          },
         });
       } catch (_) {}
     }
 
-    // Lawyer load delta
+    // Lawyer load delta — REBALANCE ONERI (gercek atama YOK, ADMIN_FEED öneri)
     const lawyers = await prismaClient.user.findMany({
       where: { role: "LAWYER", isActive: true },
       select: { id: true, _count: { select: { assignments: { where: { status: "ACTIVE" } } } } },
@@ -270,11 +305,24 @@ async function runActiveTask() {
       const counts = lawyers.map((l) => l._count.assignments);
       const max = Math.max(...counts);
       const min = Math.min(...counts);
-      if (max - min > 5) rebalanceSuggestions = 1;
+      if (max - min > 5) {
+        rebalanceSuggestions = 1;
+        try {
+          await prismaClient.realtimeEvent.create({
+            data: {
+              channel: "ADMIN_FEED",
+              eventType: "NAV_REBALANCE_SUGGESTION",
+              payload: { delta: max - min, max, min },
+            },
+          });
+        } catch (_) {}
+      }
     }
-  } catch (_) {}
+  } catch (outerErr) {
+    errors.push(`outer: ${outerErr.message?.slice(0, 60)}`);
+  }
 
-  const severity = rebalanceSuggestions > 0 || mismatchAlerts > 0 ? "WARNING" : "INFO";
+  const severity = rebalanceSuggestions > 0 || mismatchAlerts > 0 || errors.length > 0 ? "WARNING" : "INFO";
 
   try {
     await prismaClient.agentEvent.create({
@@ -283,16 +331,22 @@ async function runActiveTask() {
         eventType: "ACTION_TAKEN",
         severity,
         payload: {
-          action_taken: { auto_assigned: autoAssigned, rebalance_suggestions: rebalanceSuggestions, mismatch_alerts: mismatchAlerts },
+          action_taken: {
+            auto_assigned: autoAssigned,
+            candidates_available: candidatesAvailable,
+            rebalance_suggestions: rebalanceSuggestions,
+            mismatch_alerts: mismatchAlerts,
+          },
+          errors: errors.slice(0, 3),
           durationMs: Date.now() - startTs,
-          message: `Yonlendirme · ${autoAssigned} auto-assign · ${rebalanceSuggestions} rebalance oneri`,
+          message: `Yonlendirme · ${autoAssigned}/${candidatesAvailable} otomatik atama · ${rebalanceSuggestions} rebalance oneri${errors.length > 0 ? ` · ${errors.length} hata` : ""}`,
         },
       },
     });
   } catch (_) {}
 
   lastActiveTaskAt_nv = Date.now();
-  return { autoAssigned, rebalanceSuggestions, mismatchAlerts };
+  return { autoAssigned, candidatesAvailable, rebalanceSuggestions, mismatchAlerts, errors };
 }
 
 module.exports = {

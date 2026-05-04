@@ -390,21 +390,45 @@ registerPolicyHandler(MODULE_NAME, policyHandler);
  *  - Son snapshot yaşı: <24h INFO, 24-26h WARNING, >26h CRITICAL
  *  - SUPABASE_SERVICE_ROLE_KEY yoksa SKIP mode + WARNING
  */
+// TUR #72.5 H2 — shouldLogError: ayni hata saatte 1 kez WARNING (flood kes)
+async function shouldLogBackupError() {
+  try {
+    const prismaClient = require("../../config/db");
+    const oneHourAgo = new Date(Date.now() - 60 * 60 * 1000);
+    const recent = await prismaClient.agentEvent.findFirst({
+      where: { agentName: "backup", severity: "WARNING", createdAt: { gte: oneHourAgo } },
+      select: { id: true },
+    });
+    return !recent;
+  } catch (_) {
+    return true;
+  }
+}
+
 async function runStatusCheck() {
   const startTs = Date.now();
   const prismaClient = require("../../config/db");
-  const apiKey = process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.SUPABASE_SERVICE_KEY;
+  // TUR #72.5 H2 — Management API DOGRU auth: SUPABASE_ACCESS_TOKEN (SERVICE_ROLE_KEY DEGIL)
+  const accessToken = process.env.SUPABASE_ACCESS_TOKEN;
+  const apiKey = accessToken || process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.SUPABASE_SERVICE_KEY;
   const supabaseUrl = process.env.SUPABASE_URL || "";
 
   let severity = "INFO";
   let payload = {};
+  let envStatus = accessToken ? "OK" : (apiKey ? "INVALID" : "MISSING");
 
   if (!apiKey || !supabaseUrl) {
-    severity = "WARNING";
+    // TUR #72.5 H2 — env eksik: rate-limit, saatte 1 WARNING
+    const shouldLog = await shouldLogBackupError();
+    severity = shouldLog ? "WARNING" : "INFO";
     payload = {
       mode: "SKIP",
-      reason: "SUPABASE_SERVICE_ROLE_KEY veya SUPABASE_URL eksik",
-      message: "Yedekleme · ENV eksik, snapshot kontrolü atlandı",
+      env_status: "MISSING",
+      reason: "SUPABASE_ACCESS_TOKEN eksik (Render dashboard → Environment ekle)",
+      alert_throttled: !shouldLog,
+      message: shouldLog
+        ? "Yedekleme · ENV eksik (SUPABASE_ACCESS_TOKEN), CEO manuel yapılandıracak"
+        : "Yedekleme · ENV eksik (rate-limit aktif, sessiz)",
       durationMs: Date.now() - startTs,
     };
   } else {
@@ -412,6 +436,7 @@ async function runStatusCheck() {
     const projectRef = supabaseUrl.replace(/^https?:\/\//, "").split(".")[0];
     let snapshots = [];
     let apiError = null;
+    let httpStatus = null;
 
     try {
       const controller = new AbortController();
@@ -428,6 +453,7 @@ async function runStatusCheck() {
         },
       );
       clearTimeout(timer);
+      httpStatus = res.status;
       if (res.ok) {
         const data = await res.json();
         snapshots = Array.isArray(data?.backups) ? data.backups : Array.isArray(data) ? data : [];
@@ -439,13 +465,44 @@ async function runStatusCheck() {
     }
 
     if (apiError) {
-      severity = "WARNING";
-      payload = {
-        mode: "API_ERROR",
-        apiError,
-        message: `Yedekleme · Supabase API erişim hatası: ${apiError}`,
-        durationMs: Date.now() - startTs,
-      };
+      // TUR #72.5 H2 — 401/403 = env yanlis yapilandirilmis (SERVICE_ROLE yerine ACCESS_TOKEN)
+      if (httpStatus === 401 || httpStatus === 403) {
+        envStatus = "INVALID";
+        const shouldLog = await shouldLogBackupError();
+        severity = shouldLog ? "WARNING" : "INFO";
+        payload = {
+          mode: "AUTH_ERROR",
+          env_status: "INVALID",
+          httpStatus,
+          alert_throttled: !shouldLog,
+          message: shouldLog
+            ? `Yedekleme · Supabase Management API ${httpStatus} — token yanlis (ACCESS_TOKEN gerekli, SERVICE_ROLE_KEY degil)`
+            : `Yedekleme · ${httpStatus} (rate-limit aktif, sessiz)`,
+          durationMs: Date.now() - startTs,
+        };
+        if (shouldLog) {
+          try {
+            await prismaClient.realtimeEvent.create({
+              data: {
+                channel: "ADMIN_FEED",
+                eventType: "BACKUP_AUTH_INVALID",
+                payload: { httpStatus, hint: "Render Environment → SUPABASE_ACCESS_TOKEN ekle" },
+              },
+            });
+          } catch (_) {}
+        }
+      } else {
+        const shouldLog = await shouldLogBackupError();
+        severity = shouldLog ? "WARNING" : "INFO";
+        payload = {
+          mode: "API_ERROR",
+          apiError,
+          httpStatus,
+          alert_throttled: !shouldLog,
+          message: `Yedekleme · Supabase API erişim hatası: ${apiError}`,
+          durationMs: Date.now() - startTs,
+        };
+      }
     } else {
       // Son snapshot yaşı
       const sortedTimes = snapshots
@@ -540,6 +597,13 @@ async function runActiveTask() {
   let sizeMb = null;
   let anomaly = false;
 
+  // TUR #72.5 H2 — env status raporu
+  const accessToken = process.env.SUPABASE_ACCESS_TOKEN;
+  const fallbackKey = process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.SUPABASE_SERVICE_KEY;
+  let envStatus = "OK";
+  if (!accessToken && !fallbackKey) envStatus = "MISSING";
+  else if (!accessToken && fallbackKey) envStatus = "INVALID"; // SERVICE_ROLE Management API ile calismaz
+
   // Backup history dahili — getStatus'tan oku
   try {
     const status = getStatus();
@@ -556,7 +620,28 @@ async function runActiveTask() {
     if (sizeMb && result.adaptive && sizeMb < result.adaptive * 0.5) anomaly = true;
   } catch (_) {}
 
-  const severity = (lastAgeHours != null && lastAgeHours > 26) || anomaly ? "CRITICAL" : "INFO";
+  // TUR #72.5 H2 — env eksik/yanlissa CRITICAL degil INFO (rate-limit zaten runStatusCheck'te)
+  let severity;
+  if (envStatus !== "OK") {
+    severity = "INFO";
+  } else if ((lastAgeHours != null && lastAgeHours > 26) || anomaly) {
+    severity = "CRITICAL";
+  } else {
+    severity = "INFO";
+  }
+
+  // Alert throttled flag — runStatusCheck'te shouldLogError gormus mu?
+  let alertThrottled = false;
+  if (envStatus !== "OK") {
+    try {
+      const oneHourAgo = new Date(Date.now() - 60 * 60 * 1000);
+      const recent = await prismaClient.agentEvent.findFirst({
+        where: { agentName: "backup", severity: "WARNING", createdAt: { gte: oneHourAgo } },
+        select: { id: true },
+      });
+      alertThrottled = !!recent;
+    } catch (_) {}
+  }
 
   try {
     await prismaClient.agentEvent.create({
@@ -565,9 +650,19 @@ async function runActiveTask() {
         eventType: "ACTION_TAKEN",
         severity,
         payload: {
-          action_taken: { triggered, last_age_hours: lastAgeHours, size_mb: sizeMb, anomaly },
+          action_taken: {
+            snapshot_age_hours: lastAgeHours,
+            env_status: envStatus,
+            alert_throttled: alertThrottled,
+            triggered,
+            size_mb: sizeMb,
+            anomaly,
+          },
           durationMs: Date.now() - startTs,
-          message: `Yedekleme · son ${lastAgeHours ?? "?"}h · ${triggered ? "trigger" : "bekleniyor"}${anomaly ? " (kucuk yedek anomali)" : ""}`,
+          message:
+            envStatus !== "OK"
+              ? `Yedekleme · ENV ${envStatus} (CEO yapilandiracak)${alertThrottled ? " · throttled" : ""}`
+              : `Yedekleme · son ${lastAgeHours ?? "?"}h · ${triggered ? "trigger" : "bekleniyor"}${anomaly ? " (kucuk yedek anomali)" : ""}`,
         },
       },
     });
@@ -582,7 +677,7 @@ async function runActiveTask() {
   }
 
   lastActiveTaskAt_bk = Date.now();
-  return { lastAgeHours, triggered, sizeMb, anomaly };
+  return { lastAgeHours, triggered, sizeMb, anomaly, envStatus };
 }
 
 // ============================================================================

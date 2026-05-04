@@ -370,22 +370,39 @@ async function runActiveTask() {
   const prismaClient = require("../../config/db");
   const day = 24 * 60 * 60 * 1000;
   let recovered = 0;
+  let retriedFailed = 0;
   let stuckAlerted = 0;
   let cronRestarted = 0;
+  const errors = [];
 
+  // TUR #72.5 H1 — Hatayi yutma, gercek retry trigger zinciri
   try {
+    // 24 saat once FAILED + leadId dolu — analyzeDocumentById ile gercek retry
+    const since24h = new Date(Date.now() - day);
     const failed = await prismaClient.document.findMany({
-      where: { status: "FAILED", leadId: { not: null } },
+      where: { status: "FAILED", leadId: { not: null }, updatedAt: { lt: since24h } },
       select: { id: true },
+      orderBy: { updatedAt: "asc" },
       take: 5,
     });
     if (failed.length > 0) {
+      let bridge;
       try {
-        const { analyzeDocumentById } = require("../../services/uploadAnalysis.bridge");
+        bridge = require("../../services/uploadAnalysis.bridge");
+      } catch (loadErr) {
+        errors.push(`bridge load: ${loadErr.message}`);
+      }
+      if (bridge && typeof bridge.analyzeDocumentById === "function") {
         for (const doc of failed) {
-          try { await analyzeDocumentById(doc.id); recovered++; } catch (_) {}
+          retriedFailed++;
+          try {
+            await bridge.analyzeDocumentById(doc.id);
+            recovered++;
+          } catch (retryErr) {
+            errors.push(`doc ${doc.id.slice(0, 8)}: ${retryErr.message?.slice(0, 80)}`);
+          }
         }
-      } catch (_) {}
+      }
     }
 
     // Stuck Lead PENDING 7 gun+
@@ -401,9 +418,11 @@ async function runActiveTask() {
         stuckAlerted = stuck;
       } catch (_) {}
     }
-  } catch (_) {}
+  } catch (outerErr) {
+    errors.push(`outer: ${outerErr.message?.slice(0, 80)}`);
+  }
 
-  const severity = recovered > 0 || stuckAlerted > 0 ? "WARNING" : "INFO";
+  const severity = recovered > 0 || stuckAlerted > 0 || errors.length > 0 ? "WARNING" : "INFO";
 
   try {
     await prismaClient.agentEvent.create({
@@ -412,16 +431,22 @@ async function runActiveTask() {
         eventType: "ACTION_TAKEN",
         severity,
         payload: {
-          action_taken: { recovered, stuck_alerted: stuckAlerted, cron_restarted: cronRestarted },
+          action_taken: {
+            recovered,
+            retried_failed: retriedFailed,
+            stuck_alerted: stuckAlerted,
+            cron_restarted: cronRestarted,
+          },
+          errors: errors.slice(0, 3),
           durationMs: Date.now() - startTs,
-          message: `Kurtarma · ${recovered} Document recover · ${stuckAlerted} Lead stuck alert`,
+          message: `Kurtarma · ${retriedFailed} retry denedi · ${recovered} basarili · ${stuckAlerted} Lead stuck alert${errors.length > 0 ? ` · ${errors.length} hata` : ""}`,
         },
       },
     });
   } catch (_) {}
 
   lastActiveTaskAt_rc = Date.now();
-  return { recovered, stuckAlerted, cronRestarted };
+  return { recovered, retriedFailed, stuckAlerted, cronRestarted, errors };
 }
 
 // ============================================================================

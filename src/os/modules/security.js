@@ -465,6 +465,15 @@ let lastActiveTaskAt_sc = 0;
 const SC_ACTIVE_INTERVAL_MS = 15 * 60 * 1000;
 function shouldRunActiveTask() { return Date.now() - lastActiveTaskAt_sc >= SC_ACTIVE_INTERVAL_MS; }
 
+// TUR #72.5 H3 — KVKK email/TC maskeleme yardimcisi
+function maskEmail(e) {
+  if (!e || typeof e !== "string") return "***";
+  const [local, domain] = e.split("@");
+  if (!domain) return "***";
+  const visible = (local || "").slice(0, 2);
+  return `${visible}***@${domain}`;
+}
+
 async function runActiveTask() {
   const startTs = Date.now();
   const prismaClient = require("../../config/db");
@@ -473,13 +482,33 @@ async function runActiveTask() {
   let suspiciousLogins = 0;
   let bruteForceDetected = false;
   let anomaly = false;
+  let alertType = null;
+  let adminUsersNo2fa = [];
+  let adminUsersCount = 0;
+  let allUsersNo2faCount = 0;
+  let totalUsers = 0;
+  let emailSent = false;
 
   try {
-    // ADMIN 2FA off
-    const adminNo2FA = await prismaClient.user.count({
+    // TUR #72.5 H3 — ADMIN 2FA off detay (KVKK m.12 ihlali)
+    const adminUsers = await prismaClient.user.findMany({
       where: { role: "ADMIN", isActive: true, twoFactorEnabled: false },
-    }).catch(() => 0);
-    if (adminNo2FA > 0) criticalAlerts++;
+      select: { id: true, email: true },
+      take: 20,
+    }).catch(() => []);
+    adminUsersCount = adminUsers.length;
+    adminUsersNo2fa = adminUsers.map((u) => maskEmail(u.email));
+
+    // Tum kullanici 2FA durumu (CEO ekran kanit: 2FA 0/7)
+    [allUsersNo2faCount, totalUsers] = await Promise.all([
+      prismaClient.user.count({ where: { isActive: true, twoFactorEnabled: false } }).catch(() => 0),
+      prismaClient.user.count({ where: { isActive: true } }).catch(() => 0),
+    ]);
+
+    if (adminUsersCount > 0) {
+      criticalAlerts++;
+      alertType = "ADMIN_2FA_OFF";
+    }
 
     // 24h LOGIN_FAILED
     const since24h = new Date(Date.now() - day);
@@ -502,6 +531,33 @@ async function runActiveTask() {
       } catch (_) {}
     }
 
+    // TUR #72.5 H3 — ADMIN 2FA off bildirim 24 saatte 1 (rate-limit)
+    if (adminUsersCount > 0) {
+      try {
+        const since24hAlert = new Date(Date.now() - day);
+        const recentAlert = await prismaClient.realtimeEvent.findFirst({
+          where: { channel: "ADMIN_FEED", eventType: "ADMIN_2FA_OFF", createdAt: { gte: since24hAlert } },
+          select: { id: true },
+        });
+        if (!recentAlert) {
+          await prismaClient.realtimeEvent.create({
+            data: {
+              channel: "ADMIN_FEED",
+              eventType: "ADMIN_2FA_OFF",
+              payload: {
+                admin_users_count: adminUsersCount,
+                total_users_no_2fa: allUsersNo2faCount,
+                total_users: totalUsers,
+                kvkk_article: "m.12",
+                hint: "Tum personel /dashboard/profil → Guvenlik → 2FA Aktive Et (~3 dk/kisi)",
+              },
+            },
+          });
+          emailSent = true; // sabit bildirim event olusturuldu (email transporter ayri SKIP)
+        }
+      } catch (_) {}
+    }
+
     // Adaptive
     try {
       const helper = require("../lib/adaptiveThreshold");
@@ -519,16 +575,27 @@ async function runActiveTask() {
         eventType: "ACTION_TAKEN",
         severity,
         payload: {
-          action_taken: { critical_alerts: criticalAlerts, suspicious_logins: suspiciousLogins, brute_force_detected: bruteForceDetected, anomaly },
+          action_taken: {
+            critical_alerts: criticalAlerts,
+            alert_type: alertType,
+            admin_users_count: adminUsersCount,
+            admin_users_no_2fa: adminUsersNo2fa,
+            total_users_no_2fa: allUsersNo2faCount,
+            total_users: totalUsers,
+            email_sent: emailSent,
+            suspicious_logins: suspiciousLogins,
+            brute_force_detected: bruteForceDetected,
+            anomaly,
+          },
           durationMs: Date.now() - startTs,
-          message: `Guvenlik · ${criticalAlerts} kritik · brute ${bruteForceDetected ? "EVET" : "yok"}${anomaly ? " (anomali)" : ""}`,
+          message: `Guvenlik · ${criticalAlerts} kritik${alertType ? " (" + alertType + ")" : ""} · 2FA ${totalUsers - allUsersNo2faCount}/${totalUsers} · brute ${bruteForceDetected ? "EVET" : "yok"}${anomaly ? " (anomali)" : ""}`,
         },
       },
     });
   } catch (_) {}
 
   lastActiveTaskAt_sc = Date.now();
-  return { criticalAlerts, bruteForceDetected, anomaly };
+  return { criticalAlerts, alertType, adminUsersCount, bruteForceDetected, anomaly };
 }
 
 // ============================================================================
