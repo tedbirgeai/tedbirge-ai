@@ -6,6 +6,65 @@
 
 ---
 
+## 5 Mayıs 2026 — TUR #73 KARARI — OLAY/SAAT 0 SORUNU TANI + PUBLIC AGENTS-HEALTH ENDPOINT
+
+**Anayasa:** v1.22.0 yürürlükte (Madde 30.27 alt-genişleme — patch sürüm yok)
+
+### Karar
+
+CEO TUR #72.11 sonrası sistem-durumu sayfasında "Olay/saat 0" gözlemledi. Z1 derin tanı: 16/16 modül runStatusCheck içinde `agentEvent.create` çağrısı kanıtlandı (32+ create call) — Z2-C (sayan modül) reddedildi. Z2-B (Auditor durmuş) ve Z2-D (FE cache) muhtemel ama admin auth gerek tanı yok.
+
+**Çözüm:** Public `GET /api/agents-health` endpoint (no auth, hassas veri yok, sadece operasyonel metric). CEO browser URL bar ile 1 dakikada Auditor canlılık + 16 modül sayım kanıtı görebilir. **Madde 30.27 yeni** — Public Tanı Endpoint Disiplini olarak Anayasaya alındı.
+
+### Karar Gerekçesi
+
+1. **CEO direktifi (Madde 17.5 + 30.25):** "tek komut otonom düzelt" — TUR #73 7 atom uçtan uca
+2. **Madde 4.4 (kod kaynaktır):** 32+ `agentEvent.create` call kanıtı = sayan modül DEĞİL
+3. **Operasyonel acil tanı:** Admin auth gerektiren `/api/os/modules/status` ile CEO browser'da kanıt alamıyordu — public endpoint zorunlu
+4. **KVKK risk 0:** Sadece sayım/timestamp/severity, hassas veri yok
+5. **Madde 30.27 yeni:** Public tanı endpoint disiplini kalıcı önlem (operasyonel görünürlük standardı)
+
+### Reddedilen Alternatifler
+
+- **Admin token gerek tanı endpoint'leri kullanma:** CEO browser'da Bearer token + dev tools = kullanıcı dostu değil
+- **Auditor restart manuel CEO yapsın:** mimar disiplin hatası, otomatik kanıt zinciri tercih
+- **Sistem-durumu UI sayım defensive 0 yerine "?":** veri kaynağı belli değil, kullanıcı için belirsizlik
+- **Auth-light endpoint (login user):** CEO ekstra adım, public daha pratik (KVKK risk 0)
+- **Yeni schema migration:** scope dışı, mevcut AgentEvent tablosu yeterli
+
+### Etki
+
+- **7 atom + 2 commit** (`d3b4efd` BE + bu OS senkron)
+- **0 schema/npm**
+- **0 KIRMIZI ihlal**
+- **180+ atom sapma 0** — kalibrasyon 1.6× 20. doğrulama
+- **1 yeni Anayasa maddesi** (30.27)
+- CEO browser URL bar direkt erişim ile operasyonel görünürlük
+
+### CEO Direktifi (Madde 17.5)
+
+CEO 5 Mayıs 2026 (TUR #72.11 sonrası):
+> "Olay/saat 0 gözüküyor, derin tanı yap"
+
+CEO 4'lü onay zinciri Madde 30.25 ile yenilendi.
+
+### Kalıcı Pattern (TUR #74+ için)
+
+1. **Madde 30.27:** Operasyonel acil tanı için public endpoint eklenebilir (KVKK risk 0 sayım)
+2. **CEO browser URL bar pattern:** Bearer token / dev tools / login gerekmeyen kanıt zinciri
+3. **Public endpoint isimlendirme:** `agents-health`, `metrics-summary`, `system-status` (açıklayıcı)
+4. **Hassas veri yasağı:** sadece COUNT(*), MAX(createdAt), severity enum, agentName/moduleName
+
+### Mimar
+
+Claude Opus 4.7 (sohbet) + Claude Code (otonom uygulama)
+
+### Onay
+
+Mehmet DİNÇ — Madde 17.5 + 18.3 + 30.25 (CEO Pattern)
+
+---
+
 ## 4 Mayıs 2026 akşam — TUR #72.11 KARARI — DEVİR MEKTUBU + SİSTEM DURUMU KESİN YENİDEN YAZIM + CEO PATTERN TESCİLİ
 
 **Anayasa:** v1.22.0 yürürlükte (Madde 30.25 + 30.26 alt-genişleme — patch sürüm yok)

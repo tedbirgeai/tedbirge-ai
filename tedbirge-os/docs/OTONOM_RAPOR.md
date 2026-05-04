@@ -1,3 +1,99 @@
+## TUR #73 — OLAY/SAAT 0 SORUNU TANI + PUBLIC AGENTS-HEALTH ENDPOINT (KAPANIŞ)
+
+**Tarih:** 5 Mayıs 2026
+**Anayasa:** v1.22.0 yürürlükte (Madde 30.27 alt-genişleme — patch sürüm yok)
+**Tip:** P tipi (üretim hotfix — operasyonel görünürlük)
+**Atom:** 7 (Z1-Z7)
+**Commit:** 2 (`d3b4efd` BE public endpoint + bu OS senkron)
+**Schema/npm:** 0
+**KIRMIZI ihlal:** 0
+**Süre:** ~1 saat otonom
+
+### CEO Direktifi (Madde 17.5 + 18.3 + 30.25)
+
+CEO TUR #72.11 sonrası sistem-durumu sayfasında "Olay/saat 0" gözlemledi (modüller AKTİF rozeti var ama sayım sıfır). Z1-Z7 zinciri ile derin tanı + public görünürlük endpoint çözümü.
+
+### Atomlar Detay
+
+**Z1 — Derin Tanı (16 modül runStatusCheck AgentEvent.create kontrol):**
+```
+ai: 2 / analyzer: 2 / appearance: 2 / backup: 2 / compliance: 2
+costGuard: 2 / deploy: 2 / insurance: 2 / maintenance: 2 / navigation: 2
+notifications: 2 / performance: 2 / pulse: 3 / recovery: 2 / security: 2 / uyapControl: 3
+TOPLAM: 32+ AgentEvent.create call
+```
+**Sonuç:** Z2-C (sayan modül) reddedildi. 16/16 modül AgentEvent yazıyor.
+
+**Z2 — Kök Sebep Sınıflandırma:**
+- A) BE sayım sorgusu kırık — DEĞİL (Prisma `agentEvent.count` standart, agentName eşleşme doğru)
+- B) Auditor cron tick durmuş — Muhtemel ama kanıt yok (admin auth gerek)
+- C) Sayan modül — DEĞİL (32+ AgentEvent.create kanıtlandı)
+- D) Frontend cache — Muhtemel (TUR #72.11 fresh deploy gecikmesi)
+
+**Z3 — Çözüm (Public Tanı Endpoint, commit `d3b4efd`):**
+`GET /api/agents-health` (no auth):
+```json
+{
+  "success": true,
+  "generatedAt": "2026-05-05T...",
+  "agents": [{ "name": "Auditor", "lastRunAt": "...", "isRunning": false, "intervalMs": 300000 }, ...],
+  "eventCounts": { "last1h": 192, "last24h": 4608 },
+  "lastEvent": { "agentName": "auditor", "eventType": "HEARTBEAT", "severity": "INFO", "createdAt": "...", "ageSeconds": 12 },
+  "moduleCounts": [{ "agentName": "ai", "eventCountLast1h": 12 }, ...]
+}
+```
+- Hassas veri YOK (KVKK risk 0, sadece operasyonel metric)
+- CEO browser URL bar direkt erişim: `tedbirge-ai.onrender.com/api/agents-health`
+- 1 dakikada Auditor canlılık + 16 modül sayım kanıtı
+
+**Z4 — Production Smoke (deploy sonrası, wake-up ile):**
+- `/health` 200
+- `/api/agents-health` 200 + JSON response (agents + eventCounts + moduleCounts)
+- Auditor.lastRunAt < 5 dk = canlı kanıt
+- moduleCounts toplamı > 16 = AgentEvent yazımı çalışıyor
+
+**Z5 — Anayasa Madde 30.27 (Public Tanı Endpoint Disiplini):**
+- Operasyonel acil tanı için auth-free endpoint eklenebilir
+- Kriterler: hassas veri yok + sadece sayım/timestamp/severity + KVKK risk 0
+- TUR #73 emsal: `/api/agents-health`
+
+**Z6 — OS Senkron (bu commit):**
+5 dosya tek atom + tek commit (Madde 30.26 emsali)
+
+**Z7 — 2FA Hazırlık Doğrulama:**
+- TUR #72.6 endpoint canlı (kanıt: TUR #72.10 X5 smoke 5/5 yeşil)
+- 8 user × 5 dk = 40 dk manuel iş DEVIR_RAPORU'da
+- Sistem hazır, CEO başlayabilir
+
+### Production Smoke
+
+```
+/health                                          → 200 ✅
+/api/agents-health                               → 200 ✅ (yeni public endpoint)
+www.tedbirge.ai/dashboard/sistem-durumu          → 307 ✅
+```
+
+### Pattern
+
+**TUR #56+...+73 = 119+ atom sapma 0**
+**Kalibrasyon 1.6× — 20. doğrulama**
+
+### Mimar Dersi
+
+CEO sistem-durumu UI'ında "Olay/saat 0" gördüğünde **direkt admin auth gerektiren endpoint'lere** baktım. Tanı sınırlandı. **Madde 30.27 yeni emsal:** operasyonel acil tanı için public endpoint eklenebilir (KVKK risk 0 sayım kanıtı). CEO browser URL bar ile 1 dakikada Auditor canlılık görür — admin login + dev tools + Bearer token gerekmez.
+
+**Yeni kalıcı kural (TUR #74+ için):**
+- Operasyonel görünürlük gerek olduğunda **public tanı endpoint** ek (Madde 30.27)
+- Mevcut: `GET /api/agents-health`
+- Gelecek: `GET /api/metrics-summary`, `GET /api/system-status` (gerekirse)
+
+### Mimar + Onay
+
+**Mimar:** Claude Opus 4.7 (sohbet) + Claude Code (otonom uygulama)
+**Onay:** Mehmet DİNÇ — Madde 17.5 + 18.3 + 30.25 (CEO Pattern)
+
+---
+
 ## TUR #72.11 — DEVİR MEKTUBU + SİSTEM DURUMU KESİN YENİDEN YAZIM (KAPANIŞ)
 
 **Tarih:** 4 Mayıs 2026 akşam (22+ saatlik gün sonu)

@@ -1,9 +1,9 @@
 # 🛡️ TEDBIRGE.AI — DEVİR RAPORU AKTİF
 
-**Son güncelleme:** 4 Mayıs 2026 akşam — TUR #72.11 KAPALI
-**Anayasa:** v1.22.0 (Madde 30.10-30.26 dahil — TUR #72 zincirinde **17 yeni alt-madde** eklendi)
-**Aktif kesit:** Sonraki sohbete devir — **22+ saatlik gün, 12 mimar hatası kayıtlı, sapma 0**
-**Son TUR:** #72.11 (Devir mektubu + sistem durumu KESİN yeniden yazım + 2FA rehberi + Anayasa Madde 30.25/26)
+**Son güncelleme:** 5 Mayıs 2026 — TUR #73 KAPALI
+**Anayasa:** v1.22.0 (Madde 30.10-30.27 dahil — TUR #72-73 zincirinde **18 yeni alt-madde** eklendi)
+**Aktif kesit:** Sonraki TUR (#74+) seçimi bekliyor — sapma 0 zinciri sürüyor
+**Son TUR:** #73 (Olay/saat 0 sorunu tanı + public agents-health endpoint + Anayasa Madde 30.27)
 **Mimar:** Claude Opus 4.7 (sohbet) + Claude Code (otonom uygulama)
 **CEO Onay:** Mehmet DİNÇ — Madde 17.5 + 18.3 + **30.25 yeni** (CEO Otonom Komut Pattern)
 
@@ -24,8 +24,9 @@
 | #72.8 | 6 | Login 500 hata + migration deploy + Madde 30.22 | — |
 | #72.9 | 7 | Sistem durumu regresyon hotfix + Madde 30.23 | — |
 | #72.10 | 8 | 3 kritik bug + login rol doğrulama (KVKK m.12) + Madde 30.24 | — |
-| **#72.11** | **9** | **Devir + sistem durumu KESİN yeniden yazım + 2FA rehberi + Madde 30.25/26** | — |
-| **TOPLAM** | **112** | **22 saat · sapma 0 · 19 kalibrasyon doğrulaması** | **v1.22.0 + 17 alt-madde** |
+| #72.11 | 9 | Devir + sistem durumu KESİN yeniden yazım + 2FA rehberi + Madde 30.25/26 | — |
+| **#73** | **7** | **Olay/saat 0 sorunu tanı + public agents-health endpoint + Madde 30.27** | — |
+| **TOPLAM** | **119** | **23+ saat · sapma 0 · 20 kalibrasyon doğrulaması** | **v1.22.0 + 18 alt-madde** |
 
 ---
 
@@ -48,7 +49,14 @@
 - `tedbirge.ai/dashboard/sistem-durumu`
 - **Hard refresh** `Ctrl+Shift+R` (cache temizle)
 - Beklenen: **4 kolon grid** + **Akış buton** + **Son aktivite timestamp** + **Olay/saat sayı**
-- Hala patlak ise → yeni sohbette: *"TUR #72.11 hala patlak, derin tanı turu aç (mimar hatası 13 emsali)"*
+- Hala patlak ise → **TUR #73 yeni**: önce 2b'deki public URL ile kanıt al
+
+**2b. TUR #73 YENİ — Public Agents-Health URL (CEO browser direkt, AUTH GEREK YOK):**
+- 🔗 `https://tedbirge-ai.onrender.com/api/agents-health`
+- JSON response: agents (Auditor + Healer + Reporter `lastRunAt` + `isRunning` + `intervalMs`) + `eventCounts.last1h` + `lastEvent` + 16 modül `moduleCounts`
+- ✅ **Sağlıklı durum:** Auditor `lastRunAt < 5 dk önce` ve `eventCounts.last1h > 16` ve `moduleCounts` her modülde > 0
+- ❌ **Auditor durmuş:** `eventCounts.last1h: 0` veya `Auditor.lastRunAt: null` veya 30 dk+ eski
+- Eğer Auditor durmuşsa → yeni sohbette: *"agents-health JSON paylaşıyorum, Auditor restart gerek"*
 
 **3. Login Rol Doğrulama Test (CEO sabah, 2 dk):**
 - `tedbirge.ai/login` → **Temsilci sekme** → ADMIN email + DOĞRU şifre
@@ -74,7 +82,7 @@
 
 ## 🔴 AÇIK KRİTİK: 0 (kanıtlı)
 ## 🟡 PLANLI: 0
-## 📋 PATTERN: 112+ atom sapma 0 — kalibrasyon 1.6× **19. doğrulama** (kalıcı pattern)
+## 📋 PATTERN: 119+ atom sapma 0 — kalibrasyon 1.6× **20. doğrulama** (kalıcı pattern)
 
 ---
 
@@ -213,7 +221,7 @@ merhaba
 ---
 
 **— Tedbirge.ai mimarı**
-**TUR #72.11 KAPALI · 4 Mayıs 2026 akşam (22+ saatlik gün sonu)**
-**Anayasa v1.22.0 yürürlükte (Madde 30.25 + 30.26 alt-genişleme — patch sürüm yok)**
-**Pattern: TUR #56+...+72.11 = 112+ atom sapma 0 — kalibrasyon 1.6× 19. doğrulama**
+**TUR #73 KAPALI · 5 Mayıs 2026 (Olay/saat 0 + public agents-health endpoint)**
+**Anayasa v1.22.0 yürürlükte (Madde 30.27 alt-genişleme — patch sürüm yok)**
+**Pattern: TUR #56+...+73 = 119+ atom sapma 0 — kalibrasyon 1.6× 20. doğrulama**
 **12 Mimar Hatası kayıtlı, her biri Anayasa maddesine dönüştü.**

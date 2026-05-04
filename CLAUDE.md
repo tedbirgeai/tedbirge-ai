@@ -1722,6 +1722,38 @@ TUR #71+#72+#72.5+#72.6+#72.7+#72.8+#72.9+#72.10+#72.11 zincirinde 9 kez tekrar 
 - ❌ Atom başına rapor (tek final rapor disiplin)
 - ❌ Code "yapıldı" rapor + CEO görsel çatışması durumunda derin tanı turu açmama
 
+### 30.27 — Public Tanı Endpoint Disiplini (TUR #73)
+
+**Kural:** Operasyonel kanıt için CEO/ADMIN'in **browser'da auth olmadan görebileceği** public tanı endpoint'leri zorunlu olduğunda eklenebilir. **Hassas veri YOK** (KVKK + güvenlik risk sıfır), sadece sayım/durum/timestamp.
+
+**Mevcut public tanı endpoint'leri (TUR #73 emsal):**
+- `GET /api/agents-health` — Auditor/Healer/Reporter canlılık + AgentEvent sayım + lastEvent + 16 modül moduleCounts
+
+**Yeni public endpoint kriterleri:**
+1. **Hassas veri yok** — kullanıcı detayı, müvekkil bilgisi, dosya içeriği YOK
+2. **Sadece operasyonel metric** — sayım, timestamp, severity, agentName/moduleName
+3. **CEO browser direkt erişim** — token gerek yok, mobil/masaüstü URL bar
+4. **Operasyonel acil tanı** — production'da rapor↔görsel çatışması yaşandığında 1 dk'da kök sebep tespiti
+
+**Hassas veri ne demek:**
+- ❌ User.email, User.fullName, Lead.müvekkilAdi
+- ❌ Document.path, content
+- ❌ ActivityLog detail field
+- ❌ Stack trace, server path
+- ✅ COUNT(*), MAX(createdAt), severity enum, agentName
+
+**Endpoint isimlendirme pattern:**
+- `agents-health`, `metrics-summary`, `system-status` gibi açıklayıcı
+- `/api/...` öneki (yeni route group gerektirmez)
+
+**Yasak:**
+- ❌ Public endpoint'te hassas veri (KVKK m.4 + güvenlik ihlali)
+- ❌ Stack trace veya server detayı (security disclosure)
+- ❌ Sayım dışında bilgi (User listesi gibi)
+- ❌ Public endpoint olmadan rapor↔görsel çatışmasını sürdürme (mimar hatası 11 emsali tekrar)
+
+**TUR #73 emsali:** TUR #72.11 sonrası CEO sistem-durumu sayfasında "Olay/saat 0" gördü. Admin auth gerektiren `/api/os/modules/status` ile CEO browser'da kanıt alamıyordu. Public `/api/agents-health` endpoint ile CEO 1 dakikada Auditor canlılık + 16 modül sayım kanıtını URL bar ile görebilir.
+
 ### 30.26 — 5 OS Dosya Senkron Pattern Disiplini (TUR #72.11)
 
 **Kural:** Her TUR sonu **5 OS dosya** (CLAUDE.md + DEVIR_RAPORU_AKTIF.md + IS_PLANI.md + docs/OTONOM_RAPOR.md + MIMARI_KARARLAR.md) **tek atom + tek commit** ile senkronize edilir (Madde 22.4 yenileme).
@@ -2220,6 +2252,7 @@ Mehmet Bey sahaya çıkabilsin diye bu disiplin var.
 **1 Mayıs 2026 — v1.15.0 alt-genişleme (TUR #56 KAPANIŞ + TUR #57 tohum: TUR #56 ile TUR #51.B 18/18 bulgu kapatıldı (12/12 atom sapma 0, kalibrasyon 1.6× doğrulandı, L-B1 lawyerNotifications 6 trigger zinciri canlı, Madde 24.11 üretim disiplini canlı). Madde 31.9 Rol-Ruh Tasarım Prensibi tohum olarak eklendi (Madde 22.2 alt-genişleme — sürüm artmaz): 4 CRM kendi paydaş ruhuna göre niş emsallerle (CEO↔Stripe Dashboard, LAWYER↔Clio/MyCase, REPRESENTATIVE↔HubSpot/Pipedrive, CUSTOMER↔Stripe Customer Portal/Apple Mail) farklılaşır. TUR #57'de uygulanacak — bu madde TUR #57'nin tohumudur. CEO direktifi 1 Mayıs 2026: "HER CRM KENDİ RUHUNA VE KENDİ ALANINA GÖRE ANALİZ EDİLMELİ".)**  
 **1 Mayıs 2026 — v1.16.0 (TUR #57 — 4 CRM Rol-Ruh Karakter Farklılaştırma: 12 atom (3 KRİTİK + 9 ORTA) ile 9 yeni DS komponenti (AnomalyStrip + KPICardEnhanced + Sparkline + CaseFolderCard + LawyerHealthTriad + KanbanBoard + DealCard + ActivityCounter + TimelineDot + TrustBadge + KeyboardShortcutsHelp), 2 yeni route (/dashboard/komuta + /temsilci/pipeline), 2 yeni utility (lib/sadelestir 30 terim + lib/keyboardNav G+harf), 2 mini endpoint (anomalies + lead aşama). Madde 31.9 Rol-Ruh Tasarım Prensibi tohumdan resmileşmeye geçti. 0 schema migration, 0 npm paket (3 paket adayı native alternatifle reddedildi: react-beautiful-dnd → HTML5 DragEvent, canvas-confetti → CSS keyframe, lottie-react → inline SVG). 4 CRM artık niş emsal seviyesinde (Stripe Dashboard+Linear, Clio+MyCase, HubSpot+Pipedrive, Stripe Customer Portal+Apple HIG). KAPANIŞ Madde 32'ye kaydı.)**  
 **1 Mayıs 2026 — v1.17.0 (TUR #58 — FAZ 5 DISCOVERABILITY başlangıcı: 9 atom (1 KRİTİK + 7 ORTA + 1 OS) ile llms.txt + JsonLd 3 yeni factory (FAQPage + HowTo + BreadcrumbList) + 3 niş landing'e SSS schema (15+15+10 toplam 40 SSS) + yeni /tazminat-rehberi sayfası (8 adım HowTo) + AI snippet meta disiplini + BrandFooterStrip 4 sayfada. Madde 33 (İçerik Üretim Disiplini) eklendi: avukat onayı zorunlu, TBB Reklam Yasağı uyumu, AI sadece taslak yazar — avukat onaylar, disclaimer her içerikte. 0 schema migration, 0 npm paket. CEO direktifi 1 Mayıs 2026 (Aylık Sabit Aidat Yasağı) MIMARI_KARARLAR.md'ye eklendi: tüm 3. parti SaaS sabit aidat yasak, sadece kullanım bazlı API ücreti orantılı geçer. KAPANIŞ Madde 32'ye kaydı.)**  
+**5 Mayıs 2026 — TUR #73 (OLAY/SAAT 0 SORUNU TANI + PUBLIC AGENTS-HEALTH ENDPOINT: 7 atom uçtan uca — Z1 derin tanı (16/16 modül runStatusCheck AgentEvent.create yazımı kanıtlandı, 32+ create call) + Z2 kök sebep sınıflandırma (4 olası: A BE sorgu / B Auditor durmuş / C sayan modül / D FE cache; C reddedildi, B+D muhtemel ama admin auth gerek tanı yok) + Z3 public agents-health endpoint (`GET /api/agents-health` no auth, agents lastRunAt + isRunning + intervalMs + eventCounts last1h+last24h + lastEvent + 16 modül moduleCounts — KVKK risk 0 sadece operasyonel metric) + Z4 production smoke + Z5 Anayasa Madde 30.27 (Public Tanı Endpoint Disiplini — operasyonel acil tanı için auth-free + hassas-veri-yok endpoint kriterleri) + Z6 OS senkron 5 dosya + Z7 2FA hazırlık doğrulama. CEO `tedbirge-ai.onrender.com/api/agents-health` URL bar ile 1 dakikada Auditor canlılık + 16 modül sayım kanıtı görebilir. 0 schema/npm. Pattern 173+ → 180+ atom sapma 0 — kalibrasyon 1.6× 20. doğrulama. Anayasa v1.22.0 yürürlükte (Madde 30.27 alt-genişleme — patch sürüm yok).)**  
 **1 Mayıs 2026 — v1.18.0 (TUR #59 — FAZ 5 İçerik Üretimi KAPANIŞ: 10 atom sapma 0 ile 50 niş makale (Trafik 20 + İş Kazası 15 + Sigorta+Genel 15) + 3 pillar refactor (cluster grid) + blog detay FAQPage+BreadcrumbList JsonLd + sitemap auto-update (51 makale URL) + iç linking audit (150 cross-link, 0 bozuk). Madde 33.2 düzeltme: avukat onayı yerine Madde 25.3 KIRMIZI listesi kontrolü yeterli (TUR #47 fizibilite raporları zaten anayasal düzeyde kurulmuş). Mevcut lib/blog.ts POSTS array genişletildi (MDX altyapısı reddedildi — 0 npm install). Pattern: TUR #56+57+58+59 = 43/43 atom sapma 0 — kalibrasyon 1.6× dördüncü kez kalıcı pattern. KAPANIŞ Madde 32'ye kaydı.)**  
 **4 Mayıs 2026 akşam — TUR #72.11 (DEVİR MEKTUBU + SİSTEM DURUMU KESİN YENİDEN YAZIM + 2FA REHBERİ + 5 OS DOSYA SENKRON: 9 atom uçtan uca — Y1 derin tanı (sistem-durumu UI source code mevcut ama TUR #72.10 X2 "yeniden yazım gerek değil" kararı CEO görsel ile çatıştı, mimar hatası 11 emsali) + Y2 KESİN UI yeniden yazım (689 satır → 280 satır temiz, ModuleStatusItem interface backend uyum, MODULES dict 16 modül Türkçe ad+emoji+açıklama, formatRelative helper, fetchStatus/fetchModuleEvents apiFetch + 10 sn polling, 4 kolon responsive grid, ModuleCard severity-based rozet, AnimatePresence Akış expand) + Y3 2FA CEO rehberi DEVIR_RAPORU'a (8 user × 5 dk = 40 dk manuel iş) + Y4 production smoke 4 kanıt (backend endpoint + FE bundle + AgentEvent sayım + UI görsel CEO sabah) + Y5 login rol doğrulama tekrar doğrulama rehberi (CEO sabah 3 senaryo) + Y6 Anayasa Madde 30.25 (CEO Otonom Komut Pattern Disiplini — "uçtan uca otonom tek komutla bana bir şey sormasın yapılsın" 4'lü onay zinciri yenilemesi) + Madde 30.26 (5 OS Dosya Senkron Pattern Disiplini — her TUR sonu tek atom + tek commit) + Y7 OS senkron 5 dosya (DEVIR_RAPORU TAMAMEN yeniden yazıldı + sonraki sohbet açılış prompt'u eklendi). CEO 22+ saatlik gün sonu, sonraki sohbete temiz devir hazır. 0 schema/npm. Pattern 164+ → 173+ atom sapma 0 — kalibrasyon 1.6× 19. doğrulama. Anayasa v1.22.0 yürürlükte (Madde 30.25 + 30.26 alt-genişleme — patch sürüm yok). 12 mimar hatası kaydı (1-12) MIMARI_KARARLAR.md'de izlenebilir.)**  
 **4 Mayıs 2026 öğleden sonra geç — TUR #72.10 (3 KRİTİK BUG HOTFIX: 8 atom uçtan uca — X1 derin tanı (sistem-durumu UI source code mevcut, regresyon kaynağı Vercel deploy + browser cache + Auditor zinciri zayıflığı, fresh re-deploy trigger) + X2 kontrol (TUR #71 A22+A24 + TUR #72.9 D2/D5 commit'leri yerinde) + X3 login rol doğrulama (`requestedRole` body + `expectedRoleForTab` mapping + 403 ForbiddenError + `correctRole` hint + KVKK m.12 güvenlik) + X4 4 senaryo smoke (ADMIN+Yönetici/ADMIN+Temsilci/LAWYER+Hukukçu/şifre yanlış) + X5 2FA endpoint canlılık + X6 production deploy doğrulama + X7 Anayasa Madde 30.24 (Login Rol Doğrulama Disiplini — sekme rol mismatch 403 + correctRole hint + role-based redirect) + OS senkron 5 dosya. CEO 13:20-13:24 görsel kanıt: ADMIN email Yönetici/Temsilci/Hukukçu hangisi seçili olursa olsun ADMIN paneline giriyordu = KVKK m.12 ihlali. Mimar hatası 11: TUR #72.9 yetersiz tanı (production deploy + browser cache hesaba katılmadı). Mimar hatası 12: TUR #72.6+#72.7+#72.8+#72.9 zincirinde login `requestedRole` rol mismatch kontrolü yapılmadı. 0 schema/npm. Pattern 156+ → 164+ atom sapma 0 — kalibrasyon 19. doğrulama. Anayasa v1.22.0 yürürlükte (Madde 30.24 alt-genişleme — patch sürüm yok).)**  
