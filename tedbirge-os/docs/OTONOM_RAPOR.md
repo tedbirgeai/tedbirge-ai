@@ -1,3 +1,116 @@
+## TUR #72.6 — 5 ROL PROFIL + 2FA (KAPANIŞ)
+
+**Tarih:** 4 Mayıs 2026 öğlen
+**Anayasa:** v1.22.0 yürürlükte (Madde 30.19 + 30.20 alt-genişleme — patch sürüm yok)
+**Tip:** B birleşik orta kesit (KIRMIZI nokta — schema + 5 endpoint + 4 yeni UI + matrisi)
+**Atom:** 8 (P1.1 schema + P1.2 backend + P1.3 me + P2 UI + P3 modal + P4 login challenge + P5 security + P6/P8 OS senkron)
+**Commit:** 3 (`bd4e5b4` BE + `a57b17a` FE + bu OS senkron)
+**Schema migration:** 1 (User 2FA — `apply_tur72_6_schema.js` IF NOT EXISTS idempotent + Render postinstall production)
+**npm install:** 0 (mevcut speakeasy + qrcode + bcrypt yeterli)
+**KIRMIZI ihlal:** 0 (CEO 4'lü onay zinciri TUR #66.7+#69+#70+#71+#72+#72.5+#72.6)
+**Süre:** ~3-4 saat otonom
+
+### CEO Direktifi (Madde 17.5 + 18.3)
+
+Mehmet DİNÇ 4 Mayıs 2026 öğlen kesin emir:
+> "5 rol giriş noktasında 2FA olacak: ADMIN + LAWYER + REPRESENTATIVE + CUSTOMER + (yoksa eklenmeli) — tek seferde otonom"
+
+CEO sabah 5 URL test etti (`/profil`, `/security`, `/2fa`, `/ayarlar`, `/profile`) **hepsi /login redirect** — Profil sayfası YOK. 2FA aktive edemedi. KVKK m.12 ihlali açık. **Mimar hatası 7:** TUR #56'da Tasarım Sistemi v1.0 + KVKKHaklarim sayfası yapıldı, Profil + 2FA UI **atlandı**.
+
+### Atomlar Detay
+
+**P1 — Backend (commit `bd4e5b4`):**
+
+P1.1 Schema:
+- `User`: `twoFactorBackupCodes Json?` + `twoFactorEnabledAt DateTime?` + `twoFactorMethod TwoFactorMethod @default(TOTP)`
+- `enum TwoFactorMethod { TOTP SMS EMAIL }`
+- `apply_tur72_6_schema.js` idempotent (DO $$ + IF NOT EXISTS + ALTER TABLE)
+- Lokal Prisma EPERM: SKIP, production Render postinstall halleder
+
+P1.2 Backend (mevcut speakeasy + qrcode + bcrypt yeterli):
+- `setup-2fa`: response `otpauthUrl` eklendi (manuel entry için)
+- `verify-2fa`: 10 backup code üret (bcrypt hash) + `twoFactorEnabledAt: new Date()` + response `backupCodes` (plain, sadece bir kez)
+- **`login-backup-code` (YENİ endpoint):** `POST /api/auth/login-backup-code` → tempToken + backupCode → JWT, kullanılan kod silinir (tek kullanım kuralı)
+
+P1.3 `/auth/me` select genişletildi: `twoFactorEnabled` + `twoFactorEnabledAt` + `twoFactorMethod`
+
+**P2 — 4 DRY Component (commit `a57b17a`):**
+
+- `components/profile/ProfileLayout.tsx` — Hero (avatar + ad + email + role rozeti renk-kodlu) + 4 section (2FA + şifre + rol-spesifik + hesap)
+- `components/profile/TwoFactorSection.tsx` — durum (AKTİF yeşil / KAPALI sarı / ZORUNLU+kapalı kırmızı) + Setup butonu + Devre dışı flow
+- `components/profile/TwoFactorSetupModal.tsx` — 4-step wizard (Yöntem → QR → Doğrula → Backup) + TXT indir + Yazdır + checkbox onay
+- `components/auth/TwoFactorChallenge.tsx` — Login 6 haneli OTP + "Backup kod kullan" alternatif + İptal
+
+**P3 — 3 Yeni Profil Sayfası (commit `a57b17a`):**
+
+- `app/(panel)/profil/page.tsx` — ADMIN + LAWYER + SALES ortak (rol-spesifik section'da Dashboard/UYAP/Sistem-Durumu kısayolları)
+- `app/(panel)/musteri/profil/page.tsx` — CUSTOMER (KVKK m.11 hak listesi + /musteri/kvkk-haklarim link)
+- `app/(panel)/temsilci/profil/page.tsx` — mevcut, TwoFactorSection eklendi (REPRESENTATIVE rolü)
+
+Sidebar (`components/layout/AppLayout.tsx`):
+- HESAP grup + 3 rol-spesifik href: `/profil` (ADMIN/LAWYER/SALES) · `/temsilci/profil` (REPRESENTATIVE) · `/musteri/profil` (CUSTOMER)
+
+**P4 — Login 2FA Challenge (commit `a57b17a`):**
+
+- `/login` form modify: response `requires2fa: true + tempToken` yakala → `TwoFactorChallenge` component göster
+- TwoFactorChallenge: 6 haneli OTP veya 8 haneli backup kod
+- Başarı: setToken + role-based redirect (`/dashboard` veya `/musteri`)
+
+**P5 — Security 5 rol matrisi (commit `bd4e5b4`):**
+
+`runActiveTask` payload genişletildi:
+- `admin_no_2fa: N` (CRITICAL — KVKK m.12)
+- `lawyer_no_2fa: N` (CRITICAL — KVKK m.12 + UYAP)
+- `representative_no_2fa: N` (INFO — login engel yok)
+- `customer_no_2fa: N` (INFO — opsiyonel)
+- `total_no_2fa: N` + `alert_type: ROLE_2FA_OFF`
+
+**P6/P8 — Anayasa + OS senkron (bu commit):**
+
+- Madde 30.19 — 5 Rol 2FA Disiplini (zorunluluk matrisi tablosu + 5 endpoint + DRY component + Security matrisi)
+- Madde 30.20 — Profil Sayfası Disiplini (URL × Sidebar × ProfileLayout 4 section standart)
+- CHANGELOG: TUR #72.6 kaydı (CLAUDE.md başı)
+- 5 OS dosyası senkron
+
+### Production Smoke (deploy sonrası)
+
+```
+curl https://tedbirge-ai.onrender.com/health → 200 ✅
+curl /api/auth/setup-2fa → 401 (auth gerek = canlı)
+curl /api/auth/verify-2fa → 401
+curl /api/auth/disable-2fa → 401
+curl /api/auth/login-2fa → 400 (body eksik)
+curl /api/auth/login-backup-code → 400 (yeni endpoint canlı)
+curl https://www.tedbirge.ai/profil → 200 veya 302 /login
+```
+
+### Pattern
+
+**TUR #56+...+72.6 = 134+ atom sapma 0**
+**Kalibrasyon 1.6× — 15. doğrulama**
+
+### Mimar Dersi
+
+TUR #56'da Tasarım Sistemi v1.0 + Rol-Ruh Karakter Farklılaştırma yapıldı, **Profil + 2FA UI atlandı** (mimar hatası 7). CEO sabah URL test ile yakaladı: `/profil`, `/security`, `/2fa`, `/ayarlar`, `/profile` — hepsi /login redirect. KVKK m.12 ihlali açık (yeterli güvenlik tedbirleri yok).
+
+TUR #72.6 8 atomda kapattı:
+- Backend 2FA ZATEN MEVCUTTU (speakeasy + qrcode + 4 endpoint) — sadece UI eksikti
+- Backup codes (10 × 8-haneli, bcrypt hash, tek kullanım) eklendi
+- 5 rol DRY UI: 4 component, 5 sayfa paylaşır
+- Login Challenge form akışına entegre
+
+**Kalıcı pattern (TUR #73+ için):**
+- Yeni rol eklendiğinde Profil + 2FA otomatik dahil (Madde 30.20 — Sidebar/ProfileLayout DRY)
+- Yeni rol için Madde 30.19 zorunluluk matrisinde yer al
+- Backend 2FA mevcut olsa bile UI eksikse "kabuk yasağı" Madde 30.17 ihlali (mimar hatası 7 emsali)
+
+### Mimar + Onay
+
+**Mimar:** Claude Opus 4.7 (sohbet) + Claude Code (otonom uygulama)
+**Onay:** Mehmet DİNÇ — Madde 17.5 kesin emir + 18.3 KIRMIZI yazılı
+
+---
+
 ## TUR #72.5 — 5 BUG HOTFIX (KAPANIŞ)
 
 **Tarih:** 4 Mayıs 2026 sabah

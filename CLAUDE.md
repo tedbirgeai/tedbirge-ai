@@ -1630,6 +1630,73 @@ const result = await helper.adaptiveOr("ai", "rateLimitPct", 30, 7);
 - ❌ Modül her tick'te calculateThreshold çağırmak (DB yük — günlük 1 cache yeterli)
 - ❌ Adaptive eşik üzerinden kalıcı eylem (rate-limit + ADMIN_FEED zorunlu)
 
+### 30.19 — 5 Rol 2FA Disiplini (TUR #72.6)
+
+**Kural:** Tedbirge.ai 5 giriş noktası (ADMIN + LAWYER + REPRESENTATIVE + CUSTOMER + Public Register) için 2FA zorunluluk matrisi:
+
+| Rol | Seviye | Login Engel | Sebep |
+|---|---|---|---|
+| **ADMIN** | ZORUNLU | İlk girişte zorunlu setup wizard | KVKK m.12 (veri kontrolörü) |
+| **LAWYER** | ZORUNLU | 30 gün kullanım sonrası zorunlu setup | KVKK m.12 + UYAP entegrasyon güvenliği |
+| **SALES** | ZORUNLU | İlk girişte zorunlu setup wizard | KVKK m.12 (müvekkil verisine erişim) |
+| **REPRESENTATIVE** | ÖNERİLEN | YOK | Komisyon ve müvekkil bilgisi koruması |
+| **CUSTOMER** | OPSİYONEL | YOK | UI'de teklif, KVKK m.11 hak |
+| **Public Register** | — | Setup zorunlu değil, kayıt sonrası 5 dk toast | — |
+
+**Backend:** TOTP RFC 6238 (speakeasy npm). Backup codes 10 × 8-haneli, bcrypt hash. Login flow: password → 2FA challenge (tempToken 5 dk JWT) → final JWT 24h. Recovery: backup code (tek kullanım, kullanılan kod silinir).
+
+**5 Endpoint:**
+- `POST /api/auth/setup-2fa` (auth) — secret + qrCode + otpauthUrl
+- `POST /api/auth/verify-2fa` (auth) — token doğrula + enable + 10 backup code üret
+- `POST /api/auth/disable-2fa` (auth + token) — devre dışı bırak
+- `POST /api/auth/login-2fa` (public) — tempToken + otpToken → JWT
+- `POST /api/auth/login-backup-code` (public, TUR #72.6 yeni) — tempToken + backupCode → JWT
+
+**UI (DRY):** 4 component 5 rol paylaşır:
+- `components/profile/ProfileLayout.tsx` — Hero + sections
+- `components/profile/TwoFactorSection.tsx` — durum + aktivasyon
+- `components/profile/TwoFactorSetupModal.tsx` — 4-step wizard
+- `components/auth/TwoFactorChallenge.tsx` — login OTP + backup
+
+**Security modülü `runActiveTask` 5 rol matrisi (Madde 30.10 ek):**
+- ADMIN no_2fa → CRITICAL + ADMIN_FEED + email
+- LAWYER no_2fa → CRITICAL (KVKK m.12 + UYAP)
+- REPRESENTATIVE no_2fa → INFO log (login engel yok)
+- CUSTOMER no_2fa → INFO log (opsiyonel)
+- ACTION_TAKEN payload: `{ admin_no_2fa, lawyer_no_2fa, representative_no_2fa, customer_no_2fa, total_no_2fa }`
+
+**Yasak:**
+- ❌ ADMIN/LAWYER/SALES için 2FA opsiyonel saymak (KVKK m.12 ihlali)
+- ❌ CUSTOMER için 2FA zorunlu yapmak (CTV düşüşü + onboarding sürtünmesi)
+- ❌ Backup codes kullanımı sonrası kodu silmemek (tek kullanım kuralı)
+- ❌ tempToken süresini 5 dk üstü uzatmak (güvenlik)
+- ❌ SMS-only 2FA (TOTP standart, SMS phishing zayıf — gelecekte ek seçenek)
+- ❌ 2FA otomatik aktive etme (KVKK + UX, Madde 24.11 ihlali)
+
+### 30.20 — Profil Sayfası Disiplini (TUR #72.6)
+
+**Kural:** Her rol için Profil sayfası **zorunlu** ve Sidebar'da görünür:
+
+| Rol | URL | Sidebar Menü |
+|---|---|---|
+| ADMIN/LAWYER/SALES | `/profil` | "Profil & Güvenlik" 👤 |
+| REPRESENTATIVE | `/temsilci/profil` | "Profil & Güvenlik" 👤 |
+| CUSTOMER | `/musteri/profil` | "Profil & Güvenlik" 👤 |
+
+**ProfileLayout 4 section standart:**
+1. **Hero** — User bilgi (avatar + ad + email + role rozeti renk-kodlu)
+2. **Güvenlik** — 2FA section (TwoFactorSection DRY) + şifre değiştir (gelecekte)
+3. **Rol-spesifik** — REPRESENTATIVE: IBAN + komisyon · CUSTOMER: KVKK haklarım link · LAWYER: dashboard kısayol · ADMIN: sistem-durumu kısayol
+4. **Hesap** — KVKK m.7 silme talebi link, e-posta read-only
+
+**`/auth/me` response zorunlu alanlar:** `id, fullName, email, phone, role, twoFactorEnabled, twoFactorEnabledAt, twoFactorMethod` + rol-spesifik alanlar (iban, vergi, uzmanlık).
+
+**Yasak:**
+- ❌ Yeni rol eklendiğinde Profil sayfası eklemeden canlıya çıkmak (Sidebar'da menü zorunlu)
+- ❌ ProfileLayout dışında tek-kullanımlık profil sayfası yazmak (DRY ihlali)
+- ❌ Profil sayfası dışında 2FA aktivasyonu (TwoFactorSetupModal tek giriş noktası)
+- ❌ Email değiştirme self-service (ADMIN onayı gerek)
+
 ---
 
 ## 31. TASARIM DİSİPLİNİ — Tedbirge Design System v1.0
@@ -1958,6 +2025,7 @@ Mehmet Bey sahaya çıkabilsin diye bu disiplin var.
 **1 Mayıs 2026 — v1.16.0 (TUR #57 — 4 CRM Rol-Ruh Karakter Farklılaştırma: 12 atom (3 KRİTİK + 9 ORTA) ile 9 yeni DS komponenti (AnomalyStrip + KPICardEnhanced + Sparkline + CaseFolderCard + LawyerHealthTriad + KanbanBoard + DealCard + ActivityCounter + TimelineDot + TrustBadge + KeyboardShortcutsHelp), 2 yeni route (/dashboard/komuta + /temsilci/pipeline), 2 yeni utility (lib/sadelestir 30 terim + lib/keyboardNav G+harf), 2 mini endpoint (anomalies + lead aşama). Madde 31.9 Rol-Ruh Tasarım Prensibi tohumdan resmileşmeye geçti. 0 schema migration, 0 npm paket (3 paket adayı native alternatifle reddedildi: react-beautiful-dnd → HTML5 DragEvent, canvas-confetti → CSS keyframe, lottie-react → inline SVG). 4 CRM artık niş emsal seviyesinde (Stripe Dashboard+Linear, Clio+MyCase, HubSpot+Pipedrive, Stripe Customer Portal+Apple HIG). KAPANIŞ Madde 32'ye kaydı.)**  
 **1 Mayıs 2026 — v1.17.0 (TUR #58 — FAZ 5 DISCOVERABILITY başlangıcı: 9 atom (1 KRİTİK + 7 ORTA + 1 OS) ile llms.txt + JsonLd 3 yeni factory (FAQPage + HowTo + BreadcrumbList) + 3 niş landing'e SSS schema (15+15+10 toplam 40 SSS) + yeni /tazminat-rehberi sayfası (8 adım HowTo) + AI snippet meta disiplini + BrandFooterStrip 4 sayfada. Madde 33 (İçerik Üretim Disiplini) eklendi: avukat onayı zorunlu, TBB Reklam Yasağı uyumu, AI sadece taslak yazar — avukat onaylar, disclaimer her içerikte. 0 schema migration, 0 npm paket. CEO direktifi 1 Mayıs 2026 (Aylık Sabit Aidat Yasağı) MIMARI_KARARLAR.md'ye eklendi: tüm 3. parti SaaS sabit aidat yasak, sadece kullanım bazlı API ücreti orantılı geçer. KAPANIŞ Madde 32'ye kaydı.)**  
 **1 Mayıs 2026 — v1.18.0 (TUR #59 — FAZ 5 İçerik Üretimi KAPANIŞ: 10 atom sapma 0 ile 50 niş makale (Trafik 20 + İş Kazası 15 + Sigorta+Genel 15) + 3 pillar refactor (cluster grid) + blog detay FAQPage+BreadcrumbList JsonLd + sitemap auto-update (51 makale URL) + iç linking audit (150 cross-link, 0 bozuk). Madde 33.2 düzeltme: avukat onayı yerine Madde 25.3 KIRMIZI listesi kontrolü yeterli (TUR #47 fizibilite raporları zaten anayasal düzeyde kurulmuş). Mevcut lib/blog.ts POSTS array genişletildi (MDX altyapısı reddedildi — 0 npm install). Pattern: TUR #56+57+58+59 = 43/43 atom sapma 0 — kalibrasyon 1.6× dördüncü kez kalıcı pattern. KAPANIŞ Madde 32'ye kaydı.)**  
+**4 Mayıs 2026 öğlen — TUR #72.6 (5 ROL PROFIL + 2FA: 8 atom uçtan uca — User schema 3 ek alan + TwoFactorMethod enum + apply SQL idempotent + setup-2fa otpauthUrl + verify-2fa 10 backup code bcrypt + login-backup-code yeni endpoint + 4 DRY component (ProfileLayout + TwoFactorSection + TwoFactorSetupModal 4-step wizard + TwoFactorChallenge) + 3 yeni profil sayfası (/profil ADMIN/LAWYER/SALES + /musteri/profil + /temsilci/profil güncelleme) + Sidebar HESAP grup + Login 2FA Challenge + Security 5 rol matrisi (admin_no_2fa + lawyer_no_2fa + representative_no_2fa + customer_no_2fa) + Anayasa Madde 30.19 (5 Rol 2FA Disiplini — KVKK m.12 zorunlu/önerilen/opsiyonel) + Madde 30.20 (Profil Sayfası Disiplini — DRY ProfileLayout + 4 section standart) + OS senkron 5 dosya. CEO sabah 5 URL test (/profil /security /2fa /ayarlar /profile) hepsi /login redirect — mimar hatası 7 (TUR #56'da Profil + 2FA UI atlanmış). 0 npm install (speakeasy + qrcode + bcrypt mevcut), 1 schema migration (CEO 4'lü onay zinciri). Pattern 126+ → 134+ atom sapma 0 — kalibrasyon 15. doğrulama. Anayasa v1.22.0 yürürlükte (TUR #72 son sürüm — hotfix patch sürüm yok, Madde 30.19/20 alt-genişleme).)**  
 **4 Mayıs 2026 sabah — TUR #72.5 (5 BUG HOTFIX: H1 Recovery actual retry + H2 Backup 401 fallback rate-limit + H3 Security 2FA detay + H4 Auditor findings payload + H5 Navigation auto-assign service. 6 atom + 1 commit. CEO sabah uyandı, kanıtla 5 sorun yakaladı, otonom düzeltildi. Anayasa v1.22.0 yürürlükte — hotfix patch sürüm yok. Pattern 120+ → 126+ atom sapma 0 — kalibrasyon 14. doğrulama. Mimar dersi: TUR #72'de modüller "yapacak" yazıldı ama trigger zinciri eksikti — CEO sabah akış paneli okudu, yakaladı; mimar hatası 6 hotfix ile kapatıldı.)**  
 **4 Mayıs 2026 — v1.22.0 (TUR #72 BIRLESIK 16 MODÜL GERÇEK GÖREV: 18 atom uçtan uca — 16 modül runActiveTask + adaptiveThreshold helper + auditor runAllActiveTasks orchestrator + Anayasa Madde 30.17 + 30.18 + OS senkron 5 dosya. CEO emri "sayma değil eylem" — TUR #69+#70+#71'de modüller "sayan" yazıldı (mimar hatası 5), CEO yakaladı, TUR #72 "yapan" yaptı. 3 katmanlı disiplin: runStatusCheck (gözlemci, 5 dk Auditor) + runActiveTask (aktör, modül-spesifik periyot) + adaptiveThreshold (akıllı, p95+2σ — cold start safe < 100 sample → static default). Healer pattern Maintenance modülüne migrate (TUR #55 healer.agent.js purge mantığı maintenance.js'e geçti). 16 modül ACTION_TAKEN AgentEvent yazıyor: ai retry · maintenance GERCEK PURGE (30g+ INFO AgentEvent + 7g+ consumed RealtimeEvent + 90g+ stuck Document) · compliance KVKK ADMIN alert · security brute force · vd. Auto-action rate-limit zorunlu. KVKK+güvenlik etkili otomasyon ADMIN_FEED öneri sınırlı. 0 schema migration (TUR #71 EmailDigest+Pulse yeterli), 0 npm install. Pattern: TUR #56+...+72 = 120+ atom sapma 0 — kalibrasyon 1.6× 13. doğrulama. Self-learning ML Aşama 3 TUR #80+'a planlı (7-14 gün veri biriktirme + LLM Router TUR #71 A19 hazır).)**  
 **3 Mayıs 2026 — v1.21.0 (TUR #71 BIRLESIK 7 atom uçtan uca: A22 Akış paneli + A18 Pulse haftalık + A23 EmailDigest 09:00 cron + A19 LLM Router backend (Anthropic Tool Use SELECT-only) + A20 Komut Çubuğu UI + A24 Global Canlı Olay Akışı + A25 Anayasa + A26 OS senkron. CEO 18 saatlik gün sonu kesin emir Madde 17.5: "tek komut otonom uçtan uca soru sorma". Madde 30'a 4 yeni alt-madde eklendi: 30.13 Akış Paneli Disiplini + 30.14 EmailDigest Disiplini + 30.15 LLM Router Güvenlik (çift regex SELECT-only + KVKK alan maskele) + 30.16 Komut Çubuğu UI Disiplini (Cmd+Enter + geçmiş 10 lokal state). 2 schema migration (EmailDigest + Pulse — KIRMIZI nokta CEO yazılı onayı), 0 npm install (mevcut @anthropic-ai/sdk + nodemailer). Pattern: TUR #56+...+71 = 102+ atom sapma 0 — kalibrasyon 1.6× 12. doğrulama. TUR #69+#70 mektup boşluğu (akış paneli atom unutulması) TUR #71 ile kapatıldı.)**  

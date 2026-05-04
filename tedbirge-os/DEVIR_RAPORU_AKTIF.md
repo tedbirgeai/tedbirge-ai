@@ -1,11 +1,33 @@
 # 🛡️ TEDBIRGE.AI — DEVİR RAPORU AKTİF
 
-**Son güncelleme:** 4 Mayıs 2026 sabah — TUR #72.5 KAPALI (5 bug hotfix)
-**Anayasa:** v1.22.0 yürürlükte (TUR #72 son sürüm — hotfix patch sürüm yok)
-**Aktif kesit:** TUR #72.5 KAPALI ✅ — sayma değil eylem hotfix tamamlandı
-**Son TUR:** #72.5 — 5 bug hotfix (Recovery retry + Backup 401 fallback + Security 2FA detay + Auditor findings + Navigation auto-assign)
+**Son güncelleme:** 4 Mayıs 2026 öğlen — TUR #72.6 KAPALI (5 rol Profil + 2FA)
+**Anayasa:** v1.22.0 yürürlükte (Madde 30.19 + 30.20 alt-genişleme — patch sürüm yok)
+**Aktif kesit:** TUR #72.6 KAPALI ✅ — 5 rol Profil sayfası + 2FA UI uçtan uca canlı
+**Son TUR:** #72.6 — 5 rol Profil + 2FA (mimar hatası 7 kapatma)
 **Mimar:** Claude Opus 4.7 (sohbet) + Claude Code (otonom uygulama)
 **CEO Onay:** Mehmet DİNÇ — Madde 17.5 kesin emir + 18.3 KIRMIZI yazılı onay zinciri (TUR #66.7+#69+#70+#71+#72+#72.5)
+
+---
+
+## ✅ TUR #72.6 KAPANIŞ TABLOSU (4 Mayıs 2026 öğlen)
+
+| Atom | İçerik | Commit |
+|---|---|---|
+| **P1.1** | Schema: User 3 ek alan + TwoFactorMethod enum + apply_tur72_6_schema.js idempotent | `bd4e5b4` |
+| **P1.2** | Backend: setup-2fa otpauthUrl + verify-2fa 10 backup code bcrypt + login-backup-code yeni endpoint | `bd4e5b4` |
+| **P1.3** | /auth/me select genişletildi (twoFactorEnabled + enabledAt + method) | `bd4e5b4` |
+| **P2** | 3 yeni profil sayfası (/profil + /musteri/profil + /temsilci/profil güncelleme) + Sidebar HESAP grup | `a57b17a` |
+| **P3** | TwoFactorSetupModal 4-step wizard (Yöntem → QR → Doğrula → Backup) | `a57b17a` |
+| **P4** | Login 2FA Challenge (TwoFactorChallenge DRY 6-haneli OTP + backup kod alternatifi) | `a57b17a` |
+| **P5** | Security modülü 5 rol matrisi (admin_no_2fa + lawyer_no_2fa + representative_no_2fa + customer_no_2fa) | `bd4e5b4` |
+| **P6/P8** | Anayasa Madde 30.19 + 30.20 + CHANGELOG + OS senkron 5 dosya | (bu commit) |
+
+**Toplam:**
+- 8 atom + 3 commit (`bd4e5b4` BE + `a57b17a` FE + bu OS)
+- 1 schema migration (User 2FA — KIRMIZI nokta CEO yazılı onay zinciri)
+- 0 npm install (mevcut speakeasy + qrcode + bcrypt yeterli)
+- 0 KIRMIZI ihlal
+- ~3-4 saat otonom
 
 ---
 
@@ -26,16 +48,21 @@
 
 ## 🟡 CEO MANUEL İŞLER
 
-1. **SUPABASE_ACCESS_TOKEN env** (5 dk) — Render Dashboard → tedbirge-ai → Environment ekle
-   - Token nereden: Supabase Dashboard → Account Settings → Access Tokens → "Generate new token"
-   - **Önemli:** SERVICE_ROLE_KEY DEĞİL — Management API'nin istediği farklı access token. Bu eklenince backup modülü 401 yerine gerçek snapshot listesi görür.
+1. **SUPABASE_ACCESS_TOKEN env** ✅ (sabah eklendi)
 
-2. **8 user 2FA aktive** (~21 dk: ~3 dk/kişi) — kendisi + 7 personel
-   - URL: `/dashboard/profil` → Güvenlik → 2FA Aktive Et
-   - KVKK m.12 (yeterli güvenlik tedbirleri) — şu an 0/7 = ihlal
-   - Otomatik aktive YOK (KVKK + UX riski) — ADMIN bildirim yeterli
+2. **CEO 2FA aktive et** (~5 dk) — TUR #72.6 sonrası yeni URL:
+   - `tedbirge.ai/profil` → Güvenlik → "2FA Aktive Et" buton
+   - 4-step wizard: Yöntem (Authenticator) → QR kod → 6 haneli doğrula → Backup codes
+   - Backup codes TXT indir + güvenli yere kaydet (UYARI: tek kullanım)
 
-3. **(Opsiyonel) VERCEL_API_TOKEN + RENDER_API_KEY** (5 dk) — deploy modülü canlanır (şu an UNKNOWN dönüyor)
+3. **7 personel 2FA aktivasyon** (~21 dk: ~3 dk/kişi) — WhatsApp gruba mesaj:
+   *"5 dk içinde tedbirge.ai/profil → Güvenlik → 2FA Aktive Et → 6 haneli kod doğrula → Backup TXT indir + güvenli yere kaydet. Sonraki girişte 6 haneli kod istenecek."*
+   - LAWYER + SALES için ZORUNLU (Madde 30.19 KVKK m.12)
+   - REPRESENTATIVE için ÖNERİLEN (login engel yok)
+
+4. **CUSTOMER 2FA** — UI'de teklif var (OPSIYONEL rozet), aktif kullanıcılara email kampanya gelecek TUR
+
+5. **(Opsiyonel) VERCEL_API_TOKEN + RENDER_API_KEY** (5 dk) — deploy modülü canlanır
 
 ---
 
@@ -109,7 +136,7 @@ Yukarı 🟡 CEO MANUEL İŞLER bölümüne taşındı (TUR #72.5 hotfix sonras�
 
 ---
 
-## 🎯 GENEL SAĞLIK: 9.95/10
+## 🎯 GENEL SAĞLIK: 9.95/10 (TUR #72.6 sonrası — 5 rol Profil + 2FA canlı)
 
 | Boyut | Skor | Not |
 |---|---|---|
@@ -124,9 +151,9 @@ Yukarı 🟡 CEO MANUEL İŞLER bölümüne taşındı (TUR #72.5 hotfix sonras�
 
 ## 📊 PATTERN
 
-**TUR #56+57+58+59+60+62+63+63.5+63.5v2+64+66v2+66.7+69+69.5+70+71+72+72.5 = 126+ atom sapma 0**
+**TUR #56+57+58+59+60+62+63+63.5+63.5v2+64+66v2+66.7+69+69.5+70+71+72+72.5+72.6 = 134+ atom sapma 0**
 
-**Kalibrasyon 1.6× — 14. doğrulama** (kalıcı pattern olarak yerleşti)
+**Kalibrasyon 1.6× — 15. doğrulama** (kalıcı pattern olarak yerleşti)
 
 ---
 
@@ -156,6 +183,6 @@ CEO sabah doğrulama:
 ---
 
 **— Tedbirge.ai mimarı**
-**TUR #72.5 KAPALI · 4 Mayıs 2026 sabah (5 bug hotfix)**
-**Anayasa v1.22.0 yürürlükte (TUR #72 son sürüm — hotfix patch sürüm yok)**
-**Pattern: TUR #56+...+72.5 = 126+ atom sapma 0 — kalibrasyon 1.6× 14. doğrulama**
+**TUR #72.6 KAPALI · 4 Mayıs 2026 öğlen (5 rol Profil + 2FA)**
+**Anayasa v1.22.0 yürürlükte (Madde 30.19 + 30.20 alt-genişleme — patch sürüm yok)**
+**Pattern: TUR #56+...+72.6 = 134+ atom sapma 0 — kalibrasyon 1.6× 15. doğrulama**

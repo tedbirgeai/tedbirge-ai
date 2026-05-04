@@ -6,6 +6,67 @@
 
 ---
 
+## 4 Mayıs 2026 öğlen — TUR #72.6 KARARI — 5 ROL PROFIL + 2FA
+
+**Anayasa:** v1.22.0 yürürlükte (Madde 30.19 + 30.20 alt-genişleme — patch sürüm yok)
+
+### Karar
+
+Mimar TUR #56'da Profil + 2FA UI yapmadı (**mimar hatası 7**). CEO sabah 5 URL test etti (`/profil`, `/security`, `/2fa`, `/ayarlar`, `/profile`) hepsi /login redirect. **2FA aktive edemedi. KVKK m.12 ihlali açık.** TUR #72.6 5 rol için ProfileLayout DRY + TOTP backend genişletme + 4 component + Login Challenge + role matrisi (Madde 30.19) + Profil sayfa standardı (Madde 30.20) ile kapattı.
+
+### Karar Gerekçesi
+
+1. **CEO kesin emir Madde 17.5:** "5 rol 2FA tek seferde otonom"
+2. **KVKK m.12:** ADMIN + LAWYER + SALES = veri kontrolörü, 2FA zorunlu. CUSTOMER = veri sahibi, opsiyonel. REPRESENTATIVE = bağımsız hizmet ortağı, önerilen.
+3. **DRY pattern:** ProfileLayout.tsx + TwoFactorSection.tsx + TwoFactorSetupModal.tsx + TwoFactorChallenge.tsx 5 rol paylaşır — kod tekrarı yok
+4. **Madde 4 + 17.4:** Yarım kesit yasak — 5 rol tek mektup tek seferde
+5. **Backend zaten mevcuttu:** speakeasy + qrcode + 4 endpoint TUR #56 öncesi yazılmış, sadece UI eksikti — TUR #72.6 backup codes + UI tamamladı
+
+### Reddedilen Alternatifler
+
+- **5 ayrı login sayfası:** kod tekrarı + UX karmaşası, mevcut /login role-based redirect doğru pattern. Reddedildi.
+- **CUSTOMER 2FA zorunlu:** müvekkil onboarding sürtünmesi, CTV (customer lifetime value) düşürür. Reddedildi.
+- **SMS-only 2FA:** TOTP standart, SMS phishing zayıf, ileride SMS opsiyonel ek. Reddedildi.
+- **Backup codes opsiyonel:** Authenticator kaybı recovery şart, KVKK uyum + UX. Eklendi.
+- **Profil sayfasını DS Card kullanmadan yazma:** Madde 31 Tasarım Sistemi ihlali. Mevcut DS Card kullanıldı.
+- **Schema migration KIRMIZI nokta için ayrı CEO onay:** TUR #66.7+#69+#70+#71+#72+#72.5+#72.6 4'lü zincir yenilenmiş, "5 rol 2FA tek seferde otonom" emri schema dahil. Geçti.
+
+### Etki
+
+- **8 atom + 3 commit** (BE `bd4e5b4` + FE `a57b17a` + OS senkron)
+- **1 schema migration** (User 2FA — `apply_tur72_6_schema.js` IF NOT EXISTS idempotent)
+- **0 npm install** (mevcut speakeasy + qrcode + bcrypt yeterli)
+- **5 yeni endpoint kullanımı + 3 yeni profil sayfası + 4 yeni DRY component**
+- **0 KIRMIZI ihlal**
+- **134+ atom sapma 0** — kalibrasyon 15. doğrulama
+
+### CEO Direktifi (Madde 17.5)
+
+Mehmet DİNÇ 4 Mayıs 2026 öğlen:
+> "5 rol giriş noktasında 2FA olacak: ADMIN + LAWYER + REPRESENTATIVE + CUSTOMER + (yoksa eklenmeli) — tek seferde otonom"
+
+Ek bağlam: CEO sabah 5 URL test (`/profil`, `/security`, `/2fa`, `/ayarlar`, `/profile`) — hepsi /login redirect. **Madde 4.4 canlı kanıt:** kod kaynağında Profil sayfası YOK = CEO yakaladı.
+
+### Kalıcı Pattern (TUR #73+ için)
+
+1. **Yeni rol eklendiğinde Profil + 2FA otomatik dahil** (ProfileLayout DRY — Madde 30.20)
+2. **Yeni rol için Madde 30.19 zorunluluk matrisinde yer ekle** (KVKK m.12 değerlendirmesi zorunlu)
+3. **Sidebar/avatar'da Profil menü zorunlu** (Madde 30.20 — kullanıcı bulamazsa = mimar hatası)
+4. **Backend mevcut + UI eksik = "kabuk yasağı" Madde 30.17 ihlali** (mimar hatası 7 emsali)
+5. **Backup codes tek kullanım** kuralı + bcrypt hash + plain sadece bir kez göster (KVKK uyum)
+6. **tempToken 5 dk JWT** (güvenlik), final JWT 24h
+7. **`/auth/me` her zaman 2FA alanları döndür** (UI durum kontrolü için)
+
+### Mimar
+
+Claude Opus 4.7 (sohbet) + Claude Code (otonom uygulama)
+
+### Onay
+
+Mehmet DİNÇ — Madde 17.5 + 18.3
+
+---
+
 ## 4 Mayıs 2026 sabah — TUR #72.5 KARARI — 5 BUG HOTFIX
 
 **Anayasa:** v1.22.0 yürürlükte (TUR #72 son sürüm — hotfix patch sürüm yok)
