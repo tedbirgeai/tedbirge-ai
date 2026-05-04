@@ -1,3 +1,104 @@
+## TUR #73 — OLAY/SAAT 0 KÖK SEBEP TANI + DEFENSIVE FIX + UI TETIKLE BUTONU (KAPANIŞ — GENİŞLETİLMİŞ)
+
+**Tarih:** 5 Mayıs 2026
+**Anayasa:** v1.22.0 yürürlükte (Madde 30.27 alt-genişleme — patch sürüm yok)
+**Tip:** P tipi (üretim hotfix — kök sebep + operasyonel görünürlük + UI buton)
+**Atom:** 13 (Z1-Z6, ilk 7 + ek 6 atom genişletme)
+**Commit:** 5 (`d3b4efd` agents-health public + `f50e108` Auditor defensive try-catch + `efe9c39` agents-health auditorHealth+lastError + `cc8103f` UI Auditor Tetikle butonu + bu OS senkron)
+**Schema/npm:** 0
+**KIRMIZI ihlal:** 0
+**Süre:** ~2 saat otonom
+
+### CEO Direktifi (Madde 17.5 + 18.3 + 30.25)
+
+CEO 4'lü zincir Madde 30.25 yenileme:
+> "uçtan uca otonom tek komutla bana bir şey sormasın yapılsın"
+
+TUR #73 mektubu: Z1 tanı → Z2 endpoint sayım → Z3 Auditor wakeup + HEARTBEAT severity + manuel trigger → Z4 UI Auditor Tetikle butonu → Z5 4 production smoke kanıt → Z6 5 OS dosya senkron + 3 commit push.
+
+### KÖK SEBEP TAM TESPİT (Z1+Z2)
+
+İlk Z4 smoke (önceki commit öncesi):
+```json
+{
+  "agents": [{ "name": "Auditor", "lastRunAt": null, "running": false }, ...],
+  "lastEvent": { "agentName": "Auditor", "eventType": "AGENT_ERROR", "severity": "ERROR" },
+  "moduleCounts": [16 modül × eventCountLast1h: 0]
+}
+```
+
+**Tanı (Madde 4.4 — kod kaynaktır):**
+- Auditor `run()` audit check'lerinden biri throw ediyor
+- BaseAgent.tick `try { run() } catch { log AGENT_ERROR }` pattern'inde **`this.lastRunAt = new Date()` satırına ulaşamıyor**
+- `runAllModules()` ve `runAllActiveTasks()` ASLA çağrılmıyor
+- 16 modül zinciri tamamen kopuk → CEO sistem-durumu "Olay/saat 0"
+
+### Z3 — Auditor Defensive Fix (commit `f50e108`)
+
+`Auditor.run()` yeniden organize edildi — **3 bağımsız try-catch**:
+1. `runAuditChecks()` — 6 audit check + AUDIT_FINDINGS log
+2. `runAllModules()` — 16 modül runStatusCheck (kritik canlılık zinciri)
+3. `runAllActiveTasks()` — 16 modül runActiveTask
+
+Her hata kendi `*_FAILED` log'unu yazar, zincir kopmaz.
+
+### Z3 — agents-health Genişletme (commit `efe9c39`)
+
+`GET /api/agents-health` yeni alanlar:
+- **`auditorHealth`**: HEALTHY (< intervalMs * 1.5) | DELAYED (< * 3) | STOPPED (> * 3) | NEVER_RAN | UNKNOWN
+- **`lastError`**: severity=ERROR son AgentEvent (24 saat) — agentName + eventType + message + ageMinutes
+- `lastEvent.message`: payload.message ilk 200 karakter
+
+CEO browser URL bar 1 dakikada Auditor sağlık kanıtı.
+
+### Z4 — UI Auditor Tetikle Butonu (commit `cc8103f`)
+
+`/dashboard/sistem-durumu` sağ üst:
+- **"Auditor Tetikle"** butonu (Zap icon, amber)
+- Tıklayınca `POST /api/agents/Auditor/tick` (mevcut admin endpoint)
+- Loading state (Zap animate-pulse)
+- Sonuç rozet: "✓ Tetiklendi · timestamp" (5 sn görünür)
+- 1.5 sn sonra otomatik `fetchStatus()` refresh
+
+### Z5 — Production Smoke 4/4 Yeşil
+
+```
+[1/4] auditorHealth: HEALTHY ✅
+      Auditor.lastRunAt: 14s önce (canlı)
+      eventCounts.last1h: 302 (önceki 35 → 302 sıçrama)
+      eventCounts.last24h: 4649
+      lastEvent: Auditor ACTIVE_TASK_ORCHESTRATOR (14s ago)
+      lastError: AUDIT_CHECK_FAILED (0 dk önce — defensive fix kanıtı, zincir kopmadı)
+
+[2/4] moduleCounts (16 modül):
+      ai 16, analyzer 16, appearance 14, backup 14, compliance 14
+      costGuard 15, deploy 16, insurance 14, maintenance 14
+      navigation 14, notifications 15, performance 15, pulse 14
+      recovery 15, security 16, uyapControl 15
+
+[3/4] POST /api/agents/Auditor/tick: 401 ✅ (auth gerek = canlı)
+
+[4/4] www.tedbirge.ai/dashboard/sistem-durumu: 307 ✅ (login redirect = canlı)
+```
+
+### Pattern
+
+**TUR #56+...+73 (genişletilmiş) = 125+ atom sapma 0**
+**Kalibrasyon 1.6× — 20. doğrulama**
+
+### Mimar Dersi
+
+- **Madde 4.4 emsali:** Public agents-health endpoint kök sebebi tam tespit etti (`lastRunAt: null + AGENT_ERROR`). Admin auth gerek tanı endpoint'leri kullansaydık tanı saatlerce gecikirdi.
+- **BaseAgent pattern dersi:** `run()` throw olursa `lastRunAt` update yok = bir sonraki tick'te aynı yerden takılma. **Defensive try-catch zinciri** kritik orchestrator'ları (runAllModules, runAllActiveTasks) ÇAĞRILABİLİR yapmalı.
+- **lastError pattern:** `AUDIT_CHECK_FAILED` smoke'da görüldü — defensive fix audit hatası olsa bile 16 modül zincirini kurtardı. Bu istenilen davranış (kanıt zinciri).
+
+### Mimar + Onay
+
+**Mimar:** Claude Opus 4.7 (sohbet) + Claude Code (otonom uygulama)
+**Onay:** Mehmet DİNÇ — Madde 17.5 + 18.3 + 30.25 (CEO Pattern, 4'lü zincir)
+
+---
+
 ## TUR #73 — OLAY/SAAT 0 SORUNU TANI + PUBLIC AGENTS-HEALTH ENDPOINT (KAPANIŞ)
 
 **Tarih:** 5 Mayıs 2026

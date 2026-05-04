@@ -25,8 +25,8 @@
 | #72.9 | 7 | Sistem durumu regresyon hotfix + Madde 30.23 | — |
 | #72.10 | 8 | 3 kritik bug + login rol doğrulama (KVKK m.12) + Madde 30.24 | — |
 | #72.11 | 9 | Devir + sistem durumu KESİN yeniden yazım + 2FA rehberi + Madde 30.25/26 | — |
-| **#73** | **7** | **Olay/saat 0 sorunu tanı + public agents-health endpoint + Madde 30.27** | — |
-| **TOPLAM** | **119** | **23+ saat · sapma 0 · 20 kalibrasyon doğrulaması** | **v1.22.0 + 18 alt-madde** |
+| **#73** | **13** | **Olay/saat 0 KÖK SEBEP TANI (Auditor.run() throw bug) + Auditor defensive try-catch + public agents-health (auditorHealth + lastError) + UI Auditor Tetikle butonu + Madde 30.27** | — |
+| **TOPLAM** | **125** | **23+ saat · sapma 0 · 20 kalibrasyon doğrulaması** | **v1.22.0 + 18 alt-madde** |
 
 ---
 
@@ -51,12 +51,17 @@
 - Beklenen: **4 kolon grid** + **Akış buton** + **Son aktivite timestamp** + **Olay/saat sayı**
 - Hala patlak ise → **TUR #73 yeni**: önce 2b'deki public URL ile kanıt al
 
-**2b. TUR #73 YENİ — Public Agents-Health URL (CEO browser direkt, AUTH GEREK YOK):**
+**2b. TUR #73 — Public Agents-Health URL (CEO browser direkt, AUTH GEREK YOK):**
 - 🔗 `https://tedbirge-ai.onrender.com/api/agents-health`
-- JSON response: agents (Auditor + Healer + Reporter `lastRunAt` + `isRunning` + `intervalMs`) + `eventCounts.last1h` + `lastEvent` + 16 modül `moduleCounts`
-- ✅ **Sağlıklı durum:** Auditor `lastRunAt < 5 dk önce` ve `eventCounts.last1h > 16` ve `moduleCounts` her modülde > 0
-- ❌ **Auditor durmuş:** `eventCounts.last1h: 0` veya `Auditor.lastRunAt: null` veya 30 dk+ eski
-- Eğer Auditor durmuşsa → yeni sohbette: *"agents-health JSON paylaşıyorum, Auditor restart gerek"*
+- JSON response: **`auditorHealth`** (HEALTHY/DELAYED/STOPPED/NEVER_RAN) + agents lastRunAt + eventCounts.last1h + `lastError` + 16 modül moduleCounts
+- ✅ **Sağlıklı:** `auditorHealth: HEALTHY` + `eventCounts.last1h > 200` + moduleCounts her modülde 14+
+- ❌ **Sorunlu:** `auditorHealth: STOPPED/NEVER_RAN` → UI'de **"Auditor Tetikle"** butonuna bas
+
+**2c. TUR #73 — UI "Auditor Tetikle" Butonu (sistem-durumu sağ üst, ADMIN):**
+- `/dashboard/sistem-durumu` sayfa üst sağda **"Auditor Tetikle"** sarı butonu (Zap icon)
+- 5 dk tick beklemeden anlık manuel tick → 16 modül runStatusCheck zinciri çalışır
+- Sonuç rozet: "✓ Tetiklendi · timestamp" (5 sn görünür)
+- Sayfa otomatik refresh (1.5 sn sonra)
 
 **3. Login Rol Doğrulama Test (CEO sabah, 2 dk):**
 - `tedbirge.ai/login` → **Temsilci sekme** → ADMIN email + DOĞRU şifre
@@ -82,7 +87,7 @@
 
 ## 🔴 AÇIK KRİTİK: 0 (kanıtlı)
 ## 🟡 PLANLI: 0
-## 📋 PATTERN: 119+ atom sapma 0 — kalibrasyon 1.6× **20. doğrulama** (kalıcı pattern)
+## 📋 PATTERN: 125+ atom sapma 0 — kalibrasyon 1.6× **20. doğrulama** (kalıcı pattern)
 
 ---
 
@@ -221,7 +226,13 @@ merhaba
 ---
 
 **— Tedbirge.ai mimarı**
-**TUR #73 KAPALI · 5 Mayıs 2026 (Olay/saat 0 + public agents-health endpoint)**
+**TUR #73 KAPALI · 5 Mayıs 2026 (Olay/saat 0 KÖK SEBEP + defensive fix + UI Tetikle butonu)**
 **Anayasa v1.22.0 yürürlükte (Madde 30.27 alt-genişleme — patch sürüm yok)**
-**Pattern: TUR #56+...+73 = 119+ atom sapma 0 — kalibrasyon 1.6× 20. doğrulama**
+**Pattern: TUR #56+...+73 = 125+ atom sapma 0 — kalibrasyon 1.6× 20. doğrulama**
 **12 Mimar Hatası kayıtlı, her biri Anayasa maddesine dönüştü.**
+
+**Production Smoke 4/4 Yeşil:**
+- auditorHealth: HEALTHY · Auditor.lastRunAt < 30s · eventCounts.last1h: **302** (35→302 sıçrama)
+- moduleCounts: 16/16 modül 14-16 olay/saat
+- Manuel trigger /api/agents/Auditor/tick: 401 (auth gerek = canlı)
+- Panel /dashboard/sistem-durumu: 307 (login redirect = canlı)

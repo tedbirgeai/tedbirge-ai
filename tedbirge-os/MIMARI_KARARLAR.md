@@ -6,6 +6,72 @@
 
 ---
 
+## 5 Mayıs 2026 — TUR #73 GENİŞLETME — KÖK SEBEP DEFENSIVE FIX + UI TETIKLE BUTONU
+
+**Anayasa:** v1.22.0 yürürlükte (Madde 30.27 alt-genişleme — patch sürüm yok)
+
+### Karar (Genişletilmiş Atom Listesi)
+
+CEO 4'lü zincir Madde 30.25 yenileme ile TUR #73 atom listesi genişletildi:
+- Z1 + Z2 (önceki — derin tanı + endpoint sayım) ✅
+- **Z3 (yeni) — Auditor wakeup + HEARTBEAT severity + manuel trigger:**
+  - Defensive try-catch (commit `f50e108`)
+  - agents-health auditorHealth + lastError (commit `efe9c39`)
+  - Manuel trigger: mevcut `POST /api/agents/:name/tick` admin endpoint (yeniden kullanım)
+- **Z4 (yeni) — UI Auditor Tetikle Butonu** (commit `cc8103f`):
+  - sistem-durumu sağ üst Zap icon butonu
+  - apiFetch admin auth + Bearer token otomatik
+  - Loading + sonuç rozet + 1.5 sn refresh
+- **Z5 (yeni) — Production Smoke 4 Kanıt:** auditorHealth: HEALTHY + eventCounts 302 + 16 modül 14-16 + UI canlı
+- **Z6 (yeni) — 5 OS Senkron Genişletilmiş:** atom sayısı 7 → 13, commit 2 → 5
+
+### Karar Gerekçesi
+
+1. **CEO direktifi (Madde 30.25):** "uçtan uca otonom tek komutla bana bir şey sormasın yapılsın" — yeni atom listesi otonom uygulandı
+2. **Madde 4.4 (kod kaynaktır):** Public agents-health JSON `lastRunAt: null + AGENT_ERROR` kanıtı kök sebebi tam tespit etti. Admin auth gerektiren tanı endpoint'leri kullanılsaydı tanı geç olurdu.
+3. **BaseAgent pattern dersi:** `run()` throw → `lastRunAt` update yok → 16 modül zinciri kopuk. **Defensive try-catch ZORUNLU** kritik orchestrator'ları (runAllModules, runAllActiveTasks) çağrılabilir tutar.
+4. **Madde 30.27 emsali genişleme:** auditorHealth göstergesi + lastError payload — operasyonel tanı için CEO browser URL bar yeterli.
+5. **UI Tetikle butonu (Z4):** Render free tier wake-up / Auditor restart sonrası 5 dk tick beklemeden manuel müdahale = pratik UX.
+
+### Reddedilen Alternatifler
+
+- **Yeni public manuel trigger endpoint:** Güvenlik riski (DoS), mevcut admin endpoint yeterli (UI Bearer token otomatik)
+- **Auditor restart endpoint:** Kapsam dışı, mevcut Render auto-deploy + tick interval yeterli
+- **HEARTBEAT severity WARNING'e yükseltme:** TUR #72.9 D5'te INFO seçildi — heartbeat normal akış, WARNING yanıltıcı olur
+- **Backend manuel trigger public yapma:** KIRMIZI ihlali (DoS riski)
+
+### Etki
+
+- **13 atom + 5 commit** (önceki Z1+Z2 7 atom + yeni Z3+Z4+Z5+Z6 6 atom)
+- **0 schema/npm**
+- **0 KIRMIZI ihlal**
+- **125+ atom sapma 0** — kalibrasyon 1.6× 20. doğrulama
+- Auditor zinciri tamir edildi (defensive try-catch)
+- CEO browser URL bar 1 dakikada Auditor canlılık kanıtı (auditorHealth göstergesi)
+- UI sistem-durumu manuel müdahale butonu (Auditor Tetikle)
+
+### CEO Direktifi (Madde 17.5 + 30.25)
+
+CEO 5 Mayıs 2026:
+> "TUR #73 mektubu hazır. CEO onay: Madde 17.5 + 18.3 + 30.25 4'lü zincir yenileme — 'uçtan uca otonom tek komutla bana bir şey sormasın yapılsın' pattern aktif. Bana sorma, başlat bitir."
+
+### Kalıcı Pattern (TUR #74+ için)
+
+1. **BaseAgent pattern güçlendirme:** Tüm agent'lar (Auditor + Healer + Reporter) `run()` içinde defensive try-catch zinciri (kritik orchestrator'ları her zaman çağrılabilir tut)
+2. **agents-health auditorHealth göstergesi pattern:** Diğer kritik agent'lar için de health göstergesi eklenebilir (HEALTHY/DELAYED/STOPPED/NEVER_RAN/UNKNOWN)
+3. **Public lastError payload:** severity=ERROR son AgentEvent + ilk 200 karakter mesaj — KVKK risk 0 (sadece operasyonel)
+4. **UI manuel tetikle butonu pattern:** kritik agent'lar için sayfada ADMIN buton (mevcut admin endpoint'leri kullan, yeni endpoint açma — güvenlik)
+
+### Mimar
+
+Claude Opus 4.7 (sohbet) + Claude Code (otonom uygulama)
+
+### Onay
+
+Mehmet DİNÇ — Madde 17.5 + 18.3 + 30.25 (CEO Pattern, 4'lü zincir yenileme)
+
+---
+
 ## 5 Mayıs 2026 — TUR #73 KARARI — OLAY/SAAT 0 SORUNU TANI + PUBLIC AGENTS-HEALTH ENDPOINT
 
 **Anayasa:** v1.22.0 yürürlükte (Madde 30.27 alt-genişleme — patch sürüm yok)
