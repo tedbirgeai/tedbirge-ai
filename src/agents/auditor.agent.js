@@ -24,6 +24,30 @@ class AuditorAgent extends BaseAgent {
       });
     } catch (_) {}
 
+    // TUR #73 — DEFENSIVE: 6 audit check + runAllModules + runAllActiveTasks
+    // birbirinden bagimsiz try-catch'lerde. Bir hata zinciri kirmaz.
+    // Onceki bug: check'lerden biri throw = run() throw = lastRunAt update yok = 16 modul hic tick yapmaz.
+    try {
+      await this.runAuditChecks();
+    } catch (auditErr) {
+      await this.log("AUDIT_CHECK_FAILED", "ERROR", { message: auditErr.message?.slice(0, 500) }).catch(() => {});
+    }
+
+    try {
+      await this.runAllModules();
+    } catch (modErr) {
+      await this.log("MODULE_ORCHESTRATOR_FAILED", "ERROR", { message: modErr.message?.slice(0, 500) }).catch(() => {});
+    }
+
+    try {
+      await this.runAllActiveTasks();
+    } catch (actErr) {
+      await this.log("ACTIVE_TASK_ORCHESTRATOR_FAILED", "ERROR", { message: actErr.message?.slice(0, 500) }).catch(() => {});
+    }
+  }
+
+  // TUR #73 — 6 audit check'i kendi metoduna alindi (defensive try-catch)
+  async runAuditChecks() {
     const checks = [];
 
     // TUR #72.5 H4 — her finding detay payload (UI akis paneli render edebilsin)
@@ -164,14 +188,8 @@ class AuditorAgent extends BaseAgent {
         });
       } catch (e) {}
     }
-
-    // TUR #69.5 B2 — 16 Modül Orchestrator (her tick'te 16 modülün runStatusCheck'i)
-    // Auditor kendi 6 check'ini KORUR — bu EK katman.
-    await this.runAllModules();
-
-    // TUR #72 — 16 Modül runActiveTask (gerçek görev katmanı)
-    // shouldRunActiveTask() kontrolü modül-spesifik periyot için.
-    await this.runAllActiveTasks();
+    // TUR #73 — runAllModules + runAllActiveTasks artik run()'da bagimsiz try-catch'lerden cagriliyor.
+    // Bu metot sadece audit checks ile sinirli (defensive isolation).
   }
 
   async runAllModules() {
