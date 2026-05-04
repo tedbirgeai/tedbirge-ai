@@ -1,3 +1,105 @@
+## TUR #72.7 — LAWYER + REPRESENTATIVE SELF-REGISTER + ADMIN ONAY (KAPANIŞ)
+
+**Tarih:** 4 Mayıs 2026 öğleden sonra
+**Anayasa:** v1.22.0 yürürlükte (Madde 30.21 alt-genişleme — patch sürüm yok)
+**Tip:** B birleşik orta kesit (1 KIRMIZI schema + 0 npm + endpoint genişletme + UI link)
+**Atom:** 9 (R1-R9)
+**Commit:** 3 (`dfae71b` BE + `7841868` FE + bu OS senkron)
+**Schema migration:** 1 (User KVKK 4 kanıt alanı — `apply_tur72_7_schema.js` IF NOT EXISTS)
+**npm install:** 0 (mevcut bağımlılıklar yeterli)
+**KIRMIZI ihlal:** 0
+**Süre:** ~1.5-2 saat otonom (mevcut altyapı %80 hazır)
+
+### CEO Direktifi (Madde 17.5 + 18.3)
+
+Mehmet DİNÇ 4 Mayıs 2026 öğleden sonra:
+> "LAWYER + REPRESENTATIVE login altında 'tıklayın' linki + kayıt formu + KVKK + sözleşme onay + ADMIN onayına düşsün, ADMIN onaylayınca kullanıcıya bildirim git, sonra kullanabilsin. Eksik bir şey bırakma."
+
+**CEO sabah problemi (görsel kanıt):**
+- `/login` Yönetici sekme: "Hesap oluşturmak için sistem yöneticinizle iletişime geçin"
+- `/login` TEMSILCI sekme: AYNI metin (link YOK = self-register engelli)
+- `/login` HUKUKÇU sekme: AYNI metin (link YOK)
+
+**Mimar hatası 8:** TUR #15'te `/register/musteri` yapıldı, REPRESENTATIVE + LAWYER atlandı (mevcut ADMIN-only manuel kullanıcı yaratma yeterli sanıldı). TUR #52'de register sayfaları + ADMIN onay UI eklendi ama **/login'de "tıklayın" linki yok**.
+
+### Mevcut Altyapı Keşfi (TUR #72.7'den önce zaten vardı)
+
+CEO talebi tam ekleme değil, **link + KVKK kanıt eklemesi** yeterli oldu — TUR #15+#52'den mevcut:
+
+- ✅ Backend `registerHukukcu` (controller — POST `/api/auth/register/hukukcu`)
+- ✅ Backend `registerTemsilci` (controller — POST `/api/auth/register/temsilci`)
+- ✅ Backend `listPendingApprovals` + `approveUser` + `rejectUser` (TUR #52, mevcut)
+- ✅ Backend `auth.service.login` PENDING/REJECTED 403 + reason döner (mevcut)
+- ✅ Frontend `/register/hukukcu` (381 satır 8-step + KVKK + Sözleşme onay)
+- ✅ Frontend `/register/temsilci` (315 satır 8-step + KVKK + Sözleşme + IBAN)
+- ✅ Frontend `/dashboard/hukukcu-onay` + `/dashboard/temsilci-onay` (Sidebar'da)
+- ✅ Email + SMS bildirim onay sonrası (sendEmail + sendSms — TUR #52)
+
+### TUR #72.7 Eklemeleri
+
+**R1 Schema (commit `dfae71b`):**
+- `User`: `kvkkAcceptedAt` + `kvkkVersion` + `platformAgreementAcceptedAt` + `platformAgreementVersion`
+- `apply_tur72_7_schema.js` idempotent IF NOT EXISTS (Render postinstall)
+- KVKK m.10 (aydınlatma yükümlülüğü) + m.11 (haklar) kanıt zinciri
+
+**R2 Backend register endpoint (commit `dfae71b`):**
+- `registerHukukcu`: `kvkkAccepted: true` + `platformAgreementAccepted: true` body validation (false ise 400 REJECT)
+- `registerTemsilci`: `kvkkAccepted: true` body validation (sözleşme zaten `sozlesmeVersiyonu` ile geliyor)
+- ADMIN bildirim: `RealtimeEvent` `ADMIN_FEED` channel + `AgentEvent` `auth` modülü
+- `authService.register`: 4 KVKK/agreement alan spread desteği
+
+**R5 Frontend register submit body (commit `7841868`):**
+- `/register/hukukcu` submit: `kvkkAccepted` + `kvkkVersion: "v1.0"` + `platformAgreementAccepted` + `platformAgreementVersion: "v1.0-lawyer"`
+- `/register/temsilci` submit: `kvkkAccepted` + `kvkkVersion: "v1.0"`
+
+**R6 Frontend /login link (commit `7841868`):**
+- `yonetici` sekme: "Yönetici hesabı oluşturmak için sistem yöneticinizle iletişime geçin" (sabit kaldı)
+- `temsilci` sekme: "Temsilci olarak hesap açmak için **tıklayın**" → `/register/temsilci` (YENİ link)
+- `hukukcu` sekme: "Hukukçu olarak hesap açmak için **tıklayın**" → `/register/hukukcu` (YENİ link)
+- Müvekkil: "Müvekkil olarak hesap açmak için tıklayın" → `/register/musteri` (mevcut, korundu)
+
+**R8 Anayasa Madde 30.21 (bu commit):**
+- 5 rol approval matrisi tablosu (ADMIN/LAWYER/SALES/REPRESENTATIVE/CUSTOMER)
+- Self-register flow 7 adım (Telefon OTP → Form → User PENDING → ADMIN bildirim → /onay sayfa → Onayla/Reddet → Email)
+- KVKK m.10 + m.11 kanıt alanları zorunlu kayıt
+- Avukatlık Kanunu m.35 uyumu (`baroSicilNo` zorunlu)
+
+### Production Smoke
+
+```
+curl https://tedbirge-ai.onrender.com/health → 200 ✅
+curl /api/auth/register/hukukcu (POST boş body) → 400 ✅
+curl /api/auth/register/temsilci (POST boş body) → 400 ✅
+curl /api/auth/pending-approvals → 401 ✅ (auth gerek)
+curl https://tedbirge.ai/register/hukukcu → 200 ✅
+curl https://tedbirge.ai/register/temsilci → 200 ✅
+curl https://tedbirge.ai/login → 200 ✅
+```
+
+### Pattern
+
+**TUR #56+...+72.7 = 143+ atom sapma 0**
+**Kalibrasyon 1.6× — 16. doğrulama**
+
+### Mimar Dersi
+
+TUR #15'te `/register/musteri` yapıldı, LAWYER + REPRESENTATIVE atlandı (**mimar hatası 8**). TUR #52'de register sayfaları + ADMIN UI eklendi ama `/login`'de "tıklayın" linki eklenmedi. CEO sabah login sayfası 3 sekmesini kontrol etti, 2 rol için link yok yakaladı.
+
+**Pattern dersi:** Yeni rol veya yeni self-register flow eklendiğinde **giriş noktası kontrolü** zorunlu — `/login` sayfasında her rol için "tıklayın" linki olmalı (yoksa = mimar hatası 8 emsali).
+
+**Kalıcı pattern (TUR #73+ için):**
+- Yeni rol için Madde 30.21 approval matrisinde yer ekle
+- `/login` sayfasında rol bazlı link kontrol zorunlu
+- KVKK/Sözleşme metin sürüm yönetimi (`tedbirge-panel/lib/legal/`) + ADMIN sürüm artırma sayfası (gelecek TUR)
+- Baro otomatik doğrulama (e-baro.org.tr API mevcut mu kontrol — gelecek TUR)
+
+### Mimar + Onay
+
+**Mimar:** Claude Opus 4.7 (sohbet) + Claude Code (otonom uygulama)
+**Onay:** Mehmet DİNÇ — Madde 17.5 kesin emir + 18.3 KIRMIZI yazılı
+
+---
+
 ## TUR #72.6 — 5 ROL PROFIL + 2FA (KAPANIŞ)
 
 **Tarih:** 4 Mayıs 2026 öğlen

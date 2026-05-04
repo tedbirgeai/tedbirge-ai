@@ -6,6 +6,72 @@
 
 ---
 
+## 4 Mayıs 2026 öğleden sonra — TUR #72.7 KARARI — LAWYER + REPRESENTATIVE SELF-REGISTER + ADMIN ONAY
+
+**Anayasa:** v1.22.0 yürürlükte (Madde 30.21 alt-genişleme — patch sürüm yok)
+
+### Karar
+
+TUR #15'te CUSTOMER self-register yapıldı, LAWYER + REPRESENTATIVE atlandı (**mimar hatası 8**). TUR #52'de register sayfaları + ADMIN onay UI eklendi ama **`/login` sayfasında REPRESENTATIVE + LAWYER sekmelerinde "tıklayın" linki YOK** (CEO sabah yakaladı). TUR #72.7 schema KVKK kanıt 4 alanı + register endpoint validation + 3 sekme link + Anayasa Madde 30.21 ile kapattı.
+
+### Karar Gerekçesi
+
+1. **CEO kesin emir Madde 17.5:** "tek komut otonom uçtan uca, eksik bir şey bırakma"
+2. **Madde 4 + 17.4 (yarım kesit yasak):** 9 atom tek mektup
+3. **KVKK m.10:** aydınlatma yükümlülüğü kanıtlı (kvkkVersion + kvkkAcceptedAt User kayıt)
+4. **KVKK m.11:** veri sahibi hakları (CUSTOMER /register/musteri zaten mevcut)
+5. **Avukatlık Kanunu m.35:** barosu kayıt zorunlu, `baroSicilNo` schema mevcut (TUR #15)
+6. **Madde 30.21 yeni:** 5 rol approval matrisi (CUSTOMER auto-approved, LAWYER+REPRESENTATIVE pending, ADMIN superuser)
+
+### Reddedilen Alternatifler
+
+- **ADMIN manuel devam:** büyüme darboğazı, KVKK kanıt zayıf. Reddedildi.
+- **Otomatik onay:** barosu doğrulama yok, sahte avukat riski (Avukatlık K. m.35 ihlali). Reddedildi.
+- **3rd party Identity Provider (Auth0, Clerk):** vendor lock-in + KVKK on-prem zorunlu. Reddedildi.
+- **Yeni endpoint `/api/auth/register/lawyer` + `/representative` ekleme:** mevcut `/register/hukukcu` + `/register/temsilci` zaten çalışıyor (TUR #15+#52), ek endpoint kod tekrarı. Reddedildi.
+- **Yeni `UserApprovalStatus` enum + `approvalStatus` field:** mevcut `baroOnayDurumu` + `temsilciOnayDurumu` zaten BEKLEMEDE/ONAYLANDI/REDDEDILDI mantığı işliyor (TUR #52). Çakışma yaratmamak için mevcut field korundu — sadece KVKK kanıt 4 alan eklendi. Reddedildi.
+- **Yeni birleşik `/dashboard/users/pending` sayfası:** mevcut `/dashboard/hukukcu-onay` + `/dashboard/temsilci-onay` ayrık ama tam çalışıyor (TUR #52). Birleştirmek = gereksiz refactor. Reddedildi.
+
+### Etki
+
+- **9 atom + 3 commit** (BE `dfae71b` + FE `7841868` + OS senkron)
+- **1 schema migration** (User KVKK 4 kanıt alanı — `apply_tur72_7_schema.js`)
+- **0 npm install**
+- **0 KIRMIZI ihlal**
+- **143+ atom sapma 0** — kalibrasyon 1.6× 16. doğrulama
+- Mevcut TUR #15+#52 altyapısı korundu — sadece eksik link + KVKK kanıt eklendi (kazıman değil ekleme)
+
+### CEO Direktifi (Madde 17.5)
+
+Mehmet DİNÇ 4 Mayıs 2026 öğleden sonra:
+> "LAWYER + REPRESENTATIVE login altında 'tıklayın' linki + kayıt formu + KVKK + sözleşme onay + ADMIN onayına düşsün, ADMIN onaylayınca kullanıcıya bildirim git, sonra kullanabilsin. Eksik bir şey bırakma."
+
+Görsel kanıt CEO sabah: `/login` 3 sekmesinde aynı "Hesap oluşturmak için sistem yöneticinizle iletişime geçin" metni — Temsilci+Hukukçu sekmelerinde "tıklayın" linki yok (Madde 4.4 canlı kanıt: `/login` page.tsx kaynağında rol bazlı koşul yoktu).
+
+### Kalıcı Pattern (TUR #73+ için)
+
+1. **Yeni rol eklendiğinde otomatik dahil edilmesi gereken 5 yer:**
+   - Profil sayfası (Madde 30.20)
+   - 2FA matrisi (Madde 30.19)
+   - Self-register sayfası + `/login` link (Madde 30.21)
+   - ADMIN approval queue + email pattern (TUR #52 + #72.7)
+   - Security modülü `runActiveTask` matrisi (Madde 30.10 + 30.17)
+2. **`/login` sayfasında rol bazlı link kontrolü zorunlu** — yoksa = mimar hatası 8 emsali (CEO sabah yakalar)
+3. **KVKK/Sözleşme metin sürüm yönetimi:** `tedbirge-panel/lib/legal/<rol>-kvkk.md` + `<rol>-agreement.md` — hukuk ekibi inceler, ADMIN sürüm artırma sayfası gelecek TUR
+4. **Sürüm değişimi sonrası re-onay:** kullanıcı bir sonraki girişte yeni metni onaylamak zorunda (gelecek TUR — şu an v1.0 sabit)
+5. **Baro otomatik doğrulama:** e-baro.org.tr API kontrol (gelecek TUR — şu an ADMIN manuel)
+6. **Mevcut altyapı keşfi öncelikli:** Yeni mektup geldiğinde önce mevcut sistem kontrol — TUR #72.7'de %80 zaten vardı, sadece link + KVKK kanıt eksikti. Yeniden yazma yerine genişletme.
+
+### Mimar
+
+Claude Opus 4.7 (sohbet) + Claude Code (otonom uygulama)
+
+### Onay
+
+Mehmet DİNÇ — Madde 17.5 + 18.3
+
+---
+
 ## 4 Mayıs 2026 öğlen — TUR #72.6 KARARI — 5 ROL PROFIL + 2FA
 
 **Anayasa:** v1.22.0 yürürlükte (Madde 30.19 + 30.20 alt-genişleme — patch sürüm yok)

@@ -1697,6 +1697,48 @@ const result = await helper.adaptiveOr("ai", "rateLimitPct", 30, 7);
 - ❌ Profil sayfası dışında 2FA aktivasyonu (TwoFactorSetupModal tek giriş noktası)
 - ❌ Email değiştirme self-service (ADMIN onayı gerek)
 
+### 30.21 — Self-Register + ADMIN Onay Disiplini (TUR #72.7)
+
+**Kural:** LAWYER + REPRESENTATIVE rolleri için **self-register zorunlu** (CUSTOMER zaten `/register/musteri` TUR #15). 5 rol approval matrisi:
+
+| Rol | Self-Register URL | Onay Akışı | Default Status |
+|---|---|---|---|
+| ADMIN | YOK (ADMIN superuser yaratır) | — | APPROVED |
+| LAWYER | `/register/hukukcu` | ADMIN onay zorunlu | `baroOnayDurumu: BEKLEMEDE` |
+| SALES | YOK (ADMIN yaratır) | — | APPROVED |
+| REPRESENTATIVE | `/register/temsilci` | ADMIN onay zorunlu | `temsilciOnayDurumu: BEKLEMEDE` |
+| CUSTOMER | `/register/musteri` | Otomatik APPROVED | APPROVED |
+
+**Self-register flow (LAWYER + REPRESENTATIVE):**
+1. `/register/<rol>` 8-step form (Telefon OTP + Kişisel + Meslek + IBAN + KVKK + Sözleşme + Submit + Başarı)
+2. `User` kayıt: `baroOnayDurumu` veya `temsilciOnayDurumu` = `BEKLEMEDE` + KVKK/Sözleşme kanıt alanları
+3. ADMIN bildirim: `RealtimeEvent` `ADMIN_FEED` channel + `AgentEvent` `auth` modülü `LAWYER_REGISTRATION_PENDING`/`REPRESENTATIVE_REGISTRATION_PENDING`
+4. ADMIN `/dashboard/hukukcu-onay` veya `/dashboard/temsilci-onay` sayfasında inceler (Baro doğrulama + IBAN doğrulama)
+5. **Onayla** → `User.baroOnayDurumu`/`temsilciOnayDurumu` = `ONAYLANDI` + `isActive = true` + email + SMS gönder
+6. **Reddet** → `REDDEDILDI` + `rejectionReason` + email gönder
+7. Login: `auth.service.login` PENDING/REJECTED 403 + açıklama döner
+
+**KVKK m.10 + m.11 zorunlu kayıt alanları (TUR #72.7 schema ek):**
+- `kvkkVersion` (KVKK metni sürüm — şu an "v1.0")
+- `kvkkAcceptedAt` (kabul zamanı kanıt)
+- `platformAgreementVersion` (Platform Sözleşmesi sürüm — "v1.0-lawyer", "v1.0-temsilci")
+- `platformAgreementAcceptedAt` (kabul zamanı)
+- `sozlesmeVersiyonu` + `sozlesmeMetniHash` + `sozlesmeKabulIp` (TUR #52 mevcut, REPRESENTATIVE için)
+
+**Sürüm değişirse re-onay** (gelecek): `kvkkVersion` veya `platformAgreementVersion` artırılırsa, kullanıcılar bir sonraki girişte yeni metni onaylamak zorunda. ADMIN sürüm artırma sayfası gelecek TUR.
+
+**Mevcut User'lar geri uyumluluk:** `baroOnayDurumu`/`temsilciOnayDurumu` field'ları var, eski kayıtlar `null` veya `ONAYLANDI` (TUR #52 manuel oluşturma sonrası).
+
+**Avukatlık Kanunu m.35 uyumu:** `baroSicilNo` zorunlu, ADMIN inceler (e-baro.org.tr API gelecek TUR otomatik doğrulama).
+
+**Yasak:**
+- ❌ ADMIN-only manuel kullanıcı yaratma (büyüme darboğazı + KVKK kanıt zayıf — eskiden tek yoldu, şimdi self-register açık)
+- ❌ Self-register sonrası otomatik APPROVED (sahte avukat riski + Avukatlık K. m.35 ihlali)
+- ❌ KVKK/Sözleşme metni onay kanıtı olmadan User kayıt (m.10 ihlali)
+- ❌ /login sayfası rol sekmesinde "tıklayın" linki yok (CEO 4 Mayıs sabah yakaladı = mimar hatası 8)
+- ❌ 3rd party Identity Provider (Auth0, Clerk) — vendor lock-in + KVKK on-prem zorunlu
+- ❌ Onay/red sonrası email gönderme atlanması (KVKK + UX şart)
+
 ---
 
 ## 31. TASARIM DİSİPLİNİ — Tedbirge Design System v1.0
@@ -2025,6 +2067,7 @@ Mehmet Bey sahaya çıkabilsin diye bu disiplin var.
 **1 Mayıs 2026 — v1.16.0 (TUR #57 — 4 CRM Rol-Ruh Karakter Farklılaştırma: 12 atom (3 KRİTİK + 9 ORTA) ile 9 yeni DS komponenti (AnomalyStrip + KPICardEnhanced + Sparkline + CaseFolderCard + LawyerHealthTriad + KanbanBoard + DealCard + ActivityCounter + TimelineDot + TrustBadge + KeyboardShortcutsHelp), 2 yeni route (/dashboard/komuta + /temsilci/pipeline), 2 yeni utility (lib/sadelestir 30 terim + lib/keyboardNav G+harf), 2 mini endpoint (anomalies + lead aşama). Madde 31.9 Rol-Ruh Tasarım Prensibi tohumdan resmileşmeye geçti. 0 schema migration, 0 npm paket (3 paket adayı native alternatifle reddedildi: react-beautiful-dnd → HTML5 DragEvent, canvas-confetti → CSS keyframe, lottie-react → inline SVG). 4 CRM artık niş emsal seviyesinde (Stripe Dashboard+Linear, Clio+MyCase, HubSpot+Pipedrive, Stripe Customer Portal+Apple HIG). KAPANIŞ Madde 32'ye kaydı.)**  
 **1 Mayıs 2026 — v1.17.0 (TUR #58 — FAZ 5 DISCOVERABILITY başlangıcı: 9 atom (1 KRİTİK + 7 ORTA + 1 OS) ile llms.txt + JsonLd 3 yeni factory (FAQPage + HowTo + BreadcrumbList) + 3 niş landing'e SSS schema (15+15+10 toplam 40 SSS) + yeni /tazminat-rehberi sayfası (8 adım HowTo) + AI snippet meta disiplini + BrandFooterStrip 4 sayfada. Madde 33 (İçerik Üretim Disiplini) eklendi: avukat onayı zorunlu, TBB Reklam Yasağı uyumu, AI sadece taslak yazar — avukat onaylar, disclaimer her içerikte. 0 schema migration, 0 npm paket. CEO direktifi 1 Mayıs 2026 (Aylık Sabit Aidat Yasağı) MIMARI_KARARLAR.md'ye eklendi: tüm 3. parti SaaS sabit aidat yasak, sadece kullanım bazlı API ücreti orantılı geçer. KAPANIŞ Madde 32'ye kaydı.)**  
 **1 Mayıs 2026 — v1.18.0 (TUR #59 — FAZ 5 İçerik Üretimi KAPANIŞ: 10 atom sapma 0 ile 50 niş makale (Trafik 20 + İş Kazası 15 + Sigorta+Genel 15) + 3 pillar refactor (cluster grid) + blog detay FAQPage+BreadcrumbList JsonLd + sitemap auto-update (51 makale URL) + iç linking audit (150 cross-link, 0 bozuk). Madde 33.2 düzeltme: avukat onayı yerine Madde 25.3 KIRMIZI listesi kontrolü yeterli (TUR #47 fizibilite raporları zaten anayasal düzeyde kurulmuş). Mevcut lib/blog.ts POSTS array genişletildi (MDX altyapısı reddedildi — 0 npm install). Pattern: TUR #56+57+58+59 = 43/43 atom sapma 0 — kalibrasyon 1.6× dördüncü kez kalıcı pattern. KAPANIŞ Madde 32'ye kaydı.)**  
+**4 Mayıs 2026 öğleden sonra — TUR #72.7 (LAWYER + REPRESENTATIVE SELF-REGISTER + ADMIN ONAY: 9 atom uçtan uca — User schema 4 KVKK kanıt alanı + register endpoint kvkk/agreement onay validation + ADMIN bildirim (RealtimeEvent + AgentEvent) + /login rol bazlı self-register link (yonetici sabit + temsilci/hukukcu/musteri "tıklayın") + Anayasa Madde 30.21 (Self-Register + ADMIN Onay Disiplini — 5 rol approval matrisi + KVKK m.10/m.11 kanıt + Avukatlık K. m.35) + OS senkron 5 dosya. CEO sabah problemi: /login Yönetici/Temsilci/Hukukçu sekmelerinde aynı "sistem yöneticinizle iletişime geçin" metni — Temsilci+Hukukçu için "tıklayın" link YOK = self-register engelli (mimar hatası 8). KEŞIF: Backend `registerHukukcu` + `registerTemsilci` + `listPendingApprovals` + `approveUser` + `rejectUser` ZATEN MEVCUT (TUR #15+#52). UI register sayfaları + /dashboard/hukukcu-onay + /dashboard/temsilci-onay ZATEN MEVCUT. Yalnızca /login linkleri + KVKK kanıt alanı eksikti. TUR #72.7 9 atomda kapattı. 0 npm install (mevcut bağımlılıklar yeterli), 1 schema migration KIRMIZI (CEO 4'lü onay zinciri TUR #66.7+#69+#70+#71+#72+#72.5+#72.6+#72.7). Pattern 134+ → 143+ atom sapma 0 — kalibrasyon 1.6× 16. doğrulama. Anayasa v1.22.0 yürürlükte (Madde 30.21 alt-genişleme — patch sürüm yok).)**  
 **4 Mayıs 2026 öğlen — TUR #72.6 (5 ROL PROFIL + 2FA: 8 atom uçtan uca — User schema 3 ek alan + TwoFactorMethod enum + apply SQL idempotent + setup-2fa otpauthUrl + verify-2fa 10 backup code bcrypt + login-backup-code yeni endpoint + 4 DRY component (ProfileLayout + TwoFactorSection + TwoFactorSetupModal 4-step wizard + TwoFactorChallenge) + 3 yeni profil sayfası (/profil ADMIN/LAWYER/SALES + /musteri/profil + /temsilci/profil güncelleme) + Sidebar HESAP grup + Login 2FA Challenge + Security 5 rol matrisi (admin_no_2fa + lawyer_no_2fa + representative_no_2fa + customer_no_2fa) + Anayasa Madde 30.19 (5 Rol 2FA Disiplini — KVKK m.12 zorunlu/önerilen/opsiyonel) + Madde 30.20 (Profil Sayfası Disiplini — DRY ProfileLayout + 4 section standart) + OS senkron 5 dosya. CEO sabah 5 URL test (/profil /security /2fa /ayarlar /profile) hepsi /login redirect — mimar hatası 7 (TUR #56'da Profil + 2FA UI atlanmış). 0 npm install (speakeasy + qrcode + bcrypt mevcut), 1 schema migration (CEO 4'lü onay zinciri). Pattern 126+ → 134+ atom sapma 0 — kalibrasyon 15. doğrulama. Anayasa v1.22.0 yürürlükte (TUR #72 son sürüm — hotfix patch sürüm yok, Madde 30.19/20 alt-genişleme).)**  
 **4 Mayıs 2026 sabah — TUR #72.5 (5 BUG HOTFIX: H1 Recovery actual retry + H2 Backup 401 fallback rate-limit + H3 Security 2FA detay + H4 Auditor findings payload + H5 Navigation auto-assign service. 6 atom + 1 commit. CEO sabah uyandı, kanıtla 5 sorun yakaladı, otonom düzeltildi. Anayasa v1.22.0 yürürlükte — hotfix patch sürüm yok. Pattern 120+ → 126+ atom sapma 0 — kalibrasyon 14. doğrulama. Mimar dersi: TUR #72'de modüller "yapacak" yazıldı ama trigger zinciri eksikti — CEO sabah akış paneli okudu, yakaladı; mimar hatası 6 hotfix ile kapatıldı.)**  
 **4 Mayıs 2026 — v1.22.0 (TUR #72 BIRLESIK 16 MODÜL GERÇEK GÖREV: 18 atom uçtan uca — 16 modül runActiveTask + adaptiveThreshold helper + auditor runAllActiveTasks orchestrator + Anayasa Madde 30.17 + 30.18 + OS senkron 5 dosya. CEO emri "sayma değil eylem" — TUR #69+#70+#71'de modüller "sayan" yazıldı (mimar hatası 5), CEO yakaladı, TUR #72 "yapan" yaptı. 3 katmanlı disiplin: runStatusCheck (gözlemci, 5 dk Auditor) + runActiveTask (aktör, modül-spesifik periyot) + adaptiveThreshold (akıllı, p95+2σ — cold start safe < 100 sample → static default). Healer pattern Maintenance modülüne migrate (TUR #55 healer.agent.js purge mantığı maintenance.js'e geçti). 16 modül ACTION_TAKEN AgentEvent yazıyor: ai retry · maintenance GERCEK PURGE (30g+ INFO AgentEvent + 7g+ consumed RealtimeEvent + 90g+ stuck Document) · compliance KVKK ADMIN alert · security brute force · vd. Auto-action rate-limit zorunlu. KVKK+güvenlik etkili otomasyon ADMIN_FEED öneri sınırlı. 0 schema migration (TUR #71 EmailDigest+Pulse yeterli), 0 npm install. Pattern: TUR #56+...+72 = 120+ atom sapma 0 — kalibrasyon 1.6× 13. doğrulama. Self-learning ML Aşama 3 TUR #80+'a planlı (7-14 gün veri biriktirme + LLM Router TUR #71 A19 hazır).)**  

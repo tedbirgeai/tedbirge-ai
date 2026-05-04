@@ -1,11 +1,34 @@
 # 🛡️ TEDBIRGE.AI — DEVİR RAPORU AKTİF
 
-**Son güncelleme:** 4 Mayıs 2026 öğlen — TUR #72.6 KAPALI (5 rol Profil + 2FA)
-**Anayasa:** v1.22.0 yürürlükte (Madde 30.19 + 30.20 alt-genişleme — patch sürüm yok)
-**Aktif kesit:** TUR #72.6 KAPALI ✅ — 5 rol Profil sayfası + 2FA UI uçtan uca canlı
-**Son TUR:** #72.6 — 5 rol Profil + 2FA (mimar hatası 7 kapatma)
+**Son güncelleme:** 4 Mayıs 2026 öğleden sonra — TUR #72.7 KAPALI (LAWYER + REPRESENTATIVE self-register + ADMIN onay)
+**Anayasa:** v1.22.0 yürürlükte (Madde 30.21 alt-genişleme — patch sürüm yok)
+**Aktif kesit:** TUR #72.7 KAPALI ✅ — Self-register + KVKK kanıt + ADMIN onay flow uçtan uca
+**Son TUR:** #72.7 — LAWYER + REPRESENTATIVE self-register (mimar hatası 8 kapatma)
 **Mimar:** Claude Opus 4.7 (sohbet) + Claude Code (otonom uygulama)
 **CEO Onay:** Mehmet DİNÇ — Madde 17.5 kesin emir + 18.3 KIRMIZI yazılı onay zinciri (TUR #66.7+#69+#70+#71+#72+#72.5)
+
+---
+
+## ✅ TUR #72.7 KAPANIŞ TABLOSU (4 Mayıs 2026 öğleden sonra)
+
+| Atom | İçerik | Commit |
+|---|---|---|
+| **R1** | Schema: User KVKK kanıt 4 alan (kvkkAcceptedAt + kvkkVersion + platformAgreementAcceptedAt + platformAgreementVersion) + apply_tur72_7_schema.js idempotent | `dfae71b` |
+| **R2** | Backend register endpoint: registerHukukcu + registerTemsilci kvkkAccepted/platformAgreementAccepted body validation + ADMIN bildirim (RealtimeEvent + AgentEvent) | `dfae71b` |
+| **R3** | Backend ADMIN approval (listPendingApprovals + approveUser + rejectUser) — TUR #52'de **MEVCUT**, ek değişiklik yok | (mevcut) |
+| **R4** | Email service: approveUser email mevcut (TUR #52'de) — sendEmail + SMS bildirim mevcut | (mevcut) |
+| **R5** | Frontend register sayfaları (`/register/hukukcu` 381 satır + `/register/temsilci` 315 satır 8-step) — TUR #15 + #52 **MEVCUT**, sadece submit body KVKK kanıt eklendi | `7841868` |
+| **R6** | /login sayfası 3 sekme rol bazlı self-register link (yonetici sabit + temsilci/hukukcu "tıklayın") | `7841868` |
+| **R7** | ADMIN approval UI (`/dashboard/hukukcu-onay` + `/dashboard/temsilci-onay`) — TUR #52'de **MEVCUT**, Sidebar'da görünür | (mevcut) |
+| **R8** | Anayasa Madde 30.21 + CHANGELOG (5 rol approval matrisi tablosu + KVKK m.10/m.11 + Avukatlık K. m.35) | (bu commit) |
+| **R9** | OS senkron 5 dosya | (bu commit) |
+
+**Toplam:**
+- 9 atom + 3 commit (`dfae71b` BE + `7841868` FE + bu OS)
+- 1 schema migration (KVKK kanıt alanları — KIRMIZI nokta CEO yazılı onay zinciri)
+- 0 npm install (mevcut bağımlılıklar yeterli)
+- 0 KIRMIZI ihlal
+- ~1.5-2 saat otonom (mevcut altyapı %80 hazır — yalnız link + KVKK kanıt eksikti)
 
 ---
 
@@ -50,19 +73,22 @@
 
 1. **SUPABASE_ACCESS_TOKEN env** ✅ (sabah eklendi)
 
-2. **CEO 2FA aktive et** (~5 dk) — TUR #72.6 sonrası yeni URL:
-   - `tedbirge.ai/profil` → Güvenlik → "2FA Aktive Et" buton
-   - 4-step wizard: Yöntem (Authenticator) → QR kod → 6 haneli doğrula → Backup codes
-   - Backup codes TXT indir + güvenli yere kaydet (UYARI: tek kullanım)
+2. **CEO 2FA aktive et** (~5 dk) — TUR #72.6: `tedbirge.ai/profil` → Güvenlik → "2FA Aktive Et"
 
-3. **7 personel 2FA aktivasyon** (~21 dk: ~3 dk/kişi) — WhatsApp gruba mesaj:
-   *"5 dk içinde tedbirge.ai/profil → Güvenlik → 2FA Aktive Et → 6 haneli kod doğrula → Backup TXT indir + güvenli yere kaydet. Sonraki girişte 6 haneli kod istenecek."*
-   - LAWYER + SALES için ZORUNLU (Madde 30.19 KVKK m.12)
-   - REPRESENTATIVE için ÖNERİLEN (login engel yok)
+3. **7 personel 2FA aktivasyon** (~21 dk) — WhatsApp gruba: *"5 dk içinde tedbirge.ai/profil → Güvenlik → 2FA"*
 
-4. **CUSTOMER 2FA** — UI'de teklif var (OPSIYONEL rozet), aktif kullanıcılara email kampanya gelecek TUR
+4. **YENİ — `/dashboard/hukukcu-onay` + `/dashboard/temsilci-onay` kontrolü** (TUR #72.7 sonrası):
+   - Yeni avukat/temsilci self-register yaptıkça PENDING listesinde görünür
+   - "Onayla" butonu → email + SMS otomatik gönderilir
+   - "Reddet" → reason girilince email gönderilir
+   - Sidebar'da "Hukukçu Onay" + "Temsilci Onay" menü mevcut
 
-5. **(Opsiyonel) VERCEL_API_TOKEN + RENDER_API_KEY** (5 dk) — deploy modülü canlanır
+5. **KVKK + Sözleşme metinleri inceleme** — `tedbirge-panel/lib/legal/` dizini (gelecek TUR — şu an v1.0 yer tutucu sürüm)
+   - Hukuk ekibi inceleyebilir, ADMIN sürüm artırma sayfası gelecek TUR
+
+6. **CUSTOMER 2FA** — UI'de teklif var (OPSIYONEL), email kampanya gelecek TUR
+
+7. **(Opsiyonel) VERCEL_API_TOKEN + RENDER_API_KEY** — deploy modülü canlanır
 
 ---
 
@@ -151,9 +177,9 @@ Yukarı 🟡 CEO MANUEL İŞLER bölümüne taşındı (TUR #72.5 hotfix sonras�
 
 ## 📊 PATTERN
 
-**TUR #56+57+58+59+60+62+63+63.5+63.5v2+64+66v2+66.7+69+69.5+70+71+72+72.5+72.6 = 134+ atom sapma 0**
+**TUR #56+57+58+59+60+62+63+63.5+63.5v2+64+66v2+66.7+69+69.5+70+71+72+72.5+72.6+72.7 = 143+ atom sapma 0**
 
-**Kalibrasyon 1.6× — 15. doğrulama** (kalıcı pattern olarak yerleşti)
+**Kalibrasyon 1.6× — 16. doğrulama** (kalıcı pattern olarak yerleşti)
 
 ---
 
@@ -183,6 +209,6 @@ CEO sabah doğrulama:
 ---
 
 **— Tedbirge.ai mimarı**
-**TUR #72.6 KAPALI · 4 Mayıs 2026 öğlen (5 rol Profil + 2FA)**
-**Anayasa v1.22.0 yürürlükte (Madde 30.19 + 30.20 alt-genişleme — patch sürüm yok)**
-**Pattern: TUR #56+...+72.6 = 134+ atom sapma 0 — kalibrasyon 1.6× 15. doğrulama**
+**TUR #72.7 KAPALI · 4 Mayıs 2026 öğleden sonra (LAWYER + REPRESENTATIVE self-register + ADMIN onay)**
+**Anayasa v1.22.0 yürürlükte (Madde 30.21 alt-genişleme — patch sürüm yok)**
+**Pattern: TUR #56+...+72.7 = 143+ atom sapma 0 — kalibrasyon 1.6× 16. doğrulama**
