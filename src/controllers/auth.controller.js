@@ -523,6 +523,75 @@ exports.setup2fa = asyncHandler(async (req, res) => {
 // TUR #74 W4+W5 — SMS + Email 2FA endpoints (NetGSM + Nodemailer mevcut)
 const twoFactorOtp = require("../services/twoFactorOtp.service");
 
+// TUR #76 R6 — ADMIN 2FA Kanal Saglik Testi (CEO Konsol icin)
+exports.adminTest2faChannel = asyncHandler(async (req, res) => {
+  const userId = req.user?.id;
+  if (!userId) return res.status(401).json({ success: false, message: "Kimlik gerekli." });
+  if (req.user?.role !== "ADMIN") return res.status(403).json({ success: false, message: "ADMIN yetkisi gerekli." });
+
+  const { method, phone, email } = req.body;
+  if (!method || !["TOTP", "SMS", "EMAIL"].includes(method)) {
+    return res.status(400).json({ success: false, message: "method TOTP/SMS/EMAIL zorunlu." });
+  }
+
+  const startMs = Date.now();
+  try {
+    if (method === "TOTP") {
+      const speakeasy = require("speakeasy");
+      const secret = speakeasy.generateSecret({ name: "Tedbirge Test", length: 20 });
+      return res.json({
+        success: true,
+        method: "TOTP",
+        ms: Date.now() - startMs,
+        sample: { hasSecret: !!secret.base32, otpauthUrl: secret.otpauth_url },
+        deliveryHint: "QR kod uretildi (gercek setup degil, test).",
+      });
+    }
+    if (method === "SMS") {
+      const targetPhone = phone || req.user?.phone || "05412031609";
+      const { sendSms } = require("../services/sms.service");
+      const result = await sendSms(targetPhone, "Tedbirge 2FA TEST: 123456 (yok sayin, kanal saglik testidir)");
+      return res.json({
+        success: result?.success !== false,
+        method: "SMS",
+        ms: Date.now() - startMs,
+        providerCode: result?.bulkId ? "00" : (result?.error ? "ERR" : "?"),
+        providerMessage: result?.success === false ? result.error : "Basarili (NetGSM bulkId: " + (result?.bulkId || "mock") + ")",
+        mock: result?.mock || false,
+        deliveryHint: result?.mock
+          ? "Mock mod (NETGSM_USERNAME ENV yok). Lokal log'a bakin."
+          : "Telefonun spam klasorunu kontrol et. 1-2 dk bekleyin.",
+      });
+    }
+    if (method === "EMAIL") {
+      const targetEmail = email || req.user?.email || "tedbirge42@gmail.com";
+      const { sendEmail } = require("../services/email.service");
+      const result = await sendEmail({
+        to: targetEmail,
+        subject: "[Tedbirge.ai] 2FA Kanal Saglik Testi",
+        html: `<p>Bu bir <strong>kanal saglik testi</strong> e-postasidir. <br/>2FA TEST kodu: <strong>123456</strong> (yok sayin).<br/>Bu mesaj tedbirge.ai sistem kontrolu icin gonderildi.</p>`,
+      });
+      return res.json({
+        success: true,
+        method: "EMAIL",
+        ms: Date.now() - startMs,
+        messageId: result?.messageId || null,
+        deliveryHint: "Spam klasoru de kontrol edin. 5-10 saniye icinde gelmeli.",
+      });
+    }
+  } catch (err) {
+    return res.status(500).json({
+      success: false,
+      method,
+      ms: Date.now() - startMs,
+      error: err.message,
+      deliveryHint: method === "SMS"
+        ? "NetGSM hesabini kontrol et: panel.netgsm.com.tr -> bakiye / baslik onayi / IP whitelist"
+        : "SMTP/Resend ENV kontrol et.",
+    });
+  }
+});
+
 exports.setup2faSms = asyncHandler(async (req, res) => {
   const userId = req.user?.id;
   if (!userId) return res.status(401).json({ success: false, message: "Kimlik doğrulama gerekli." });

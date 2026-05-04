@@ -35,6 +35,8 @@ router.post("/setup-2fa-email",   auth, controller.setup2faEmail);
 router.post("/verify-2fa-email",  auth, controller.verify2faEmail);
 router.post("/login-send-otp",    controller.loginSendOtp);
 router.post("/login-verify-otp",  controller.loginVerify2faOtp);
+// TUR #76 R6 — ADMIN 2FA kanal saglik testi (CEO Konsol icin)
+router.post("/test-2fa-channel",  auth, role("ADMIN"), controller.adminTest2faChannel);
 
 // Admin Onay Yonetimi
 router.get ("/pending-approvals",      auth, role("ADMIN"), controller.listPendingApprovals);

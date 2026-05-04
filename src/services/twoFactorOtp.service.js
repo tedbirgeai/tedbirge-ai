@@ -61,17 +61,37 @@ async function sendSmsOtp(userId) {
   const message = `Tedbirge 2FA dogrulama kodunuz: ${code}\nGecerlilik: 5 dk\nKodu kimseyle paylasmayin.`;
   const result = await sendSms(user.phone, message);
 
-  // KVKK ActivityLog
+  // TUR #76 R2 — Provider response kodu kontrolu (Madde 30.30)
+  // sms.service.js sendSms() {success:false} donerse silent failure - throw ZORUNLU
+  if (!result || result.success === false) {
+    const errMsg = result?.error || "SMS gonderilemedi (NetGSM yanit yok)";
+    // KVKK ActivityLog: hata kanit
+    try {
+      await prisma.activityLog.create({
+        data: {
+          action: "SMS_OTP_FAILED",
+          detail: `2FA SMS OTP gonderilemedi: ${maskPhone(user.phone)} · ${errMsg.slice(0, 200)}`,
+        },
+      });
+    } catch (_) {}
+    // PhoneOtp kaydı silinsin (kullaniciya kod gitmedi, DB temizlik)
+    try {
+      await prisma.phoneOtp.deleteMany({ where: { phone: user.phone, code, purpose: "2fa-sms" } });
+    } catch (_) {}
+    throw new Error(`SMS gönderilemedi: ${errMsg}`);
+  }
+
+  // KVKK ActivityLog: basari kanit (provider onayli)
   try {
     await prisma.activityLog.create({
       data: {
         action: "SMS_OTP_SENT",
-        detail: `2FA SMS OTP gönderildi: ${maskPhone(user.phone)}`,
+        detail: `2FA SMS OTP gönderildi (NetGSM bulkId: ${result?.bulkId || "?"}): ${maskPhone(user.phone)}`,
       },
     });
   } catch (_) {}
 
-  return { ok: true, phoneMask: maskPhone(user.phone), expiresAt, mock: result?.mock || false };
+  return { ok: true, phoneMask: maskPhone(user.phone), expiresAt, mock: result?.mock || false, bulkId: result?.bulkId };
 }
 
 async function verifySmsOtp(userId, code) {
@@ -142,13 +162,29 @@ async function sendEmailOtp(userId) {
     </div>
   `;
 
-  await sendEmail({
-    to: user.email,
-    subject: `[Tedbirge.ai] 2FA Doğrulama Kodu: ${code}`,
-    html,
-  });
+  // TUR #76 R5 — Defensive Email response kontrolu (Madde 30.30)
+  let emailResult;
+  try {
+    emailResult = await sendEmail({
+      to: user.email,
+      subject: `[Tedbirge.ai] 2FA Doğrulama Kodu: ${code}`,
+      html,
+    });
+  } catch (sendErr) {
+    // Hata olursa ActivityLog _FAILED + PhoneOtp temizle + throw
+    try {
+      await prisma.activityLog.create({
+        data: {
+          action: "EMAIL_OTP_FAILED",
+          detail: `2FA Email OTP gonderilemedi: ${maskEmail(user.email)} · ${sendErr.message?.slice(0, 200)}`,
+        },
+      });
+      await prisma.phoneOtp.deleteMany({ where: { phone: user.email, code, purpose: "2fa-email" } });
+    } catch (_) {}
+    throw new Error(`E-posta gönderilemedi: ${sendErr.message}`);
+  }
 
-  // KVKK ActivityLog
+  // KVKK ActivityLog (provider onayli)
   try {
     await prisma.activityLog.create({
       data: {
@@ -158,7 +194,7 @@ async function sendEmailOtp(userId) {
     });
   } catch (_) {}
 
-  return { ok: true, emailMask: maskEmail(user.email), expiresAt };
+  return { ok: true, emailMask: maskEmail(user.email), expiresAt, messageId: emailResult?.messageId };
 }
 
 async function verifyEmailOtp(userId, code) {
