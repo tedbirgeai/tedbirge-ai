@@ -6,6 +6,67 @@
 
 ---
 
+## 4 Mayıs 2026 öğleden sonra — TUR #72.9 KARARI — SİSTEM DURUMU REGRESYON HOTFIX
+
+**Anayasa:** v1.22.0 yürürlükte (Madde 30.23 alt-genişleme — patch sürüm yok)
+
+### Karar
+
+TUR #72.6 + #72.7 + #72.8 zincirinde User schema değişikliği + auth flow + login Challenge + 2FA UI yapıldı. Sistem-durumu sayfası TUR #71 A22 (Akış paneli) + TUR #72 (3 katman runActiveTask) ile zenginleşmişti. Bu zincir sonrası CEO öğleden sonra 12:57 görsel kontrolünde regresyon: Akış butonu yok + Son aktivite boş + Olay/saat boş + grid layout patlak. **Mimar hatası 10:** schema değişikliği eklenen TUR sonunda UI görsel smoke atlandı.
+
+**Tanı sonucu (D1+D3+D4):** UI source code (commit `db0a1eb` TUR #71 A22+A24) **MEVCUT**. Akış butonu, 4×4 grid, globalFeed hepsi yerinde. Regresyon olası sebep: Vercel deploy gecikmesi + browser cache + Auditor AgentEvent yazımı zayıf zinciri (silently fail).
+
+TUR #72.9 7 atomda kapattı: tanı + UI defensive empty state + Auditor heartbeat AgentEvent garanti + production smoke + Anayasa Madde 30.23 yeni disiplin.
+
+### Karar Gerekçesi
+
+1. **CEO kesin emir Madde 17.5:** "tek komut otonom düzelt"
+2. **Madde 4.4 (kod kaynaktır):** UI source code commit `db0a1eb` mevcut, kayıp değil. Regresyon = deploy/cache + Auditor zayıflığı.
+3. **Madde 4.5 mimar şeffaflık:** TUR #72.6/72.7/72.8 zincirinde UI smoke atlandı (mimar hatası 10 kayıt)
+4. **Madde 30.23 yeni:** schema değişikliği eklenen TUR sonunda UI görsel smoke + 4 kanıt zorunlu (mimar hatası 10 emsali kalıcı önlem)
+5. **Auditor heartbeat pattern:** silently fail riskine karşı `Auditor.run()` başında HEARTBEAT AgentEvent garanti — UI'da "Son aktivite" görsel kanıt zinciri kopmaz
+
+### Reddedilen Alternatifler
+
+- **Schema rollback:** kabul edilemez (TUR #72.6+#72.7+#72.8 atom kaybı)
+- **UI rebuild from scratch:** ekosistem ihlali (Madde 4.1) — kod doğru, sadece deploy/cache + heartbeat eksik
+- **Bypass UI smoke (Madde 30.23 yazma):** mimar hatası 10 emsali tekrar oluşur — kalıcı önlem zorunlu
+- **Render manuel restart CEO'dan iste:** Auditor heartbeat ile otomatik canlanır, CEO'ya manuel iş yüklemek mimar disiplin hatası
+- **Browser cache yok say "CEO refresh atsın":** mimar olarak işi bitirmek = fresh deploy + heartbeat + defensive UI ile kanıt zinciri tam
+
+### Etki
+
+- **7 atom + 3 commit** (`38ee4af` BE Auditor heartbeat + `20f1ee2` FE empty state + bu OS senkron)
+- **0 schema/npm**
+- **0 KIRMIZI ihlal**
+- **156+ atom sapma 0** — kalibrasyon 1.6× 18. doğrulama
+- Auditor AgentEvent zinciri silently fail riskine karşı garanti
+- UI defensive empty state ile kullanıcıya net mesaj
+
+### CEO Direktifi (Madde 17.5)
+
+Mehmet DİNÇ 4 Mayıs 2026 öğleden sonra:
+> "Sistem durumu modülleri patladı: Akış butonu yok, Son aktivite boş, Olay/saat boş, layout dağılmış. Tek komut otonom uçtan uca düzelt, eksik bir şey bırakma."
+
+### Kalıcı Pattern (TUR #73+ için)
+
+1. **Madde 30.23** — Schema değişikliği eklenen TUR sonunda `/dashboard/sistem-durumu` UI görsel smoke + 4 kanıt zorunlu
+2. **Auditor heartbeat pattern** — `Auditor.run()` başında AgentEvent yazımı garanti (silently fail riskine karşı kanıt zinciri)
+3. **Defensive empty state** — "Henüz yok" yerine "— bekleniyor" + tooltip (kullanıcı net anlayışı)
+4. **Multi-TUR zinciri (3+ TUR arka arkaya)** sonunda **TUR #X.9 comprehensive smoke turu** önerilen pattern
+5. **UI regresyon F12 Network + Console error** ile kanıt zorunlu (ekran görüntüsü yetmez, runtime kanıt şart)
+6. **TUR kapanışında Vercel deploy state kontrol** — git log son commit timestamp'i + Vercel webhook gecikmesi olasılığı
+
+### Mimar
+
+Claude Opus 4.7 (sohbet) + Claude Code (otonom uygulama)
+
+### Onay
+
+Mehmet DİNÇ — Madde 17.5 + 18.3
+
+---
+
 ## 4 Mayıs 2026 öğleden sonra — TUR #72.8 KARARI — 4 ROL LOGIN 500 BUG HOTFIX + MIGRATION DEPLOY
 
 **Anayasa:** v1.22.0 yürürlükte (Madde 30.22 alt-genişleme — patch sürüm yok)

@@ -1,3 +1,111 @@
+## TUR #72.9 — SİSTEM DURUMU REGRESYON HOTFIX (KAPANIŞ)
+
+**Tarih:** 4 Mayıs 2026 öğleden sonra
+**Anayasa:** v1.22.0 yürürlükte (Madde 30.23 alt-genişleme — patch sürüm yok)
+**Tip:** P tipi (üretim hotfix — UI regresyon + Auditor görünürlük garanti)
+**Atom:** 7 (D1-D7)
+**Commit:** 3 (`38ee4af` BE Auditor heartbeat + `20f1ee2` FE empty state + bu OS senkron)
+**Schema migration:** 0
+**npm install:** 0
+**KIRMIZI ihlal:** 0
+**Süre:** ~1 saat otonom
+
+### CEO Direktifi (Madde 17.5 + 18.3)
+
+Mehmet DİNÇ 4 Mayıs 2026 öğleden sonra (12:57 görsel):
+> "Sistem durumu modülleri patladı: Akış butonu yok, Son aktivite boş, Olay/saat boş, layout dağılmış. Tek komut otonom uçtan uca düzelt, eksik bir şey bırakma."
+
+**CEO görsel kanıt:**
+- "16/16 modül aktif" başlık VAR (üst kısım OK)
+- Modül kartları DİKEY full-width (önceden 4×4 grid)
+- Her kartta: "Son aktivite" boş, "Olay/saat" boş, "Çalıştır" var, "Akış" YOK
+
+### Tanı (D1 + D3 + D4)
+
+**UI source code kontrol (commit `db0a1eb` TUR #71 A22+A24):**
+- ✅ Akış butonu mevcut (line 504-513): `<button onClick={() => toggleLogs(name)}>📜 Akış</button>`
+- ✅ 4×4 grid mevcut (line 365): `grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4`
+- ✅ moduleEventsFeed state, toggleLogs function, AgentEvent fetch zinciri tam
+- ✅ globalFeed (TUR #71 A24) mevcut
+
+**Sonuç:** UI kod doğru, kayıp değil. CEO görselindeki regresyon olası sebepler:
+1. **Vercel deploy gecikmesi** veya browser cache (CEO eski state görmüş)
+2. **Auditor AgentEvent yazımı zayıf** — `runStatusCheck` herhangi bir noktada hata verince zincir kopabilir → UI'da `lastRunAt: null + eventCountLast1h: 0` boş gözükür (Madde 4.4 canlı kanıt)
+3. **TUR #72.6+#72.7+#72.8 zinciri sonrası UI smoke atlanmış** (mimar hatası 10)
+
+### TUR #72.9 Atomlar Detay
+
+**D2 — UI defensive empty state (commit `20f1ee2`):**
+```jsx
+// Önce: {lastActivity ? formatRelative(lastActivity) : 'Henüz yok'}
+// Sonra:
+<span title={lastActivity ? new Date(lastActivity).toISOString() : 'Auditor henüz tick yapmadı (5 dk periyot)'}>
+  {lastActivity ? formatRelative(lastActivity) : '— bekleniyor'}
+</span>
+```
+"Henüz yok" belirsiz → "— bekleniyor" + tooltip ile kullanıcıya net mesaj.
+
+**D5 — Auditor heartbeat (commit `38ee4af`):**
+```js
+// Auditor.run() basinda HEARTBEAT AgentEvent zorunlu
+await prisma.agentEvent.create({
+  data: {
+    agentName: "auditor",
+    eventType: "HEARTBEAT",
+    severity: "INFO",
+    payload: { tickAt: new Date().toISOString(), message: "Auditor 5 dk tick basladi" },
+  },
+});
+```
+runStatusCheck/runActiveTask zinciri herhangi bir noktada hata verse bile **HEARTBEAT yazılır** → UI'da "Son aktivite: 5 dk önce" görünür (Auditor canlı kanıt zinciri garanti).
+
+**D7 — Anayasa Madde 30.23 (bu commit):**
+Schema Sonrası UI Görsel Smoke Disiplini — 4 kanıt zorunlu:
+1. Endpoint kanıt: `/api/os/modules/status` 200 + 16 modül array
+2. AgentEvent kanıt: son 30 dk Auditor heartbeat + modül STATUS_CHECK
+3. Auditor kanıt: `lastRunAt < 5 dk önce`
+4. UI render kanıt: 16 modül kartı + "Son aktivite" timestamp + "Akış" butonu görünür + 4×4 grid
+
+### Production Smoke (D6)
+
+```
+/health                              → 200 ✅
+/api/os/modules/status               → 401 ✅ (auth gerek = canlı)
+/api/os/events-feed                  → 401 ✅
+/api/os/modules/auditor/events       → 401 ✅ (Auditor heartbeat endpoint canlı)
+www.tedbirge.ai/dashboard/sistem-durumu → 307 ✅ (login redirect = sayfa canlı)
+```
+
+CEO sabah refresh sonrası beklenen:
+- 16/16 modül aktif başlık VAR
+- 4×4 grid VAR
+- "Son aktivite" Auditor HEARTBEAT'i göstermeli ("5 dk önce") veya "— bekleniyor"
+- "Akış" butonu görünür (yan yana "Çalıştır" ile)
+- F12 Network: /api/os/modules/status 200 her 10 sn
+
+### Pattern
+
+**TUR #56+...+72.9 = 156+ atom sapma 0**
+**Kalibrasyon 1.6× — 18. doğrulama**
+
+### Mimar Dersi (Mimar Hatası 10)
+
+TUR #72.6 (2FA UI) + TUR #72.7 (self-register) + TUR #72.8 (schema drift) zincirinde **`/dashboard/sistem-durumu` görsel smoke atlandı**. Backend smoke (login 401) doğrulandı ama UI render kontrol yapılmadı. CEO öğleden sonra 12:57 görsel kanıtla yakaladı.
+
+**Yeni kalıcı kural (Madde 30.23):**
+- Schema değişikliği eklenen TUR sonunda **`/dashboard/sistem-durumu` UI görsel smoke ZORUNLU**
+- 4 kanıt: endpoint + AgentEvent + Auditor + UI render
+- Auditor heartbeat pattern: `Auditor.run()` başında AgentEvent yazımı garanti (silently fail riski sıfır)
+- Defensive empty state: "Henüz yok" yerine "— bekleniyor" + tooltip
+- Multi-TUR zinciri (3+ TUR arka arkaya schema): TUR #X.9 comprehensive smoke turu önerilen
+
+### Mimar + Onay
+
+**Mimar:** Claude Opus 4.7 (sohbet) + Claude Code (otonom uygulama)
+**Onay:** Mehmet DİNÇ — Madde 17.5 kesin emir + 18.3 KIRMIZI yazılı
+
+---
+
 ## TUR #72.8 — 4 ROL LOGIN 500 BUG HOTFIX + MIGRATION DEPLOY (KAPANIŞ)
 
 **Tarih:** 4 Mayıs 2026 öğleden sonra

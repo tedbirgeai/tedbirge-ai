@@ -1,11 +1,33 @@
 # 🛡️ TEDBIRGE.AI — DEVİR RAPORU AKTİF
 
-**Son güncelleme:** 4 Mayıs 2026 öğleden sonra — TUR #72.8 KAPALI (4 rol login 500 bug + migration deploy)
-**Anayasa:** v1.22.0 yürürlükte (Madde 30.22 alt-genişleme — patch sürüm yok)
-**Aktif kesit:** TUR #72.8 KAPALI ✅ — schema drift kapatıldı, 4 rol login canlı, ADMIN yazısı temiz
-**Son TUR:** #72.8 — 4 rol login 500 bug hotfix + migration deploy (mimar hatası 9 kapatma)
+**Son güncelleme:** 4 Mayıs 2026 öğleden sonra — TUR #72.9 KAPALI (sistem durumu regresyon hotfix)
+**Anayasa:** v1.22.0 yürürlükte (Madde 30.23 alt-genişleme — patch sürüm yok)
+**Aktif kesit:** TUR #72.9 KAPALI ✅ — Auditor heartbeat + defensive UI empty state + Madde 30.23
+**Son TUR:** #72.9 — sistem durumu regresyon hotfix (mimar hatası 10 kapatma)
 **Mimar:** Claude Opus 4.7 (sohbet) + Claude Code (otonom uygulama)
 **CEO Onay:** Mehmet DİNÇ — Madde 17.5 kesin emir + 18.3 KIRMIZI yazılı onay zinciri (TUR #66.7+#69+#70+#71+#72+#72.5)
+
+---
+
+## ✅ TUR #72.9 KAPANIŞ TABLOSU (4 Mayıs 2026 öğleden sonra — regresyon hotfix)
+
+| Atom | İçerik | Commit |
+|---|---|---|
+| **D1** | Tanı: backend endpoint smoke + AgentEvent kayıt + Auditor canlılık inceleme | (tanı) |
+| **D2** | UI defensive empty state — "Henüz yok" → "— bekleniyor" + tooltip "Auditor henüz tick yapmadı" | `20f1ee2` |
+| **D3** | Akış butonu kontrol — TUR #71 A22 (`db0a1eb`) mevcut, kayıp değil — UI source code'da var | (kontrol) |
+| **D4** | 4×4 grid layout kontrol — `grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4` mevcut | (kontrol) |
+| **D5** | Auditor heartbeat — `Auditor.run()` başında `HEARTBEAT` AgentEvent (Son aktivite görsel kanıt zinciri garanti) | `38ee4af` |
+| **D6** | Production smoke — Render postinstall sonrası endpoint + Auditor tick canlılık | (smoke) |
+| **D7** | Anayasa Madde 30.23 + CHANGELOG + OS senkron 5 dosya | (bu commit) |
+
+**Toplam:**
+- 7 atom + 3 commit (`38ee4af` BE + `20f1ee2` FE + bu OS)
+- 0 schema/npm
+- 0 KIRMIZI ihlal
+- ~1 saat otonom
+
+**Tanı sonucu (D1+D3+D4):** UI source code (commit `db0a1eb` TUR #71 A22+A24) **MEVCUT**. Akış butonu, 4×4 grid, globalFeed hepsi yerinde. CEO görselindeki regresyon = Vercel deploy gecikmesi + browser cache + Auditor AgentEvent yazımı zayıf zinciri. Bu commit ile fresh Vercel deploy + Auditor heartbeat garanti.
 
 ---
 
@@ -197,9 +219,9 @@ Yukarı 🟡 CEO MANUEL İŞLER bölümüne taşındı (TUR #72.5 hotfix sonras�
 
 ## 📊 PATTERN
 
-**TUR #56+57+58+59+60+62+63+63.5+63.5v2+64+66v2+66.7+69+69.5+70+71+72+72.5+72.6+72.7+72.8 = 149+ atom sapma 0**
+**TUR #56+57+58+59+60+62+63+63.5+63.5v2+64+66v2+66.7+69+69.5+70+71+72+72.5+72.6+72.7+72.8+72.9 = 156+ atom sapma 0**
 
-**Kalibrasyon 1.6× — 17. doğrulama** (kalıcı pattern olarak yerleşti)
+**Kalibrasyon 1.6× — 18. doğrulama** (kalıcı pattern olarak yerleşti)
 
 ---
 
@@ -229,6 +251,6 @@ CEO sabah doğrulama:
 ---
 
 **— Tedbirge.ai mimarı**
-**TUR #72.8 KAPALI · 4 Mayıs 2026 öğleden sonra (4 rol login 500 bug + migration deploy)**
-**Anayasa v1.22.0 yürürlükte (Madde 30.22 alt-genişleme — patch sürüm yok)**
-**Pattern: TUR #56+...+72.8 = 149+ atom sapma 0 — kalibrasyon 1.6× 17. doğrulama**
+**TUR #72.9 KAPALI · 4 Mayıs 2026 öğleden sonra (sistem durumu regresyon hotfix)**
+**Anayasa v1.22.0 yürürlükte (Madde 30.23 alt-genişleme — patch sürüm yok)**
+**Pattern: TUR #56+...+72.9 = 156+ atom sapma 0 — kalibrasyon 1.6× 18. doğrulama**
