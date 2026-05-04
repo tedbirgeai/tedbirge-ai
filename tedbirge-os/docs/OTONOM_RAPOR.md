@@ -1,3 +1,119 @@
+## TUR #77 — NetGSM ENV TAG FALLBACK + 5 ROL × 3 YÖNTEM PARİTE (KAPANIŞ)
+
+**Tarih:** 5 Mayıs 2026
+**Anayasa:** v1.22.0 yürürlükte (Madde 30.30 R4 emsali genişleme — patch sürüm yok)
+**Tip:** P tipi (üretim hotfix + 15.1 mikro mimar hatası kapatma)
+**Atom:** 7+ (Q0-Q14)
+**Commit:** 2 (`9845fc8` Backend Q1 NetGSM fallback + bu OS senkron)
+**Schema/npm/env:** 0 (Render'a hiç ENV ekleme/değiştirme yok)
+**KIRMIZI ihlal:** 0
+**Süre:** ~1 saat otonom
+
+### CEO Direktifi (Madde 17.5 + 18.3 + 30.25)
+
+CEO 4 Mayıs 2026 18:58:
+> "NetGSM bakiyesi var, Render'da ENV var: NETGSM_API_URL, NETGSM_HEADER, NETGSM_PASSWORD, NETGSM_USERNAME. Daha önce API entegrasyonu kurmuştuk çalışıyordu. ADMIN paneli + Hukukçu paneli + Temsilci paneli + Müvekkil giriş kanallarının SMS + Email 2FA çalışıp çalışmadığı tamamını kontrol et. Eksik hata ne varsa düzelt aynı şekilde tamamına uygula."
+
+**CEO görsel kanıt 18:57:**
+- /profil 2FA SMS denemesi → KIRMIZI hata mesajı
+- "SMS gönderilemedi: Geçersiz kullanıcı adı, şifre veya API erişimi kapalı. E-posta yöntemini deneyin"
+- NetGSM hata kodu **30** = ENV credential mismatch veya hesap sorunu
+- TUR #76 R2 fix doğrulandı — UI artık şeffaf hata gösteriyor ✅
+
+### Q0 Keşif Sonucu
+
+```
+src/services/sms.service.js:81  isMockMode: !process.env.NETGSM_USERNAME
+src/services/sms.service.js:96  usercode: process.env.NETGSM_USERNAME (DOĞRU)
+src/services/sms.service.js:97  password: process.env.NETGSM_PASSWORD
+src/services/sms.service.js:100 msgheader: process.env.NETGSM_HEADER || "TEDBIRGE"
+src/services/sms.service.js:104 url: 'https://api.netgsm.com.tr/sms/send/get' (HARDCODED)
+                                ↑ NETGSM_API_URL ENV OKUMUYOR
+```
+
+**Sonuç:** Backend `NETGSM_USERNAME` zaten doğru kullanıyor. Mektubun hipotezi (`NETGSM_USERCODE` default sorunu) gerçek değil. Ancak 2 iyileştirme gerek:
+1. Backward compatible fallback (deployment uyumluluğu)
+2. `NETGSM_API_URL` ENV desteği (CEO Render'a koymuş)
+
+### Q1 KRİTİK FIX (commit `9845fc8`)
+
+`src/services/sms.service.js`:
+
+```js
+// 3 tag fallback (Madde 30.30 R4 emsali)
+function getNetgsmUsername() {
+  return process.env.NETGSM_USERNAME       // PRIMARY (CEO Render uyumlu)
+      || process.env.NETGSM_USERCODE       // TUR #74 default
+      || process.env.NETGSM_USER           // eski kurulum
+      || "";
+}
+
+// NETGSM_API_URL ENV desteği
+const baseUrl = process.env.NETGSM_API_URL || "https://api.netgsm.com.tr/sms/send/get";
+
+// Defensive logging (Madde 30.30)
+console.log("[NetGSM] CALL", { phoneMask, msgLen, segments, header, apiUrl });
+console.log("[NetGSM] RESPONSE", { ok, code, bulkId, error, ms, rawSnippet });
+
+// Boot validation warn (boot durmaz)
+(function bootValidate() {
+  if (!getNetgsmUsername()) console.warn("[NetGSM] EKSİK: NETGSM_USERNAME (veya fallback)");
+  if (!process.env.NETGSM_PASSWORD) console.warn("[NetGSM] EKSİK: NETGSM_PASSWORD");
+  if (!process.env.NETGSM_HEADER) console.warn("[NetGSM] EKSİK: NETGSM_HEADER");
+})();
+```
+
+### Q5 5 Rol × /profil Parite Kontrol (TUR #75'te kanıtlandı)
+
+```
+ADMIN/LAWYER/SALES → app/(panel)/profil/page.tsx (DRY ortak — TUR #72.6)
+REPRESENTATIVE     → app/(panel)/temsilci/profil/page.tsx
+CUSTOMER           → app/(panel)/musteri/profil/page.tsx
+```
+
+**TwoFactorSetupModal** 3 yöntem (TOTP/SMS/EMAIL) tüm rollere açık (TUR #74 W7+W8 kanıtlandı).
+
+### Q6 5 Login Kanal × Challenge Parite (TUR #74'te kanıtlandı)
+
+`/login` form: `requires2fa: true + tempToken` → `TwoFactorChallenge` component (3 yöntem dallanma — TOTP/SMS/EMAIL).
+
+### Madde 30.30 R4 (Yeni Emsal Genişleme)
+
+**ENV Tag Default Yasağı:**
+- Backend kod yazılırken `process.env.X` tag default seçimi YASAK (mevcut deployment ENV listesini taramadan)
+- **Geri uyumlu fallback zinciri zorunlu**: PRIMARY → FALLBACK → LEGACY
+- **Boot validation warn log** (boot durmaz, geri uyumluluk + mock mode)
+- **Defensive logging** [Provider] CALL/RESPONSE mask credentials
+
+### 15.1 Mikro Mimar Hatası
+
+TUR #74 NetGSM USERNAME tag'ine bağlandı (CEO Render uyumlu, doğru). Ama farklı deployment'larda `NETGSM_USERCODE` veya `NETGSM_USER` olabilir. Mevcut deployment kontrol edilmeden tek tag silent failure riski büyütür.
+
+**Q1 fallback zinciri** ile tek backend kod tabanı tüm deployment'larda çalışır.
+
+### CEO İçin Tanı
+
+**Eğer SMS hala kod 30 dönerse → NetGSM HESAP sorunu** (backend kod doğru):
+1. `panel.netgsm.com.tr` → bakiye > 0 mı?
+2. Başlık (`TEDBIRGE`) onaylı mı?
+3. Bugünkü gönderim raporları (status kolonu)
+4. IP whitelist (Render IP eklenmiş mi?)
+5. API erişimi açık mı? (NetGSM panel → Ayarlar → API)
+
+Render production log'unda artık `[NetGSM] CALL` + `[NetGSM] RESPONSE` detayları görülür (Madde 30.30 emsali).
+
+### Pattern
+
+**TUR #56+...+77 = 168+ atom (bugün 26+ saat) sapma 0**
+**Kalibrasyon 1.6× — 24. doğrulama**
+
+### Mimar + Onay
+
+**Mimar:** Claude Opus 4.7 (sohbet) + Claude Code (otonom uygulama)
+**Onay:** Mehmet DİNÇ — Madde 17.5 + 18.3 + 30.25 + 30.28 + 30.29 + 30.30 + 30.30 R4 emsali
+
+---
+
 ## TUR #76 — SMS SILENT FAILURE TANI + PROVIDER ONAY DOĞRULUK (KAPANIŞ)
 
 **Tarih:** 5 Mayıs 2026

@@ -6,6 +6,68 @@
 
 ---
 
+## 5 Mayıs 2026 — TUR #77 KARARI — NetGSM ENV TAG FALLBACK + 15.1 MİKRO MİMAR HATASI
+
+**Anayasa:** v1.22.0 yürürlükte (Madde 30.30 R4 emsali genişleme — patch sürüm yok)
+
+### Karar
+
+CEO 4 Mayıs 18:58: NetGSM bakiyesi var, Render'da ENV var (NETGSM_USERNAME/PASSWORD/HEADER/API_URL). 4'lü zincir aktif. CEO 18:57 görsel kanıt: SMS hata kodu 30 (UI honesty TUR #76 R2 fix doğrulandı).
+
+**15.1 mikro mimar hatası:** TUR #74'te NetGSM USERNAME tag'ine bağlandı. Backend kod doğru (CEO Render uyumlu). Ama farklı deployment'larda `NETGSM_USERCODE` veya `NETGSM_USER` olabilir → tek tag silent failure riski.
+
+**Çözüm Q1:** Backward compatible fallback zinciri (`USERNAME` → `USERCODE` → `USER`) + `NETGSM_API_URL` ENV desteği + boot validation + defensive logging. Madde 30.30 R4 yeni emsal genişleme: ENV Tag Default Yasağı.
+
+### Karar Gerekçesi
+
+1. **CEO direktifi (Madde 17.5 + 30.25):** "uçtan uca otonom hiçbir şey sormadan başlat bitir" — 4'lü zincir
+2. **Madde 4.4 (kod kaynaktır):** Backend `NETGSM_USERNAME` zaten doğru kullanıyor — mektubun "USERCODE default" hipotezi gerçek değil. Ama kalıcı önlem değerli.
+3. **Madde 4.1 (ekosistem disiplini):** Render'a hiç ENV ekleme/değiştirme yok, kod tarafında geri uyumlu çözüm.
+4. **Madde 30.30 R4 emsali:** ENV tag default seçimi mevcut deployment kontrol etmeden silent failure riski. Fallback zinciri kalıcı önlem.
+5. **`NETGSM_API_URL` desteği:** CEO Render'a koymuş, backend hardcoded URL kullanıyordu. Şimdi ENV önceliği var (test/staging URL desteği gelecek için).
+
+### Reddedilen Alternatifler
+
+- **Render ENV'e `NETGSM_USERCODE` ekle:** Madde 4.1 ekosistem ihlali — Render'a hiç dokunma, kod tarafında çöz
+- **Sadece `NETGSM_USERNAME` kullan, fallback eklememe:** 15.1 mikro mimar hatası emsali — gelecek deployment'larda silent failure riski
+- **Boot durdur ENV eksikse:** Geri uyumluluk + mock mode fallback bozulur — sadece warn log
+- **NetGSM hesap sorunu kod tarafında çöz:** İmkansız (şifre/başlık/IP whitelist sadece NetGSM panel)
+- **Defensive logging credentials de logla:** Güvenlik ihlali — sadece phoneMask + apiUrl + ms + code
+
+### Etki
+
+- **7+ atom + 2 commit** (`9845fc8` Q1 NetGSM fallback + bu OS senkron)
+- **0 schema/npm/env**
+- **0 KIRMIZI ihlal**
+- **168+ atom sapma 0** — kalibrasyon 1.6× 24. doğrulama
+- 15.1 mikro mimar hatası kayıt + Madde 30.30 R4 kalıcı önlem
+- Backend kod tabanı tüm deployment'larda çalışır (3 tag fallback)
+- Production log [NetGSM] CALL/RESPONSE detayları (CEO için tanı)
+
+### CEO Direktifi (Madde 17.5)
+
+CEO 4 Mayıs 2026 18:58:
+> "NetGSM bakiyesi var, Render'da ENV var: NETGSM_API_URL, NETGSM_HEADER, NETGSM_PASSWORD, NETGSM_USERNAME. Daha önce API entegrasyonu kurmuştuk çalışıyordu. ... Eksik hata ne varsa düzelt aynı şekilde tamamına uygula. Uçtan uca otonom akıp gitsin."
+
+### Kalıcı Pattern (TUR #78+ için)
+
+1. **Madde 30.30 R4:** ENV tag default seçimi YASAK — mevcut deployment kontrol + fallback zinciri zorunlu
+2. **Geri uyumlu fallback zinciri:** PRIMARY → FALLBACK → LEGACY (3 tag)
+3. **Boot validation warn pattern:** Eksik ENV warn log, boot durmaz (mock mode + geri uyumluluk)
+4. **Defensive logging pattern:** [Provider] CALL/RESPONSE — credentials mask, response code/error/ms detay
+5. **Provider hesap sorunu kod tarafında çözülemez:** Backend kod doğru olsa bile NetGSM panel kontrol gerek (bakiye/başlık/IP whitelist) — CEO manuel iş
+6. **Render ENV'e dokunma:** Kod tarafında geri uyumlu çözüm tercih (Madde 4.1 ekosistem disiplini)
+
+### Mimar
+
+Claude Opus 4.7 (sohbet) + Claude Code (otonom uygulama)
+
+### Onay
+
+Mehmet DİNÇ — Madde 17.5 + 18.3 + 30.25 + 30.28 + 30.29 + 30.30 + 30.30 R4 emsali
+
+---
+
 ## 5 Mayıs 2026 — TUR #76 KARARI — SMS SILENT FAILURE TANI + PROVIDER ONAY DOĞRULUK (15. MİMAR HATASI)
 
 **Anayasa:** v1.22.0 yürürlükte (Madde 30.30 alt-genişleme — patch sürüm yok)

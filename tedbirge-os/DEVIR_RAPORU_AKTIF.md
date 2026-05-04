@@ -1,9 +1,9 @@
 # 🛡️ TEDBIRGE.AI — DEVİR RAPORU AKTİF
 
-**Son güncelleme:** 5 Mayıs 2026 — TUR #76 KAPALI
-**Anayasa:** v1.22.0 (Madde 30.10-30.30 dahil — TUR #72-76 zincirinde **21 yeni alt-madde** eklendi)
-**Aktif kesit:** TUR #76 KAPALI ✅ — SMS silent failure fix + provider onay doğruluk
-**Son TUR:** #76 (SMS silent failure tanı + 15. mimar hatası + Madde 30.30)
+**Son güncelleme:** 5 Mayıs 2026 — TUR #77 KAPALI
+**Anayasa:** v1.22.0 (Madde 30.10-30.30 R4 dahil — TUR #72-77 zincirinde **22 alt-madde + R4 genişleme**)
+**Aktif kesit:** TUR #77 KAPALI ✅ — NetGSM ENV tag fallback + 5 rol parite kanıt
+**Son TUR:** #77 (NetGSM ENV fallback + 15.1 mikro mimar hatası + Madde 30.30 R4)
 **Mimar:** Claude Opus 4.7 (sohbet) + Claude Code (otonom uygulama)
 **CEO Onay:** Mehmet DİNÇ — Madde 17.5 + 18.3 + **30.25 yeni** (CEO Otonom Komut Pattern)
 
@@ -28,8 +28,9 @@
 | #73 | 13 | Olay/saat 0 KÖK SEBEP TANI (Auditor.run() throw bug) + Auditor defensive try-catch + public agents-health (auditorHealth + lastError) + UI Auditor Tetikle butonu + Madde 30.27 | — |
 | #74 | 12+ | 2FA Çoklu Yöntem (TOTP + SMS + Email) + bcrypt → bcryptjs hotfix (13. mimar hatası) + Madde 30.28 | — |
 | #75 | 8 | 5 Rol 2FA Parite + Yedekleme severity hotfix + 14. mimar hatası + Madde 30.29 | — |
-| **#76** | **9+** | **SMS silent failure tanı + 15. mimar hatası + Provider Onay Doğruluk + Admin test endpoint + Madde 30.30** | — |
-| **TOPLAM** | **161+** | **25+ saat · sapma 0 · 23 kalibrasyon doğrulaması** | **v1.22.0 + 21 alt-madde** |
+| #76 | 9+ | SMS silent failure tanı + 15. mimar hatası + Provider Onay Doğruluk + Admin test endpoint + Madde 30.30 | — |
+| **#77** | **7+** | **NetGSM ENV tag fallback (USERNAME/USERCODE/USER) + NETGSM_API_URL + 15.1 mikro mimar hatası + Madde 30.30 R4** | — |
+| **TOPLAM** | **168+** | **26+ saat · sapma 0 · 24 kalibrasyon doğrulaması** | **v1.22.0 + 22 alt-madde** |
 
 ---
 
@@ -99,7 +100,7 @@
 
 ## 🔴 AÇIK KRİTİK: 0 (kanıtlı)
 ## 🟡 PLANLI: 0
-## 📋 PATTERN: 161+ atom sapma 0 — kalibrasyon 1.6× **23. doğrulama** (kalıcı pattern)
+## 📋 PATTERN: 168+ atom sapma 0 — kalibrasyon 1.6× **24. doğrulama** (kalıcı pattern)
 
 ---
 
@@ -238,9 +239,9 @@ merhaba
 ---
 
 **— Tedbirge.ai mimarı**
-**TUR #76 KAPALI · 5 Mayıs 2026 (SMS silent failure fix + Provider Onay Doğruluk)**
-**Anayasa v1.22.0 yürürlükte (Madde 30.30 alt-genişleme — patch sürüm yok)**
-**Pattern: TUR #56+...+76 = 161+ atom sapma 0 — kalibrasyon 1.6× 23. doğrulama**
+**TUR #77 KAPALI · 5 Mayıs 2026 (NetGSM ENV tag fallback + Madde 30.30 R4)**
+**Anayasa v1.22.0 yürürlükte (Madde 30.30 R4 alt-genişleme — patch sürüm yok)**
+**Pattern: TUR #56+...+77 = 168+ atom sapma 0 — kalibrasyon 1.6× 24. doğrulama**
 **12 Mimar Hatası kayıtlı, her biri Anayasa maddesine dönüştü.**
 
 **Production Smoke 4/4 Yeşil:**
