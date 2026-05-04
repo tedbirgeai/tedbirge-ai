@@ -9,6 +9,21 @@ class AuditorAgent extends BaseAgent {
   }
 
   async run() {
+    // TUR #72.9 D5 — Auditor heartbeat: her tick basinda kanit AgentEvent (kullaniciya "Son aktivite" gorsel kaniti)
+    try {
+      await prisma.agentEvent.create({
+        data: {
+          agentName: "auditor",
+          eventType: "HEARTBEAT",
+          severity: "INFO",
+          payload: {
+            tickAt: new Date().toISOString(),
+            message: "Auditor 5 dk tick basladi",
+          },
+        },
+      });
+    } catch (_) {}
+
     const checks = [];
 
     // TUR #72.5 H4 — her finding detay payload (UI akis paneli render edebilsin)
