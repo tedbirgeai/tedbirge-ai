@@ -1722,6 +1722,55 @@ TUR #71+#72+#72.5+#72.6+#72.7+#72.8+#72.9+#72.10+#72.11 zincirinde 9 kez tekrar 
 - ❌ Atom başına rapor (tek final rapor disiplin)
 - ❌ Code "yapıldı" rapor + CEO görsel çatışması durumunda derin tanı turu açmama
 
+### 30.30 — Provider Onay Doğruluk Disiplini (TUR #76)
+
+**Kural:** Tüm 2FA / OTP / bildirim kanalları için **provider onayı** zorunlu kontrol — "API call yapıldı" yetersiz, "API onayladı + son ucu kanıtlandı" şart (Madde 4.4 emsali genişleme).
+
+**1. Provider Response Kodu Kontrol ZORUNLU:**
+- **SMS (NetGSM):** `response.code === '00'` (başarı) kontrolü; aksi takdirde throw + `ActivityLog SMS_OTP_FAILED` + `PhoneOtp.deleteMany`
+- **Email (Resend/Nodemailer):** `messageId` yokluğu = hata; aksi takdirde throw + `ActivityLog EMAIL_OTP_FAILED`
+- `result.success === false` veya yokluğu → throw, ASLA silent dön
+
+**2. UI Doğruluğu:**
+- "Gönderildi" mesajı **SADECE** provider onayı sonrası göster (provider response kanıt)
+- Hata durumunda gerçek hata mesajı + **fallback CTA** ("E-posta yöntemini deneyin")
+- 60 sn cooldown timer + "Gelmedi mi?" yönlendirme
+
+**3. Phone Format Normalize (NetGSM):**
+- `90XXX` 12 hane standart (mevcut `sms.service.js normalizePhone()`)
+- International input (`+90`, `0090`) → otomatik normalize
+- Geçersiz format → throw, ASLA göndermeye çalışma
+
+**4. Boot-time ENV Validation:**
+- `NETGSM_USERNAME/PASSWORD/HEADER` + `RESEND_API_KEY` veya SMTP eksik ise warn log
+- Boot durdurma YOK (geri uyumluluk + mock mode fallback)
+
+**5. ADMIN Sağlık Testi (TUR #76 R6 emsali):**
+- `POST /api/auth/test-2fa-channel` (auth + ADMIN)
+- 3 yöntem × tek tıkla smoke test
+- Response: `{ method, ms, providerCode, providerMessage, mock, deliveryHint }`
+- CEO Konsol UI'da "2FA Kanal Sağlık Testi" kartı (gelecek genişleme)
+
+**6. Retry + Fallback Pattern:**
+- SMS başarısız → frontend'de **"E-posta yöntemine geçin"** CTA
+- Email başarısız → **"Authenticator App (TOTP) en hızlı"** CTA
+- TOTP başarısız → **"SMS/Email'i deneyin"** CTA
+
+**7. ActivityLog Ayrım Zorunlu:**
+- `SMS_OTP_SENT` (provider onaylı) ↔ `SMS_OTP_FAILED` (provider hata)
+- `EMAIL_OTP_SENT` ↔ `EMAIL_OTP_FAILED`
+- Meta payload: `bulkId / messageId / errorCode / phoneMask / emailMask`
+
+**TUR #76 emsal — 15. mimar hatası:**
+TUR #74'te SMS akışında provider response kodu kontrolü yoktu. Backend `sms.service.js sendSms()` `{success:false}` döndürdü ama ASLA throw etmedi. `twoFactorOtp.service.js` bu dönüş değerini kontrol etmedi → ActivityLog yanlış `SMS_OTP_SENT` yazıldı → UI "SMS Gönderildi" yalanı. CEO 17:33 görsel kanıtla yakaladı.
+
+**Yasak:**
+- ❌ "API call başarılı" silent return (success:false swallow)
+- ❌ UI "Gönderildi" mesajı provider onayı olmadan
+- ❌ ActivityLog `_SENT` ayrımı olmadan tek action ile (SENT vs FAILED ayrı)
+- ❌ Phone normalize atlanması (NetGSM standart farklı dönüşler)
+- ❌ Provider hatası durumunda fallback CTA göstermemek (kullanıcı çözüm yolu görmeli)
+
 ### 30.29 — 5 Rol 2FA Parite Disiplini (TUR #75)
 
 **Kural:** Tedbirge.ai 5 rol için 2FA parite **zorunlu**:
@@ -2346,6 +2395,7 @@ Mehmet Bey sahaya çıkabilsin diye bu disiplin var.
 **1 Mayıs 2026 — v1.15.0 alt-genişleme (TUR #56 KAPANIŞ + TUR #57 tohum: TUR #56 ile TUR #51.B 18/18 bulgu kapatıldı (12/12 atom sapma 0, kalibrasyon 1.6× doğrulandı, L-B1 lawyerNotifications 6 trigger zinciri canlı, Madde 24.11 üretim disiplini canlı). Madde 31.9 Rol-Ruh Tasarım Prensibi tohum olarak eklendi (Madde 22.2 alt-genişleme — sürüm artmaz): 4 CRM kendi paydaş ruhuna göre niş emsallerle (CEO↔Stripe Dashboard, LAWYER↔Clio/MyCase, REPRESENTATIVE↔HubSpot/Pipedrive, CUSTOMER↔Stripe Customer Portal/Apple Mail) farklılaşır. TUR #57'de uygulanacak — bu madde TUR #57'nin tohumudur. CEO direktifi 1 Mayıs 2026: "HER CRM KENDİ RUHUNA VE KENDİ ALANINA GÖRE ANALİZ EDİLMELİ".)**  
 **1 Mayıs 2026 — v1.16.0 (TUR #57 — 4 CRM Rol-Ruh Karakter Farklılaştırma: 12 atom (3 KRİTİK + 9 ORTA) ile 9 yeni DS komponenti (AnomalyStrip + KPICardEnhanced + Sparkline + CaseFolderCard + LawyerHealthTriad + KanbanBoard + DealCard + ActivityCounter + TimelineDot + TrustBadge + KeyboardShortcutsHelp), 2 yeni route (/dashboard/komuta + /temsilci/pipeline), 2 yeni utility (lib/sadelestir 30 terim + lib/keyboardNav G+harf), 2 mini endpoint (anomalies + lead aşama). Madde 31.9 Rol-Ruh Tasarım Prensibi tohumdan resmileşmeye geçti. 0 schema migration, 0 npm paket (3 paket adayı native alternatifle reddedildi: react-beautiful-dnd → HTML5 DragEvent, canvas-confetti → CSS keyframe, lottie-react → inline SVG). 4 CRM artık niş emsal seviyesinde (Stripe Dashboard+Linear, Clio+MyCase, HubSpot+Pipedrive, Stripe Customer Portal+Apple HIG). KAPANIŞ Madde 32'ye kaydı.)**  
 **1 Mayıs 2026 — v1.17.0 (TUR #58 — FAZ 5 DISCOVERABILITY başlangıcı: 9 atom (1 KRİTİK + 7 ORTA + 1 OS) ile llms.txt + JsonLd 3 yeni factory (FAQPage + HowTo + BreadcrumbList) + 3 niş landing'e SSS schema (15+15+10 toplam 40 SSS) + yeni /tazminat-rehberi sayfası (8 adım HowTo) + AI snippet meta disiplini + BrandFooterStrip 4 sayfada. Madde 33 (İçerik Üretim Disiplini) eklendi: avukat onayı zorunlu, TBB Reklam Yasağı uyumu, AI sadece taslak yazar — avukat onaylar, disclaimer her içerikte. 0 schema migration, 0 npm paket. CEO direktifi 1 Mayıs 2026 (Aylık Sabit Aidat Yasağı) MIMARI_KARARLAR.md'ye eklendi: tüm 3. parti SaaS sabit aidat yasak, sadece kullanım bazlı API ücreti orantılı geçer. KAPANIŞ Madde 32'ye kaydı.)**  
+**5 Mayıs 2026 — TUR #76 (SMS SILENT FAILURE TANI + 15. MİMAR HATASI + PROVIDER ONAY DOĞRULUK: 9+ atom (R0-R14) + Anayasa Madde 30.30 yeni — R1 tanı: `sms.service.js:140-143` `catch { return { success: false } }` THROW ETMİYOR → silent failure → twoFactorOtp.service.js bunu kontrol etmiyor → ActivityLog yanlış `SMS_OTP_SENT` → UI "SMS Gönderildi" yalanı (CEO 17:33 görsel kanıtla yakaladı). + R2 KRİTİK fix: twoFactorOtp.service.js `sendSms()` dönüş kontrolü, `result.success === false` ise throw + `ActivityLog SMS_OTP_FAILED` + `PhoneOtp.deleteMany` (DB temizlik). + R5 Email defensive (try-catch sendEmail + EMAIL_OTP_FAILED). + R6 Admin test endpoint `POST /api/auth/test-2fa-channel` (auth+ADMIN, 3 yöntem × tek tıkla smoke, response: providerCode/messageId/ms/deliveryHint). + R9 UI honesty: provider onayı sonrası "✅ SMS gönderildi" + bulkId; hata durumunda "E-posta yöntemini deneyin" CTA. + Madde 30.30 (Provider Onay Doğruluk Disiplini — 7 madde: response kontrol + UI doğruluğu + phone normalize + boot ENV validation + admin sağlık testi + retry/fallback + ActivityLog ayrım). 0 schema/npm. Pattern 152+ → 161+ atom sapma 0 — kalibrasyon 1.6× 23. doğrulama. Anayasa v1.22.0 yürürlükte (Madde 30.30 alt-genişleme — patch sürüm yok).)**  
 **5 Mayıs 2026 — TUR #75 (5 ROL 2FA PARİTE + YEDEKLEME KRİTİK HOTFIX: 8 atom (V0-V13) + Anayasa Madde 30.29 yeni — 5 rol parite (ADMIN/LAWYER/SALES `/profil` DRY ortak + REPRESENTATIVE `/temsilci/profil` + CUSTOMER `/musteri/profil`) + V9 backup modülü severity hotfix (snapshots=[] CRITICAL→WARNING + operasyonel mesaj + alert_throttled rate-limit + DATE_PARSE_ERROR mode), 14. mimar hatası kayıt: TUR #74'te ADMIN-only test edildi diğer rolleri atlama → KVKK m.12 ihlali sürdü. **KEŞİF SONUCU**: `/profil` zaten DRY (TUR #72.6'da ADMIN+LAWYER+SALES için ortak yazılmış), `/temsilci/profil` ve `/musteri/profil` mevcut → V2+V3+V4 kapsamı %90 hazır, kalanı dokümantasyon + Yedekleme V9 fix. Production smoke 7/7 yeşil (4 rol panel 307 + 3 endpoint 401 + backup canlı 18 olay/saat + auditorHealth HEALTHY + eventCounts.last1h 375). Madde 30.22 genişleme: Auth endpoint için GET smoke yetersiz, POST happy path zorunlu (12 senaryo: 4 rol × 3 yöntem). 0 schema/npm. Pattern 137+ → 152+ atom sapma 0 — kalibrasyon 1.6× 22. doğrulama. Anayasa v1.22.0 yürürlükte (Madde 30.29 alt-genişleme — patch sürüm yok).)**  
 **5 Mayıs 2026 — TUR #74 (2FA ÇOKLU YÖNTEM — TOTP + SMS + EMAIL + bcrypt HOTFIX: 12+ atom (W0 NetGSM keşif Senaryo A + W1 bcrypt derin tanı + W2 acil hotfix `bcrypt → bcryptjs` 2 yer + W3 TOTP smoke + W4 SMS 2FA backend + W5 Email 2FA backend + W6 schema migration GEREK YOK (mevcut PhoneOtp + TwoFactorMethod yeniden kullanım) + W7 UI wizard 3 yöntem aktive ("Yakında" kaldırıldı) + W8 Login Challenge 3 yöntem dallanma + W11 Anayasa Madde 30.28 + W12 OS senkron). 13. mimar hatası: TUR #72.6'da `auth.controller.js:558,589` `require("bcrypt")` typo (paket `bcryptjs`) → production `MODULE_NOT_FOUND` 500 → CEO 4 Mayıs 16:16 Authenticator denemesinde gördü. Hotfix W2 acil push: `bcrypt → bcryptjs`. Yeni service `src/services/twoFactorOtp.service.js` (sendSmsOtp + verifySmsOtp + sendEmailOtp + verifyEmailOtp + maskPhone + maskEmail). 6 yeni endpoint: setup-2fa-sms/email + verify-2fa-sms/email + login-send-otp + login-verify-otp. UI: TwoFactorSetupModal 3 radio + step 2 dallanma + cooldown resend. TwoFactorChallenge useEffect /auth/login-send-otp + method'a göre dallanma. NetGSM mevcut entegrasyon korundu (Senaryo A — `sms.service.js` + `NETGSM_USERNAME/PASSWORD/HEADER` ENV). Madde 30.28 yeni — 2FA Çoklu Yöntem Disiplini. KVKK m.12 risk SIFIR (3 yöntem aktive ile). 0 schema/npm. Pattern 125+ → 137+ atom sapma 0 — kalibrasyon 1.6× 21. doğrulama. Anayasa v1.22.0 yürürlükte (Madde 30.28 alt-genişleme — patch sürüm yok).)**  
 **5 Mayıs 2026 — TUR #73 GENİŞLETME (KÖK SEBEP DEFENSIVE FIX + UI AUDITOR TETIKLE BUTONU: 13 atom (Z1-Z6 genişletme, +6 atom) + 5 commit — Z3 Auditor `run()` defensive 3 bağımsız try-catch (audit checks + runAllModules + runAllActiveTasks), agents-health `auditorHealth` göstergesi (HEALTHY/DELAYED/STOPPED/NEVER_RAN) + `lastError` payload + `lastEvent.message` + Z4 UI sistem-durumu sağ üst "Auditor Tetikle" butonu (Zap icon, ADMIN auth /agents/Auditor/tick) + Z5 production smoke 4/4 yeşil (auditorHealth: HEALTHY + eventCounts.last1h 35→302 sıçrama + 16/16 modül 14-16 olay/saat + UI canlı). KÖK SEBEP: Auditor.run() audit check throw → BaseAgent.tick `lastRunAt` update yok → 16 modül zinciri kopuk. Defensive fix kanıt: lastError AUDIT_CHECK_FAILED hâlâ var ama runAllModules + runAllActiveTasks ÇAĞRILDI (zincir kopmadı). CEO browser URL bar `tedbirge-ai.onrender.com/api/agents-health` 1 dk'da kök sebep tanısı. CEO 4'lü zincir Madde 30.25 yenilenmiş. 0 schema/npm. Pattern 119+ → 125+ atom sapma 0 — kalibrasyon 1.6× 20. doğrulama.)**  

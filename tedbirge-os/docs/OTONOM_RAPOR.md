@@ -1,3 +1,112 @@
+## TUR #76 — SMS SILENT FAILURE TANI + PROVIDER ONAY DOĞRULUK (KAPANIŞ)
+
+**Tarih:** 5 Mayıs 2026
+**Anayasa:** v1.22.0 yürürlükte (Madde 30.30 alt-genişleme — patch sürüm yok)
+**Tip:** P tipi (üretim hotfix + 15. mimar hatası kapatma)
+**Atom:** 9+ (R0-R14)
+**Commit:** 3 (`6860f6e` Backend R2+R5+R6 + `6a0971b` Panel R9 + bu OS senkron)
+**Schema/npm:** 0
+**KIRMIZI ihlal:** 0
+**Süre:** ~1 saat otonom
+
+### CEO Direktifi (Madde 17.5 + 18.3 + 30.25)
+
+CEO 4 Mayıs 2026 17:50:
+> "SMS kodu gelmiyor. Kullanıcılara hiçbir mesaj paylaşmadım, önce kendi içimizde 2FA kanallarını test edelim. ADMIN + LAWYER + SALES + REPRESENTATIVE + CUSTOMER 5 rol × TOTP + SMS + EMAIL 3 yöntem = 15 kanal hepsi uçtan uca çalışsın."
+
+CEO 17:33 görsel kanıt: /profil 2FA Aktivasyon "SMS Gönderildi" UI rozeti gösterdi ama telefon (05412031609) SMS almadı = silent failure.
+
+### 15. MİMAR HATASI TESPİT (R1)
+
+`src/services/sms.service.js:140-143`:
+```js
+} catch (err) {
+  console.error(`[SMS ERROR] → ${to}: ${err.message}`);
+  return { success: false, error: err.message };  // ← THROW ETMİYOR
+}
+```
+
+`src/services/twoFactorOtp.service.js sendSmsOtp()` bu dönüş değerini **kontrol etmiyordu**:
+- NetGSM hata kodu (30/40/50/70 vb.) gelse bile `{success:false}` ile silent fail
+- ActivityLog yanlış `SMS_OTP_SENT` yazıyor
+- UI "SMS Gönderildi" diyor ama kullanıcıya gerçekten gitmiyor
+- **Madde 4.4 ihlali:** "API call yapıldı" yetersiz, "API onayladı + son ucu kanıtlandı" zorunlu
+
+### R2 KRİTİK FIX (commit `6860f6e`)
+
+`twoFactorOtp.service.js sendSmsOtp()`:
+- `sendSms()` dönüşü kontrol: `result.success === false` ise **throw**
+- ActivityLog ayrımı:
+  - **SMS_OTP_SENT** (provider onaylı, bulkId kanıt)
+  - **SMS_OTP_FAILED** (hata mesajı, error.message slice 200)
+- PhoneOtp temizlik: hata olursa kaydı sil (DB temizlik)
+- Frontend gerçek hata mesajı görür, UI yalan söylemez
+
+### R5 Email Defensive Parity
+
+`sendEmailOtp()`:
+- try-catch sendEmail()
+- Hata: `EMAIL_OTP_FAILED` ActivityLog + PhoneOtp delete + throw
+- `messageId` response (provider onayı)
+
+### R6 ADMIN Test Endpoint (yeni)
+
+`POST /api/auth/test-2fa-channel` (auth + ADMIN):
+```json
+Body: { "method": "TOTP|SMS|EMAIL", "phone?": "...", "email?": "..." }
+Response: {
+  "success": true,
+  "method": "SMS",
+  "ms": 234,
+  "providerCode": "00",
+  "providerMessage": "Basarili (NetGSM bulkId: XYZ)",
+  "mock": false,
+  "deliveryHint": "Telefonun spam klasorunu kontrol et. 1-2 dk bekleyin."
+}
+```
+
+3 yöntem × tek tıkla smoke test. Test mesajı `"Tedbirge 2FA TEST: 123456 (yok sayin)"` (User.twoFactorEnabled DEĞİŞTİRMEZ).
+
+### R9 UI Honesty Fix (commit `6a0971b`)
+
+`TwoFactorSetupModal.tsx`:
+- Backend artık throw eder → UI gerçek hata mesajı gösterir
+- `setInfo` provider onayı sonrası: `"✅ SMS gönderildi (NetGSM bulkId: XXX): 5XX-***-**09 · 1-2 dk içinde gelecek"`
+- Mock mode: `"⚠ Mock mod aktif (NETGSM_USERNAME ENV yok)"`
+- SMS hata: `"SMS gönderilemedi: NetGSM 30: ... E-posta yöntemini deneyin (daha hızlı, ücretsiz)"`
+- EMAIL hata: `"E-posta gönderilemedi: ... Authenticator App (TOTP) en hızlı seçenektir"`
+
+Kullanıcı Step 1'de kalır, radio'dan farklı yöntem seçip "Devam Et" basar.
+
+### Madde 30.30 (Yeni — TUR #76)
+
+**Provider Onay Doğruluk Disiplini** — 7 madde:
+1. Provider response kodu kontrol ZORUNLU
+2. UI doğruluğu (provider onayı sonrası)
+3. Phone format normalize (NetGSM 90XXX standart)
+4. Boot-time ENV validation (warn log)
+5. ADMIN sağlık testi (`/test-2fa-channel`)
+6. Retry + Fallback CTA pattern
+7. ActivityLog ayrım: `_SENT` vs `_FAILED`
+
+### Pattern
+
+**TUR #56+...+76 = 161+ atom (bugün 25+ saat) sapma 0**
+**Kalibrasyon 1.6× — 23. doğrulama**
+
+### Mimar Dersi (15. Hata Kalıcı Pattern)
+
+`sms.service.js sendSms()` silent return pattern (catch içinde return success:false) — **API call yapıldı görüntüsü** veriyor ama gerçekte hata. `twoFactorOtp.service.js` bu silent return'ü kontrol etmedi → silent failure zinciri.
+
+**Madde 30.30 emsali:** Provider response kodu kontrol zorunlu, UI doğruluğu provider onayı sonrası, ActivityLog `_SENT` vs `_FAILED` ayrımı, fallback CTA kullanıcı çözüm yolu görmeli.
+
+### Mimar + Onay
+
+**Mimar:** Claude Opus 4.7 (sohbet) + Claude Code (otonom uygulama)
+**Onay:** Mehmet DİNÇ — Madde 17.5 + 18.3 + 30.25 + 30.28 + 30.29 + 30.30 yeni
+
+---
+
 ## TUR #75 — 5 ROL 2FA PARİTE + YEDEKLEME HOTFIX (KAPANIŞ)
 
 **Tarih:** 5 Mayıs 2026

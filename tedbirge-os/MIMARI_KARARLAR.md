@@ -6,6 +6,68 @@
 
 ---
 
+## 5 Mayıs 2026 — TUR #76 KARARI — SMS SILENT FAILURE TANI + PROVIDER ONAY DOĞRULUK (15. MİMAR HATASI)
+
+**Anayasa:** v1.22.0 yürürlükte (Madde 30.30 alt-genişleme — patch sürüm yok)
+
+### Karar
+
+CEO 4 Mayıs 17:50: "SMS kodu gelmiyor. Kullanıcılara hiçbir mesaj paylaşmadım, önce kendi içimizde 2FA kanallarını test edelim." 4'lü zincir aktif.
+
+**15. mimar hatası tespit (R1):** `sms.service.js:140-143` `catch { return { success: false } }` — THROW ETMİYOR. `twoFactorOtp.service.js sendSmsOtp()` bu dönüşü kontrol etmiyordu → ActivityLog yanlış `SMS_OTP_SENT` → UI "SMS Gönderildi" yalanı (CEO 17:33 görsel kanıt).
+
+**Çözüm:** R2 kritik fix (sendSms dönüşü kontrol + throw + ActivityLog ayrım) + R5 Email defensive + R6 ADMIN test endpoint + R9 UI honesty + Madde 30.30 yeni (Provider Onay Doğruluk Disiplini).
+
+### Karar Gerekçesi
+
+1. **CEO direktifi (Madde 17.5 + 30.25):** "kullanıcılara duyuru yapmayın, önce iç test" — 4'lü zincir aktif
+2. **Madde 4.4 (kod kaynaktır + provider kaynaktır):** "API call yapıldı" yetersiz — "API onayladı + son ucu kanıtlandı" şart. Silent return = silent failure = kullanıcıya yalan.
+3. **KVKK m.12 risk:** 2FA aktive edilemiyor → ADMIN/LAWYER/SALES güvensiz erişim → ihlal devam.
+4. **Madde 30.30 yeni:** Provider Onay Doğruluk Disiplini — 7 madde kalıcı önlem (response kontrol + UI doğruluk + phone normalize + boot ENV + admin sağlık + retry/fallback + ActivityLog ayrım).
+5. **R6 ADMIN test endpoint:** CEO smoke + future panel UI için hazır altyapı.
+
+### Reddedilen Alternatifler
+
+- **`sms.service.js sendSms()` doğrudan throw eden hale getir:** Mevcut çağrı yerleri (lead notification, status change, vs.) silent return bekliyor — `try-catch` `{success:false}` pattern korundu, ama **2FA service** kendi içinde kontrol eder (separation of concerns).
+- **Kullanıcıya "SMS başarısız oldu, otomatik email göndereceğim" toast + auto-fallback:** Karmaşıklık yüksek, kullanıcı kontrolü kaybeder. Yerine **"E-posta yöntemine geçin" CTA** (kullanıcı seçimi).
+- **Yeni provider entegrasyonu (Twilio):** CEO talimatı net (NetGSM mevcut), KVKK Türkiye-içi tercih.
+- **Phone normalize ek util (`src/utils/phone.util.ts`):** Mevcut `sms.service.js normalizePhone()` fonksiyonu zaten doğru çalışıyor (90XXX 12 hane standart) — yeniden yazma ekosistem ihlali.
+- **CEO Konsol UI eklentisi (test buton):** Backend `/test-2fa-channel` endpoint hazır, UI gelecek TUR'da (Madde 30.30 emsali kalıcı).
+- **TUR #76 retry + auto-fallback:** R10 atomu skip — manual fallback CTA daha şeffaf (kullanıcı kontrolü).
+
+### Etki
+
+- **9+ atom + 3 commit** (`6860f6e` Backend R2+R5+R6 + `6a0971b` Panel R9 + bu OS senkron)
+- **0 schema/npm**
+- **0 KIRMIZI ihlal**
+- **161+ atom sapma 0** — kalibrasyon 1.6× 23. doğrulama
+- 15. mimar hatası kayıt + Madde 30.30 kalıcı önlem
+- ActivityLog ayrım: `SMS_OTP_SENT` (basarı, bulkId) ↔ `SMS_OTP_FAILED` (hata, errorMessage)
+- UI honesty: provider onayı sonrası "Gönderildi" + bulkId; hata durumunda fallback CTA
+
+### CEO Direktifi (Madde 17.5)
+
+CEO 4 Mayıs 2026 17:50:
+> "SMS kodu gelmiyor. ... 5 rol × 3 yöntem = 15 kanal hepsi uçtan uca çalışsın. Eksik hata ne varsa düzelt, hangi yöntem pratik hızlı çalışırsa o önerilsin. Uçtan uca otonom hiçbir şey sormadan başlat bitir."
+
+### Kalıcı Pattern (TUR #77+ için)
+
+1. **Madde 30.30:** Provider Onay Doğruluk Disiplini — silent return pattern asla kabul edilemez, throw zorunlu, ActivityLog ayrım.
+2. **API call ↔ provider onay ayrımı:** Backend "yapıldı" raporu için provider response kodu (NetGSM 00 / Email messageId) zorunlu.
+3. **UI honesty:** "Gönderildi" mesajı provider onayı sonrası, hata durumunda fallback CTA + alternatif yöntem.
+4. **Admin sağlık testi pattern:** Yeni provider entegrasyonu eklenirken `/test-X-channel` endpoint zorunlu (CEO smoke + future UI).
+5. **Çağrı zinciri kontrol:** Service A service B çağırıyorsa, B'nin dönüşünü A kontrol etmeli (TUR #74 13. mimar hatası bcrypt + TUR #76 15. mimar hatası SMS pattern).
+
+### Mimar
+
+Claude Opus 4.7 (sohbet) + Claude Code (otonom uygulama)
+
+### Onay
+
+Mehmet DİNÇ — Madde 17.5 + 18.3 + 30.25 + 30.28 + 30.29 + 30.30 yeni
+
+---
+
 ## 5 Mayıs 2026 — TUR #75 KARARI — 5 ROL 2FA PARİTE + YEDEKLEME HOTFIX (14. MİMAR HATASI)
 
 **Anayasa:** v1.22.0 yürürlükte (Madde 30.29 alt-genişleme — patch sürüm yok)
