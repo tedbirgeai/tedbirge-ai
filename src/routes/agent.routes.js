@@ -24,12 +24,18 @@ router.get("/agents-health", async (req, res) => {
     const oneHourAgo = new Date(Date.now() - 60 * 60 * 1000);
     const oneDayAgo = new Date(Date.now() - 24 * 60 * 60 * 1000);
 
-    const [count1h, count24h, lastEvent] = await Promise.all([
+    const [count1h, count24h, lastEvent, lastError] = await Promise.all([
       prisma.agentEvent.count({ where: { createdAt: { gte: oneHourAgo } } }),
       prisma.agentEvent.count({ where: { createdAt: { gte: oneDayAgo } } }),
       prisma.agentEvent.findFirst({
         orderBy: { createdAt: "desc" },
-        select: { createdAt: true, agentName: true, eventType: true, severity: true },
+        select: { createdAt: true, agentName: true, eventType: true, severity: true, payload: true },
+      }),
+      // TUR #73 Z3 — Son ERROR (AGENT_ERROR / *_FAILED) — Auditor ariza tespit
+      prisma.agentEvent.findFirst({
+        where: { severity: "ERROR", createdAt: { gte: oneDayAgo } },
+        orderBy: { createdAt: "desc" },
+        select: { createdAt: true, agentName: true, eventType: true, payload: true },
       }),
     ]);
 
@@ -48,9 +54,23 @@ router.get("/agents-health", async (req, res) => {
       }),
     );
 
+    // TUR #73 Z3 — Auditor canlilik gostergesi
+    const auditor = agentStatus.find((a) => a.name === "Auditor");
+    let auditorHealth = "UNKNOWN";
+    if (auditor?.lastRunAt) {
+      const ageMs = Date.now() - new Date(auditor.lastRunAt).getTime();
+      const intervalMs = auditor.intervalMs || 300000;
+      if (ageMs < intervalMs * 1.5) auditorHealth = "HEALTHY";
+      else if (ageMs < intervalMs * 3) auditorHealth = "DELAYED";
+      else auditorHealth = "STOPPED";
+    } else {
+      auditorHealth = "NEVER_RAN";
+    }
+
     res.json({
       success: true,
       generatedAt: new Date().toISOString(),
+      auditorHealth, // HEALTHY | DELAYED | STOPPED | NEVER_RAN | UNKNOWN
       agents: agentStatus,
       eventCounts: {
         last1h: count1h,
@@ -61,8 +81,18 @@ router.get("/agents-health", async (req, res) => {
             agentName: lastEvent.agentName,
             eventType: lastEvent.eventType,
             severity: lastEvent.severity,
+            message: lastEvent.payload?.message || null,
             createdAt: lastEvent.createdAt,
             ageSeconds: Math.floor((Date.now() - lastEvent.createdAt.getTime()) / 1000),
+          }
+        : null,
+      lastError: lastError
+        ? {
+            agentName: lastError.agentName,
+            eventType: lastError.eventType,
+            message: lastError.payload?.message?.slice(0, 200) || null,
+            createdAt: lastError.createdAt,
+            ageMinutes: Math.floor((Date.now() - lastError.createdAt.getTime()) / 60000),
           }
         : null,
       moduleCounts,
