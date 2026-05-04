@@ -59,7 +59,7 @@ class AuditorAgent extends BaseAgent {
     if (eskiKritik > 0) {
       const items = await prisma.lead.findMany({
         where: { aciliyet: "KRITIK", updatedAt: { lt: new Date(Date.now() - 7 * 86_400_000) } },
-        select: { id: true, leadKodu: true, status: true, updatedAt: true },
+        select: { id: true, leadCode: true, status: true, updatedAt: true },
         take: 5,
       });
       checks.push({
@@ -67,7 +67,7 @@ class AuditorAgent extends BaseAgent {
         title: "Eski KRITIK Lead",
         count: eskiKritik,
         severity: "WARNING",
-        items: items.map((l) => ({ id: l.id, leadKodu: l.leadKodu, status: l.status, updatedAt: l.updatedAt })),
+        items: items.map((l) => ({ id: l.id, leadCode: l.leadCode, status: l.status, updatedAt: l.updatedAt })),
       });
     }
 
@@ -128,7 +128,7 @@ class AuditorAgent extends BaseAgent {
           assignments: { none: {} },
           createdAt: { lt: new Date(Date.now() - 3 * 86_400_000) },
         },
-        select: { id: true, leadKodu: true, status: true, createdAt: true },
+        select: { id: true, leadCode: true, status: true, createdAt: true },
         take: 5,
       });
       checks.push({
@@ -136,7 +136,7 @@ class AuditorAgent extends BaseAgent {
         title: "Atanmamis Aktif Lead (3g+)",
         count: atanmamis,
         severity: "WARNING",
-        items: items.map((l) => ({ id: l.id, leadKodu: l.leadKodu, status: l.status, createdAt: l.createdAt })),
+        items: items.map((l) => ({ id: l.id, leadCode: l.leadCode, status: l.status, createdAt: l.createdAt })),
       });
     }
 
