@@ -1722,6 +1722,62 @@ TUR #71+#72+#72.5+#72.6+#72.7+#72.8+#72.9+#72.10+#72.11 zincirinde 9 kez tekrar 
 - ❌ Atom başına rapor (tek final rapor disiplin)
 - ❌ Code "yapıldı" rapor + CEO görsel çatışması durumunda derin tanı turu açmama
 
+### 30.31 — Mevcut Çalışan Entegrasyon Koruma Disiplini (TUR #78)
+
+**Kural:** Yeni özellik geliştirilirken provider entegrasyonu için **ÖNCE** kontrol zorunlu, **SONRA** mevcut service üstüne yeni katman:
+
+1. **Git arkeoloji** (son 90 gün): `git log --all --oneline --since="X-1 month"` + grep provider adı
+2. **Production log** (son 30 gün): provider call/response history
+3. **Provider panel raporları**: NetGSM panel SMS raporları, Resend dashboard mail raporları
+4. **Mevcut service import + reuse**: `sms.service.js sendSms()` zaten varsa onu kullan
+5. **ENV tag DEĞİŞTİRME** (Render uyumlu kalsın — Madde 30.30 R4 emsali)
+6. **URL/param formatı DEĞİŞTİRME** (provider API farklılaşmamış olmalı)
+7. **Yeni özellik = mevcut service üstüne yeni katman** (twoFactorOtp.service.js sms.service.js'i çağırır gibi)
+
+**TUR #78 emsal — 16. mimar hatası:**
+TUR #74 SMS 2FA backend yazılırken eski çalışan notification SMS keşfedilmedi. CEO 4 Mayıs 19:55 NetGSM panel raporu ile yakaladı: 20-21 Nisan'da "Avukat atandı" SMS'leri 1/1 ULAŞAN, bugün hiç gönderim yok. Aslında `sms.service.js` korundu ama provider panel doğrulama atlandı.
+
+**Yasak:**
+- ❌ Provider panel kontrol etmeden "API çalışmıyor" sonucuna varmak
+- ❌ Eski çalışan service üzerine doğrudan yazmak (yeni dosya = yeni katman)
+- ❌ ENV tag değiştirme (mevcut deployment'a dokunma — Madde 30.30 R4)
+- ❌ Provider URL/param formatı değiştirme (deprecated olmadığı sürece)
+
+### 30.32 — İlk Giriş 2FA Seçim Wizard Disiplini (TUR #78)
+
+**Kural:** Yeni kullanıcı (`User.twoFactorEnabled = false`) login sonrası **zorunlu wizard yönlendirme**:
+
+| Rol | Davranış | Atlama |
+|---|---|---|
+| ADMIN | HARD redirect `/2fa-secim` | YOK |
+| LAWYER | HARD redirect `/2fa-secim` | YOK |
+| SALES | HARD redirect `/2fa-secim` | YOK |
+| REPRESENTATIVE | HARD redirect `/2fa-secim` | YOK |
+| CUSTOMER | SOFT redirect `/2fa-secim` | "Şimdilik atla" linki |
+
+**Wizard 4-step:**
+1. **Yöntem Seç** — 3 radio kart (TOTP/SMS/EMAIL)
+   - TOTP: "ÖNERİLEN" rozet (en hızlı + en güvenli + internet gerekmez)
+   - SMS: NetGSM Türkiye-içi (30-60 sn operatör)
+   - EMAIL: Nodemailer (5-10 sn)
+2. **Setup** (yöntem-spesifik) — TOTP QR + manuel anahtar / SMS phoneMask / EMAIL emailMask + resend cooldown
+3. **6 Hane Doğrula** — verify-2fa / verify-2fa-sms / verify-2fa-email endpoint'i
+4. **Backup Kodları** — 10 kod TXT İndir + checkbox + "Devam Et" → rol bazlı dashboard
+
+**Madde 30.19 + 30.29 tamamlayıcısı:** 2FA aktivasyonu sadece "duyuru ile öner" değil, **sistem zorunlu wizard ile garanti eder**.
+
+**UX detay:**
+- Stepper progress (4 segment)
+- Provider hatası → fallback CTA (Madde 30.30)
+- Kullanıcı zaten 2FA aktif → otomatik dashboard redirect (regresyon kanıt)
+- "ÖNERİLEN" rozet TOTP için (en güvenli + en hızlı + offline)
+
+**Yasak:**
+- ❌ Wizard atlanabilir yapmak (ADMIN/LAWYER/SALES/REP için)
+- ❌ Tek yöntem zorla atamak (kullanıcı seçimi serbest)
+- ❌ Backup kod adımı atlamak (Madde 30.19 m.12 ihlali)
+- ❌ Wizard sonrası kullanıcıyı yanlış panele yönlendirmek (rol bazlı redirect zorunlu)
+
 ### 30.30 — Provider Onay Doğruluk Disiplini (TUR #76)
 
 **Kural:** Tüm 2FA / OTP / bildirim kanalları için **provider onayı** zorunlu kontrol — "API call yapıldı" yetersiz, "API onayladı + son ucu kanıtlandı" şart (Madde 4.4 emsali genişleme).
@@ -2416,6 +2472,7 @@ Mehmet Bey sahaya çıkabilsin diye bu disiplin var.
 **1 Mayıs 2026 — v1.15.0 alt-genişleme (TUR #56 KAPANIŞ + TUR #57 tohum: TUR #56 ile TUR #51.B 18/18 bulgu kapatıldı (12/12 atom sapma 0, kalibrasyon 1.6× doğrulandı, L-B1 lawyerNotifications 6 trigger zinciri canlı, Madde 24.11 üretim disiplini canlı). Madde 31.9 Rol-Ruh Tasarım Prensibi tohum olarak eklendi (Madde 22.2 alt-genişleme — sürüm artmaz): 4 CRM kendi paydaş ruhuna göre niş emsallerle (CEO↔Stripe Dashboard, LAWYER↔Clio/MyCase, REPRESENTATIVE↔HubSpot/Pipedrive, CUSTOMER↔Stripe Customer Portal/Apple Mail) farklılaşır. TUR #57'de uygulanacak — bu madde TUR #57'nin tohumudur. CEO direktifi 1 Mayıs 2026: "HER CRM KENDİ RUHUNA VE KENDİ ALANINA GÖRE ANALİZ EDİLMELİ".)**  
 **1 Mayıs 2026 — v1.16.0 (TUR #57 — 4 CRM Rol-Ruh Karakter Farklılaştırma: 12 atom (3 KRİTİK + 9 ORTA) ile 9 yeni DS komponenti (AnomalyStrip + KPICardEnhanced + Sparkline + CaseFolderCard + LawyerHealthTriad + KanbanBoard + DealCard + ActivityCounter + TimelineDot + TrustBadge + KeyboardShortcutsHelp), 2 yeni route (/dashboard/komuta + /temsilci/pipeline), 2 yeni utility (lib/sadelestir 30 terim + lib/keyboardNav G+harf), 2 mini endpoint (anomalies + lead aşama). Madde 31.9 Rol-Ruh Tasarım Prensibi tohumdan resmileşmeye geçti. 0 schema migration, 0 npm paket (3 paket adayı native alternatifle reddedildi: react-beautiful-dnd → HTML5 DragEvent, canvas-confetti → CSS keyframe, lottie-react → inline SVG). 4 CRM artık niş emsal seviyesinde (Stripe Dashboard+Linear, Clio+MyCase, HubSpot+Pipedrive, Stripe Customer Portal+Apple HIG). KAPANIŞ Madde 32'ye kaydı.)**  
 **1 Mayıs 2026 — v1.17.0 (TUR #58 — FAZ 5 DISCOVERABILITY başlangıcı: 9 atom (1 KRİTİK + 7 ORTA + 1 OS) ile llms.txt + JsonLd 3 yeni factory (FAQPage + HowTo + BreadcrumbList) + 3 niş landing'e SSS schema (15+15+10 toplam 40 SSS) + yeni /tazminat-rehberi sayfası (8 adım HowTo) + AI snippet meta disiplini + BrandFooterStrip 4 sayfada. Madde 33 (İçerik Üretim Disiplini) eklendi: avukat onayı zorunlu, TBB Reklam Yasağı uyumu, AI sadece taslak yazar — avukat onaylar, disclaimer her içerikte. 0 schema migration, 0 npm paket. CEO direktifi 1 Mayıs 2026 (Aylık Sabit Aidat Yasağı) MIMARI_KARARLAR.md'ye eklendi: tüm 3. parti SaaS sabit aidat yasak, sadece kullanım bazlı API ücreti orantılı geçer. KAPANIŞ Madde 32'ye kaydı.)**  
+**5 Mayıs 2026 — TUR #78 (REGRESSION RESTORE TANI + İLK GİRİŞ 2FA SEÇİM WIZARD: 8+ atom (X0-X18) + Anayasa Madde 30.31 + 30.32 ikiz ekleme. CEO 4 Mayıs 20:00: "AUTHENTICATOR + SMS + E-MAİL 2FA çalışıp çalışmadığı tamamını kontrol edilsin. EĞER 2FA YOKSA İLK GİRİŞTE BU 3 SEÇENEK SUNULSUN." CEO 19:53 NetGSM panel kanıtı: bakiye 483/500 + başlık "tedbirge" onaylı + 20-21 Nisan SMS 1/1 ULAŞAN + bugün hiç gönderim YOK. X0+X1 git arkeoloji: `sms.service.js` TUR #74-#76-#77'de SADECE TUR #77 Q1 ile dokunuldu (USERNAME fallback eklendi), regresyon yok. Mevcut kod doğru. X7 yeni: `app/(public)/2fa-secim/page.tsx` 4-step onboarding wizard (3 yöntem radio kart + setup + 6 hane doğrula + 10 backup TXT İndir + rol bazlı dashboard redirect). X8 login akışı: `User.twoFactorEnabled === false` → `/2fa-secim` redirect (HARD ADMIN/LAWYER/SALES/REP, SOFT CUSTOMER). 16. mimar hatası: provider panel doğrulama atlandı (CEO panel raporu ile yakaladı). Madde 30.31 yeni: Mevcut Çalışan Entegrasyon Koruma Disiplini (git arkeoloji + production log + provider panel zorunlu, kod yazımından ÖNCE). Madde 30.32 yeni: İlk Giriş 2FA Seçim Wizard Disiplini (zorunlu wizard yönlendirme + 5 rol HARD/SOFT matrisi + 4 step). 0 schema/npm/env. Pattern 168+ → 176+ atom sapma 0 — kalibrasyon 1.6× 25. doğrulama. Anayasa v1.22.0 yürürlükte (Madde 30.31 + 30.32 alt-genişleme — patch sürüm yok).)**  
 **5 Mayıs 2026 — TUR #77 (NetGSM ENV TAG FALLBACK + 15.1 MİKRO MİMAR HATASI + 5 ROL × 3 YÖNTEM PARİTE: 7+ atom (Q0-Q14) + Anayasa Madde 30.30 R4 emsali genişleme. CEO 18:58: "NetGSM bakiyesi var, Render'da ENV var (NETGSM_USERNAME/PASSWORD/HEADER/API_URL). Daha önce çalışıyordu." CEO 18:57 görsel kanıt: SMS denemesi → kod 30 "Geçersiz kullanıcı adı, şifre veya API erişimi kapalı" (TUR #76 R2 fix UI honesty doğrulandı — şeffaf hata). Q0 Keşif: backend `NETGSM_USERNAME` zaten doğru (CEO Render uyumlu), `NETGSM_API_URL` ENV var ama backend hardcoded URL kullanıyordu. Q1 KRİTİK fix: `getNetgsmUsername()` helper 3 tag fallback (`NETGSM_USERNAME` PRIMARY → `NETGSM_USERCODE` → `NETGSM_USER`) + `NETGSM_API_URL` ENV desteği + boot validation warn log + defensive logging `[NetGSM] CALL/RESPONSE` mask credentials (Madde 30.30 emsali). 15.1 mikro mimar hatası: ENV tag default seçimi mevcut deployment kontrol etmeden YAPILDI → silent failure riski. Madde 30.30 R4 yeni: ENV Tag Default Yasağı — fallback zinciri + boot validation zorunlu. CEO için tanı: SMS hata 30 → NetGSM HESAP sorunu (şifre/başlık/IP whitelist) — backend kod doğru, panel kontrol gerek. 0 schema/npm. Pattern 161+ → 168+ atom sapma 0 — kalibrasyon 1.6× 24. doğrulama. Anayasa v1.22.0 yürürlükte (Madde 30.30 R4 alt-genişleme — patch sürüm yok).)**  
 **5 Mayıs 2026 — TUR #76 (SMS SILENT FAILURE TANI + 15. MİMAR HATASI + PROVIDER ONAY DOĞRULUK: 9+ atom (R0-R14) + Anayasa Madde 30.30 yeni — R1 tanı: `sms.service.js:140-143` `catch { return { success: false } }` THROW ETMİYOR → silent failure → twoFactorOtp.service.js bunu kontrol etmiyor → ActivityLog yanlış `SMS_OTP_SENT` → UI "SMS Gönderildi" yalanı (CEO 17:33 görsel kanıtla yakaladı). + R2 KRİTİK fix: twoFactorOtp.service.js `sendSms()` dönüş kontrolü, `result.success === false` ise throw + `ActivityLog SMS_OTP_FAILED` + `PhoneOtp.deleteMany` (DB temizlik). + R5 Email defensive (try-catch sendEmail + EMAIL_OTP_FAILED). + R6 Admin test endpoint `POST /api/auth/test-2fa-channel` (auth+ADMIN, 3 yöntem × tek tıkla smoke, response: providerCode/messageId/ms/deliveryHint). + R9 UI honesty: provider onayı sonrası "✅ SMS gönderildi" + bulkId; hata durumunda "E-posta yöntemini deneyin" CTA. + Madde 30.30 (Provider Onay Doğruluk Disiplini — 7 madde: response kontrol + UI doğruluğu + phone normalize + boot ENV validation + admin sağlık testi + retry/fallback + ActivityLog ayrım). 0 schema/npm. Pattern 152+ → 161+ atom sapma 0 — kalibrasyon 1.6× 23. doğrulama. Anayasa v1.22.0 yürürlükte (Madde 30.30 alt-genişleme — patch sürüm yok).)**  
 **5 Mayıs 2026 — TUR #75 (5 ROL 2FA PARİTE + YEDEKLEME KRİTİK HOTFIX: 8 atom (V0-V13) + Anayasa Madde 30.29 yeni — 5 rol parite (ADMIN/LAWYER/SALES `/profil` DRY ortak + REPRESENTATIVE `/temsilci/profil` + CUSTOMER `/musteri/profil`) + V9 backup modülü severity hotfix (snapshots=[] CRITICAL→WARNING + operasyonel mesaj + alert_throttled rate-limit + DATE_PARSE_ERROR mode), 14. mimar hatası kayıt: TUR #74'te ADMIN-only test edildi diğer rolleri atlama → KVKK m.12 ihlali sürdü. **KEŞİF SONUCU**: `/profil` zaten DRY (TUR #72.6'da ADMIN+LAWYER+SALES için ortak yazılmış), `/temsilci/profil` ve `/musteri/profil` mevcut → V2+V3+V4 kapsamı %90 hazır, kalanı dokümantasyon + Yedekleme V9 fix. Production smoke 7/7 yeşil (4 rol panel 307 + 3 endpoint 401 + backup canlı 18 olay/saat + auditorHealth HEALTHY + eventCounts.last1h 375). Madde 30.22 genişleme: Auth endpoint için GET smoke yetersiz, POST happy path zorunlu (12 senaryo: 4 rol × 3 yöntem). 0 schema/npm. Pattern 137+ → 152+ atom sapma 0 — kalibrasyon 1.6× 22. doğrulama. Anayasa v1.22.0 yürürlükte (Madde 30.29 alt-genişleme — patch sürüm yok).)**  

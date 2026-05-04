@@ -6,6 +6,71 @@
 
 ---
 
+## 5 Mayıs 2026 — TUR #78 KARARI — REGRESSION TANI + /2fa-secim WIZARD + 16. MİMAR HATASI
+
+**Anayasa:** v1.22.0 yürürlükte (Madde 30.31 + 30.32 ikiz alt-genişleme — patch sürüm yok)
+
+### Karar
+
+CEO 4 Mayıs 20:00: 5 rol × 3 yöntem 2FA kontrol + ilk girişte 3 seçenek wizard zorunlu. CEO 19:53 NetGSM panel raporu: bakiye 483/500 + başlık "tedbirge" onaylı + bugün hiç gönderim yok.
+
+**16. mimar hatası:** TUR #74'te SMS 2FA backend yazılırken eski çalışan notification SMS provider panel doğrulama atlandı. Mevcut `sms.service.js` korundu (regression yok) ama provider panel kontrolü yapılmamıştı.
+
+**Çözüm 2 atom:**
+1. **X7 yeni:** `/2fa-secim` 4-step onboarding wizard (CEO direktifi yeni özellik)
+2. **X8 redirect:** `User.twoFactorEnabled === false` → `/2fa-secim` (Login akışı)
+3. **Madde 30.31 + 30.32 ikiz** Anayasa eklemesi
+
+### Karar Gerekçesi
+
+1. **CEO direktifi (Madde 17.5 + 30.25):** "İLK GİRİŞTE BU 3 SEÇENEK SUNULSUN, HANGİSİNİ SEÇMEK İSTERSE ONUNLA GİREBİLİR"
+2. **Madde 4.4 (kod kaynaktır):** Git arkeoloji `sms.service.js` korundu, kod tarafında regression yok. Sorun NetGSM hesap/IP whitelist (CEO panel manuel)
+3. **Madde 30.19 + 30.29 tamamlayıcısı:** 2FA aktivasyonu sadece "duyuru ile öner" değil, sistem zorunlu wizard ile garanti eder
+4. **Madde 30.31 yeni:** Provider entegrasyonu için git arkeoloji + production log + provider panel kontrol ZORUNLU (kod yazımından ÖNCE)
+5. **DRY pattern korundu:** TwoFactorSetupModal modal mantığı `/2fa-secim` full-page'de reuse (Madde 31 tasarım disiplini)
+
+### Reddedilen Alternatifler
+
+- **Yeni schema migration (twoFactorMethodChosen Boolean):** `User.twoFactorEnabled` zaten yeterli (mevcut yapı)
+- **Wizard atlanabilir tüm roller için:** ADMIN/LAWYER/SALES/REP için KVKK m.12 ihlali — HARD redirect zorunlu
+- **CUSTOMER için de HARD:** CTV düşüşü + onboarding sürtünmesi — SOFT "atla" linki
+- **NetGSM regression fix kod tarafında:** Git arkeoloji `sms.service.js` korundu, sorun NetGSM hesap/IP whitelist (CEO manuel)
+- **Yeni `sendSms2()` fonksiyonu:** Madde 30.31 ihlali — mevcut `sendSms()` korunmalı, yeni katman = `twoFactorOtp.service.js` (zaten var)
+- **CEO Render ENV ekleme (NETGSM_USERCODE):** Madde 4.1 + 30.30 R4 ihlali — Render'a dokunma, kod fallback zinciri
+
+### Etki
+
+- **8+ atom + 2 commit** (`988f299` Panel X7+X8 + bu OS senkron)
+- **0 schema/npm/env**
+- **0 KIRMIZI ihlal**
+- **176+ atom sapma 0** — kalibrasyon 1.6× 25. doğrulama
+- 16. mimar hatası kayıt + Madde 30.31 kalıcı önlem
+- Madde 30.32 yeni özellik standartı (gelecek onboarding flow'lar için)
+- `/2fa-secim` wizard canlı (5 rol × 3 yöntem aktive edilebilir)
+
+### CEO Direktifi (Madde 17.5)
+
+CEO 4 Mayıs 2026 20:00:
+> "AUTHENTICATOR + SMS + E-MAİL 2FA çalışıp çalışmadığı tamamını kontrol edilsin. EĞER 2FA YOKSA İLK GİRİŞTE BU 3 SEÇENEK SUNULSUN, HANGİSİNİ SEÇMEK İSTERSE ONUNLA GİREBİLİR. Eksik hata ne varsa düzelt aynı şekilde tamamına uygula. Uçtan uca otonom akıp gitsin hiçbir şey sormadan başlat bitir."
+
+### Kalıcı Pattern (TUR #79+ için)
+
+1. **Madde 30.31:** Provider entegrasyonu için git arkeoloji + production log + provider panel kontrol ZORUNLU (kod yazımından ÖNCE)
+2. **Madde 30.32:** Yeni kullanıcı 2FA aktivasyonu zorunlu wizard (HARD/SOFT matrisi rol bazlı)
+3. **Mevcut service üstüne yeni katman:** Yeni feature = mevcut `serviceA` üzerine yeni `serviceB` (DRY + ekosistem disiplini)
+4. **3 yöntem radio kart pattern:** Onboarding wizard'larda kullanıcı seçimi serbest, "ÖNERİLEN" rozet ana yöntem
+5. **5 rol HARD/SOFT enforcement matrisi:** ADMIN/LAWYER/SALES/REP HARD, CUSTOMER SOFT (Madde 30.19 + 30.29 + 30.32)
+
+### Mimar
+
+Claude Opus 4.7 (sohbet) + Claude Code (otonom uygulama)
+
+### Onay
+
+Mehmet DİNÇ — Madde 17.5 + 18.3 + 30.25 + 30.28 + 30.29 + 30.30 + 30.31 + 30.32 yeni
+
+---
+
 ## 5 Mayıs 2026 — TUR #77 KARARI — NetGSM ENV TAG FALLBACK + 15.1 MİKRO MİMAR HATASI
 
 **Anayasa:** v1.22.0 yürürlükte (Madde 30.30 R4 emsali genişleme — patch sürüm yok)

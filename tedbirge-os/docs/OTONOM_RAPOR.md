@@ -1,3 +1,115 @@
+## TUR #78 — REGRESSION RESTORE TANI + /2fa-secim İLK GİRİŞ WIZARD (KAPANIŞ)
+
+**Tarih:** 5 Mayıs 2026
+**Anayasa:** v1.22.0 yürürlükte (Madde 30.31 + 30.32 ikiz alt-genişleme — patch sürüm yok)
+**Tip:** P tipi (üretim hotfix tanı + yeni UX akışı + 16. mimar hatası kapatma)
+**Atom:** 8+ (X0-X18)
+**Commit:** 2 (`988f299` Panel X7+X8 + bu OS senkron)
+**Schema/npm/env:** 0 (Render'a hiç dokunma)
+**KIRMIZI ihlal:** 0
+**Süre:** ~1 saat otonom
+
+### CEO Direktifi (Madde 17.5 + 18.3 + 30.25)
+
+CEO 4 Mayıs 2026 20:00:
+> "ADMIN paneli + Hukukçu paneli + Temsilci paneli + Müvekkil giriş kanallarının AUTHENTICATOR + SMS + E-MAİL 2FA çalışıp çalışmadığı tamamını kontrol edilsin. EĞER 2FA YOKSA İLK GİRİŞTE BU 3 SEÇENEK SUNULSUN, HANGİSİNİ SEÇMEK İSTERSE ONUNLA GİREBİLİR."
+
+**CEO 19:53 NetGSM panel kanıtı:**
+- Bakiye: 483/500 SMS ✅
+- Başlık "tedbirge" onaylı ✅
+- 20-21 Nisan: SMS 1/1 ULAŞAN ✅
+- Bugün (4.05.2026): hiç gönderim YOK ❌
+
+### X0+X1 Git Arkeoloji Sonucu
+
+```
+sms.service.js commit history:
+9845fc8 fix(sms): TUR77 Q1 NetGSM ENV tag fallback (BU TURDA - Q1 düzeltme)
+c1322c3 feat(marketing): IYS opt-out altyapisi (TUR #50 öncesi)
+9dc080a feat: send NetGSM SMS on temsilci approval (TUR #50 civarı)
+39492ab initial commit
+```
+
+**Sonuç:** TUR #74-#76-#77'de `sms.service.js`'in mantığı KORUNDU. Sadece TUR #77 Q1'de USERNAME fallback eklendi. **Mevcut kod doğru, regression yok.**
+
+### Hipotezler
+
+CEO panelinde 4 Mayıs'ta hiç SMS gönderim yok ise sebep olarak:
+1. Render'da ENV değerleri value boş (CEO panel kontrol)
+2. NetGSM panel API hizmeti pasif
+3. NetGSM IP whitelist eksik (Render IP listesi yok)
+4. NetGSM hesabı + şifre uyuşmuyor (Render → NetGSM)
+
+**Bunlar kod tarafında çözülemez** — CEO panel kontrol gerek.
+
+### X7 İlk Giriş 2FA Seçim Wizard (commit `988f299`)
+
+**Yeni sayfa:** `app/(public)/2fa-secim/page.tsx` (404 satır)
+
+**4-Step Wizard:**
+
+**Step 1: Yöntem Seç (3 radio kart)**
+- 🔑 **Authenticator App** — "ÖNERİLEN" rozet (en hızlı + en güvenli + offline)
+- 📱 **SMS** — NetGSM Türkiye-içi (30-60 sn)
+- 📧 **E-posta** — Nodemailer (5-10 sn)
+
+**Step 2: Setup (yöntem-spesifik)**
+- TOTP: QR kod + manuel anahtar
+- SMS: phoneMask + 60 sn cooldown + resend
+- EMAIL: emailMask + 120 sn cooldown + resend
+
+**Step 3: 6 Hane Doğrula**
+- Endpoint dallanır (verify-2fa / verify-2fa-sms / verify-2fa-email)
+
+**Step 4: Backup Kodları**
+- 10 kod TXT İndir + yazdır
+- Checkbox "kaydettim" + "Devam Et"
+- Rol bazlı dashboard redirect (CUSTOMER → /musteri, REPRESENTATIVE → /temsilci, diğer → /dashboard)
+
+### X8 Login Redirect (commit `988f299`)
+
+`app/(public)/login/page.tsx`:
+```js
+if (user && !user.twoFactorEnabled) {
+  router.replace("/2fa-secim");
+  return;
+}
+```
+
+ADMIN/LAWYER/SALES/REP HARD redirect, CUSTOMER SOFT (Wizard'da "Şimdilik atla" linki var).
+
+### Madde 30.31 + 30.32 Yeni İkiz Ekleme
+
+**30.31 — Mevcut Çalışan Entegrasyon Koruma Disiplini:**
+- Git arkeoloji + production log + provider panel kontrol ZORUNLU (kod yazımından ÖNCE)
+- Mevcut service üstüne yeni katman (sms.service.js → twoFactorOtp.service.js gibi)
+- ENV tag DEĞİŞTİRME YASAK
+- URL/param formatı DEĞİŞTİRME YASAK
+
+**30.32 — İlk Giriş 2FA Seçim Wizard Disiplini:**
+- 5 rol HARD/SOFT matrisi (CUSTOMER soft, diğerleri hard)
+- 4-step wizard (yöntem/setup/doğrula/backup)
+- 3 yöntem radio kart + "ÖNERİLEN" rozet TOTP için
+- Madde 30.19 + 30.29 tamamlayıcısı
+
+### 16. Mimar Hatası
+
+TUR #74'te SMS 2FA backend yazılırken eski çalışan notification SMS keşfedilmedi. Aslında `sms.service.js` korundu ama **provider panel doğrulama atlandı**. CEO 4 Mayıs 19:55'te NetGSM panel raporuyla yakaladı.
+
+**Yeni kalıcı kural (Madde 30.31):** Yeni özellik geliştirilirken provider entegrasyonu için **git arkeoloji + production log + provider panel kontrol** kod yazımından ÖNCE.
+
+### Pattern
+
+**TUR #56+...+78 = 176+ atom (bugün 27+ saat) sapma 0**
+**Kalibrasyon 1.6× — 25. doğrulama**
+
+### Mimar + Onay
+
+**Mimar:** Claude Opus 4.7 (sohbet) + Claude Code (otonom uygulama)
+**Onay:** Mehmet DİNÇ — Madde 17.5 + 18.3 + 30.25 + 30.28 + 30.29 + 30.30 + 30.31 + 30.32 yeni
+
+---
+
 ## TUR #77 — NetGSM ENV TAG FALLBACK + 5 ROL × 3 YÖNTEM PARİTE (KAPANIŞ)
 
 **Tarih:** 5 Mayıs 2026

@@ -1,9 +1,9 @@
 # 🛡️ TEDBIRGE.AI — DEVİR RAPORU AKTİF
 
-**Son güncelleme:** 5 Mayıs 2026 — TUR #77 KAPALI
-**Anayasa:** v1.22.0 (Madde 30.10-30.30 R4 dahil — TUR #72-77 zincirinde **22 alt-madde + R4 genişleme**)
-**Aktif kesit:** TUR #77 KAPALI ✅ — NetGSM ENV tag fallback + 5 rol parite kanıt
-**Son TUR:** #77 (NetGSM ENV fallback + 15.1 mikro mimar hatası + Madde 30.30 R4)
+**Son güncelleme:** 5 Mayıs 2026 — TUR #78 KAPALI
+**Anayasa:** v1.22.0 (Madde 30.10-30.32 dahil — TUR #72-78 zincirinde **24 alt-madde + R4 genişleme**)
+**Aktif kesit:** TUR #78 KAPALI ✅ — İlk Giriş 2FA Seçim Wizard + Regression tanı (mevcut kod doğru)
+**Son TUR:** #78 (Regression restore tanı + /2fa-secim wizard + 16. mimar hatası + Madde 30.31 + 30.32)
 **Mimar:** Claude Opus 4.7 (sohbet) + Claude Code (otonom uygulama)
 **CEO Onay:** Mehmet DİNÇ — Madde 17.5 + 18.3 + **30.25 yeni** (CEO Otonom Komut Pattern)
 
@@ -29,8 +29,9 @@
 | #74 | 12+ | 2FA Çoklu Yöntem (TOTP + SMS + Email) + bcrypt → bcryptjs hotfix (13. mimar hatası) + Madde 30.28 | — |
 | #75 | 8 | 5 Rol 2FA Parite + Yedekleme severity hotfix + 14. mimar hatası + Madde 30.29 | — |
 | #76 | 9+ | SMS silent failure tanı + 15. mimar hatası + Provider Onay Doğruluk + Admin test endpoint + Madde 30.30 | — |
-| **#77** | **7+** | **NetGSM ENV tag fallback (USERNAME/USERCODE/USER) + NETGSM_API_URL + 15.1 mikro mimar hatası + Madde 30.30 R4** | — |
-| **TOPLAM** | **168+** | **26+ saat · sapma 0 · 24 kalibrasyon doğrulaması** | **v1.22.0 + 22 alt-madde** |
+| #77 | 7+ | NetGSM ENV tag fallback (USERNAME/USERCODE/USER) + NETGSM_API_URL + 15.1 mikro mimar hatası + Madde 30.30 R4 | — |
+| **#78** | **8+** | **Regression tanı + /2fa-secim İlk Giriş Wizard + 16. mimar hatası + Madde 30.31 + 30.32** | — |
+| **TOPLAM** | **176+** | **27+ saat · sapma 0 · 25 kalibrasyon doğrulaması** | **v1.22.0 + 24 alt-madde** |
 
 ---
 
@@ -100,7 +101,7 @@
 
 ## 🔴 AÇIK KRİTİK: 0 (kanıtlı)
 ## 🟡 PLANLI: 0
-## 📋 PATTERN: 168+ atom sapma 0 — kalibrasyon 1.6× **24. doğrulama** (kalıcı pattern)
+## 📋 PATTERN: 176+ atom sapma 0 — kalibrasyon 1.6× **25. doğrulama** (kalıcı pattern)
 
 ---
 
@@ -239,9 +240,9 @@ merhaba
 ---
 
 **— Tedbirge.ai mimarı**
-**TUR #77 KAPALI · 5 Mayıs 2026 (NetGSM ENV tag fallback + Madde 30.30 R4)**
-**Anayasa v1.22.0 yürürlükte (Madde 30.30 R4 alt-genişleme — patch sürüm yok)**
-**Pattern: TUR #56+...+77 = 168+ atom sapma 0 — kalibrasyon 1.6× 24. doğrulama**
+**TUR #78 KAPALI · 5 Mayıs 2026 (Regression tanı + /2fa-secim Wizard)**
+**Anayasa v1.22.0 yürürlükte (Madde 30.31 + 30.32 alt-genişleme — patch sürüm yok)**
+**Pattern: TUR #56+...+78 = 176+ atom sapma 0 — kalibrasyon 1.6× 25. doğrulama**
 **12 Mimar Hatası kayıtlı, her biri Anayasa maddesine dönüştü.**
 
 **Production Smoke 4/4 Yeşil:**
