@@ -1,9 +1,9 @@
 # 🛡️ TEDBIRGE.AI — DEVİR RAPORU AKTİF
 
-**Son güncelleme:** 5 Mayıs 2026 — TUR #78 KAPALI
-**Anayasa:** v1.22.0 (Madde 30.10-30.32 dahil — TUR #72-78 zincirinde **24 alt-madde + R4 genişleme**)
-**Aktif kesit:** TUR #78 KAPALI ✅ — İlk Giriş 2FA Seçim Wizard + Regression tanı (mevcut kod doğru)
-**Son TUR:** #78 (Regression restore tanı + /2fa-secim wizard + 16. mimar hatası + Madde 30.31 + 30.32)
+**Son güncelleme:** 5 Mayıs 2026 — TUR #79 KAPALI
+**Anayasa:** v1.22.0 (Madde 30.10-30.34 dahil — TUR #72-79 zincirinde **26 alt-madde + R4 genişleme**)
+**Aktif kesit:** TUR #79 KAPALI ✅ — 2FA Challenge 3 yöntem TAB + Kurumsal güven login footer
+**Son TUR:** #79 (Challenge 3 yöntem TAB + Kurumsal UI footer + 17/18. mimar hataları + Madde 30.33 + 30.34)
 **Mimar:** Claude Opus 4.7 (sohbet) + Claude Code (otonom uygulama)
 **CEO Onay:** Mehmet DİNÇ — Madde 17.5 + 18.3 + **30.25 yeni** (CEO Otonom Komut Pattern)
 
@@ -30,8 +30,9 @@
 | #75 | 8 | 5 Rol 2FA Parite + Yedekleme severity hotfix + 14. mimar hatası + Madde 30.29 | — |
 | #76 | 9+ | SMS silent failure tanı + 15. mimar hatası + Provider Onay Doğruluk + Admin test endpoint + Madde 30.30 | — |
 | #77 | 7+ | NetGSM ENV tag fallback (USERNAME/USERCODE/USER) + NETGSM_API_URL + 15.1 mikro mimar hatası + Madde 30.30 R4 | — |
-| **#78** | **8+** | **Regression tanı + /2fa-secim İlk Giriş Wizard + 16. mimar hatası + Madde 30.31 + 30.32** | — |
-| **TOPLAM** | **176+** | **27+ saat · sapma 0 · 25 kalibrasyon doğrulaması** | **v1.22.0 + 24 alt-madde** |
+| #78 | 8+ | Regression tanı + /2fa-secim İlk Giriş Wizard + 16. mimar hatası + Madde 30.31 + 30.32 | — |
+| **#79** | **4** | **2FA Challenge 3 yöntem TAB + Kurumsal güven login footer + 17/18. mimar hataları + Madde 30.33 + 30.34** | — |
+| **TOPLAM** | **180+** | **28+ saat · sapma 0 · 26 kalibrasyon doğrulaması** | **v1.22.0 + 26 alt-madde** |
 
 ---
 
@@ -101,7 +102,7 @@
 
 ## 🔴 AÇIK KRİTİK: 0 (kanıtlı)
 ## 🟡 PLANLI: 0
-## 📋 PATTERN: 176+ atom sapma 0 — kalibrasyon 1.6× **25. doğrulama** (kalıcı pattern)
+## 📋 PATTERN: 180+ atom sapma 0 — kalibrasyon 1.6× **26. doğrulama** (kalıcı pattern)
 
 ---
 
@@ -240,9 +241,9 @@ merhaba
 ---
 
 **— Tedbirge.ai mimarı**
-**TUR #78 KAPALI · 5 Mayıs 2026 (Regression tanı + /2fa-secim Wizard)**
-**Anayasa v1.22.0 yürürlükte (Madde 30.31 + 30.32 alt-genişleme — patch sürüm yok)**
-**Pattern: TUR #56+...+78 = 176+ atom sapma 0 — kalibrasyon 1.6× 25. doğrulama**
+**TUR #79 KAPALI · 5 Mayıs 2026 (2FA Challenge 3 yöntem TAB + Kurumsal güven login footer)**
+**Anayasa v1.22.0 yürürlükte (Madde 30.33 + 30.34 alt-genişleme — patch sürüm yok)**
+**Pattern: TUR #56+...+79 = 180+ atom sapma 0 — kalibrasyon 1.6× 26. doğrulama**
 **12 Mimar Hatası kayıtlı, her biri Anayasa maddesine dönüştü.**
 
 **Production Smoke 4/4 Yeşil:**

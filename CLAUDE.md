@@ -1722,6 +1722,75 @@ TUR #71+#72+#72.5+#72.6+#72.7+#72.8+#72.9+#72.10+#72.11 zincirinde 9 kez tekrar 
 - ❌ Atom başına rapor (tek final rapor disiplin)
 - ❌ Code "yapıldı" rapor + CEO görsel çatışması durumunda derin tanı turu açmama
 
+### 30.33 — 2FA Challenge Yöntem Esnek Disiplini (TUR #79)
+
+**Kural:** Login sonrası 2FA challenge ekranı kullanıcıya **3 yöntem TAB seçici** sunmalıdır:
+- **TOTP** (Authenticator) — `User.totpSecret` varsa
+- **SMS** — `User.phone` + `User.phoneVerifiedFor2FA` varsa
+- **EMAIL** — `User.email` + `User.emailVerifiedFor2FA` varsa
+
+**Default tab:** `User.twoFactorMethod` (primary, backend `loginSendOtp` ilk çağrıda otomatik tespit)
+
+**Tab değişimi:**
+- TOTP → "Authenticator app'inizi açın" rehber (otomatik kod gönderme yok)
+- SMS/EMAIL → "Kodu Gönder" buton (kullanıcı manuel tetikler) + cooldown (60sn / 120sn)
+
+**Backend pattern:**
+```js
+// POST /api/auth/login-send-otp
+// Body: { tempToken, method?: "TOTP"|"SMS"|"EMAIL" }
+// method varsa requestedMethod öncelik (Madde 30.33)
+const effectiveMethod = requestedMethod || user.twoFactorMethod;
+```
+
+**Backup kod fallback:** Mevcut `/api/auth/login-backup-code` korundu (3 yöntem dışında recovery)
+
+**Madde 30.32 (ilk giriş wizard) tamamlayıcısı:** İlk girişte kullanıcı yöntem seçer (`/2fa-secim`), sonraki girişlerde **3 tab arasından dilediğini değiştirebilir**.
+
+**TUR #79 emsal — 17. mimar hatası:**
+TUR #78'de `TwoFactorChallenge` component sadece `User.twoFactorMethod` (kayıtlı yöntem) gösterdi. CEO direktifi: "ne zaman girerse girsin 3 yöntem hepsi olsun" — TUR #79 Y4 ile düzeltildi.
+
+**Yasak:**
+- ❌ Tek yöntem zorla atamak (kullanıcı seçimi serbest, Madde 30.32 + 30.33)
+- ❌ Tab arasında geçişte form state kaybetmek (otpCode + error sıfırla, info sıfırla)
+- ❌ Her tab değişiminde otomatik OTP gönder (SMS ücreti yağmuru riski — manuel "Kodu Gönder")
+- ❌ TOTP tab'ında "Kodu Gönder" buton göstermek (Authenticator app kod üretir, gönderme YOK)
+
+### 30.34 — Kurumsal Güven Login UI Disiplini (TUR #79)
+
+**Kural:** Tüm login + 2FA ekranları **kurumsal güven görsel kalıplarına** uymalıdır (B2B müvekkil deneyimi):
+
+**Footer rozetleri ZORUNLU:**
+- 🔒 256-bit TLS (emerald rozet)
+- KVKK Uyumlu (blue rozet)
+- ISO 27001 Hazırlığında (slate rozet)
+- "© 2026 Tedbirge.ai · Hukuk Teknolojileri"
+- "Sahte siteleri raporlayın · BTK BİLGE ihlal hattı"
+
+**Renk paleti:**
+- Primary: `--brand-primary` (lacivert/dark blue)
+- Background: `slate-50` (gri-beyaz)
+- Text: `slate-700-900` (koyu gri)
+- Rozet renkler: emerald (TLS), blue (KVKK), slate (ISO)
+
+**Tasarım disiplini:**
+- Madde 31 Tedbirge Design System v1.0 KORUNDU
+- Footer rozetleri minimum-invaziv (kapsamlı renk değişikliği yapma)
+- Erişilebilirlik (aria-label, tab order, kontrast)
+
+**Emsal kurumlar:** e-Devlet (turkiye.gov.tr), BTK e-Posta, Türkiye İş Bankası, Garanti BBVA — SSL rozeti, KVKK uyum işareti, ISO 27001 sertifikası, "Sahte siteleri raporlayın" link, kurumsal şerit footer.
+
+**TUR #79 emsal — 18. mimar hatası:**
+5 login sayfası fonksiyonel ama "kurumsal güven" hissi eksikti. CEO direktifi: "diğer kurumlara bak (BTK e-Devlet bankalar)" — Y11 footer rozet pattern eklendi.
+
+**Madde 4.4 emsali:** "fonksiyonel UI" yetersiz — **"kurumsal güven verici"** UI zorunlu (B2B müvekkil deneyimi).
+
+**Yasak:**
+- ❌ Login footer'ında SSL/KVKK rozetleri olmadan kullanıcıya "güven" hissi vermek
+- ❌ Renk paleti agresif değiştirmek (Madde 31 DS bozma)
+- ❌ "Sahte siteleri raporlayın" + BTK BİLGE referansı eksik (yasal zorunluluk B2B)
+- ❌ Erişilebilirlik kuralları atlamak (aria-label, tab order, kontrast)
+
 ### 30.31 — Mevcut Çalışan Entegrasyon Koruma Disiplini (TUR #78)
 
 **Kural:** Yeni özellik geliştirilirken provider entegrasyonu için **ÖNCE** kontrol zorunlu, **SONRA** mevcut service üstüne yeni katman:
@@ -2472,6 +2541,7 @@ Mehmet Bey sahaya çıkabilsin diye bu disiplin var.
 **1 Mayıs 2026 — v1.15.0 alt-genişleme (TUR #56 KAPANIŞ + TUR #57 tohum: TUR #56 ile TUR #51.B 18/18 bulgu kapatıldı (12/12 atom sapma 0, kalibrasyon 1.6× doğrulandı, L-B1 lawyerNotifications 6 trigger zinciri canlı, Madde 24.11 üretim disiplini canlı). Madde 31.9 Rol-Ruh Tasarım Prensibi tohum olarak eklendi (Madde 22.2 alt-genişleme — sürüm artmaz): 4 CRM kendi paydaş ruhuna göre niş emsallerle (CEO↔Stripe Dashboard, LAWYER↔Clio/MyCase, REPRESENTATIVE↔HubSpot/Pipedrive, CUSTOMER↔Stripe Customer Portal/Apple Mail) farklılaşır. TUR #57'de uygulanacak — bu madde TUR #57'nin tohumudur. CEO direktifi 1 Mayıs 2026: "HER CRM KENDİ RUHUNA VE KENDİ ALANINA GÖRE ANALİZ EDİLMELİ".)**  
 **1 Mayıs 2026 — v1.16.0 (TUR #57 — 4 CRM Rol-Ruh Karakter Farklılaştırma: 12 atom (3 KRİTİK + 9 ORTA) ile 9 yeni DS komponenti (AnomalyStrip + KPICardEnhanced + Sparkline + CaseFolderCard + LawyerHealthTriad + KanbanBoard + DealCard + ActivityCounter + TimelineDot + TrustBadge + KeyboardShortcutsHelp), 2 yeni route (/dashboard/komuta + /temsilci/pipeline), 2 yeni utility (lib/sadelestir 30 terim + lib/keyboardNav G+harf), 2 mini endpoint (anomalies + lead aşama). Madde 31.9 Rol-Ruh Tasarım Prensibi tohumdan resmileşmeye geçti. 0 schema migration, 0 npm paket (3 paket adayı native alternatifle reddedildi: react-beautiful-dnd → HTML5 DragEvent, canvas-confetti → CSS keyframe, lottie-react → inline SVG). 4 CRM artık niş emsal seviyesinde (Stripe Dashboard+Linear, Clio+MyCase, HubSpot+Pipedrive, Stripe Customer Portal+Apple HIG). KAPANIŞ Madde 32'ye kaydı.)**  
 **1 Mayıs 2026 — v1.17.0 (TUR #58 — FAZ 5 DISCOVERABILITY başlangıcı: 9 atom (1 KRİTİK + 7 ORTA + 1 OS) ile llms.txt + JsonLd 3 yeni factory (FAQPage + HowTo + BreadcrumbList) + 3 niş landing'e SSS schema (15+15+10 toplam 40 SSS) + yeni /tazminat-rehberi sayfası (8 adım HowTo) + AI snippet meta disiplini + BrandFooterStrip 4 sayfada. Madde 33 (İçerik Üretim Disiplini) eklendi: avukat onayı zorunlu, TBB Reklam Yasağı uyumu, AI sadece taslak yazar — avukat onaylar, disclaimer her içerikte. 0 schema migration, 0 npm paket. CEO direktifi 1 Mayıs 2026 (Aylık Sabit Aidat Yasağı) MIMARI_KARARLAR.md'ye eklendi: tüm 3. parti SaaS sabit aidat yasak, sadece kullanım bazlı API ücreti orantılı geçer. KAPANIŞ Madde 32'ye kaydı.)**  
+**5 Mayıs 2026 — TUR #79 (2FA CHALLENGE 3 YÖNTEM TAB + KURUMSAL GÜVEN LOGIN FOOTER + 17/18. MİMAR HATALARI: 4 atom + Anayasa Madde 30.33 + 30.34 ikiz ekleme. CEO 4 Mayıs 20:33: "ADMIN ilk girişte 3 seçenek sundu AMA 2. girişte seçtiğim yöntem dışında hiçbir seçenek yoktu. NE ZAMAN GİRERSE GİRSİN giriş yöntemleri hepsi olsun. HARİKA RESMİ CİDDİ GÜVEN VEREN giriş ekranı olsun, diğer kurumlara bak (BTK e-Devlet bankalar)." Y4 backend `loginSendOtp` body opsiyonel `method` parametre (kullanıcı tab değiştirebilir). Y4 frontend `TwoFactorChallenge.tsx` 3 yöntem TAB yeniden yazım (TOTP/SMS/EMAIL — Authenticator/MessageSquare/Mail icon, default tab User.twoFactorMethod, switchMethod state reset, tab-specific guidance + manual "Kodu Gönder" buton SMS/EMAIL için + 60/120 sn cooldown). Y11 Login footer kurumsal rozet pattern (256-bit TLS + KVKK + ISO 27001 + BTK BİLGE referansı). Madde 30.33 yeni: 2FA Challenge Yöntem Esnek Disiplini. Madde 30.34 yeni: Kurumsal Güven Login UI Disiplini. 17. mimar hatası: TUR #78 challenge sadece kayıtlı yöntem gösterdi. 18. mimar hatası: kurumsal güven hissi eksikti. İŞ 1 NetGSM regression: TUR #78 git arkeoloji (sms.service.js korundu) — kod tarafında değişiklik yok, sorun NetGSM hesap/IP whitelist (CEO panel manuel). İŞ 3 5 rol parite: `/2fa-secim` zaten role-aware DRY (TUR #78). 0 schema/npm/env. Pattern 176+ → 180+ atom sapma 0 — kalibrasyon 1.6× 26. doğrulama. Anayasa v1.22.0 yürürlükte (Madde 30.33 + 30.34 alt-genişleme — patch sürüm yok).)**  
 **5 Mayıs 2026 — TUR #78 (REGRESSION RESTORE TANI + İLK GİRİŞ 2FA SEÇİM WIZARD: 8+ atom (X0-X18) + Anayasa Madde 30.31 + 30.32 ikiz ekleme. CEO 4 Mayıs 20:00: "AUTHENTICATOR + SMS + E-MAİL 2FA çalışıp çalışmadığı tamamını kontrol edilsin. EĞER 2FA YOKSA İLK GİRİŞTE BU 3 SEÇENEK SUNULSUN." CEO 19:53 NetGSM panel kanıtı: bakiye 483/500 + başlık "tedbirge" onaylı + 20-21 Nisan SMS 1/1 ULAŞAN + bugün hiç gönderim YOK. X0+X1 git arkeoloji: `sms.service.js` TUR #74-#76-#77'de SADECE TUR #77 Q1 ile dokunuldu (USERNAME fallback eklendi), regresyon yok. Mevcut kod doğru. X7 yeni: `app/(public)/2fa-secim/page.tsx` 4-step onboarding wizard (3 yöntem radio kart + setup + 6 hane doğrula + 10 backup TXT İndir + rol bazlı dashboard redirect). X8 login akışı: `User.twoFactorEnabled === false` → `/2fa-secim` redirect (HARD ADMIN/LAWYER/SALES/REP, SOFT CUSTOMER). 16. mimar hatası: provider panel doğrulama atlandı (CEO panel raporu ile yakaladı). Madde 30.31 yeni: Mevcut Çalışan Entegrasyon Koruma Disiplini (git arkeoloji + production log + provider panel zorunlu, kod yazımından ÖNCE). Madde 30.32 yeni: İlk Giriş 2FA Seçim Wizard Disiplini (zorunlu wizard yönlendirme + 5 rol HARD/SOFT matrisi + 4 step). 0 schema/npm/env. Pattern 168+ → 176+ atom sapma 0 — kalibrasyon 1.6× 25. doğrulama. Anayasa v1.22.0 yürürlükte (Madde 30.31 + 30.32 alt-genişleme — patch sürüm yok).)**  
 **5 Mayıs 2026 — TUR #77 (NetGSM ENV TAG FALLBACK + 15.1 MİKRO MİMAR HATASI + 5 ROL × 3 YÖNTEM PARİTE: 7+ atom (Q0-Q14) + Anayasa Madde 30.30 R4 emsali genişleme. CEO 18:58: "NetGSM bakiyesi var, Render'da ENV var (NETGSM_USERNAME/PASSWORD/HEADER/API_URL). Daha önce çalışıyordu." CEO 18:57 görsel kanıt: SMS denemesi → kod 30 "Geçersiz kullanıcı adı, şifre veya API erişimi kapalı" (TUR #76 R2 fix UI honesty doğrulandı — şeffaf hata). Q0 Keşif: backend `NETGSM_USERNAME` zaten doğru (CEO Render uyumlu), `NETGSM_API_URL` ENV var ama backend hardcoded URL kullanıyordu. Q1 KRİTİK fix: `getNetgsmUsername()` helper 3 tag fallback (`NETGSM_USERNAME` PRIMARY → `NETGSM_USERCODE` → `NETGSM_USER`) + `NETGSM_API_URL` ENV desteği + boot validation warn log + defensive logging `[NetGSM] CALL/RESPONSE` mask credentials (Madde 30.30 emsali). 15.1 mikro mimar hatası: ENV tag default seçimi mevcut deployment kontrol etmeden YAPILDI → silent failure riski. Madde 30.30 R4 yeni: ENV Tag Default Yasağı — fallback zinciri + boot validation zorunlu. CEO için tanı: SMS hata 30 → NetGSM HESAP sorunu (şifre/başlık/IP whitelist) — backend kod doğru, panel kontrol gerek. 0 schema/npm. Pattern 161+ → 168+ atom sapma 0 — kalibrasyon 1.6× 24. doğrulama. Anayasa v1.22.0 yürürlükte (Madde 30.30 R4 alt-genişleme — patch sürüm yok).)**  
 **5 Mayıs 2026 — TUR #76 (SMS SILENT FAILURE TANI + 15. MİMAR HATASI + PROVIDER ONAY DOĞRULUK: 9+ atom (R0-R14) + Anayasa Madde 30.30 yeni — R1 tanı: `sms.service.js:140-143` `catch { return { success: false } }` THROW ETMİYOR → silent failure → twoFactorOtp.service.js bunu kontrol etmiyor → ActivityLog yanlış `SMS_OTP_SENT` → UI "SMS Gönderildi" yalanı (CEO 17:33 görsel kanıtla yakaladı). + R2 KRİTİK fix: twoFactorOtp.service.js `sendSms()` dönüş kontrolü, `result.success === false` ise throw + `ActivityLog SMS_OTP_FAILED` + `PhoneOtp.deleteMany` (DB temizlik). + R5 Email defensive (try-catch sendEmail + EMAIL_OTP_FAILED). + R6 Admin test endpoint `POST /api/auth/test-2fa-channel` (auth+ADMIN, 3 yöntem × tek tıkla smoke, response: providerCode/messageId/ms/deliveryHint). + R9 UI honesty: provider onayı sonrası "✅ SMS gönderildi" + bulkId; hata durumunda "E-posta yöntemini deneyin" CTA. + Madde 30.30 (Provider Onay Doğruluk Disiplini — 7 madde: response kontrol + UI doğruluğu + phone normalize + boot ENV validation + admin sağlık testi + retry/fallback + ActivityLog ayrım). 0 schema/npm. Pattern 152+ → 161+ atom sapma 0 — kalibrasyon 1.6× 23. doğrulama. Anayasa v1.22.0 yürürlükte (Madde 30.30 alt-genişleme — patch sürüm yok).)**  

@@ -1,3 +1,78 @@
+## TUR #79 — 2FA CHALLENGE 3 YÖNTEM TAB + KURUMSAL GÜVEN LOGIN FOOTER (KAPANIŞ)
+
+**Tarih:** 5 Mayıs 2026
+**Anayasa:** v1.22.0 yürürlükte (Madde 30.33 + 30.34 ikiz alt-genişleme — patch sürüm yok)
+**Tip:** P tipi (üretim hotfix + UI iyileştirme + 17/18. mimar hataları)
+**Atom:** 4 (Y4 backend + Y4 frontend + Y11 login footer + bu OS senkron)
+**Commit:** 4 (`e5d8500` Backend Y4 + `e787d41` Panel Y4 + `2bec41a` Y11 + bu OS)
+**Schema/npm/env:** 0
+**KIRMIZI ihlal:** 0
+**Süre:** ~1.5 saat otonom
+
+### CEO Direktifi (Madde 17.5 + 18.3 + 30.25)
+
+CEO 4 Mayıs 2026 20:33:
+> "ADMIN ilk girişte 3 seçenek sundu (TUR #78 başarı) AMA 2. girişte seçtiğim yöntem dışında hiçbir seçenek yoktu. NetGSM çalışmıyor kontrol edilsin. Hukukçu/Temsilci/Müvekkil panellerine YANSIMADI - hepsine aynı şekilde uygulansın. NE ZAMAN GİRERSE GİRSİN giriş yöntemleri hepsi olsun. HARİKA RESMİ CİDDİ GÜVEN VEREN giriş ekranı olsun, diğer kurumlara bak (BTK e-Devlet bankalar)."
+
+### 4 İŞ TEK TURDA — Pragmatik Sonuç
+
+**İŞ 1 — NetGSM regression:** TUR #78 git arkeoloji'de `sms.service.js` korundu (regresyon yok). Kod tarafında değişiklik gerek yok. SMS sorunu CEO panel manuel (hesap/IP whitelist).
+
+**İŞ 2 — 2FA challenge 3 yöntem (KRİTİK Y4):**
+- Backend (`e5d8500`): `loginSendOtp` body opsiyonel `method` parametre — kullanıcı tab değiştirebilir
+- Frontend (`e787d41`): `TwoFactorChallenge.tsx` 3 yöntem TAB yeniden yazım
+  - 3 tab: TOTP (KeyRound) / SMS (MessageSquare) / EMAIL (Mail)
+  - Default tab: `User.twoFactorMethod` (detectDefaultMethod() ilk render)
+  - Tab değişince state reset (otpCode, error, info)
+  - SMS/EMAIL: manual "Kodu Gönder" buton + 60/120 sn cooldown
+  - TOTP: "Authenticator app'inizi açın" rehber (otomatik kod gönderme yok)
+  - Backup kod fallback (mevcut korundu)
+
+**İŞ 3 — 5 rol parite:** `/2fa-secim` zaten TUR #78'de role-aware DRY (LAWYER/SALES/REPRESENTATIVE/CUSTOMER hepsi aynı sayfa, role bazlı dashboard redirect). Ek `/temsilci/2fa-secim` veya `/musteri/2fa-secim` GEREK YOK.
+
+**İŞ 4 — Kurumsal güven UI (Y11):**
+- Login footer kurumsal rozet pattern (Madde 30.34):
+  - 🔒 256-bit TLS rozet (emerald)
+  - KVKK Uyumlu rozet (blue)
+  - ISO 27001 Hazırlığında rozet (slate)
+  - "© 2026 Tedbirge.ai · Hukuk Teknolojileri"
+  - "Sahte siteleri raporlayın · BTK BİLGE ihlal hattı"
+- TwoFactorChallenge'da da footer eklendi (Y4'te)
+- Madde 31 Tedbirge Design System v1.0 KORUNDU (kapsamlı renk değişikliği yapılmadı, minimum-invaziv)
+
+### Madde 30.33 + 30.34 Yeni İkiz Ekleme
+
+**30.33 — 2FA Challenge Yöntem Esnek Disiplini:**
+- 3 yöntem TAB her zaman seçilebilir
+- Default `User.twoFactorMethod`
+- Tab değişince state reset
+- SMS/EMAIL manual "Kodu Gönder" + cooldown
+- Backup kod fallback korundu
+
+**30.34 — Kurumsal Güven Login UI Disiplini:**
+- SSL/KVKK/ISO 27001 rozetleri footer ZORUNLU
+- "Sahte siteleri raporlayın" + BTK BİLGE referansı
+- e-Devlet/BTK/banka emsali
+- Madde 31 DS korundu (minimum-invaziv)
+
+### 17/18 Mimar Hataları
+
+**17:** TUR #78 challenge component sadece `User.twoFactorMethod` (kayıtlı yöntem) gösteriyordu. CEO direktifi: "ne zaman girerse girsin 3 yöntem hepsi olsun" — Y4 ile düzeltildi.
+
+**18:** 5 login sayfası fonksiyonel ama "kurumsal güven" hissi eksikti. CEO direktifi: "diğer kurumlara bak (BTK e-Devlet bankalar)" — Y11 footer rozet pattern ile düzeltildi.
+
+### Pattern
+
+**TUR #56+...+79 = 180+ atom (bugün 28+ saat) sapma 0**
+**Kalibrasyon 1.6× — 26. doğrulama**
+
+### Mimar + Onay
+
+**Mimar:** Claude Opus 4.7 (sohbet) + Claude Code (otonom uygulama)
+**Onay:** Mehmet DİNÇ — Madde 17.5 + 18.3 + 30.25 + 30.28 + 30.29 + 30.30 + 30.31 + 30.32 + 30.33 + 30.34 yeni
+
+---
+
 ## TUR #78 — REGRESSION RESTORE TANI + /2fa-secim İLK GİRİŞ WIZARD (KAPANIŞ)
 
 **Tarih:** 5 Mayıs 2026

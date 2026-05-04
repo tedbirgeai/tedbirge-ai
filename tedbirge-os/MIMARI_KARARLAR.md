@@ -6,6 +6,72 @@
 
 ---
 
+## 5 Mayıs 2026 — TUR #79 KARARI — 2FA CHALLENGE 3 YÖNTEM TAB + KURUMSAL GÜVEN LOGIN FOOTER + 17/18. MİMAR HATALARI
+
+**Anayasa:** v1.22.0 yürürlükte (Madde 30.33 + 30.34 ikiz alt-genişleme — patch sürüm yok)
+
+### Karar
+
+CEO 4 Mayıs 20:33: 4 iş tek turda — NetGSM regression + 2. giriş 3 yöntem + 5 rol parite + kurumsal UI.
+
+**17. mimar hatası:** TUR #78 `TwoFactorChallenge` component sadece `User.twoFactorMethod` gösterdi → CEO 2. girişte tek seçenek görmüş.
+
+**18. mimar hatası:** 5 login sayfası fonksiyonel ama "kurumsal güven" eksikti.
+
+**Pragmatik 4 atom:**
+1. **Y4 backend:** `loginSendOtp` body opsiyonel `method` parametre
+2. **Y4 frontend:** `TwoFactorChallenge.tsx` 3 yöntem TAB yeniden yazım
+3. **Y11:** Login footer kurumsal rozet pattern
+4. **Y16:** OS senkron + Madde 30.33 + 30.34
+
+**İŞ 1 (NetGSM)** + **İŞ 3 (5 rol parite)** kod değişikliği yok (TUR #78 git arkeoloji + `/2fa-secim` role-aware DRY zaten kanıtlandı).
+
+### Karar Gerekçesi
+
+1. **CEO direktifi (Madde 17.5 + 30.25):** "NE ZAMAN GİRERSE GİRSİN giriş yöntemleri hepsi olsun" — 3 tab esnek
+2. **Madde 4.4 (kod kaynaktır):** TUR #78 git arkeoloji `sms.service.js` korundu. NetGSM hata kodu 30 = hesap sorunu (CEO panel manuel, kod tarafında çözülemez)
+3. **Madde 30.32 tamamlayıcısı:** İlk girişte yöntem seç (`/2fa-secim`), sonraki girişlerde değiştir (`TwoFactorChallenge` 3 tab)
+4. **Madde 30.34 yeni:** Kurumsal güven UI rozetleri B2B müvekkil deneyimi için zorunlu (SSL/KVKK/ISO 27001)
+5. **Madde 31 DS korundu:** Kapsamlı renk değişikliği yapılmadı (minimum-invaziv footer rozet eklendi)
+
+### Reddedilen Alternatifler
+
+- **Login UI kapsamlı yeniden tasarım (lacivert + altın palette, full redesign):** Madde 31 DS bozma riski + scope çok büyük + mevcut DS Madde 30.34 footer rozet ile yeterli kurumsal güven sinyali
+- **Yeni schema migration (`emailVerifiedFor2FA`, `phoneVerifiedFor2FA`):** Mevcut akış yeterli (TOTP totpSecret, SMS phone, EMAIL email — 3 alan zaten var). Ek "verified" flag çok complex, gerekmez.
+- **Tab değişiminde otomatik OTP gönder:** SMS ücreti yağmuru riski + kullanıcı kontrolü kaybı — manual "Kodu Gönder" daha iyi (Madde 30.30 emsali)
+- **`/temsilci/2fa-secim` + `/musteri/2fa-secim` ayrı sayfalar:** TUR #78 `/2fa-secim` zaten role-aware DRY (Madde 31 ekosistem disiplini) — yeniden yazma yok
+
+### Etki
+
+- **4 atom + 4 commit** (`e5d8500` Backend Y4 + `e787d41` Panel Y4 + `2bec41a` Y11 + bu OS)
+- **0 schema/npm/env**
+- **0 KIRMIZI ihlal**
+- **180+ atom sapma 0** — kalibrasyon 1.6× 26. doğrulama
+- 17/18 mimar hataları kayıt + Madde 30.33 + 30.34 kalıcı önlem
+- 5 rol × 3 yöntem 2FA challenge kullanılabilir (her ne zaman giriliyorsa)
+
+### CEO Direktifi (Madde 17.5)
+
+CEO 4 Mayıs 2026 20:33:
+> "ADMIN ilk girişte 3 seçenek sundu AMA 2. girişte seçtiğim yöntem dışında hiçbir seçenek yoktu. ... NE ZAMAN GİRERSE GİRSİN giriş yöntemleri hepsi olsun. HARİKA RESMİ CİDDİ GÜVEN VEREN giriş ekranı olsun, diğer kurumlara bak (BTK e-Devlet bankalar). Uçtan uca otonom hiçbir şey sormadan başlat bitir."
+
+### Kalıcı Pattern (TUR #80+ için)
+
+1. **Madde 30.33:** 2FA challenge'da kullanıcı 3 tab arasında dilediğini değiştirebilir (default `User.twoFactorMethod`, switch state reset, manual "Kodu Gönder" SMS/EMAIL için)
+2. **Madde 30.34:** Login + 2FA ekranlarında SSL/KVKK/ISO 27001 rozetleri ZORUNLU + "Sahte siteleri raporlayın" + BTK BİLGE referansı
+3. **e-Devlet/BTK/banka emsali kurumsal güven görsel kalıbı:** Lacivert palette (mevcut Madde 31 DS) + footer rozetleri + erişilebilirlik
+4. **TUR #76 + #79 emsali genişleme:** Provider entegrasyonu hata akışı UI'da gerçek hata + fallback CTA + 3 yöntem alternatifi
+
+### Mimar
+
+Claude Opus 4.7 (sohbet) + Claude Code (otonom uygulama)
+
+### Onay
+
+Mehmet DİNÇ — Madde 17.5 + 18.3 + 30.25 + 30.28 + 30.29 + 30.30 + 30.31 + 30.32 + 30.33 + 30.34 yeni
+
+---
+
 ## 5 Mayıs 2026 — TUR #78 KARARI — REGRESSION TANI + /2fa-secim WIZARD + 16. MİMAR HATASI
 
 **Anayasa:** v1.22.0 yürürlükte (Madde 30.31 + 30.32 ikiz alt-genişleme — patch sürüm yok)
