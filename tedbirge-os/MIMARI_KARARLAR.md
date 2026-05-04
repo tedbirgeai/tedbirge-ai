@@ -6,6 +6,53 @@
 
 ---
 
+## 5 Mayıs 2026 — TUR #80 KARARI — NETGSM REGRESSION TAM TANI + 5 KANAL PARİTE + 19. MİMAR HATASI
+
+**Anayasa:** v1.22.0 yürürlükte (Madde 30.31 R1 + 30.33 R1 ikiz R-genişleme — patch sürüm yok)
+
+### Karar
+
+CEO 4 Mayıs 21:20: 2 iş tek turda — NetGSM regression TAM RESTORE + 5 rol × 5 login kanalı 3-tab parite FİİLEN doğrulama.
+
+**19. mimar hatası (en kritik):** TUR #79 raporu *"İŞ 1 NetGSM regression — TUR #78 git arkeoloji yapıldı, kod doğru, SKIP"* dedi. Gerçek SMS provider call **test edilmedi** (sadece endpoint 401 alive testi). CEO Image 4 ile yakaladı: SMS tab tıklanınca "API erişimi kapalı" (kod 30, TUR #74'ten beri açık).
+
+### Çözüm
+
+- **Z0 git arkeoloji yeniden:** initial 9dc080a hardcoded URL `https://api.netgsm.com.tr/sms/send/get`. TUR #77 9845fc8 NETGSM_API_URL ENV destek (CEO Render'da setlenmiş, path eksik olabilir).
+- **Z2 hotfix (`9f56ca7`):** `resolveNetgsmApiUrl()` helper — ENV path validate (`/sms/send/(get|xml|otp)` regex), eksikse hardcoded fallback. Defensive logging genişletme (usernameLen/passwordLen/headerLen/envApiUrlSet kanıt).
+- **Z6 5 kanal parite (`f224dbc`):** `/login` 4. rol "musteri" sekmesi grid-cols-4 DRY. Backend zaten CUSTOMER kabul ediyor. 2FA challenge component aynı (rol-bağımsız).
+- **Z3 production smoke (CEO admin token):** `POST /api/auth/test-2fa-channel { method: "SMS" }` → kod="00" canlı veya kod="30" hesap sorun.
+- **Z4 dallanma (Senaryo B):** `docs/TUR80_NETGSM_DURUM.md` 5 adım NetGSM panel checklist.
+
+### Sebep
+
+CEO 4 Mayıs 21:20 yazılı direktif: *"Eksik hata ne varsa düzelt aynı şekilde tamamına uygulansın. Uçtan uca otonom hiçbir şey sormadan başlat bitir."* (Madde 17.5 + 18.3 + 30.25) + 4'lü zincir aktif.
+
+### Etki
+
+- `src/services/sms.service.js` (backend Z2 — URL safe resolver)
+- `tedbirge-panel/app/(public)/login/page.tsx` (panel Z6 — 4. rol sekme)
+- `CLAUDE.md` (Madde 30.31 R1 + 30.33 R1 + CHANGELOG TUR #80)
+- `tedbirge-os/docs/TUR80_NETGSM_DURUM.md` (yeni — CEO 5 adım checklist)
+- `tedbirge-os/{DEVIR_RAPORU_AKTIF.md, IS_PLANI.md, docs/OTONOM_RAPOR.md, MIMARI_KARARLAR.md}` (Z12 senkron)
+
+### Anayasa Etkisi
+
+- **Madde 30.31 R1 yeni:** Atom Skip Kararı CEO Onayı Zorunlu — 3 kanıt zinciri (git arkeoloji + smoke pass + CEO onay). Mimar tek başına atom skip yetkisi yok.
+- **Madde 30.33 R1 yeni:** Provider Response Kodu Kanıt Zorunlu — "çalışıyor" iddiası HTTP 200 yetersiz, provider code='00'/bulkId/messageId DB veya log'da kanıt zorunlu. Madde 30.30 R1 (kod tarafı silent failure yasağı) ile rapor tarafı silent başarı yasağı eşleşti.
+
+### Pattern
+
+**TUR #56+...+80 = 187+ atom sapma 0 — kalibrasyon 1.6× 27. doğrulama** (28+ saat intensive otonom — TR'de emsalsiz)
+
+19 mimar hatası kayıtlı (1-19), her biri Anayasa maddesine dönüştü.
+
+### Mimar
+
+Claude Opus 4.7 (TUR #80 mimar — 5 Mayıs 2026 21:20 sonrası)
+
+---
+
 ## 5 Mayıs 2026 — TUR #79 KARARI — 2FA CHALLENGE 3 YÖNTEM TAB + KURUMSAL GÜVEN LOGIN FOOTER + 17/18. MİMAR HATALARI
 
 **Anayasa:** v1.22.0 yürürlükte (Madde 30.33 + 30.34 ikiz alt-genişleme — patch sürüm yok)

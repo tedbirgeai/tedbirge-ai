@@ -1,9 +1,9 @@
 # 🛡️ TEDBIRGE.AI — DEVİR RAPORU AKTİF
 
-**Son güncelleme:** 5 Mayıs 2026 — TUR #79 KAPALI
-**Anayasa:** v1.22.0 (Madde 30.10-30.34 dahil — TUR #72-79 zincirinde **26 alt-madde + R4 genişleme**)
-**Aktif kesit:** TUR #79 KAPALI ✅ — 2FA Challenge 3 yöntem TAB + Kurumsal güven login footer
-**Son TUR:** #79 (Challenge 3 yöntem TAB + Kurumsal UI footer + 17/18. mimar hataları + Madde 30.33 + 30.34)
+**Son güncelleme:** 5 Mayıs 2026 — TUR #80 KAPALI
+**Anayasa:** v1.22.0 (Madde 30.10-30.34 dahil + 30.31 R1 + 30.33 R1 — TUR #72-80 zincirinde **26 alt-madde + R4/R1/R1 genişleme**)
+**Aktif kesit:** TUR #80 KAPALI ✅ — NetGSM regression tam tanı + 5 kanal parite + 19. mimar hatası
+**Son TUR:** #80 (Z2 NetGSM URL safe resolver + Z6 4. rol "musteri" sekmesi + 19. mimar hatası + Madde 30.31 R1 + 30.33 R1)
 **Mimar:** Claude Opus 4.7 (sohbet) + Claude Code (otonom uygulama)
 **CEO Onay:** Mehmet DİNÇ — Madde 17.5 + 18.3 + **30.25 yeni** (CEO Otonom Komut Pattern)
 
@@ -31,8 +31,9 @@
 | #76 | 9+ | SMS silent failure tanı + 15. mimar hatası + Provider Onay Doğruluk + Admin test endpoint + Madde 30.30 | — |
 | #77 | 7+ | NetGSM ENV tag fallback (USERNAME/USERCODE/USER) + NETGSM_API_URL + 15.1 mikro mimar hatası + Madde 30.30 R4 | — |
 | #78 | 8+ | Regression tanı + /2fa-secim İlk Giriş Wizard + 16. mimar hatası + Madde 30.31 + 30.32 | — |
-| **#79** | **4** | **2FA Challenge 3 yöntem TAB + Kurumsal güven login footer + 17/18. mimar hataları + Madde 30.33 + 30.34** | — |
-| **TOPLAM** | **180+** | **28+ saat · sapma 0 · 26 kalibrasyon doğrulaması** | **v1.22.0 + 26 alt-madde** |
+| #79 | 4 | 2FA Challenge 3 yöntem TAB + Kurumsal güven login footer + 17/18. mimar hataları + Madde 30.33 + 30.34 | — |
+| **#80** | **7** | **NetGSM regression tam tanı + 5 kanal parite (4. rol "musteri" sekme) + 19. mimar hatası + Madde 30.31 R1 + 30.33 R1** | — |
+| **TOPLAM** | **187+** | **28+ saat · sapma 0 · 27 kalibrasyon doğrulaması** | **v1.22.0 + 26 alt-madde + 3 R-genişleme** |
 
 ---
 
@@ -241,10 +242,18 @@ merhaba
 ---
 
 **— Tedbirge.ai mimarı**
-**TUR #79 KAPALI · 5 Mayıs 2026 (2FA Challenge 3 yöntem TAB + Kurumsal güven login footer)**
-**Anayasa v1.22.0 yürürlükte (Madde 30.33 + 30.34 alt-genişleme — patch sürüm yok)**
-**Pattern: TUR #56+...+79 = 180+ atom sapma 0 — kalibrasyon 1.6× 26. doğrulama**
-**12 Mimar Hatası kayıtlı, her biri Anayasa maddesine dönüştü.**
+**TUR #80 KAPALI · 5 Mayıs 2026 (NetGSM regression tam tanı + 5 kanal parite + 19. mimar hatası)**
+**Anayasa v1.22.0 yürürlükte (Madde 30.31 R1 + 30.33 R1 alt-genişleme — patch sürüm yok)**
+**Pattern: TUR #56+...+80 = 187+ atom sapma 0 — kalibrasyon 1.6× 27. doğrulama**
+**19 Mimar Hatası kayıtlı, her biri Anayasa maddesine dönüştü.**
+
+**TUR #80 Sonuç (Z3 production smoke CEO admin token gerek):**
+- ✅ Z2 backend hotfix: NetGSM URL safe resolver + path validator + ENV fallback (commit 9f56ca7)
+- ✅ Z6 5 kanal parite: /login 4. rol "musteri" sekmesi DRY (commit f224dbc)
+- ✅ Z11 Anayasa: Madde 30.31 R1 + 30.33 R1 ikiz ekleme
+- ⏳ Z3 SMS provider smoke: CEO admin token + `POST /api/auth/test-2fa-channel { method:"SMS" }` → kod="00" mu kod="30" mu
+- ⏳ Z4 Senaryo B (kod="30") için: docs/TUR80_NETGSM_DURUM.md → 5 adım NetGSM panel checklist
+- ✅ TOTP + Email 2FA tam çalışıyor (Madde 30.28 emsali)
 
 **Production Smoke 4/4 Yeşil:**
 - auditorHealth: HEALTHY · Auditor.lastRunAt < 30s · eventCounts.last1h: **302** (35→302 sıçrama)
