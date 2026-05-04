@@ -134,6 +134,12 @@ exports.setupCustomerPassword = asyncHandler(async (req, res) => {
   });
 });
 
+// TUR #82 V2 — Backend HARD 2FA enforcement (Madde 30.29 R1)
+// 21. mimar hatası: TUR #75 Madde 30.29 UI seviyesinde yazıldı,
+// backend middleware eksik. CEO 4 Mayıs 23:10 Image 2 ile yakaladı
+// (Hukukçu girişi 2FA bypass full token alıyordu).
+const HARD_2FA_ROLES = ["ADMIN", "LAWYER", "SALES", "REPRESENTATIVE"];
+
 exports.login = asyncHandler(async (req, res) => {
   // TUR #72.10 X3 — requestedRole rol mismatch kontrolü için body'den okunur
   const { email, password, requestedRole } = req.body;
@@ -151,7 +157,22 @@ exports.login = asyncHandler(async (req, res) => {
       return res.json({ success: true, data: { requires2fa: true, tempToken } });
     }
 
-    res.json({ success: true, data: result });
+    // TUR #82 V2 — HARD 2FA enforcement (Madde 30.29 R1)
+    // 2FA aktif değil + HARD rol → setup zorunlu (kullanıcı yine de full token alır,
+    // ama frontend requiresTwoFactorSetup flag'i ile /2fa-secim'e zorla yönlendirir)
+    const isHardRole = HARD_2FA_ROLES.includes(result.user?.role);
+    const responseData = { ...result };
+    if (!result.user?.twoFactorEnabled && isHardRole) {
+      responseData.requiresTwoFactorSetup = true;
+      responseData.redirectTo = "/2fa-secim";
+      responseData.setupMessage = "Hesabınızı korumak için 2FA aktivasyonu zorunludur (KVKK m.12)";
+    } else if (!result.user?.twoFactorEnabled && result.user?.role === "CUSTOMER") {
+      // CUSTOMER soft enforcement (Madde 30.29 — opsiyonel önerilen)
+      responseData.twoFactorReminder = true;
+      responseData.reminderMessage = "Hesabınızı korumak için 2FA aktivasyonu önerilir";
+    }
+
+    res.json({ success: true, data: responseData });
   } catch (err) {
     // TUR #72.10 X3 — correctRole hint'i frontend'e ilet
     if (err.statusCode === 403 && err.correctRole) {
