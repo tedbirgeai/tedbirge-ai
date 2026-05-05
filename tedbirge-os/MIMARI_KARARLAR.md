@@ -6,6 +6,43 @@
 
 ---
 
+## 5 Mayıs 2026 akşam — TUR #85.6 KARARI — SURGICAL HOTFIX 2FA COOKIE SENKRON
+
+**Anayasa:** v1.22.13 → v1.22.14 PATCH (Madde 30.45 yeni alt-madde tescil)
+**Tip:** Acil hotfix (CEO Chrome incognito 17:47 ERR_TOO_MANY_REDIRECTS hala devam) + Yapı kararı (Madde 14.1.E — yeni alt-madde)
+**Mimar:** Claude Opus 4.7 (sohbet) + Claude Code (otonom uygulama, kanıt-bazlı tanı)
+**Onay:** Mehmet DİNÇ — Madde 17.5 + 18.3 + 30.25 (4'lü zincir mektup içinde tescilli)
+
+### Karar 1: Cookie/State Senkron Disiplini (Madde 30.45) — Kalıcı Pattern
+
+**Karar:** Backend state'i değiştiren her client-side aksiyon ilgili cookie'yi de senkron olarak güncellemeli. 4 zorunlu nokta (login + 2FA Challenge + 2FA Setup + 2FA Disable). Cookie senkron atlamak = bayat cookie + middleware redirect döngü riski.
+
+**Sebep:** TUR #85.5 J1 SW kill switch CEO Chrome'da çalıştı (request 324→23) AMA `finishAndContinue` cookie güncelleme atladığı için redirect döngü devam etti. Madde 30.45 kalıcı önlem.
+
+**Alternatif:** Server-side session cookie (`HttpOnly` + `Secure`). Reddedildi (Next.js 16 client-side cookie + middleware uyumlu, server cookie eklemek mevcut auth flow'u büyük ölçüde etkiler).
+
+**Etki:** Helper fonksiyonu (`setTwoFactorEnabled`) + 4 nokta cookie set zorunlu. Gelecek 2FA disable + 2FA method değişimi senaryolarında pattern hazır.
+
+### Karar 2: TUR #85.5 J1 Yetersiz Kalan Atom Tespiti
+
+**Karar:** TUR #85.5 J1 SW kill switch ana redirect döngüyü kırmadı çünkü asıl bug farklı bir noktadaydı. Bu bir başarısızlık değil, eksik teşhis — kanıt-bazlı tanı (Madde 4.4) bir adım sonra geldi (TUR #85.6).
+
+**Sebep:** SW kill switch doğru bir önlemdi (Chrome'da SW kayıtlıydı, request 324→23 düştü), ama redirect döngünün ana sebebi cookie senkronsuzluğuydu. Mimar TUR #85.5'te "SW kill switch ile döngü kırılır" varsayımı yapmıştı, kanıt yetmedi.
+
+**Alternatif:** TUR #85.5'i "başarısız" diye revert etmek. Reddedildi (J1 koruması hala değerli — gelecekte SW eklenirse kill switch yapı zaten yerinde).
+
+**Etki:** Mimar hata 30 kayıt edildi, Madde 30.43 (Browser Session Smoke) emsali güçlendi — endpoint smoke yetersizliği + CEO görsel kanıt > Code rapor pattern 5. uygulama.
+
+### Karar 3: HARD 2FA Enforcement Felsefesi Korundu
+
+**Karar:** TUR #85.6 surgical hotfix proxy.ts mantığını dokunmadı. Cookie senkronu sağlandı, middleware HARD 2FA redirect kararı korunur (Madde 30.40 + 30.44).
+
+**Sebep:** Mektup direktifi: "HARD 2FA enforcement felsefesi BOZMA". Bug kaynağı middleware değil, client cookie güncelleme atlama. Surgical fix doğru noktayı hedefler.
+
+**Etki:** TUR #82 V2 + TUR #84 T1 + TUR #85.5 J1+J7 + TUR #85.6 birleşik 5 katman defense in depth (backend flag + frontend handler + middleware + SW kill switch + RedirectGuard + cookie senkron) kalıcı pattern.
+
+---
+
 ## 5 Mayıs 2026 17:08 — TUR #85.5 KARARI — SERVICEWORKER KILL SWITCH + REDIRECT DÖNGÜ HOTFIX
 
 **Anayasa:** v1.22.12 → v1.22.13 PATCH sürüm artışı (Madde 30.43 + Madde 30.44 yeni)

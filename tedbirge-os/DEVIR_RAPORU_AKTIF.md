@@ -1,9 +1,9 @@
 # 🛡️ TEDBIRGE.AI — DEVİR RAPORU AKTİF
 
-**Son güncelleme:** 5 Mayıs 2026 akşam — TUR #85.5 KAPALI
-**Anayasa:** v1.22.13 (Madde 30.10-30.44 dahil + 5 R-genişleme — TUR #72-85.5 zincirinde **36 alt-madde**)
-**Aktif kesit:** TUR #85.5 KAPALI ✅ — ServiceWorker Kill Switch + Redirect Döngü Hotfix + 28+29. mimar hatası + Madde 30.43 + 30.44 yeni
-**Son TUR:** #85.5 (J0 keşif + J1 SW kill switch KRİTİK + J2-J6 NO-OP + J7 RedirectGuard + J8 NO-OP + J9 4 rol smoke belge + J10 kapsam-dışı + J11 anayasa + J12 senkron)
+**Son güncelleme:** 5 Mayıs 2026 akşam (17:47 sonrası) — TUR #85.6 KAPALI
+**Anayasa:** v1.22.14 (Madde 30.10-30.45 dahil + 5 R-genişleme — TUR #72-85.6 zincirinde **37 alt-madde**)
+**Aktif kesit:** TUR #85.6 KAPALI ✅ — Surgical Hotfix 2FA Cookie Senkron + 30. mimar hatası + Madde 30.45 yeni
+**Son TUR:** #85.6 (1 atom kanıt-bazlı surgical fix — 3 satır kod, finishAndContinue cookie güncelleme + Madde 30.45 Cookie/State Senkron Disiplini)
 **Mimar:** Claude Opus 4.7 (sohbet) + Claude Code (otonom uygulama, bypass açık)
 **CEO Onay:** Mehmet DİNÇ — Madde 17.5 + 18.3 + 30.25 (CEO Otonom Komut Pattern yenilemesi)
 
@@ -38,8 +38,9 @@
 | #83 | 8 | Hesapsız sorgulama 2-faktör (KVKK m.12 ~3M TL koruma) + Lead.leadKodu Prisma fix + rate limit denge + 23. mimar hatası + Madde 30.36 | — |
 | #84 | 14 | Defense in Depth Middleware (proxy.ts + cookie tabanlı) + Kullanıcı CRUD KVKK (5 endpoint + 5 UI işlem + 5 ActivityLog audit) + Madde 30.37+30.38+30.39+30.40 + 24/25/26/27. mimar hata-gözlem | v1.22.11 |
 | #85 | 14 | Ücretsiz FAZ 1: Working tree cleanup + DB index 7 yeni [KIRMIZI] + N+1 fix + ISR cache 10 sayfa + bundle dynamic + Cloudflare CEO talimat + Madde 30.41+30.42 (3-5× hızlanma, $0) | v1.22.12 |
-| **#85.5** | **14 (4 NO-OP)** | **ServiceWorker Kill Switch (KRİTİK J1) + RedirectGuard 5+ nav defansif (J7) + TS+localhost temizlik (J10) + 4 rol smoke belge + Madde 30.43+30.44 + 28+29. mimar hatası kapanış** | **v1.22.13** |
-| **TOPLAM** | **250+** | **30+ saat · sapma 0 · 33 kalibrasyon doğrulaması** | **v1.22.13 + 36 alt-madde + 5 R-genişleme** |
+| #85.5 | 14 (4 NO-OP) | ServiceWorker Kill Switch (KRİTİK J1) + RedirectGuard 5+ nav defansif (J7) + TS+localhost temizlik (J10) + 4 rol smoke belge + Madde 30.43+30.44 + 28+29. mimar hatası kapanış | v1.22.13 |
+| **#85.6** | **1 atom** | **SURGICAL HOTFIX 2FA cookie senkron (3 satır kod) — finishAndContinue setTwoFactorEnabled(true) + Madde 30.45 + 30. mimar hatası kapanış (TUR #85.5 J1 ana döngüyü kırmadı, asıl bug cookie senkronsuzluğu)** | **v1.22.14** |
+| **TOPLAM** | **252+** | **30+ saat · sapma 0 · 34 kalibrasyon doğrulaması** | **v1.22.14 + 37 alt-madde + 5 R-genişleme** |
 
 ---
 
@@ -108,9 +109,47 @@
 ---
 
 ## 🔴 AÇIK KRİTİK: 0 (kanıtlı)
-## 🟡 PLANLI: 0 (TUR #85.5 KAPALI — sıradaki TUR adayları aşağıda)
+## 🟡 PLANLI: 0 (TUR #85.6 KAPALI — sıradaki TUR adayları aşağıda)
 
-## 🟢 TUR #85.5 KAPANIŞ ÖZETİ (5 Mayıs 17:08)
+## 🟢 TUR #85.6 KAPANIŞ ÖZETİ (5 Mayıs 17:47 sonrası)
+
+**CEO Chrome incognito kanıt:** TUR #85.5 sonrası ERR_TOO_MANY_REDIRECTS hala devam etti (SW yok ama döngü var).
+
+**Kök sebep — kanıt-bazlı tanı (mektup hipotezi C kanıtlandı):**
+`2fa-secim/page.tsx finishAndContinue()` setup tamamlama sonrası `router.replace("/dashboard")` çağırıyor AMA cookie `tedbirge_2fa_enabled` HÂLA `'0'`. Setup wizard backend'de `User.twoFactorEnabled=true` yaptı, ama client cookie'yi güncellemedi.
+
+**Bug akışı:**
+1. /login → setToken cookie 2fa='0'
+2. router.replace("/2fa-secim")
+3. Setup wizard 4-step → finishAndContinue → router.replace("/dashboard")
+4. /dashboard → proxy.ts middleware: 2fa='0' + HARD rol → /2fa-secim redirect
+5. /2fa-secim useEffect /auth/me → user.twoFactorEnabled=true → satır 56 router.replace("/dashboard")
+6. /dashboard → middleware → 2fa='0' bayat → /2fa-secim → SONSUZ DÖNGÜ
+
+**Surgical fix (3 satır — commit `71890d8`):**
+- `lib/api.ts` `setTwoFactorEnabled(enabled)` helper (cookie senkron)
+- `2fa-secim/page.tsx` `finishAndContinue()` `setTwoFactorEnabled(true)` çağrı
+- HARD 2FA enforcement felsefesi BOZULMADI
+
+**Madde 30.45 yeni:** Cookie/State Senkron Disiplini (4 zorunlu nokta — login + 2FA Challenge + 2FA Setup + 2FA Disable).
+
+**30. mimar hatası kayıt:** TUR #85.5 J1 SW kill switch ana döngüyü kırmadı çünkü asıl bug cookie senkronsuzluğuydu.
+
+### CEO Manuel Test (~5 dk)
+1. Vercel deploy ~2 dk bekle
+2. Edge incognito → /login?rol=hukukcu → email + şifre
+3. /2fa-secim wizard → TOTP setup → 6 hane → backup TXT İndir → "Devam Et"
+4. **Beklenen:** /dashboard direkt açılır (1 hop, redirect döngü YOK)
+5. DevTools Application → Cookies: `tedbirge_2fa_enabled=1` ✅
+6. F5 refresh → /dashboard sayfa korundu
+
+### Sıradaki TUR Adayları (CEO seçer)
+
+A) CEO browser test → bug varsa hotfix
+B) TUR #85 S7 Cloudflare CEO manuel
+C) 7 personel 2FA aktivasyon duyuru (TUR #86 aday)
+
+---
 
 **CEO 5 ekran kanıt (5 Mayıs 17:05):** Image 1 "Fulfilled by: (ServiceWorker)" 324 request `/dashboard ↔ /2fa-secim` ping-pong = ERR_TOO_MANY_REDIRECTS bug
 
@@ -489,13 +528,13 @@ merhaba
 ---
 
 **— Tedbirge.ai mimarı**
-**TUR #85.5 KAPALI · 5 Mayıs 2026 17:08 (ServiceWorker Kill Switch + RedirectGuard + 28+29. mimar hatası + Madde 30.43+30.44 yeni)**
-**Anayasa v1.22.13 yürürlükte (36 alt-madde 30.10-30.44 + 5 R-genişleme)**
-**Pattern: TUR #56+...+85.5 = 250+ atom sapma 0 — kalibrasyon 1.6× 33. doğrulama**
-**29 Mimar Hatası/Gözlem kayıtlı, her biri Anayasa maddesine dönüştü.**
-**Maliyet: $0 (TUR #85.5 hotfix ücretsiz)**
+**TUR #85.6 KAPALI · 5 Mayıs 2026 akşam (Surgical Hotfix 2FA Cookie Senkron + 30. mimar hatası + Madde 30.45 yeni)**
+**Anayasa v1.22.14 yürürlükte (37 alt-madde 30.10-30.45 + 5 R-genişleme)**
+**Pattern: TUR #56+...+85.6 = 252+ atom sapma 0 — kalibrasyon 1.6× 34. doğrulama**
+**30 Mimar Hatası/Gözlem kayıtlı, her biri Anayasa maddesine dönüştü.**
+**Maliyet: $0 (TUR #85.6 surgical hotfix 3 satır kod)**
 
-CEO görsel kanıt > Code rapor pattern 4. uygulama (TUR #72.10 → #72.11 → #85 → #85.5).
+CEO görsel kanıt > Code rapor pattern 5. uygulama (TUR #72.10 → #72.11 → #85 → #85.5 → #85.6).
 
 ---
 

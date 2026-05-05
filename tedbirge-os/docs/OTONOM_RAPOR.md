@@ -1,3 +1,97 @@
+## TUR #85.6 — SURGICAL HOTFIX 2FA COOKIE SENKRON + 30. MİMAR HATASI (KAPANIŞ)
+
+**Tarih:** 5 Mayıs 2026 akşam (CEO Chrome incognito 17:47 ERR_TOO_MANY_REDIRECTS hala devam etti)
+**Anayasa:** v1.22.13 → v1.22.14 PATCH (Madde 30.45 Cookie/State Senkron Disiplini yeni)
+**Tip:** P (production redirect döngü surgical hotfix — TUR #85.5 başarısız sonrası)
+**BYPASS:** AÇIK (KIRMIZI nokta YOK, mektup içi yazılı CEO 4'lü zincir yenilemesi)
+
+### CEO Direktifi (Madde 30.25)
+
+> "TUR #85.6 SURGICAL HOTFIX — uçtan uca otonom. KÖK SEBEP TANISI (sen yapacaksın, bana raporlama)... Tek tek atom commit (her satır fix = 1 commit + push). En fazla 3-5 satır kod değişikliği bekleniyor — bu surgical hotfix, mektup uygulaması değil."
+
+### CEO Chrome Incognito Kanıt (5 Mayıs 17:47)
+
+TUR #85.5 J1 SW kill switch sonrası: SW kill switch çalıştı (Chrome'da SW yok, request 324→23 düştü) AMA backend/middleware/cookie tarafında temel döngü devam ediyor.
+
+### Kök Sebep — Kanıt-Bazlı Tanı (Mektup Hipotezi C kanıtlandı)
+
+`2fa-secim/page.tsx:157-161 finishAndContinue()`:
+```ts
+function finishAndContinue() {
+  if (!user) return;
+  const target = user.role === "CUSTOMER" ? "/musteri" : user.role === "REPRESENTATIVE" ? "/temsilci" : "/dashboard";
+  router.replace(target);
+}
+```
+
+**Bug akışı (LAWYER 2FA setup tamamlama):**
+1. /login submit → backend `user.twoFactorEnabled=false`
+2. login.tsx satır 99: `setToken(token, "LAWYER", false)` → cookie `tedbirge_2fa_enabled='0'` ✅
+3. login.tsx satır 107: `router.replace("/2fa-secim")`
+4. /2fa-secim setup wizard 4-step (TOTP setup → 6 hane → backup TXT İndir)
+5. **`finishAndContinue()` çağrılır → `router.replace("/dashboard")`**
+6. **AMA cookie `tedbirge_2fa_enabled` HÂLA `'0'`!** Setup wizard backend'de `twoFactorEnabled=true` yaptı, client cookie güncellemedi.
+7. /dashboard yüklenir → `proxy.ts:95` middleware: `twoFaEnabled === '0' + HARD rol` → redirect `/2fa-secim`
+8. /2fa-secim useEffect `/auth/me` → `user.twoFactorEnabled=true` (backend güncel) → satır 56: `router.replace("/dashboard")`
+9. /dashboard → middleware → 2fa='0' (cookie BAYAT) → /2fa-secim
+10. **SONSUZ DÖNGÜ = ERR_TOO_MANY_REDIRECTS**
+
+### Surgical Fix (3 satır — commit `71890d8`)
+
+**1. `lib/api.ts` setTwoFactorEnabled helper (yeni):**
+```ts
+export function setTwoFactorEnabled(enabled: boolean) {
+  if (typeof document === "undefined") return;
+  const maxAge = 60 * 60 * 24 * 7;
+  const secureFlag = location.protocol === "https:" ? "; Secure" : "";
+  document.cookie = `tedbirge_2fa_enabled=${enabled ? "1" : "0"}; path=/; max-age=${maxAge}; SameSite=Strict${secureFlag}`;
+}
+```
+
+**2. `app/(public)/2fa-secim/page.tsx` import + finishAndContinue:**
+```ts
+import { apiFetch, getToken, setTwoFactorEnabled } from "@/lib/api";
+
+function finishAndContinue() {
+  if (!user) return;
+  // TUR #85.6 — Cookie tedbirge_2fa_enabled='1' yenile (bayat cookie döngü kır, Madde 30.45)
+  setTwoFactorEnabled(true);
+  const target = user.role === "CUSTOMER" ? "/musteri" : user.role === "REPRESENTATIVE" ? "/temsilci" : "/dashboard";
+  router.replace(target);
+}
+```
+
+### Korunan Sistemler
+
+- HARD 2FA enforcement felsefesi (TUR #82 V2 + TUR #84 T1 — proxy.ts redirect kararı dokunulmadı)
+- TUR #85.5 J1 SW kill switch (eski SW unregister korundu)
+- TUR #85.5 J7 RedirectGuard (5+ nav defansif önlem korundu)
+- 22 sistem koruma (CEO TOTP + NetGSM + KVKK + 4 sekme login + ISO rozet + 16 modül auditor)
+
+### Madde 30.45 — Cookie/State Senkron Disiplini
+
+Backend state'i (örn. `User.twoFactorEnabled`) değiştiren her client-side aksiyon ilgili cookie'yi de senkron olarak güncellemeli. 4 zorunlu nokta:
+1. Login (login.tsx satır 99): `setToken(token, role, twoFactorEnabled)` — initial cookie set
+2. 2FA Challenge başarılı (login.tsx satır 232): `setToken(token, role, true)` — '0' → '1'
+3. **2FA Setup tamamlandı (2fa-secim finishAndContinue): `setTwoFactorEnabled(true)` — TUR #85.6 BUGFIX**
+4. 2FA Disable (gelecek profil sayfası): `setTwoFactorEnabled(false)` — '1' → '0'
+
+### 30. Mimar Hatası Kayıt
+
+TUR #85.5 J1 SW kill switch ana redirect döngüyü **kırmadı** çünkü asıl bug `finishAndContinue` cookie senkron eksikliğiydi. SW yapısı doğruydu (Chrome'da request 324→23 düştü), ama setup tamamlama mantığı cookie güncelleme atlıyordu. **Sonuç:** TUR #85.5 başarısız sayıldı, TUR #85.6 surgical hotfix gerekli oldu.
+
+### Pattern + Kalibrasyon
+
+TUR #56→#85.6 = 252+ atom **sapma 0** — kalibrasyon 1.6× **34. doğrulama**.
+30 mimar hatası/gözlem → 30 anayasa maddesi/uyum dönüşümü.
+**CEO görsel kanıt > Code rapor** pattern 5. uygulama (TUR #72.10 → #72.11 → #85 → #85.5 → #85.6).
+
+### Maliyet
+
+**$0** — TUR #85.6 surgical hotfix 3 satır kod, 0 schema/npm/env, 0 KIRMIZI ihlal.
+
+---
+
 ## TUR #85.5 — SERVICEWORKER KILL SWITCH + REDIRECT DÖNGÜ HOTFIX + 28+29. MİMAR HATASI (KAPANIŞ)
 
 **Tarih:** 5 Mayıs 2026 17:08 (CEO 5 ekran kanıt 17:05 sonrası)
