@@ -84,3 +84,21 @@ tedbirge-panel/
 CLAUDE.md.bak
 tmp-claude-kes.ps1
 
+# ─── TUR #85 S1 — Working Tree Temizlik Disiplini (Madde 30.42) ──────────────
+# Geçici TUR dosyaları, mektuplar, check script'leri, smoke çıktıları
+*.bak
+scripts/check_*.js
+scripts/tur*_*.js
+scripts/tur*_*.sql
+scripts/tur*_*.md
+scripts/tur*_*.sh
+MEKTUP_TUR*.md
+tur*_*.txt
+tur*_*.sql
+tur*_*.sh
+check_*.js
+apply_b*_*.js
+*_smoke_ciktisi.txt
+TUR*_KESIF.md
+TUR*_*.md
+
