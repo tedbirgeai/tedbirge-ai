@@ -120,13 +120,15 @@ async function listLeads(filters = {}, user = null) {
     ];
   }
 
+  // TUR #85 S4 — N+1 + payload optimizasyonu (Madde 30.41)
+  // Liste için: documents full obje yerine _count, owner full yerine select
   const leads = await prisma.lead.findMany({
     where,
     orderBy: { createdAt: "desc" },
     include: {
-      owner: true,
+      owner: { select: { id: true, fullName: true, email: true, role: true } },
       assignments: { include: { lawyer: { select: { id: true, fullName: true, email: true, phone: true, baroSicilNo: true, uzmanlik: true } } } },
-      documents: { where: { deletedAt: null } }
+      _count: { select: { documents: { where: { deletedAt: null } } } }
     }
   });
   if (user?.role === "REPRESENTATIVE") {
@@ -139,15 +141,17 @@ async function listLeads(filters = {}, user = null) {
 }
 
 async function getLeadById(id, user = null) {
+  // TUR #85 S4 — Detay sayfası için N+1 + payload optimizasyonu (Madde 30.41)
+  // owner full → select; activities take 100 (sınırsız değil); contracts gerekli alanlar
   const lead = await prisma.lead.findUnique({
     where: { id },
     include: {
-      owner: true,
+      owner: { select: { id: true, fullName: true, email: true, phone: true, role: true } },
       messages: { orderBy: { createdAt: "asc" } },
       documents: { where: { deletedAt: null }, orderBy: { createdAt: "desc" } },
       assignments: { include: { lawyer: { select: { id: true, fullName: true, email: true, phone: true, baroSicilNo: true, uzmanlik: true } } } },
-      contracts: true,
-      activities: { orderBy: { createdAt: "desc" } }
+      contracts: { select: { id: true, type: true, status: true, title: true, createdAt: true, musteriOnayladi: true, musteriOnayTarihi: true } },
+      activities: { orderBy: { createdAt: "desc" }, take: 100 }
     }
   });
 
