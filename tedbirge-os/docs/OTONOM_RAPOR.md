@@ -1,3 +1,44 @@
+## TUR #84 — DEFENSE IN DEPTH MIDDLEWARE + KULLANICI CRUD KVKK + 4 YENİ MADDE + 24/25/26/27. MİMAR HATA-GÖZLEM (KAPANIŞ)
+
+**Tarih:** 5 Mayıs 2026 sabah (CEO direktifi: "uçtan uca otonom başla bitir")
+**Anayasa:** v1.22.0 → v1.22.11 PATCH (Madde 30.37+30.38+30.39+30.40 yeni — 4 alt-madde tescil)
+**Tip:** P tipi (üretim hotfix — defense in depth + CRUD eksiği + drift fix)
+**BYPASS:** AÇIK (KIRMIZI atomlar otonom — Madde 30.25 4'lü zincir yenilemesi)
+
+### CEO Direktifi (Madde 17.5 + 18.3 + 30.25)
+
+> "Yeni temiz incognito hukukçu/temsilci/müvekkil → email+şifre → direkt panel (2FA bypass).
+> /dashboard/kullanicilar → Sil/Arşiv/Düzenle YOK. Eksik hata ne varsa düzelt sitemin tümüne uygula.
+> Uçtan uca otonom başla bitir. 5 belge senkron sonraki sohbete bağlam."
+
+### Mimar Hata-Gözlem Kayıtları (24-27)
+
+**24. mimar hatası:** TUR #75-#83 boyunca `/dashboard/kullanicilar` panel sayfası **liste-only** kaldı — DropdownMenu/İşlemler/deleteUser/archiveUser **0 eşleşme** (T0.6 keşif kanıt). Backend'de PATCH/DELETE endpoint yoktu, frontend'de aksiyon UI yoktu. ADMIN kullanıcıları yönetemiyordu. Çözüm: TUR #84 T2+T4+T5+T6 ile 5 endpoint + 5 UI işlem + 5 ActivityLog audit.
+
+**25. mimar gözlem:** TUR #84 mektubu önceki sohbette 7 kez yanlış olarak "yeniden uygula" diye gönderildi (TUR #83 zaten KAPALI iken). Claude Code anayasa disiplini ile (Madde 4.4 + 4.6 + 14.3) destrüktif tekrarı reddetti, kanıt zinciri sundu, gerçek eksiklik (U0 keşif raporu — `TUR83_KESIF.md`) retroaktif olarak üretildi (commit `ccbb93a`). Bu disiplin yeni Madde 30.38 olarak tescillendi.
+
+**26. mimar gözlem:** TUR #84 yeni session açıldı, eski sohbetin bağlam karışıklığından arındı. 4 net kanıt + 2 ek tanı (T0.5 + T0.6) ile **kesin kapsam** belirlendi. Yeni Madde 30.39 (Session Bağlam Disiplini).
+
+**27. mimar hatası:** Middleware `proxy.ts` `ROLE_ALLOWED_ROUTES` matrisi var ama **2FA setup zorlaması yoktu**. Backend (TUR #82 V2) + Frontend handler (TUR #82 V3) zaten vardı, server-side middleware seviyesinde defense in depth eksikti. TUR #84 T1 ile 3 katman tamam (Madde 30.40).
+
+### Atom Detay (T1-T15) Özet
+
+- **T1** panel `741fd8b` — Middleware HARD 2FA defense in depth (3 dosya tek atom: proxy.ts + lib/api.ts setToken cookie + login/page.tsx 2 setToken çağrı)
+- **T3** backend `cf83446` — Schema KIRMIZI (UserStatus enum + 6 alan + 2 index + apply-pending-schemas.js + auth.service.js login guard)
+- **T2** backend `f0e65cc` — users.controller.js + users.routes.js + index.js mount (5 endpoint + 3 katmanlı koruma + 5 ActivityLog audit + KVKK m.6 soft delete)
+- **T5** panel `176149f` — EditUserModal component (ad/email/telefon/rol)
+- **T6** panel `7ea68dc` — ResetPasswordModal component (SMS/EMAIL kanal radio)
+- **T4** panel `0f3b571` — /kullanicilar İşlemler kolonu + ⋮ dropdown + 5 işlem + çift onay disiplini
+- **T7** smoke 8/8 yeşil (`tedbirge-os/docs/TUR84_T7_SMOKE.md`)
+- **T8/T9/T10/T11** birleşik OS senkron tek atom commit (Madde 30.26)
+
+### Pattern + Kalibrasyon
+
+TUR #56→#84 = 223+ atom **sapma 0** — kalibrasyon 1.6× **31. doğrulama**.
+27 mimar hatası/gözlem → 27 anayasa maddesi/uyum dönüşümü.
+
+---
+
 ## TUR #83 — HESAPSIZ SORGULAMA GÜVENLİK SERTLEŞTİRME + Lead.leadKodu PRİSMA REGRESYON + 23. MİMAR HATASI (KAPANIŞ)
 
 **Tarih:** 5 Mayıs 2026 (CEO 4 Mayıs 23:30 direktifi)

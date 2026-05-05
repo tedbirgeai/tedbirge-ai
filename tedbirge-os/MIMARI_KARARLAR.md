@@ -6,6 +6,73 @@
 
 ---
 
+## 5 Mayıs 2026 sabah — TUR #84 KARARI — DEFENSE IN DEPTH MIDDLEWARE + KULLANICI CRUD KVKK + 4 YENİ MADDE
+
+**Anayasa:** v1.22.0 → v1.22.11 PATCH sürüm artışı (Madde 30.37 + 30.38 + 30.39 + 30.40 yeni alt-madde tescil)
+**Tip:** Yapı kararı (Madde 14.1.E — yeni alt-madde) + Çatışma çözümü (Madde 14.1.E.b — middleware vs frontend ayrımı)
+**Mimar:** Claude Opus 4.7 (sohbet) + Claude Code (otonom uygulama)
+**Onay:** Mehmet DİNÇ — Madde 17.5 + 18.3 + 30.25 (CEO Otonom Komut Pattern yenilemesi)
+
+### Karar 1: Defense in Depth — 3 Katman 2FA Enforcement
+
+**Karar:** 2FA enforcement'ı tek katman backend flag yetersiz — middleware (server-side) + frontend handler + backend explicit flag birlikte zorunlu.
+
+**Sebep:** TUR #82 V2 (backend) + V3 (frontend) ile iki katman kuruldu, ancak kullanıcı tarayıcı cache temizleyip cookie/localStorage manipule ederse veya doğrudan API çağırırsa middleware bypass olabilirdi. T0.5 keşfi bu eksikliği netleştirdi.
+
+**Alternatif:** Sadece backend kontrolü ile yetinmek (her endpoint çağrısında 2FA durumu kontrol et) — performans maliyeti yüksek, kapsam dışı endpoint riski. Reddedildi.
+
+**Etki:** `tedbirge-panel/proxy.ts` server-side middleware + cookie `tedbirge_2fa_enabled` tabanlı redirect. Kullanıcı login sonrası 2FA zorunlu rol ve durumdaysa hangi yoldan girerse girsin `/2fa-secim` zorunlu.
+
+### Karar 2: Hard Delete YASAK — Soft Delete + KVKK m.6 (5 yıl saklama)
+
+**Karar:** Kullanıcı silme operasyonu **hard delete YASAK** — `User.deletedAt` set + `status=ARCHIVED` ile soft delete zorunlu.
+
+**Sebep:** KVKK m.6 — kişisel veri 5 yıl saklanmalı (yasal denetim/dava kanıt için). Hard delete yapılırsa veri geri dönülmez, KVKK ihlali kalıcılaşır.
+
+**Alternatif:** 5 yıl bekledikten sonra otomatik hard delete cron job. Kabul edildi (gelecek TUR — Maintenance modülü 5 yıl üstü deletedAt set olanları purge edebilir, KVKK m.6 limit'i aşımı). Şu an manuel.
+
+**Etki:** Backend `softDeleteUser` endpoint + frontend çift onay (email yazdır + KVKK metin uyarı). Hard delete UI/API'de **mevcut DEĞİL** (kasıtlı eksiklik).
+
+### Karar 3: Self-Protection + Last-Admin Protection
+
+**Karar:** ADMIN endpoint'ler kendi user.id'i hedef alamaz + son aktif ADMIN bloke edilemez/silinemez.
+
+**Sebep:** ADMIN paneli adminsiz kalırsa sistem yönetilemez (locked-out). Kendi rolünü düşüren ADMIN paneline tekrar erişemez.
+
+**Alternatif:** "Yönetici" rolüne geçici fallback (örn. SALES → emergency admin). Reddedildi (KVKK m.12 — yetkilendirme matrisi sızar).
+
+**Etki:** `ensureNotSelf()` + `ensureNotLastAdmin()` helpers — backend her CRUD endpoint'de + frontend disabled state matrisi (cursor-not-allowed + opacity).
+
+### Karar 4: Endpoint Geçişi /auth/users → /users (Geri Uyumlu)
+
+**Karar:** Yeni `/api/users` namespace + eski `/api/auth/users` GET KORUNDU.
+
+**Sebep:** Mevcut frontend kodunda hardcoded `/auth/users` çağrıları olabilir (lazy migration). Eski path'i hemen silmek breaking change.
+
+**Alternatif:** Eski path'i derhal sil. Reddedildi — gelecek TUR'da grep + temizlik yapılır.
+
+**Etki:** Frontend yeni kod `/users` çağırıyor (T4 update), eski path kalsın geri uyumluluk için. Gelecek TUR'da tek sefer `git grep "/auth/users"` ile temizlik (planlı).
+
+### Karar 5: Mektup Tekrarı Disiplini (Madde 30.38)
+
+**Karar:** Mimar yanlışlıkla aynı mektubu tekrar gönderirse Claude Code kanıt zinciri ile reddeder, destrüktif tekrar yapmaz.
+
+**Sebep:** TUR #84 mektubu önceki sohbette TUR #83 KAPALI olduğu halde 7 kez gönderildi. Yeniden uygulama duplikat commit + Madde 4.6 ihlali yaratır.
+
+**Alternatif:** Kayıtsız şartsız uygulama. Reddedildi (anayasa disiplini > mektup direktifi).
+
+**Etki:** Yeni Madde 30.38 — `git log` + dosya kanıtı + smoke output ile kanıt sunma + yeni direktif net açıklama isteme.
+
+### Karar 6: Session Bağlam Disiplini (Madde 30.39)
+
+**Karar:** Yeni kapsamlı iş için yeni Claude Code session açılır — eski sohbetin bağlam karışıklığından arınır.
+
+**Sebep:** TUR #84 yeni session açıldı, 4 net kanıt + 2 ek tanı ile kesin kapsam belirlendi. Eski session'ın bağlam taşıması azalmazdı, yeni eksiklikler atlanırdı.
+
+**Etki:** Açılış protokolü zorunlu — `git log -30` + DEVIR_RAPORU + CLAUDE.md + IS_PLANI + production health probe.
+
+---
+
 ## 5 Mayıs 2026 — TUR #83 KARARI — HESAPSIZ SORGULAMA GÜVENLİK SERTLEŞTİRME + Lead.leadKodu PRİSMA REGRESYON + 23. MİMAR HATASI
 
 **Anayasa:** v1.22.0 yürürlükte (Madde 30.36 yeni alt-genişleme — patch sürüm yok)

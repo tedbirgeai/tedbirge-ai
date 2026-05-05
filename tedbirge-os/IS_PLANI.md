@@ -1,18 +1,18 @@
 # TEDBİRGE.AI YOL HARİTASI v1.0
-**Son güncelleme:** 3 Mayıs 2026 sabah (TUR #66.7 KAPALI — TÜM SİSTEM Prefetch Loop Hotfix)
-**Anayasa versiyonu:** v1.19.2 (Madde 31.10 Link Prefetch Disiplini eklendi)
+**Son güncelleme:** 5 Mayıs 2026 sabah (TUR #84 KAPALI — Defense in Depth Middleware + Kullanıcı CRUD KVKK)
+**Anayasa versiyonu:** v1.22.11 (Madde 30.37+30.38+30.39+30.40 yeni — TUR #84)
 **İlke:** MoSCoW + Now-Next-Later hibrit (Madde 24.5)
 
 ---
 
 ## 🎯 AKTİF KESİT
 
-**Faz:** TÜM SİSTEM Performans KAPALI ✅ (TUR #66.7 ile prefetch loop kırıldı, Madde 31.10 yürürlükte)
-**Son TUR:** #66.7 — TÜM SİSTEM Prefetch Loop Hotfix (KAPALI)
-**Son düzeltme TUR'u:** #60 + #61 + #62 + #63 + #63.5 + #63.5 v2 + #64 + #66 v2 + #66.7
-**Önerilen sıradaki:** TUR #66.5 — Vision 20 MB Limit Hotfix (CEO browser test bulgusu, 30-45 dk küçük iş)
-**Anayasa:** v1.19.2 (Madde 31.10 Link Prefetch Disiplini + Madde 32.10 AI Analiz Tetikleyici Disiplini)
-**Son güncelleme:** 3 Mayıs 2026 sabah (TUR #66.7 KAPANIŞ — TÜM SİSTEM Prefetch Loop Hotfix, Anayasa v1.19.1 → v1.19.2)
+**Faz:** Kullanıcı Yönetimi + Defense in Depth KAPALI ✅ (TUR #84 ile 4 katmanlı 2FA + Kullanıcı CRUD tamamlandı, Madde 30.37/30.38/30.39/30.40 yürürlükte)
+**Son TUR:** #84 — Defense in Depth Middleware + Kullanıcı CRUD KVKK + 4 yeni Madde (KAPALI)
+**Son düzeltme TUR'u:** #66.7 + #69+#69.5+#70 + #71 + #72 + #72.5+#72.6+#72.7+#72.8+#72.9+#72.10+#72.11 + #73 + #74 + #75 + #76 + #77 + #78 + #79 + #80 + #81 + #82 + #83 + #84
+**Önerilen sıradaki:** TUR #85 — 7 personel duyuru veya CEO seçer (A/B/C/D/E/F — DEVIR_RAPORU)
+**Anayasa:** v1.22.11 (32 alt-madde 30.10-30.40 + 5 R-genişleme)
+**Son güncelleme:** 5 Mayıs 2026 (TUR #84 KAPANIŞ — Defense in Depth + CRUD, Anayasa v1.22.0 → v1.22.11)
 
 ### 4 TUR Yol Haritası (CEO HAYALİ — 2 Mayıs gece)
 
@@ -79,6 +79,7 @@
 | #80 | TUR #80 — NETGSM REGRESSION TAM TANI + 5 KANAL PARİTE + 19. MİMAR HATASI + Anayasa Madde 30.31 R1 + 30.33 R1 + 5 OS senkron | ✅ Kapalı (7 atom Z0-Z12 + 3 commit (Z2 backend 9f56ca7 + Z6 panel f224dbc + Z12 OS senkron), 0 schema/npm/env, 0 KIRMIZI ihlal, Anayasa v1.22.0 yürürlükte — Madde 30.31 R1 (Atom Skip Kararı CEO Onayı Zorunlu — 3 kanıt: git arkeoloji + smoke pass + CEO onay) + Madde 30.33 R1 (Provider Response Kodu Kanıt Zorunlu — "çalışıyor" iddiası HTTP 200 yetersiz, provider code='00'/bulkId/messageId zorunlu) ikiz R1 genişleme, 19. mimar hatası: TUR #79 İŞ 1 NetGSM regression mimar varsayımıyla SKIP edildi (gerçek SMS test edilmedi — sadece endpoint 401 testi), CEO 21:19 Image 4 ile yakaladı, Z0 git arkeoloji yeniden: initial 9dc080a hardcoded URL, TUR #77 9845fc8 NETGSM_API_URL ENV destek (CEO Render'da setlenmiş), Z2 hotfix resolveNetgsmApiUrl() path validator (ENV path eksikse hardcoded fallback) + defensive logging genişletme, Z6 5 kanal parite: /login 4. rol "musteri" sekmesi grid-cols-4 DRY (backend zaten CUSTOMER kabul), Z3 production smoke CEO admin token gerekli (Senaryo A: kod="00" canlı / Senaryo B: kod="30" → docs/TUR80_NETGSM_DURUM.md 5 adım NetGSM panel checklist: bakiye/başlık/API erişimi/IP whitelist/raporlar), TOTP + Email 2FA tam çalışıyor — geçici tek faktörlü güvenlik koruması, 187+ atom sapma 0 — kalibrasyon 27. doğrulama) |
 | #81 | TUR #81 — ENV SLOT DİSİPLİNİ + HEADER LOWERCASE NORMALIZE + 5 ROL × 3 TAB FİİLEN PARİTE + 20. MİMAR HATASI + Anayasa Madde 30.35 + 5 OS senkron | ✅ Kapalı (7 atom W0-W12 + 2 commit (W1-W3 backend 8725853 + W10 OS senkron), 0 schema/npm/env, 0 KIRMIZI ihlal, Anayasa v1.22.0 yürürlükte — Madde 30.35 yeni (ENV Slot Disiplini — boot-time format validation + runtime defensive normalize + slot karışıklığı protection + provider response kanıt) alt-genişleme, 20. mimar hatası: NETGSM_HEADER ENV slot'unda önce '0850303724' (sayı dizisi, kullanıcı adı formatında — Image 1 kanıt 22:11), sonra 'Tedbirge' (T büyük, panel onaylı 'tedbirge' lowercase ile uyumsuz — Image 5 kanıt 20.04.2026), case-sensitive NetGSM → kod 30 reddi, CEO 22:35 düzeltti, W1 boot-time ENV slot format validation: NETGSM_USERNAME (8-11 hane sayı) + NETGSM_PASSWORD (4-32 karakter) + NETGSM_HEADER (alfanumerik 3-11 karakter, sayı dizisi yasak ^0\d+$) + NETGSM_API_URL (NetGSM endpoint URL format) + [ENV-SLOT] HATA log + ipucu (boot durmaz), W2 header lowercase normalize: resolveNetgsmHeader() helper (ENV raw → trim + lowercase, Image 5 'tedbirge' kanıt), W3 safe fallback (slot karışıklığı protection): boş/sayı dizisi/alfanumerik değil → 'tedbirge' default + warn log, defensive logging genişletme: header/headerLen/headerRawEnvLen/headerNormalized boolean (case mismatch tespit kanıt), W5 5 rol × 3 tab parite: tek /login DRY (TUR #80 Z6 emsali korundu) — yonetici/temsilci/hukukcu/musteri grid-cols-4 component reuse, /musteri-login + /dava-takibim ayrı sayfa YOK (307 redirect), W7 TwoFactorChallenge regresyon koruma: 3 tab kodlu (Authenticator + SMS + E-posta) rol-bağımsız DRY, lokal smoke kanıt: NETGSM_HEADER='0850303724' → [ENV-SLOT] HATA log çalıştı, W4 production smoke 9/12 yeşil (kalan 3 CEO admin token: SMS provider call kod="00" + CEO telefon SMS aldı + NetGSM panel raporu), 194+ atom sapma 0 — kalibrasyon 28. doğrulama) |
 | #82 | TUR #82 — 2FA HARD ENFORCEMENT BACKEND + MÜVEKKİL TEXT FIX + 21+22. MİMAR HATALARI + Anayasa Madde 30.29 R1 + 30.34 R1 + 5 OS senkron | ✅ Kapalı (7 atom V0-V12 + 3 commit (V2 backend 599107d + V3+V5+V6 panel 14f95af + V10 OS senkron), 0 schema/npm/env, 0 KIRMIZI ihlal, Anayasa v1.22.0 yürürlükte — Madde 30.29 R1 (Backend HARD Enforcement Zorunlu — UI seviyesinde redirect yetersiz, backend explicit flag zorunlu) + Madde 30.34 R1 (UX Wording Doğruluk Disiplini — yanıltıcı kelime YASAK + Türkçe dilbilgisi disiplini) ikiz R-genişleme, 21. mimar hatası: TUR #75 Madde 30.29 UI seviyesinde yazıldı (3 rol /profil DRY) ama backend /api/auth/login HARD rol + twoFactorEnabled=false kontrolü yoktu — full token dönüyordu (CEO 23:10 Image 2 yakaladı: /login?rol=hukukcu email+şifre direkt panele = 2FA bypass), V2 backend fix HARD_2FA_ROLES=[ADMIN, LAWYER, SALES, REPRESENTATIVE] + response.data.requiresTwoFactorSetup=true flag + redirectTo /2fa-secim + setupMessage KVKK m.12 + CUSTOMER soft twoFactorReminder=true (engelleme yok), V3 frontend response handling: explicit flag öncelikli + user.twoFactorEnabled fallback (TUR #78 X8 korundu), 22. mimar hatası: müvekkil sekme "Şifresiz dosya takibi" yazıyor ama müvekkil aslında email+şifre kullanır (yanıltıcı + KVKK güven + tüketici hukuku şüphe — CEO 23:13 Image 3 yakaladı), V5 müvekkil text fix: "Hesapsız dava sorgulamak için:" + "Telefon ile Sorgula →" (/basvuru-sorgula gerçekten hesapsız), V6 tüm "Şifresiz" yanıltıcı taraması: 0 kullanım kaldı, NetGSM SMS düzelmesi korundu (TUR #81 + CEO ENV fix), CEO TOTP aktivasyonu bozulmadı, 201+ atom sapma 0 — kalibrasyon 29. doğrulama) |
+| #84 | TUR #84 — DEFENSE IN DEPTH MIDDLEWARE + KULLANICI CRUD KVKK + 4 YENİ MADDE (30.37+30.38+30.39+30.40) + 24/25/26/27. MİMAR HATA-GÖZLEM + 5 OS senkron | ✅ Kapalı (14 atom T1-T15 + 6 backend commit (T1 panel 741fd8b + T3 backend cf83446 + T2 backend f0e65cc + T5 panel 176149f + T6 panel 7ea68dc + T4 panel 0f3b571) + T11 OS senkron, 1 schema migration KIRMIZI nokta CEO 4'lü zincir Madde 30.25, 0 npm install, 0 ENV, Anayasa v1.22.0 → v1.22.11 PATCH — 4 yeni alt-madde tescil, 24. mimar hatası: TUR #75-#83 panel liste-only kaldı (Sil/Arşiv/Düzenle yok), 25. mimar gözlem: TUR #84 mektup 7 kez yanlış yorum eski sohbette, Claude Code anayasa disiplini ile destrüktif tekrarı reddetti, U0 retroaktif eksik kapatma (TUR #83 ccbb93a), 26. mimar gözlem: yeni session 4 net kanıt + 2 ek tanı temiz başlangıç, 27. mimar hatası: middleware proxy.ts 2FA setup zorlaması yoktu — defense in depth 3 katman (backend Madde 30.29 R1 + frontend Madde 30.29 R1 R+ + middleware Madde 30.40 yeni), T1 middleware: HARD_2FA_ROLES Set + TWO_FA_SETUP_ALLOWED_PATHS + cookie tedbirge_2fa_enabled tabanlı redirect (lib/api.ts setToken 3. parametre + login/page.tsx 2 setToken çağrı güncelleme), T3 schema [KIRMIZI]: enum UserStatus + User 6 yeni alan (status + archivedAt + deletedAt + lastPasswordResetAt + passwordResetByAdminId + mustChangePasswordOnNextLogin) + 2 index + scripts/apply-pending-schemas.js 9 idempotent SQL + auth.service.js login flow status guard, T2 backend: src/controllers/users.controller.js + src/routes/users.routes.js yeni — 5 endpoint (GET /users + PATCH /:id + PATCH /:id/password + PATCH /:id/status + PATCH /:id/archive + DELETE /:id) + 3 katmanlı koruma (ADMIN guard + self-protection + last-admin protection) + 5 ActivityLog action audit + 12 hane crypto.randomInt geçici şifre + bcryptjs hash 12 + soft delete KVKK m.6 5 yıl saklama hard delete YASAK, T5+T6 modal'lar: components/users/EditUserModal + ResetPasswordModal DRY, T4 UI: tablo İşlemler kolonu + ⋮ dropdown 5 işlem + click-outside close + frontend disabled state matrisi + çift onay disiplini Sil (email yazdır + KVKK metin uyarı), T7 production smoke 8/8 yeşil — yeni endpoint hepsi 401 (canlı + auth gerek), endpoint geçişi /auth/users → /users (eski path geri uyumlu KORUNDU), 223+ atom sapma 0 — kalibrasyon 1.6× 31. doğrulama) |
 | #83 | TUR #83 — HESAPSIZ SORGULAMA GÜVENLİK SERTLEŞTİRME + Lead.leadKodu PRİSMA REGRESYON + RATE LIMIT DENGE + 23. MİMAR HATASI + Anayasa Madde 30.36 + 5 OS senkron | ✅ Kapalı (8 atom U0-U12 + 5 commit (U6 prisma fix 9f12ea4 + U7 rate limit 6429a9a + U1+U2+U4 backend e99342d + U3 panel 20db2af + U12 OS senkron), 0 schema/npm/env, 0 KIRMIZI ihlal, Anayasa v1.22.0 yürürlükte — Madde 30.36 yeni (Hesapsız Sorgulama Güvenlik Disiplini — 2-faktör doğrulama zorunlu + enumeration koruma + hassas veri filtreleme + KVKK aydınlatma rıza audit) alt-genişleme, 23. mimar hatası: TUR #82 V5 sadece UI text düzeltti ("Şifresiz" → "Hesapsız") altta yatan güvenlik (1-faktör sorgu) sertleştirilmedi — KVKK m.12 ihlali ~3M TL ceza riski (CEO 23:30 Image yakaladı), U6 Lead.leadKodu fix: auditor.agent.js 4 yer leadKodu → leadCode (schema'da leadCode doğru, agent yanlış alan adı kullanıyordu — her 5 dk Auditor tick'te Prisma hata log temizlendi), U7 Rate limit denge: windowMs 15 dk → 5 dk + max 5 → 10 + skipSuccessfulRequests:true (CEO test rahatça + brute force koruma korundu — Render log 429 sorunu çözüldü), U1+U2+U4 Backend 2-faktör hesapsız sorgu: 3 yeni endpoint (POST /api/public/query-lead-otp telefon+KVKK rıza → SMS OTP gönder + brute force lock 3 yanlış/30 dk + rate limit 1 dk/1 OTP + enumeration koruma timing attack 600ms minimum + ActivityLog QUERY_OTP_SENT KVKK m.10 audit, POST /api/public/query-lead-verify-otp OTP doğrula → JWT session token 15 dk + ActivityLog QUERY_OTP_FAILED brute force tespit, POST /api/public/query-lead phone+sessionToken zorunlu → hassas veri filtre lawyer ilk isim + status + tarih + zamanaşımı, avukat full name + AI analiz + tazminat tutarı GİZLİ), U3 UI 3-step wizard: Step 1 telefon + KVKK rıza checkbox + KVKK aydınlatma link, Step 2 6 hane OTP + 60 sn cooldown "Yeniden gönder" + "Telefonu değiştir" geri buton, Step 3 sonuç tablosu + "Detaylı erişim Müvekkil Girişi" CTA + kurumsal güven footer (TLS+KVKK+ISO 27001 — TUR #79 Y11 emsali korundu), Mevcut PhoneOtp tablosu yeniden kullanım (purpose: 'query-lead' yeni — schema migration YOK), TUR #82 V2+V3 fix korundu (rate limit kalktı, CEO test artık rahatça), 209+ atom sapma 0 — kalibrasyon 30. doğrulama) |
 | #58.B | (Eski TUR #58 önerisi) Temsilci Sözleşme SMS OTP backend (mini) — UI TUR #56 A8'de hazır, ileri TUR'a ertelendi | ⏭️ Ertelendi |
 
@@ -110,19 +111,20 @@ Detay: `docs/OTONOM_RAPOR.md` → TUR #44 büyük blok.
 
 ### MUST + NOW (en yüksek öncelik)
 
-**1. Bulgu Kapatma Fazı (mevcut)**
-- **Kesit içeriği:** TUR #19 → TUR #24
-- **Paydaş:** ADMIN (sistem sağlığı)
-- **Süre:** 1-2 hafta
-- **Kalan:** TUR #22, #23, #24
+**1. CEO Browser Test + Manuel Doğrulama (TUR #84 sonrası)**
+- **Kapsam:** 4 rol incognito login flow + /dashboard/kullanicilar CRUD test
+- **Paydaş:** ADMIN (CEO Mehmet DİNÇ)
+- **Süre:** ~15 dk (5 dk login flow + 10 dk CRUD test)
+- **Kabul:** Tüm 4 rol /2fa-secim wizard zorlaması + tüm 5 işlem (Düzenle/Şifre/Pasif/Arşiv/Sil) çalışır
 
-**2. ENV Bütünlük Mini Tur (yeni)**
-- **Niye:** PayTR ENV eksik (sağlık taraması ortaya çıkardı) — ama Mehmet Bey direktifi: PayTR gerekli değil
-- **Karar:** Bu nokta **iptal** edilebilir (PayTR kullanılmayacaksa)
-- **Aksi takdirde:** Backend URL + diğer env tutarlılık (30 dk)
+**2. 7 Personel 2FA Aktivasyon (TUR #74 sonrası, CEO test sonrası)**
+- **Kapsam:** 8 user × 5 dk = 40 dk — kendi /profil → 2FA Aktive Et → 3 yöntem (TOTP/SMS/Email)
+- **Risk:** KVKK m.12 ihlali (~3M TL ceza)
+- **Süre:** Personele duyuru sonrası 1 hafta toleranslı
 
 ### SHOULD + NOW
-- (boş — şu an aktif kesit dışında SHOULD+NOW yok)
+- **Hukuki metin sürüm yönetimi (TUR #72.7 ertelendi):** ADMIN tarafından KVKK + Sözleşme metni güncelleyebilir + sürüm artırma → kullanıcı re-onay zorunlu
+- **Baro otomatik doğrulama (TUR #72.7 ertelendi):** e-baro.org.tr API entegrasyonu — manuel ADMIN inceleme yerine
 
 ---
 
@@ -185,11 +187,10 @@ Detay: `docs/OTONOM_RAPOR.md` → TUR #44 büyük blok.
 - **Süre:** 1-2 hafta
 - **Bağımlılık:** SBM API sözleşmesi
 
-**9. CommissionLog + Mali Modülü**
-- **Paydaş:** ADMIN, REPRESENTATIVE
-- **Risk:** Mali kayıt eksikliği (vergi denetiminde sorun)
-- **Süre:** 1 hafta
-- **Kapsam:** Hak ediş kayıt sistemi, temsilci ödeme takibi, e-arşiv hazırlığı (eğer GİB limiti aşılırsa)
+**9. CommissionLog + Mali Modülü** ✅ TAMAMLANDI (TUR #55'te kuruldu)
+- **Durum:** CommissionLog modeli + auto-trigger (Lead.gercekTazminat → otomatik kayıt) canlı
+- **Mevcut UI:** /dashboard/komisyon-log (TUR #52 admin paneli)
+- **Geriye kalan:** E-arşiv hazırlığı (GİB limiti aşılırsa) — gelecek kesit
 
 ### SHOULD + LATER
 

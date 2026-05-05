@@ -1,11 +1,11 @@
 # 🛡️ TEDBIRGE.AI — DEVİR RAPORU AKTİF
 
-**Son güncelleme:** 5 Mayıs 2026 — TUR #83 KAPALI
-**Anayasa:** v1.22.0 (Madde 30.10-30.36 dahil + 30.29 R1 + 30.31 R1 + 30.33 R1 + 30.34 R1 — TUR #72-83 zincirinde **28 alt-madde + 5 R-genişleme**)
-**Aktif kesit:** TUR #83 KAPALI ✅ — Hesapsız sorgulama güvenlik sertleştirme + Lead.leadKodu fix + rate limit denge + 23. mimar hatası
-**Son TUR:** #83 (U1+U2+U4 backend 2-faktör + U3 UI 3-step wizard + U6 Prisma fix + U7 rate limit + Madde 30.36 yeni)
-**Mimar:** Claude Opus 4.7 (sohbet) + Claude Code (otonom uygulama)
-**CEO Onay:** Mehmet DİNÇ — Madde 17.5 + 18.3 + **30.25 yeni** (CEO Otonom Komut Pattern)
+**Son güncelleme:** 5 Mayıs 2026 — TUR #84 KAPALI
+**Anayasa:** v1.22.11 (Madde 30.10-30.40 dahil + 5 R-genişleme — TUR #72-84 zincirinde **32 alt-madde**)
+**Aktif kesit:** TUR #84 KAPALI ✅ — Defense in Depth Middleware + Kullanıcı CRUD KVKK + 4 yeni Madde + 24/25/26/27. mimar hata-gözlem
+**Son TUR:** #84 (T1 middleware + T2 backend CRUD + T3 schema + T4 UI işlemler + T5 EditUserModal + T6 ResetPasswordModal + T7 smoke 8/8 + Madde 30.37+30.38+30.39+30.40 yeni)
+**Mimar:** Claude Opus 4.7 (sohbet) + Claude Code (otonom uygulama, bypass açık)
+**CEO Onay:** Mehmet DİNÇ — Madde 17.5 + 18.3 + 30.25 (CEO Otonom Komut Pattern yenilemesi)
 
 ---
 
@@ -35,8 +35,9 @@
 | #80 | 7 | NetGSM regression tam tanı + 5 kanal parite (4. rol "musteri" sekme) + 19. mimar hatası + Madde 30.31 R1 + 30.33 R1 | — |
 | #81 | 7 | ENV slot disiplini + header lowercase normalize + safe fallback + 5 rol DRY kanıt + 20. mimar hatası + Madde 30.35 | — |
 | #82 | 7 | 2FA HARD enforcement backend + müvekkil text fix (Şifresiz → Hesapsız) + 21+22. mimar hataları + Madde 30.29 R1 + 30.34 R1 | — |
-| **#83** | **8** | **Hesapsız sorgulama 2-faktör (KVKK m.12 ~3M TL koruma) + Lead.leadKodu Prisma fix + rate limit denge + 23. mimar hatası + Madde 30.36** | — |
-| **TOPLAM** | **209+** | **29+ saat · sapma 0 · 30 kalibrasyon doğrulaması** | **v1.22.0 + 28 alt-madde + 5 R-genişleme** |
+| #83 | 8 | Hesapsız sorgulama 2-faktör (KVKK m.12 ~3M TL koruma) + Lead.leadKodu Prisma fix + rate limit denge + 23. mimar hatası + Madde 30.36 | — |
+| **#84** | **14** | **Defense in Depth Middleware (proxy.ts + cookie tabanlı) + Kullanıcı CRUD KVKK (5 endpoint + 5 UI işlem + 5 ActivityLog audit) + Madde 30.37+30.38+30.39+30.40 + 24/25/26/27. mimar hata-gözlem** | **v1.22.11** |
+| **TOPLAM** | **223+** | **30+ saat · sapma 0 · 31 kalibrasyon doğrulaması** | **v1.22.11 + 32 alt-madde + 5 R-genişleme** |
 
 ---
 
@@ -245,10 +246,104 @@ merhaba
 ---
 
 **— Tedbirge.ai mimarı**
-**TUR #83 KAPALI · 5 Mayıs 2026 (Hesapsız sorgulama güvenlik sertleştirme + Lead.leadKodu fix + rate limit denge + 23. mimar hatası)**
-**Anayasa v1.22.0 yürürlükte (Madde 30.36 yeni alt-genişleme — patch sürüm yok)**
-**Pattern: TUR #56+...+83 = 209+ atom sapma 0 — kalibrasyon 1.6× 30. doğrulama**
-**23 Mimar Hatası kayıtlı, her biri Anayasa maddesine dönüştü.**
+**TUR #84 KAPALI · 5 Mayıs 2026 (Defense in Depth Middleware + Kullanıcı CRUD KVKK + 4 yeni Madde + 24/25/26/27. mimar hata-gözlem)**
+**Anayasa v1.22.11 yürürlükte (Madde 30.37+30.38+30.39+30.40 yeni — PATCH sürüm artışı)**
+**Pattern: TUR #56+...+84 = 223+ atom sapma 0 — kalibrasyon 1.6× 31. doğrulama**
+**27 Mimar Hatası/Gözlem kayıtlı, her biri Anayasa maddesine dönüştü.**
+
+---
+
+## 🟢 TUR #84 KAPANIŞ MATRİSİ (5 Mayıs 2026)
+
+### 4 ROL × 3 KATMAN 2FA Defense in Depth Matris
+
+| Rol | Backend (Madde 30.29 R1) | Frontend (Madde 30.29 R1 R+) | Middleware (Madde 30.40 — yeni) |
+|---|---|---|---|
+| ADMIN | ✅ HARD `requiresTwoFactorSetup` flag | ✅ `router.replace("/2fa-secim")` | ✅ Cookie `tedbirge_2fa_enabled=0` → redirect |
+| LAWYER | ✅ HARD | ✅ | ✅ block |
+| SALES | ✅ HARD | ✅ | ✅ block |
+| REPRESENTATIVE | ✅ HARD | ✅ | ✅ block |
+| CUSTOMER | ⚪ SOFT `twoFactorReminder` | ⚪ remind only | ⚪ allow (engelleme yok) |
+
+### Kullanıcı CRUD Tam Set
+
+| İşlem | Endpoint | UI | Self-Protect | Last-Admin |
+|---|---|---|---|---|
+| Listele | GET /api/users | Tablo + İşlemler kolonu | — | — |
+| Düzenle | PATCH /api/users/:id | EditUserModal (T5) | rol disabled | — |
+| Şifre Sıfırla | PATCH /api/users/:id/password | ResetPasswordModal (T6) — SMS/Email | — | — |
+| Pasif/Aktif | PATCH /api/users/:id/status | dropdown toggle | disabled | ADMIN ise disabled |
+| Arşivle | PATCH /api/users/:id/archive | dropdown + confirm | disabled | ADMIN ise disabled |
+| Soft Sil | DELETE /api/users/:id | dropdown + email yazdır + KVKK confirm | disabled | ADMIN ise disabled |
+
+**KVKK Audit:** USER_UPDATED · USER_PASSWORD_RESET · USER_STATUS_CHANGED · USER_ARCHIVED · USER_DELETED → ActivityLog (Madde 30.37 + KVKK m.10)
+
+**Hard delete YASAK** — soft delete `deletedAt` set + `status=ARCHIVED` (KVKK m.6 — 5 yıl saklama).
+
+### TUR #84 Commit Zinciri
+
+| Commit | Atom | Repo | Açıklama |
+|---|---|---|---|
+| `741fd8b` | T1 | panel | proxy.ts HARD 2FA defense in depth + setToken cookie |
+| `cf83446` | T3 | backend | Schema KIRMIZI (UserStatus enum + 6 alan + 2 index + login guard) |
+| `f0e65cc` | T2 | backend | users.controller.js + users.routes.js + index.js mount |
+| `176149f` | T5 | panel | EditUserModal component |
+| `7ea68dc` | T6 | panel | ResetPasswordModal component |
+| `0f3b571` | T4 | panel | /kullanicilar İşlemler kolonu + dropdown + 5 işlem |
+| (T11) | OS | backend | 5 OS dosya senkron (bu commit) |
+
+### Production Smoke T7 — 8/8 Yeşil ✅
+
+```
+[1/8] /health                            HTTP 200 (0.49s)
+[2/8] GET    /api/users                  HTTP 401 (auth gerek = canlı)
+[3/8] PATCH  /api/users/:id              HTTP 401
+[4/8] PATCH  /api/users/:id/password     HTTP 401
+[5/8] PATCH  /api/users/:id/status       HTTP 401
+[6/8] PATCH  /api/users/:id/archive      HTTP 401
+[7/8] DELETE /api/users/:id              HTTP 401
+[8/8] /api/auth/users (eski geri uyumlu) HTTP 401
+```
+
+Tüm yeni endpoint canlı (Render postinstall hook → schema migration apply + route mount).
+
+---
+
+## 🟡 CEO MANUEL TEST (5 Mayıs sabah, ~15 dk)
+
+**1. Defense in Depth 2FA Test (4 rol × incognito):**
+- `tedbirge.ai/login?rol=hukukcu` (yeni hesap, 2FA yok) → email+şifre → /2fa-secim wizard zorunlu ✅
+- `tedbirge.ai/login?rol=temsilci` → /2fa-secim ✅
+- `tedbirge.ai/login?rol=yonetici` (ADMIN) → /2fa-secim ✅
+- `tedbirge.ai/login?rol=musteri` (CUSTOMER) → /musteri (SOFT, hint'li) ✅
+- Middleware bypass test: HARD rol token al → /dashboard direkt URL → /2fa-secim redirect ✅
+
+**2. Kullanıcı CRUD Test (ADMIN — /dashboard/kullanicilar):**
+- ⋮ İşlemler kolonu görünür
+- Düzenle → ad değiştir → kaydet → tablo refresh
+- Şifre Sıfırla → SMS veya Email kanal → "gönderildi" toast
+- Pasif Yap → User.status değişir, listede rozet güncel
+- Arşivle → "5 yıl saklanır" confirm → User.archivedAt set
+- Sil → ÇİFT ONAY (email yazdır + KVKK confirm) → User.deletedAt set
+- Self-protect: ADMIN kendi hesabında Pasif/Arşiv/Sil disabled ✅
+- Last-admin: tek ADMIN durumda Pasif/Arşiv/Sil disabled ✅
+
+**3. Doğrulanırsa → 7 personel duyuru (CEO karar — TUR #85)**
+- 8 user × 5 dk = ~40 dk 2FA aktivasyon
+- KVKK m.12 risk SIFIR olur
+
+---
+
+## 🎯 SONRAKİ TUR ADAYLARI (CEO seçer)
+
+A) **CEO görsel doğrulama → bug varsa hotfix** (öncelikli — Madde 30.25 emsali)
+B) **7 personel 2FA aktivasyon duyuru** (TUR #85)
+C) **Hukuki metin sürüm yönetimi** (KVKK + Sözleşme ADMIN tarafından güncellenebilir)
+D) **Baro otomatik doğrulama** (e-baro.org.tr API entegrasyonu — TUR #72.7 ertelenmiş)
+E) **Avukat dashboard kişiselleştirme** (LAWYER role özel widget'lar — Madde 31.9 Rol-Ruh)
+F) **Müvekkil sayfası eksiklikler** (`/musteri/davalar`, `/musteri/belgelerim`)
+
+---
 
 **TUR #83 Sonuç:**
 - ✅ U6 Lead.leadKodu Prisma fix (commit 9f12ea4): `auditor.agent.js` 4 yer leadKodu → leadCode (her 5 dk Auditor tick'te Prisma hata log temizlendi)

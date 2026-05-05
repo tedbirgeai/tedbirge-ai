@@ -2409,6 +2409,113 @@ toast.error(err.message);
 - ❌ 3rd party Identity Provider (Auth0, Clerk) — vendor lock-in + KVKK on-prem zorunlu
 - ❌ Onay/red sonrası email gönderme atlanması (KVKK + UX şart)
 
+### 30.37 — Kullanıcı CRUD KVKK Disiplini (TUR #84)
+
+**Kural:** Kullanıcı yönetim panelinde tam set CRUD zorunlu — liste-only kabul edilmez (24. mimar hatası: TUR #75-#83 boyunca panel sadece liste gösterdi, Sil/Arşiv/Düzenle yoktu).
+
+**5 zorunlu işlem (her biri ADMIN guard altında):**
+
+1. **Düzenle** — `PATCH /api/users/:id` { fullName?, email?, phone?, role? }
+2. **Şifre Sıfırla** — `PATCH /api/users/:id/password` { channel: SMS|EMAIL } → 12 hane geçici şifre + `mustChangePasswordOnNextLogin=true`
+3. **Pasif/Aktif** — `PATCH /api/users/:id/status` { status: ACTIVE|PASSIVE|SUSPENDED }
+4. **Arşivle** — `PATCH /api/users/:id/archive` → `archivedAt` set + `status=ARCHIVED` (login engellenir, kayıt korunur)
+5. **Soft Sil** — `DELETE /api/users/:id` → `deletedAt` set (hard delete YASAK — KVKK m.6, 5 yıl saklama)
+
+**3 katmanlı koruma:**
+- ADMIN role guard (route middleware)
+- Self-protection (kendi user.id'i hedef alamaz — rol değişimi/sil/arşiv/pasif)
+- Last-admin protection (aktif ADMIN ≤1 + bu kullanıcı ADMIN ise işlem reddedilir)
+
+**ActivityLog audit (KVKK m.10) zorunlu:**
+- `USER_UPDATED` — değişen alanlar
+- `USER_PASSWORD_RESET` — adminId, channel, deliveryStatus, providerInfo
+- `USER_STATUS_CHANGED` — oldStatus → newStatus
+- `USER_ARCHIVED` — adminId, targetId, targetRole
+- `USER_DELETED` — adminId, targetEmail, reason
+
+**UI çift onay disiplini:**
+- Sil → email yazdırma (prompt eşleşme) + ikinci confirm + KVKK metin uyarı
+- Arşivle → tek confirm + "5 yıl saklama" not
+- Self-protect ve last-admin frontend'de disabled state göster (cursor-not-allowed + opacity)
+
+**Login flow status guard (TUR #84 T3 emsali):**
+- `User.deletedAt` → 403 "Hesap kapatılmıştır"
+- `User.archivedAt` veya `status=ARCHIVED` → 403 "Hesap arşivlenmiştir"
+- `User.status=SUSPENDED` → 403 "Hesap askıya alınmıştır"
+- `User.status=PASSIVE` → 403 "Hesap pasif durumda"
+
+**Yasak:**
+- ❌ Hard delete (DELETE FROM User) — KVKK m.6 ihlali (5 yıl saklama)
+- ❌ Self-protection olmadan ADMIN endpoint'i (admin kendi rolünü düşürürse panel kilitlenir)
+- ❌ Last-admin kontrolü olmadan ADMIN silme/arşivleme (sistem adminsiz kalır)
+- ❌ ActivityLog atlama (KVKK m.10 + denetim kanıt eksikliği)
+- ❌ ADMIN dışı role guard'sız endpoint (yetki sızıntısı)
+- ❌ Şifre sıfırlama sonrası `mustChangePasswordOnNextLogin` set etmeme (geçici şifre kalıcılaşır)
+- ❌ Geçici şifrenin client-side log'lanması veya UI'de gösterilmesi (KVKK m.12 — sadece SMS/email kanal)
+
+### 30.38 — Mektup Tekrarı Disiplini (TUR #84)
+
+**Kural:** Mimar bağlam karıştırıp aynı mektubu tekrar gönderirse Claude Code:
+1. **`git log` + dosya kanıtı** ile yapılmış işi tespit eder (Madde 4.4 — kod kaynaktır)
+2. Yeniden uygulamayı **REDDEDER** (Madde 4.6 — destrüktif olur, duplikat commit + working tree çakışması)
+3. Mevcut iş için **kanıt sunar** (commit hash + file diff + smoke output)
+4. Yeni direktif için **net açıklama ister**
+
+"BAŞLA. SORU SORMA." otonom karar yetkisi **DEĞİL** — anayasa ihlali ile karşılaşırsa Madde 14.3 disiplini geçerli kalır.
+
+**25. mimar gözlem:** TUR #84 mektubu önceki sohbette TUR #83 KAPALI olduğu halde 7 kez yanlış olarak "yeniden uygula" diye gönderildi. Claude Code anayasa disiplinini koruyarak destrüktif tekrarı reddetti, U0 keşif raporu retroaktif olarak üretildi (commit ccbb93a — gerçek eksiklik).
+
+**Yasak:**
+- ❌ Yapılmış işi tekrar yapma (duplikat commit + Madde 4.6 ihlali)
+- ❌ Empty commit zinciri (Madde 4.2 — atom = mantıksal değişiklik gerek)
+- ❌ Mektubu körü körüne uygulama (kanıt zinciri olmadan)
+- ❌ "BAŞLA SORU SORMA" disiplinin önüne geçme (anayasa disiplini > mektup direktifi)
+
+### 30.39 — Session Bağlam Disiplini (TUR #84)
+
+**Kural:** Uzun TUR'larda Claude Code session bağlamı taşar — yeni kapsamlı iş için **yeni session + git log + DEVIR keşfi** ile temiz başlangıç zorunlu.
+
+**Açılış protokolü her yeni sohbette:**
+1. `git log --oneline -30` (son işlem zinciri)
+2. `tedbirge-os/DEVIR_RAPORU_AKTIF.md` (canlı devir + sıradaki iş)
+3. `CLAUDE.md` (anayasa son sürüm + 30.X alt-maddeler)
+4. `tedbirge-os/IS_PLANI.md` (aktif kesit + NOW/NEXT/LATER)
+5. Production health probe (`/health` 200 + `/api/agents-health` HEALTHY)
+6. Açık 🔴 KRİTİK varsa devir özetinde göster
+
+**26. mimar gözlem:** TUR #84 yeni session açıldı, 4 net kanıt (HARD_2FA_ROLES + Prisma enum + kullanıcılar dosyası varlığı + CRUD eşleşme=0) + 2 ek tanı (T0.5 frontend handler + T0.6 backend CRUD endpoint) ile kesin kapsam belirlendi. Eski session'da mektup tekrar yorumlama döngüsü kırıldı.
+
+**Yasak:**
+- ❌ Eski session'da yeni kapsamlı iş başlatma (bağlam taşar, hata olasılığı)
+- ❌ DEVIR_RAPORU okumadan iş önerme (Madde 26.4 ihlali)
+- ❌ Anayasa sürüm farkını yok sayma (CLAUDE.md güncel olmalı)
+
+### 30.40 — Defense in Depth Disiplini (TUR #84)
+
+**Kural:** Kritik güvenlik enforcement'ı (özellikle KVKK m.12 kapsamı 2FA/auth) **çok katmanlı** olmalı:
+
+1. **Backend explicit flag** (Madde 30.29 R1) — login response `requiresTwoFactorSetup: true` + `redirectTo` + `setupMessage`
+2. **Frontend handler** (Madde 30.29 R1 R+) — login page response.data flag'i okur, `router.replace("/2fa-secim")`
+3. **Middleware redirect** (yeni — TUR #84 T1) — server-side cookie tabanlı bypass koruması
+
+Tek katman yetersiz — kullanıcı doğrudan URL/API ile bypass denerse middleware engellemeli.
+
+**TUR #84 T1 uygulaması:**
+- `tedbirge-panel/proxy.ts` HARD_2FA_ROLES Set + TWO_FA_SETUP_ALLOWED_PATHS array
+- Cookie `tedbirge_2fa_enabled` = '0' + HARD rol + setup-disi path → `/2fa-secim` redirect
+- `lib/api.ts setToken(token, role, twoFactorEnabled)` → cookie set
+- `clearToken()` → cookie temizle (logout sonrası bypass riski yok)
+
+**Allowed setup paths (whitelist):** `/2fa-secim`, `/login`, `/_next`, `/favicon` (zorunlu setup wizard sırasında erişilebilir).
+
+**27. mimar gözlem:** T0.5 keşfi — middleware proxy.ts ROLE_ALLOWED_ROUTES var ama 2FA setup zorlaması yoktu (kullanıcı direkt URL ile dashboard'a giderse bypass riski). Backend (TUR #82 V2) + Frontend (TUR #82 V3) zaten vardı, middleware eklendi → 3 katman tamam.
+
+**Yasak:**
+- ❌ Tek katman 2FA enforcement (kullanıcı URL/API direkt çağırırsa bypass)
+- ❌ Cookie tabanlı middleware kontrolünü atlatmak için yeni endpoint'leri whitelist'e eklemeden açma
+- ❌ `tedbirge_2fa_enabled` cookie'sini set etmemek (login sonrası middleware bilgi kaynağından mahrum)
+- ❌ Geri uyumluluk gerekçesiyle 2FA bypass (KVKK m.12 ihlali kalıcılaşır)
+
 ---
 
 ## 31. TASARIM DİSİPLİNİ — Tedbirge Design System v1.0
@@ -2721,7 +2828,7 @@ Mehmet Bey sahaya çıkabilsin diye bu disiplin var.
 
 ---
 
-**— Tedbirge Mimari Anayasası v1.22.0**  
+**— Tedbirge Mimari Anayasası v1.22.11**  
 **25 Nisan 2026 — başlangıç (Claude Opus 4.7)**  
 **28 Nisan 2026 — v1.7.0 (Madde 26-32 eklendi: otonom devir, sağlık periyodikliği, T tipi onay, migration kanıtı, frontend standardı, ortam izolasyonu, anayasa boyutu)**  
 **28 Nisan 2026 — v1.8.0 (Madde 28 eklendi: Beklemede Özellik Disiplini — AccidentCase TUR #29 dersi; Madde 28 (eski 33) kapanış → 29 (eski 34) olarak yeniden numaralandı)**  
@@ -2736,6 +2843,7 @@ Mehmet Bey sahaya çıkabilsin diye bu disiplin var.
 **1 Mayıs 2026 — v1.15.0 alt-genişleme (TUR #56 KAPANIŞ + TUR #57 tohum: TUR #56 ile TUR #51.B 18/18 bulgu kapatıldı (12/12 atom sapma 0, kalibrasyon 1.6× doğrulandı, L-B1 lawyerNotifications 6 trigger zinciri canlı, Madde 24.11 üretim disiplini canlı). Madde 31.9 Rol-Ruh Tasarım Prensibi tohum olarak eklendi (Madde 22.2 alt-genişleme — sürüm artmaz): 4 CRM kendi paydaş ruhuna göre niş emsallerle (CEO↔Stripe Dashboard, LAWYER↔Clio/MyCase, REPRESENTATIVE↔HubSpot/Pipedrive, CUSTOMER↔Stripe Customer Portal/Apple Mail) farklılaşır. TUR #57'de uygulanacak — bu madde TUR #57'nin tohumudur. CEO direktifi 1 Mayıs 2026: "HER CRM KENDİ RUHUNA VE KENDİ ALANINA GÖRE ANALİZ EDİLMELİ".)**  
 **1 Mayıs 2026 — v1.16.0 (TUR #57 — 4 CRM Rol-Ruh Karakter Farklılaştırma: 12 atom (3 KRİTİK + 9 ORTA) ile 9 yeni DS komponenti (AnomalyStrip + KPICardEnhanced + Sparkline + CaseFolderCard + LawyerHealthTriad + KanbanBoard + DealCard + ActivityCounter + TimelineDot + TrustBadge + KeyboardShortcutsHelp), 2 yeni route (/dashboard/komuta + /temsilci/pipeline), 2 yeni utility (lib/sadelestir 30 terim + lib/keyboardNav G+harf), 2 mini endpoint (anomalies + lead aşama). Madde 31.9 Rol-Ruh Tasarım Prensibi tohumdan resmileşmeye geçti. 0 schema migration, 0 npm paket (3 paket adayı native alternatifle reddedildi: react-beautiful-dnd → HTML5 DragEvent, canvas-confetti → CSS keyframe, lottie-react → inline SVG). 4 CRM artık niş emsal seviyesinde (Stripe Dashboard+Linear, Clio+MyCase, HubSpot+Pipedrive, Stripe Customer Portal+Apple HIG). KAPANIŞ Madde 32'ye kaydı.)**  
 **1 Mayıs 2026 — v1.17.0 (TUR #58 — FAZ 5 DISCOVERABILITY başlangıcı: 9 atom (1 KRİTİK + 7 ORTA + 1 OS) ile llms.txt + JsonLd 3 yeni factory (FAQPage + HowTo + BreadcrumbList) + 3 niş landing'e SSS schema (15+15+10 toplam 40 SSS) + yeni /tazminat-rehberi sayfası (8 adım HowTo) + AI snippet meta disiplini + BrandFooterStrip 4 sayfada. Madde 33 (İçerik Üretim Disiplini) eklendi: avukat onayı zorunlu, TBB Reklam Yasağı uyumu, AI sadece taslak yazar — avukat onaylar, disclaimer her içerikte. 0 schema migration, 0 npm paket. CEO direktifi 1 Mayıs 2026 (Aylık Sabit Aidat Yasağı) MIMARI_KARARLAR.md'ye eklendi: tüm 3. parti SaaS sabit aidat yasak, sadece kullanım bazlı API ücreti orantılı geçer. KAPANIŞ Madde 32'ye kaydı.)**  
+**5 Mayıs 2026 — TUR #84 (DEFENSE IN DEPTH MIDDLEWARE + KULLANICI CRUD KVKK + 4 YENİ MADDE + 24/25/26/27. MİMAR HATA-GÖZLEM: 14 atom (T1-T15) + 5+ commit (T1 panel 741fd8b + T3 backend cf83446 + T2 backend f0e65cc + T5 panel 176149f + T6 panel 7ea68dc + T4 panel 0f3b571 + T11 OS senkron). CEO 5 Mayıs sabah direktifi (Madde 30.25 4'lü zincir yenilemesi): "Yeni temiz incognito hukukçu/temsilci/müvekkil → email+şifre → direkt panel (2FA bypass). /dashboard/kullanicilar → Sil/Arşiv/Düzenle YOK. Eksik hata ne varsa düzelt sitemin tümüne uygula. Uçtan uca otonom başla bitir. 5 belge senkron sonraki sohbete bağlam." T0+T0.5+T0.6 keşif: Backend HARD_2FA_ROLES + Login handler ZATEN TAMAM (TUR #82 V2/V3) — sürpriz değil, ancak middleware proxy.ts 2FA setup zorlaması YOK + Backend PATCH/DELETE /api/users/:id YOK + /dashboard/kullanicilar CRUD UI 0 eşleşme. T1 middleware: tedbirge-panel/proxy.ts HARD_2FA_ROLES Set + TWO_FA_SETUP_ALLOWED_PATHS array + cookie tedbirge_2fa_enabled tabanlı redirect (lib/api.ts setToken 3. parametre + login/page.tsx 2 setToken çağrı güncelleme). T3 schema [KIRMIZI nokta]: enum UserStatus (ACTIVE/PASSIVE/SUSPENDED/ARCHIVED) + User 6 yeni alan (status + archivedAt + deletedAt + lastPasswordResetAt + passwordResetByAdminId + mustChangePasswordOnNextLogin) + 2 index + scripts/apply-pending-schemas.js 9 idempotent SQL + auth.service.js login flow status guard (deletedAt/archivedAt/SUSPENDED/PASSIVE → 403). T2 backend: src/controllers/users.controller.js + src/routes/users.routes.js yeni — GET /users (listele) + PATCH /users/:id (Düzenle) + PATCH /users/:id/password (ADMIN şifre sıfırla SMS/EMAIL — 12 hane crypto.randomInt + bcryptjs hash 12) + PATCH /users/:id/status (Pasif/Aktif/Suspended) + PATCH /users/:id/archive + DELETE /users/:id (soft delete KVKK m.6 — 5 yıl saklama, hard delete YASAK) — 3 katmanlı koruma (ADMIN guard + self-protection + last-admin protection) + 5 ActivityLog action audit (USER_UPDATED/_PASSWORD_RESET/_STATUS_CHANGED/_ARCHIVED/_DELETED). T5+T6: components/users/EditUserModal + ResetPasswordModal (DRY pattern, modal disipline). T4 UI: tablo İşlemler kolonu + ⋮ dropdown 5 işlem + click-outside close + frontend disabled state (isSelf/isLastAdmin/isArchived/isDeleted) + çift onay disiplini (Sil → email yazdır + ikinci confirm + KVKK metin uyarı) + action message banner (4 sn auto-fade) + endpoint geçişi /auth/users → /users (eski path geri uyumlu KORUNDU). T7 production smoke 8/8 yeşil (yeni endpoint hepsi 401 = canlı + auth gerek). 4 yeni Anayasa maddesi (30.37 Kullanıcı CRUD KVKK Disiplini + 30.38 Mektup Tekrarı Disiplini + 30.39 Session Bağlam Disiplini + 30.40 Defense in Depth Disiplini). 24. mimar hatası: TUR #75-#83 panel liste-only kaldı. 25. mimar gözlem: TUR #84 mektubu eski sohbette 7 kez yanlış yorum, Claude Code anayasa disiplini ile destrüktif tekrarı reddetti, U0 retroaktif (TUR #83 ccbb93a) ürettiği eksiği kapattı. 26. mimar gözlem: yeni session 4 net kanıt + 2 ek tanı ile temiz başlangıç. 27. mimar hatası: middleware 2FA setup zorlaması yoktu — defense in depth eklendi. CHANGELOG drift fix (v1.22.0 → v1.22.11 köprü tek kayıt — alt-madde geçmişi MIMARI_KARARLAR.md'ye taşındı). IS_PLANI başlık + NOW/NEXT/LATER drift fix (Madde 24.12 emsali — TUR #66.7'de donmuş header güncellendi). Pattern 209+ → 223+ atom sapma 0 — kalibrasyon 1.6× 31. doğrulama. Anayasa v1.22.0 → v1.22.11 PATCH sürüm artışı (4 yeni alt-madde tescil).)**  
 **5 Mayıs 2026 — TUR #83 (HESAPSIZ SORGULAMA GÜVENLİK SERTLEŞTİRME + Lead.leadKodu PRİSMA REGRESYON + RATE LIMIT DENGE + 23. MİMAR HATASI: 8 atom (U0-U12) + Anayasa Madde 30.36 yeni. CEO 4 Mayıs 23:30 direktifi: "/basvuru-sorgula sadece telefon ile dosya gösteriyor — KVKK m.12 ihlali ~3M TL ceza riski. Lead.leadKodu Prisma hata (regresyon). Rate limit /api/auth/login 429 (CEO test bloke). Eksik hata ne varsa düzelt." 23. mimar hatası: TUR #82 V5 sadece UI text düzeltti ("Şifresiz" → "Hesapsız") altta yatan güvenlik (1-faktör sorgu) sertleştirilmedi. U6 Lead.leadKodu fix: `auditor.agent.js` 4 yer leadKodu → leadCode (schema'da leadCode doğru, agent yanlış alan adı kullanıyordu — her 5 dk Auditor tick'te Prisma hata log). U7 Rate limit denge: windowMs 15 dk → 5 dk + max 5 → 10 + skipSuccessfulRequests:true (CEO test rahatça + brute force koruma). U1+U2+U4 Backend 2-faktör hesapsız sorgu: 3 yeni endpoint (POST /query-lead-otp telefon+KVKK rıza → SMS OTP gönder + brute force lock 3 yanlış/30 dk + rate limit 1 dk/1 OTP + enumeration koruma timing attack 600ms minimum + ActivityLog QUERY_OTP_SENT, POST /query-lead-verify-otp OTP doğrula → JWT session token 15 dk, POST /query-lead phone+sessionToken zorunlu → hassas veri filtre lawyer ilk isim + status + tarih + zamanaşımı, avukat full name + AI analiz GİZLİ). U3 UI 3-step wizard: Step 1 telefon + KVKK rıza checkbox + KVKK aydınlatma link, Step 2 6 hane OTP + 60 sn cooldown "Yeniden gönder" + "Telefonu değiştir" geri buton, Step 3 sonuç tablosu + "Detaylı erişim Müvekkil Girişi" CTA, kurumsal güven footer (TLS+KVKK+ISO 27001 — TUR #79 Y11 emsali). Mevcut PhoneOtp tablosu yeniden kullanım (purpose: 'query-lead'). 0 schema/npm/env. Pattern 201+ → 209+ atom sapma 0 — kalibrasyon 1.6× 30. doğrulama. Anayasa v1.22.0 yürürlükte (Madde 30.36 yeni alt-genişleme — patch sürüm yok).)**  
 **5 Mayıs 2026 — TUR #82 (2FA HARD ENFORCEMENT BACKEND + MÜVEKKİL TEXT FIX + 21+22. MİMAR HATALARI: 7 atom (V0-V12) + Anayasa Madde 30.29 R1 + 30.34 R1 ikiz R-genişleme. CEO 4 Mayıs 23:13 direktifi: "SMS düzeldi (NetGSM çözüldü). ANCAK Hukukçu girişi 2FA YOK + Temsilci 2FA YOK + Müvekkil 'Şifresiz dosya takibi' yanıltıcı. Eksik hata ne varsa düzelt." 21. mimar hatası: TUR #75 Madde 30.29 UI seviyesinde yazıldı (3 rol /profil DRY) ama backend /api/auth/login tarafında HARD rol + twoFactorEnabled=false kontrolü yoktu — full token dönüyordu (CEO Image 2 yakaladı: /login?rol=hukukcu email+şifre direkt panele). V2 backend fix: HARD_2FA_ROLES = [ADMIN, LAWYER, SALES, REPRESENTATIVE], response.data.requiresTwoFactorSetup=true + redirectTo /2fa-secim + setupMessage (KVKK m.12) + CUSTOMER soft twoFactorReminder=true (engelleme yok). V3 frontend response handling: result.data.requiresTwoFactorSetup explicit flag (UI atlatılamaz) + mevcut user.twoFactorEnabled false fallback (TUR #78 X8 korundu). 22. mimar hatası: müvekkil sekme "Şifresiz dosya takibi" yazıyor ama müvekkil aslında email+şifre kullanır (yanıltıcı + KVKK güven + tüketici hukuku şüphe). CEO Image 3 yakaladı. V5 müvekkil text fix: "Hesapsız dava sorgulamak için:" + "Telefon ile Sorgula →" (/basvuru-sorgula gerçekten hesapsız — telefon+başvuru kodu sorgu). V6 tüm "Şifresiz" yanıltıcı taraması: 0 yanıltıcı kullanım kaldı. NetGSM SMS düzelmesi korundu (TUR #81 + CEO ENV fix). CEO TOTP aktivasyonu (tedbirge42@gmail.com ADMIN) bozulmadı. 0 schema/npm/env. Pattern 194+ → 201+ atom sapma 0 — kalibrasyon 1.6× 29. doğrulama. Anayasa v1.22.0 yürürlükte (Madde 30.29 R1 + 30.34 R1 ikiz R-genişleme — patch sürüm yok).)**  
 **5 Mayıs 2026 — TUR #81 (ENV SLOT DİSİPLİNİ + HEADER LOWERCASE NORMALIZE + 5 ROL × 3 TAB FİİLEN PARİTE + 20. MİMAR HATASI: 7 atom (W0-W12) + Anayasa Madde 30.35 yeni. CEO 4 Mayıs 22:40 direktifi: Render log "[NetGSM] CALL header='Tedbirge'" (T büyük) — NetGSM panel onaylı 'tedbirge' (lowercase, Image 5 kanıt 20.04.2026). Case-sensitive uyumsuzluk → kod 30 reddi. CEO 22:11 Image 1 ile yakaladı: NETGSM_HEADER slot'unda önce '0850303724' (sayı dizisi, kullanıcı adı formatında!), sonra 'Tedbirge' (T büyük). 22:35 düzeltti. 20. mimar hatası: ENV slot karışıklığı runtime'da yakalanmıyordu. W1 Boot-time validation: 4 ENV slot için format regex/uzunluk/karakter set kontrolü + [ENV-SLOT] HATA log + provider panel ipucu (boot durmaz). W2 Header lowercase normalize: resolveNetgsmHeader() helper, ENV raw → trim + lowercase. W3 Safe fallback (slot karışıklığı protection): boş veya sayı dizisi (^0\\d+$) → 'tedbirge' default + warn log. W7 TwoFactorChallenge regresyon koruma: 3 tab her zaman görünür (TUR #79 Y4 emsali korundu). W5 5 rol × 3 tab parite: tek /login sayfası DRY (TUR #80 Z6 emsali) — 4 rol seçici (yonetici/temsilci/hukukcu/musteri) component reuse. /musteri-login + /dava-takibim ayrı sayfa YOK (307 redirect). W11 production smoke 12 kanıt (kısmi — admin token gerekli). Defensive logging genişletme: header/headerLen/headerRawEnvLen/headerNormalized boolean (case mismatch tespit kanıt). 0 schema/npm/env (CEO Render manuel düzeltti). Pattern 187+ → 194+ atom sapma 0 — kalibrasyon 1.6× 28. doğrulama. Anayasa v1.22.0 yürürlükte (Madde 30.35 alt-genişleme — patch sürüm yok).)**  
