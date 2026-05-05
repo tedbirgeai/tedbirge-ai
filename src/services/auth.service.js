@@ -96,6 +96,20 @@ async function login(email, password, requestedRole) {
   const valid = await bcrypt.compare(password, user.passwordHash);
   if (!valid) throw new ApiError(401, "Gecersiz kullanici bilgileri");
 
+  // TUR #84 T3 — Hesap durum bloke (Madde 30.37)
+  if (user.deletedAt) {
+    throw new ApiError(403, "Hesap kapatılmıştır. Yönetici ile iletişime geçin.");
+  }
+  if (user.archivedAt || user.status === "ARCHIVED") {
+    throw new ApiError(403, "Hesap arşivlenmiştir. Yönetici ile iletişime geçin.");
+  }
+  if (user.status === "SUSPENDED") {
+    throw new ApiError(403, "Hesap askıya alınmıştır. Yönetici ile iletişime geçin.");
+  }
+  if (user.status === "PASSIVE") {
+    throw new ApiError(403, "Hesap pasif durumda. Yönetici ile iletişime geçin.");
+  }
+
   // TUR #72.10 X3 — Rol mismatch kontrolü (KVKK m.12 + güvenlik)
   if (requestedRole) {
     const allowedRoles = expectedRoleForTab(requestedRole);

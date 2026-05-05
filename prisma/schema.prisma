@@ -263,11 +263,11 @@ model Lead {
   utmSource             String?
   utmMedium             String?
   utmCampaign           String?
-  utmTerm               String?          // Google Ads keyword
-  utmContent            String?          // A/B test varyanti / banner ID
-  referrer              String?          // document.referrer
-  landingPage           String?          // Ilk gelinen URL (path)
-  gclid                 String?          // Google Click ID (server-side conversion)
+  utmTerm               String? // Google Ads keyword
+  utmContent            String? // A/B test varyanti / banner ID
+  referrer              String? // document.referrer
+  landingPage           String? // Ilk gelinen URL (path)
+  gclid                 String? // Google Click ID (server-side conversion)
   AccidentCase          AccidentCase[]
   activities            ActivityLog[]
   assignments           Assignment[]
@@ -287,12 +287,12 @@ model Lead {
   commissionLogs        CommissionLog[]
 
   // TUR #55 — KIRMIZI #3 AI onay + aciliyet + sade ozet
-  aiAnalizOnay          AiAnalizOnay?
-  aiAnalizOnayBy        String?
-  aiAnalizOnayAt        DateTime?
-  aiAnalizOnayNote      String?          @db.Text
-  publicSummary         String?          @db.Text
-  aciliyet              AciliyetSeviye   @default(NORMAL)
+  aiAnalizOnay     AiAnalizOnay?
+  aiAnalizOnayBy   String?
+  aiAnalizOnayAt   DateTime?
+  aiAnalizOnayNote String?        @db.Text
+  publicSummary    String?        @db.Text
+  aciliyet         AciliyetSeviye @default(NORMAL)
 }
 
 model Masraf {
@@ -347,63 +347,82 @@ model PushSubscription {
 }
 
 model User {
-  id                         String               @id @default(cuid())
-  fullName                   String
-  email                      String               @unique
-  phone                      String?
-  passwordHash               String
-  role                       Role                 @default(CUSTOMER)
-  isActive                   Boolean              @default(true)
-  createdAt                  DateTime             @default(now())
-  updatedAt                  DateTime             @updatedAt
-  resetToken                 String?
-  resetTokenExpires          DateTime?
-  sonGirisTarihi             DateTime?
-  sozlesmeKabulTarihi        DateTime?
-  baroSicilNo                String?
-  bolge                      String?
-  hukukcuKomisyon            Float?               @default(20)
-  primOrani                  Float?               @default(50)
-  uzmanlik                   String?
-  baroOnayDurumu             String?              @default("BEKLEMEDE")
-  temsilciOnayDurumu         String?              @default("BEKLEMEDE")
-  twoFactorEnabled           Boolean              @default(false)
-  twoFactorSecret            String?
-  twoFactorBackupCodes       Json?
-  twoFactorEnabledAt         DateTime?
-  twoFactorMethod            TwoFactorMethod      @default(TOTP)
-  kvkkAcceptedAt             DateTime?
-  kvkkVersion                String?
+  id                          String               @id @default(cuid())
+  fullName                    String
+  email                       String               @unique
+  phone                       String?
+  passwordHash                String
+  role                        Role                 @default(CUSTOMER)
+  isActive                    Boolean              @default(true)
+  createdAt                   DateTime             @default(now())
+  updatedAt                   DateTime             @updatedAt
+  resetToken                  String?
+  resetTokenExpires           DateTime?
+  sonGirisTarihi              DateTime?
+  sozlesmeKabulTarihi         DateTime?
+  baroSicilNo                 String?
+  bolge                       String?
+  hukukcuKomisyon             Float?               @default(20)
+  primOrani                   Float?               @default(50)
+  uzmanlik                    String?
+  baroOnayDurumu              String?              @default("BEKLEMEDE")
+  temsilciOnayDurumu          String?              @default("BEKLEMEDE")
+  twoFactorEnabled            Boolean              @default(false)
+  twoFactorSecret             String?
+  twoFactorBackupCodes        Json?
+  twoFactorEnabledAt          DateTime?
+  twoFactorMethod             TwoFactorMethod      @default(TOTP)
+  kvkkAcceptedAt              DateTime?
+  kvkkVersion                 String?
   platformAgreementAcceptedAt DateTime?
-  platformAgreementVersion   String?
-  sozlesmeKabulIp            String?
-  sozlesmeMetniHash          String?
-  sozlesmeVersiyonu          String?              @default("v1.0-temsilci")
-  assignments                Assignment[]
-  ChatSession                ChatSession[]
-  Contract                   Contract[]
-  createdLeads               Lead[]               @relation("Lead_createdByIdToUser")
-  Lead_Lead_ownerIdToUser    Lead[]               @relation("Lead_ownerIdToUser")
-  Petition                   Petition[]
-  PushSubscription           PushSubscription[]
-  uyapSessions               UYAPSession[]        @relation("UYAPSessions")
-  uyapTebligatlar            UYAPTebligat[]       @relation("UYAPTebligatlar")
-  sbmSorgular                SBMSorgu[]           @relation("SBMSorgular")
-  aiUsageLogs                AIUsageLog[]         @relation("AIUsageLogs")
-  dataSubjectRequestsHandled DataSubjectRequest[] @relation("DataSubjectRequestsHandled")
+  platformAgreementVersion    String?
+  sozlesmeKabulIp             String?
+  sozlesmeMetniHash           String?
+  sozlesmeVersiyonu           String?              @default("v1.0-temsilci")
+  assignments                 Assignment[]
+  ChatSession                 ChatSession[]
+  Contract                    Contract[]
+  createdLeads                Lead[]               @relation("Lead_createdByIdToUser")
+  Lead_Lead_ownerIdToUser     Lead[]               @relation("Lead_ownerIdToUser")
+  Petition                    Petition[]
+  PushSubscription            PushSubscription[]
+  uyapSessions                UYAPSession[]        @relation("UYAPSessions")
+  uyapTebligatlar             UYAPTebligat[]       @relation("UYAPTebligatlar")
+  sbmSorgular                 SBMSorgu[]           @relation("SBMSorgular")
+  aiUsageLogs                 AIUsageLog[]         @relation("AIUsageLogs")
+  dataSubjectRequestsHandled  DataSubjectRequest[] @relation("DataSubjectRequestsHandled")
 
   // TUR #52 — Komisyon + sistem ayarı izleme
-  temsilciKomisyonlari       CommissionLog[]      @relation("TemsilciKomisyon")
-  settingsUpdated            SystemSetting[]      @relation("SettingsUpdater")
+  temsilciKomisyonlari CommissionLog[] @relation("TemsilciKomisyon")
+  settingsUpdated      SystemSetting[] @relation("SettingsUpdater")
 
   // TUR #55 — KIRMIZI #1 IBAN + vergi + tasarım tercihleri
-  iban             String?
-  vergiKimlikNo    String?
-  vergiDairesi     String?
-  preferences      Json?
+  iban          String?
+  vergiKimlikNo String?
+  vergiDairesi  String?
+  preferences   Json?
 
   // TUR #55 — Real-time hedef
-  realtimeEvents   RealtimeEvent[]  @relation("RealtimeEventTarget")
+  realtimeEvents RealtimeEvent[] @relation("RealtimeEventTarget")
+
+  // TUR #84 T3 — Kullanıcı CRUD KVKK Disiplini (Madde 30.37)
+  status                        UserStatus @default(ACTIVE)
+  archivedAt                    DateTime?
+  deletedAt                     DateTime?
+  lastPasswordResetAt           DateTime?
+  passwordResetByAdminId        String?
+  mustChangePasswordOnNextLogin Boolean    @default(false)
+
+  @@index([deletedAt])
+  @@index([status])
+}
+
+// TUR #84 T3 — Kullanıcı CRUD durum enum (Madde 30.37)
+enum UserStatus {
+  ACTIVE
+  PASSIVE
+  SUSPENDED
+  ARCHIVED
 }
 
 model VerificationToken {
@@ -728,33 +747,33 @@ model DataSubjectRequest {
 //   "KAHVEMI YAPARKEN UCTAN UCA TUR #49 BASLA BITIR"
 //   "DOSYAYI INDIRDIM KAHVEYI YAPTIM CLAUDE CODE YES NO SORMASIN"
 model CareerApplication {
-  id                          String              @id @default(cuid())
-  fullName                    String
-  email                       String
-  phone                       String?
-  position                    String
-  cvLink                      String?
-  message                     String?
+  id       String  @id @default(cuid())
+  fullName String
+  email    String
+  phone    String?
+  position String
+  cvLink   String?
+  message  String?
 
   // KVKK kanit izi (m.10 aydinlatma + 2018/90 ayri timestamp)
-  aydinlatmaOnayTimestamp     DateTime
-  acikRizaOnayTimestamp       DateTime
-  cvHavuzuOnay                Boolean             @default(false)
+  aydinlatmaOnayTimestamp DateTime
+  acikRizaOnayTimestamp   DateTime
+  cvHavuzuOnay            Boolean  @default(false)
 
   // Operasyonel
-  status                      CareerApplicationStatus @default(NEW)
-  reviewNote                  String?
-  reviewedAt                  DateTime?
+  status     CareerApplicationStatus @default(NEW)
+  reviewNote String?
+  reviewedAt DateTime?
 
   // Audit
-  ipAddress                   String?
-  userAgent                   String?
-  createdAt                   DateTime            @default(now())
-  updatedAt                   DateTime            @updatedAt
+  ipAddress String?
+  userAgent String?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 
   // KVKK m.7 silme talebi (soft delete)
-  deletionRequestedAt         DateTime?
-  deletedAt                   DateTime?
+  deletionRequestedAt DateTime?
+  deletedAt           DateTime?
 
   @@index([status])
   @@index([createdAt])
@@ -774,21 +793,21 @@ enum CareerApplicationStatus {
 // CommissionLog — Tahsilat → komisyon kayıt zinciri
 // CEO Mehmet DINC yazili onay (Madde 18.3): TUR #52 mektubu kabulu
 model CommissionLog {
-  id              String           @id @default(cuid())
-  leadId          String
-  lead            Lead             @relation(fields: [leadId], references: [id])
-  tahsilatBrut    Decimal          @db.Decimal(12, 2)
-  tedbirgeOrani   Decimal          @default(20.00) @db.Decimal(5, 2)
-  tedbirgeNet     Decimal          @db.Decimal(12, 2)
-  temsilciId      String?
-  temsilci        User?            @relation("TemsilciKomisyon", fields: [temsilciId], references: [id])
-  temsilciNet     Decimal?         @db.Decimal(12, 2)
-  durum           CommissionStatus @default(BEKLIYOR)
-  havaleAt        DateTime?
-  havaleReferans  String?
-  notes           String?          @db.Text
-  createdAt       DateTime         @default(now())
-  updatedAt       DateTime         @updatedAt
+  id             String           @id @default(cuid())
+  leadId         String
+  lead           Lead             @relation(fields: [leadId], references: [id])
+  tahsilatBrut   Decimal          @db.Decimal(12, 2)
+  tedbirgeOrani  Decimal          @default(20.00) @db.Decimal(5, 2)
+  tedbirgeNet    Decimal          @db.Decimal(12, 2)
+  temsilciId     String?
+  temsilci       User?            @relation("TemsilciKomisyon", fields: [temsilciId], references: [id])
+  temsilciNet    Decimal?         @db.Decimal(12, 2)
+  durum          CommissionStatus @default(BEKLIYOR)
+  havaleAt       DateTime?
+  havaleReferans String?
+  notes          String?          @db.Text
+  createdAt      DateTime         @default(now())
+  updatedAt      DateTime         @updatedAt
 
   @@index([leadId])
   @@index([temsilciId])
@@ -836,12 +855,12 @@ enum AciliyetSeviye {
 
 // Otonom Katman (Auditor + Healer + Reporter) olay kayıdı
 model AgentEvent {
-  id          String              @id @default(cuid())
-  agentName   String
-  eventType   String
-  severity    AgentEventSeverity  @default(INFO)
-  payload     Json
-  createdAt   DateTime            @default(now())
+  id        String             @id @default(cuid())
+  agentName String
+  eventType String
+  severity  AgentEventSeverity @default(INFO)
+  payload   Json
+  createdAt DateTime           @default(now())
 
   @@index([agentName, createdAt])
   @@index([severity])
@@ -857,14 +876,14 @@ enum AgentEventSeverity {
 
 // Real-time canlı feed (SSE)
 model RealtimeEvent {
-  id          String   @id @default(cuid())
-  channel     String
-  eventType   String
-  payload     Json
-  userId      String?
-  user        User?    @relation("RealtimeEventTarget", fields: [userId], references: [id])
-  createdAt   DateTime @default(now())
-  consumed    Boolean  @default(false)
+  id        String   @id @default(cuid())
+  channel   String
+  eventType String
+  payload   Json
+  userId    String?
+  user      User?    @relation("RealtimeEventTarget", fields: [userId], references: [id])
+  createdAt DateTime @default(now())
+  consumed  Boolean  @default(false)
 
   @@index([channel, createdAt])
   @@index([userId, consumed])
@@ -872,22 +891,22 @@ model RealtimeEvent {
 
 // TUR #71 A23 — EmailDigest (sabah 09:00 inbox raporu)
 model EmailDigest {
-  id        String   @id @default(cuid())
-  sentAt    DateTime @default(now())
-  metrics   Json
-  status    String   @default("SENT")
-  error     String?
+  id      String   @id @default(cuid())
+  sentAt  DateTime @default(now())
+  metrics Json
+  status  String   @default("SENT")
+  error   String?
 
   @@index([sentAt])
 }
 
 // TUR #71 A18 — Pulse haftalık trend snapshot
 model Pulse {
-  id        String          @id @default(cuid())
-  weekStart DateTime        @unique
+  id        String         @id @default(cuid())
+  weekStart DateTime       @unique
   metrics   Json
-  trendType PulseTrendType  @default(WEEKLY)
-  createdAt DateTime        @default(now())
+  trendType PulseTrendType @default(WEEKLY)
+  createdAt DateTime       @default(now())
 
   @@index([weekStart])
 }

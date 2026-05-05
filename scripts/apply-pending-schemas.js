@@ -50,6 +50,20 @@ const STATEMENTS = [
   `ALTER TABLE "User" ADD COLUMN IF NOT EXISTS "kvkkVersion" TEXT`,
   `ALTER TABLE "User" ADD COLUMN IF NOT EXISTS "platformAgreementAcceptedAt" TIMESTAMP(3)`,
   `ALTER TABLE "User" ADD COLUMN IF NOT EXISTS "platformAgreementVersion" TEXT`,
+
+  // ─── TUR #84 T3 — Kullanıcı CRUD KVKK alanları (Madde 30.37) ────────────
+  `DO $$ BEGIN
+     CREATE TYPE "UserStatus" AS ENUM ('ACTIVE', 'PASSIVE', 'SUSPENDED', 'ARCHIVED');
+   EXCEPTION WHEN duplicate_object THEN null;
+   END $$`,
+  `ALTER TABLE "User" ADD COLUMN IF NOT EXISTS "status" "UserStatus" NOT NULL DEFAULT 'ACTIVE'`,
+  `ALTER TABLE "User" ADD COLUMN IF NOT EXISTS "archivedAt" TIMESTAMP(3)`,
+  `ALTER TABLE "User" ADD COLUMN IF NOT EXISTS "deletedAt" TIMESTAMP(3)`,
+  `ALTER TABLE "User" ADD COLUMN IF NOT EXISTS "lastPasswordResetAt" TIMESTAMP(3)`,
+  `ALTER TABLE "User" ADD COLUMN IF NOT EXISTS "passwordResetByAdminId" TEXT`,
+  `ALTER TABLE "User" ADD COLUMN IF NOT EXISTS "mustChangePasswordOnNextLogin" BOOLEAN NOT NULL DEFAULT false`,
+  `CREATE INDEX IF NOT EXISTS "User_deletedAt_idx" ON "User"("deletedAt")`,
+  `CREATE INDEX IF NOT EXISTS "User_status_idx" ON "User"("status")`,
 ];
 
 (async () => {
