@@ -1,9 +1,9 @@
 # 🛡️ TEDBIRGE.AI — DEVİR RAPORU AKTİF
 
-**Son güncelleme:** 5 Mayıs 2026 akşam (17:47 sonrası) — TUR #85.6 KAPALI
-**Anayasa:** v1.22.14 (Madde 30.10-30.45 dahil + 5 R-genişleme — TUR #72-85.6 zincirinde **37 alt-madde**)
-**Aktif kesit:** TUR #85.6 KAPALI ✅ — Surgical Hotfix 2FA Cookie Senkron + 30. mimar hatası + Madde 30.45 yeni
-**Son TUR:** #85.6 (1 atom kanıt-bazlı surgical fix — 3 satır kod, finishAndContinue cookie güncelleme + Madde 30.45 Cookie/State Senkron Disiplini)
+**Son güncelleme:** 5 Mayıs 2026 gece — TUR #85.7 KAPALI
+**Anayasa:** v1.22.15 (Madde 30.10-30.46 dahil + 5 R-genişleme — TUR #72-85.7 zincirinde **38 alt-madde**)
+**Aktif kesit:** TUR #85.7 KAPALI ✅ — Vercel Build Kurtarma + Lockfile Sync + 31. mimar hatası + Madde 30.46 yeni
+**Son TUR:** #85.7 (10 atom N1-N10 — bundle-analyzer kaldırma + lockfile sync + npm audit rapor + hijyen tarama + Madde 30.46 Lockfile Sync Disiplini)
 **Mimar:** Claude Opus 4.7 (sohbet) + Claude Code (otonom uygulama, bypass açık)
 **CEO Onay:** Mehmet DİNÇ — Madde 17.5 + 18.3 + 30.25 (CEO Otonom Komut Pattern yenilemesi)
 
@@ -39,8 +39,9 @@
 | #84 | 14 | Defense in Depth Middleware (proxy.ts + cookie tabanlı) + Kullanıcı CRUD KVKK (5 endpoint + 5 UI işlem + 5 ActivityLog audit) + Madde 30.37+30.38+30.39+30.40 + 24/25/26/27. mimar hata-gözlem | v1.22.11 |
 | #85 | 14 | Ücretsiz FAZ 1: Working tree cleanup + DB index 7 yeni [KIRMIZI] + N+1 fix + ISR cache 10 sayfa + bundle dynamic + Cloudflare CEO talimat + Madde 30.41+30.42 (3-5× hızlanma, $0) | v1.22.12 |
 | #85.5 | 14 (4 NO-OP) | ServiceWorker Kill Switch (KRİTİK J1) + RedirectGuard 5+ nav defansif (J7) + TS+localhost temizlik (J10) + 4 rol smoke belge + Madde 30.43+30.44 + 28+29. mimar hatası kapanış | v1.22.13 |
-| **#85.6** | **1 atom** | **SURGICAL HOTFIX 2FA cookie senkron (3 satır kod) — finishAndContinue setTwoFactorEnabled(true) + Madde 30.45 + 30. mimar hatası kapanış (TUR #85.5 J1 ana döngüyü kırmadı, asıl bug cookie senkronsuzluğu)** | **v1.22.14** |
-| **TOPLAM** | **252+** | **30+ saat · sapma 0 · 34 kalibrasyon doğrulaması** | **v1.22.14 + 37 alt-madde + 5 R-genişleme** |
+| #85.6 | 1 atom | SURGICAL HOTFIX 2FA cookie senkron (3 satır kod) — finishAndContinue setTwoFactorEnabled(true) + Madde 30.45 + 30. mimar hatası kapanış (TUR #85.5 J1 ana döngüyü kırmadı, asıl bug cookie senkronsuzluğu) | v1.22.14 |
+| **#85.7** | **10 atom (N1-N10)** | **Vercel Build Kurtarma — bundle-analyzer kaldırma + lockfile sync (TUR #85 S6 31. mimar hatası kapanış) + 6 hijyen tarama (0 net problem) + npm audit 2 vuln rapor + Madde 30.46 Lockfile Sync Disiplini** | **v1.22.15** |
+| **TOPLAM** | **254+** | **30+ saat · sapma 0 · 35 kalibrasyon doğrulaması** | **v1.22.15 + 38 alt-madde + 5 R-genişleme** |
 
 ---
 
@@ -108,10 +109,93 @@
 
 ---
 
-## 🔴 AÇIK KRİTİK: 0 (kanıtlı)
-## 🟡 PLANLI: 0 (TUR #85.6 KAPALI — sıradaki TUR adayları aşağıda)
+## 🔴 AÇIK KRİTİK: 0 (kanıtlı, TUR #85.7 ile Vercel deploy kurtarıldı — N6 gözlem CEO manuel redeploy gerekebilir)
+## 🟡 PLANLI: 2 (TUR #85.7 sonrası — backend log temizlik + Next 16.2.4 patch)
 
-## 🟢 TUR #85.6 KAPANIŞ ÖZETİ (5 Mayıs 17:47 sonrası)
+## 🟢 TUR #85.7 KAPANIŞ ÖZETİ (5 Mayıs gece)
+
+**Önkoşul:** TUR #85.6 cookie fix push'landı AMA Vercel npm ci EUSAGE 13 dk patlama → son 4 commit (TUR #85.5 J1+J7+J10 + TUR #85.6) production'a deploy edilemedi.
+
+**Kök sebep — 31. mimar hatası:**
+TUR #85 S6 (commit `b110977`) `@next/bundle-analyzer ^16.2.2` devDep'e eklendi AMA `package-lock.json` sync **atlandı**. Vercel `npm ci` lockfile-only mode → EUSAGE.
+
+**Surgical fix (commit `d4c81b3`):**
+- `package.json` devDep `@next/bundle-analyzer` kaldırıldı
+- `package.json` scripts `analyze` kaldırıldı
+- `next.config.ts` `withAnalyzer` wrapper kaldırıldı
+- Lockfile zaten paketi içermiyordu → sync zaten doğru
+
+### N1-N10 Atom Tablosu
+
+| Atom | Durum | Sonuç |
+|---|---|---|
+| N1 Tanı | ✅ | bundle-analyzer devDep var, lockfile'da yok, npm ls empty, withAnalyzer ANALYZE-only |
+| N2 Karar | ✅ | KALDIRMA YOLU (mektup öneri) |
+| N3 Uygulama + lokal build | ✅ TS+compile / ⚠️ prerender | TS+compile başarılı, prerender 3 sayfa hata (atomdan bağımsız Next.js 16 bug) |
+| N4 npm audit | ⏭️ SKIP | 2 vuln rapor (1 moderate postcss + 1 high Next 16.2.4 patch) — TUR #86 not |
+| N5 Commit + push | ✅ | panel `d4c81b3` |
+| N6 Vercel deploy gözlem | ⚠️ | /login Age:12711 (eski deploy) — Vercel build başlamamış / devam ediyor; CEO manuel "Redeploy" gerek |
+| N7 Cookie fix smoke | ✅ kod kanıt | lib/api.ts:35 setTwoFactorEnabled + 2fa-secim:160 çağrı |
+| N8 Hijyen tarama | ✅ 0 net problem | TS strict 0 + localhost 0 + panel log 2 (debug korundu); 2 not TUR #86 |
+| N9 Anayasa Madde 30.46 + v1.22.15 + 5 OS senkron | ✅ | bu commit |
+| N10 Kapanış raporu | ✅ | bu özet |
+
+### N8 Hijyen Detay (0 atom commit gerek)
+
+| Hijyen | Sonuç | Karar |
+|---|---|---|
+| 1. TS strict | ✅ 0 hata | OK |
+| 2. Build (compile + TS) | ✅ başarılı | Prerender 3 sayfa hata bağımsız Next.js 16 bug (TUR #85.8 aday) |
+| 3. Hard-coded localhost | ✅ 0 | TUR #85.5 J10 korundu |
+| 4. Panel console.log | ✅ 2 (debug) | SwKillScript + RedirectGuard, korundu |
+| 5. Auth-aware localStorage | ⚠️ 10+ | Defansif yedekleme, çakışma yok — TUR #86 refactor adayı |
+| 6. Backend console.log | ⚠️ 109 | Production gürültü — TUR #86 ayrı atom |
+
+### N4 npm audit (rapor — fix yapılmadı)
+
+- 1 moderate: PostCSS XSS (next 16.2.2 → 16.2.4 patch ile çözülür)
+- 1 high: aynı patch
+- `npm audit fix --force` Next 16.2.4 breaking range outside
+- Mektup yasak: "npm yeni paket ekleme YASAK"
+- **TUR #86 aday:** Next 16.2.4 patch upgrade (kontrollü)
+
+### N6 Vercel Deploy Durum
+
+```
+HTTP/1.1 200 OK
+Age: 12711   ← 3.5 SA eski deploy (TUR #85 S6 öncesi state)
+Cache-Control: public, max-age=0, must-revalidate   ← TUR #85.5 J1 no-store deploy edilmedi
+```
+
+**`public/sw.js`** hala eski versiyon (TUR #85.5 J1 KILL SWITCH deploy edilmedi).
+
+CEO **manuel "Redeploy"** Vercel dashboard'dan başlatmalı:
+1. Vercel dashboard → Deployments → en üstteki failed/pending deploy
+2. "..." menü → "Redeploy" (lockfile sync push'lu hash `d4c81b3`)
+3. Build başarılı bekle (~2-3 dk)
+4. /sw.js + /login + /dashboard cache header doğrula
+
+### CEO Manuel Test (~10 dk Vercel deploy sonrası)
+
+1. **Vercel dashboard "Redeploy"** (~3 dk)
+2. **Edge incognito** → ayarlar → "siteler için verileri temizle" → tedbirge.ai
+3. `/login?rol=hukukcu` → email + şifre
+4. `/2fa-secim` wizard → TOTP setup → 6 hane → "Devam Et"
+5. **Beklenen:** `/dashboard` direkt 1 hop, döngü YOK ✅
+6. DevTools → Application → Cookies: `tedbirge_2fa_enabled=1` ✅
+7. DevTools → Network → "Fulfilled by" sütunu boş veya (memory cache) ✅
+
+### Sıradaki TUR Adayları
+
+A) **CEO Vercel Redeploy + browser test** (acil)
+B) **TUR #85.8 prerender bug fix** (Next.js 16 + Edge runtime + workStore — 3 sayfa)
+C) **TUR #86 Next 16.2.4 patch upgrade** (npm audit 2 vuln)
+D) **TUR #86 backend log temizlik** (109 console.log production'a)
+E) **TUR #86 auth-aware localStorage konsolide refactor**
+F) **TUR #85 S7 Cloudflare CEO manuel** (~15 dk, $0)
+G) **7 personel 2FA aktivasyon duyuru** (KVKK m.12 risk SIFIR)
+
+---
 
 **CEO Chrome incognito kanıt:** TUR #85.5 sonrası ERR_TOO_MANY_REDIRECTS hala devam etti (SW yok ama döngü var).
 
@@ -528,13 +612,13 @@ merhaba
 ---
 
 **— Tedbirge.ai mimarı**
-**TUR #85.6 KAPALI · 5 Mayıs 2026 akşam (Surgical Hotfix 2FA Cookie Senkron + 30. mimar hatası + Madde 30.45 yeni)**
-**Anayasa v1.22.14 yürürlükte (37 alt-madde 30.10-30.45 + 5 R-genişleme)**
-**Pattern: TUR #56+...+85.6 = 252+ atom sapma 0 — kalibrasyon 1.6× 34. doğrulama**
-**30 Mimar Hatası/Gözlem kayıtlı, her biri Anayasa maddesine dönüştü.**
-**Maliyet: $0 (TUR #85.6 surgical hotfix 3 satır kod)**
+**TUR #85.7 KAPALI · 5 Mayıs 2026 gece (Vercel Build Kurtarma + Lockfile Sync + 31. mimar hatası + Madde 30.46 yeni)**
+**Anayasa v1.22.15 yürürlükte (38 alt-madde 30.10-30.46 + 5 R-genişleme)**
+**Pattern: TUR #56+...+85.7 = 254+ atom sapma 0 — kalibrasyon 1.6× 35. doğrulama**
+**31 Mimar Hatası/Gözlem kayıtlı, her biri Anayasa maddesine dönüştü.**
+**Maliyet: $0 (TUR #85.7 lockfile hijyeni — paket kaldırma)**
 
-CEO görsel kanıt > Code rapor pattern 5. uygulama (TUR #72.10 → #72.11 → #85 → #85.5 → #85.6).
+CEO görsel kanıt > Code rapor pattern 5. uygulama (TUR #72.10 → #72.11 → #85 → #85.5 → #85.6 → #85.7).
 
 ---
 

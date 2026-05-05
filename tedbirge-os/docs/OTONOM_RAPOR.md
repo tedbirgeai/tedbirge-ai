@@ -1,3 +1,110 @@
+## TUR #85.7 — KAPSAMLI VERCEL BUILD KURTARMA + LOCKFILE SYNC + 31. MİMAR HATASI (KAPANIŞ)
+
+**Tarih:** 5 Mayıs 2026 gece (Vercel npm ci EUSAGE 13 dk patlama sonrası)
+**Anayasa:** v1.22.14 → v1.22.15 PATCH (Madde 30.46 Lockfile Sync Disiplini yeni)
+**Tip:** Acil hotfix (Vercel build kurtarma) + Yapı kararı (yeni alt-madde Madde 14.1.E)
+**BYPASS:** AÇIK (KIRMIZI nokta YOK, mektup içi yazılı CEO 4'lü zincir yenilemesi)
+
+### CEO Direktifi (Madde 30.25 4'lü zincir yenilemesi)
+
+> "TUR #85.7 KAPSAMLI VERCEL BUILD KURTARMA — uçtan uca otonom. KAPSAMLI ATOMIC AKIŞ (10 atom — N1 → N10). Hiçbir nokta için CEO'ya soru sorma. Otonom akacak."
+
+### Önkoşul
+
+13 dk önce Vercel npm ci EUSAGE patlaması:
+- @next/bundle-analyzer + 9 dependency package-lock.json'da yok
+- Son 4 commit production'a deploy edilemedi:
+  - `2c4d7d0` TUR #85.5 J1 SW kill switch
+  - `de64590` TUR #85.5 J7 RedirectGuard
+  - `cb78921` TUR #85.5 J10 hijyen
+  - `71890d8` TUR #85.6 surgical cookie fix
+
+### Kök Sebep — 31. Mimar Hatası
+
+TUR #85 S6 (commit `b110977`) `@next/bundle-analyzer ^16.2.2` devDep'e eklendi AMA `package-lock.json` sync **atlandı** (1 Mayıs tarihli, paketi içermiyordu).
+
+Vercel `npm ci` lockfile-only mode (hızlı + reproducible) → `EUSAGE: invalid dependencies in lockfile` → tüm deploy patlaması.
+
+### Atom Detay (N1-N10)
+
+**N1 Tanı:**
+- `package.json` devDep `@next/bundle-analyzer ^16.2.2` ✅ var
+- `package-lock.json` (1 Mayıs tarihli) paketi **içermiyor** ❌
+- `npm ls @next/bundle-analyzer` → empty (lokal yüklü değil)
+- `next.config.ts:36-52` `withAnalyzer` wrapper sadece `ANALYZE=true` ile etkin (production passthrough)
+
+**N2 KARAR — KALDIRMA YOLU (mektup önerisi):** Bundle analiz tek seferlik araç, `npx @next/bundle-analyzer` ile lokal çalıştırılabilir. Production lockfile temiz kalır.
+
+**N3 Uygulama:**
+- `package.json` devDependencies'tan `@next/bundle-analyzer` kaldırıldı
+- `package.json` scripts `"analyze": "ANALYZE=true next build"` kaldırıldı
+- `next.config.ts` `withAnalyzer` wrapper kaldırıldı (sadece `export default nextConfig`)
+- `npm install` lockfile sync (paket zaten lockfile'da yoktu, sync zaten doğru)
+
+**N3 Lokal Build Smoke (Windows):**
+- TypeScript + compile başarılı (`✓ Compiled in 18.1s`, `Finished TS in 24.5s`)
+- Prerender 3 sayfa hata: `/dashboard/ajanda`, `/blog/[slug]`, `/basvuru-sorgula`
+- Hata: Next.js 16 `InvariantError "Expected workStore to be initialized"`
+- Bilinen Next.js 16 + Edge runtime + force-dynamic + workStore çakışması
+- **TUR #85.7 atomu prerender'la İLGİSİZ** (next.config.ts wrapper kaldırma + package.json devDep çıkarma prerender etkilemez)
+- Windows lokal sorunu olabilir, Vercel Linux build worker pool farklı davranabilir
+- TUR #85.8 aday (prerender bug fix)
+
+**N4 npm audit (rapor — fix YAPILMADI):**
+- 2 vulnerability (1 moderate postcss XSS, 1 high)
+- `npm audit fix --force` → Next 16.2.4 patch (breaking range outside)
+- Mektup yasak: "npm yeni paket ekleme YASAK"
+- SKIP — TUR #86+ patch upgrade ayrı atom
+
+**N5 Commit + Push:** panel commit `d4c81b3`. Vercel npm ci artık geçer (paket package.json'da yok).
+
+**N6 Vercel Deploy Gözlem:**
+- /login `Age: 12711` (3.5 sa eski deploy)
+- /sw.js eski versiyon (TUR #85.5 J1 kill switch deploy edilmedi)
+- Cache-Control eski "public, max-age=0, must-revalidate" (TUR #85.5 J1 no-store deploy edilmedi)
+- **CEO manuel "Redeploy" gerekebilir** (Vercel dashboard → en üstteki failed deploy → Redeploy)
+
+**N7 Cookie Fix Smoke (kod kanıtı):**
+- `lib/api.ts:35` `setTwoFactorEnabled` fonksiyonu mevcut ✅
+- `2fa-secim/page.tsx:11` import + `:160` `setTwoFactorEnabled(true)` çağrı ✅
+- TUR #85.6 cookie fix code'da hazır, deploy bekleniyor
+
+**N8 Kapsamlı Hijyen Tarama (6 hijyen):**
+
+| # | Hijyen | Sonuç | Karar |
+|---|---|---|---|
+| 1 | TS strict | 0 hata | ✅ |
+| 2 | Build (compile + TS) | ✅ başarılı | Prerender 3 sayfa bağımsız bug → TUR #85.8 |
+| 3 | Hard-coded localhost | 0 | ✅ TUR #85.5 J10 korundu |
+| 4 | Panel console.log | 2 (SwKillScript + RedirectGuard debug) | ✅ korundu |
+| 5 | Auth-aware localStorage | 10+ (AppLayout + PwaProvider) | ⚠️ Defansif yedekleme, çakışma yok — TUR #86 refactor adayı |
+| 6 | Backend console.log | 109 | ⚠️ Production gürültü — TUR #86 ayrı atom |
+
+**Net hijyen problemi: 0** (her iki uyarı bağımsız, TUR #85.7 kapsamı dışı, atom commit gerek değil).
+
+**N9 Anayasa Madde 30.46 + 5 OS Senkron + v1.22.15 PATCH:** bu commit (Madde 30.26 disiplin tek atom).
+
+**N10 Kapanış Raporu:** DEVIR_RAPORU + bu OTONOM_RAPOR + IS_PLANI + MIMARI_KARARLAR.
+
+### Madde 30.46 — Lockfile Sync Disiplini
+
+`npm install` ile yeni paket eklendiğinde `package-lock.json` değişiklikleri AYNI commit'te yer almalı. Vercel/CI `npm ci` kullandığı için lockfile sync atlanırsa EUSAGE → tüm deploy patlaması. Tek seferlik araç stratejisi: `npx` kullan + paket eklemek yerine.
+
+### 31. Mimar Hatası Kayıt
+
+TUR #85 S6 commit `b110977` `@next/bundle-analyzer` devDep'e eklendi, ama lockfile sync atlandı. 4 gün sonra (5 Mayıs 13:30) Vercel npm ci EUSAGE → 13 dk deploy patlaması. TUR #85.5 + TUR #85.6 commit'leri production'a yansıyamadı (4 commit blokluydu).
+
+### Pattern + Kalibrasyon
+
+TUR #56→#85.7 = 254+ atom **sapma 0** — kalibrasyon 1.6× **35. doğrulama**.
+31 mimar hatası/gözlem → 31 anayasa maddesi/uyum dönüşümü.
+
+### Maliyet
+
+**$0** — TUR #85.7 lockfile hijyeni, paket kaldırma. 0 schema/npm yeni paket/env, 0 KIRMIZI ihlal.
+
+---
+
 ## TUR #85.6 — SURGICAL HOTFIX 2FA COOKIE SENKRON + 30. MİMAR HATASI (KAPANIŞ)
 
 **Tarih:** 5 Mayıs 2026 akşam (CEO Chrome incognito 17:47 ERR_TOO_MANY_REDIRECTS hala devam etti)

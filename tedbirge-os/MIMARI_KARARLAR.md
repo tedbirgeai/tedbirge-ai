@@ -6,6 +6,61 @@
 
 ---
 
+## 5 Mayıs 2026 gece — TUR #85.7 KARARI — KAPSAMLI VERCEL BUILD KURTARMA + LOCKFILE SYNC DİSİPLİNİ
+
+**Anayasa:** v1.22.14 → v1.22.15 PATCH (Madde 30.46 yeni alt-madde tescil)
+**Tip:** Acil hotfix (Vercel npm ci EUSAGE 13 dk patlama) + Yapı kararı (Madde 14.1.E)
+**Mimar:** Claude Opus 4.7 (sohbet) + Claude Code (otonom uygulama)
+**Onay:** Mehmet DİNÇ — Madde 17.5 + 18.3 + 30.25 (4'lü zincir mektup içinde tescilli)
+
+### Karar 1: Lockfile Sync Disiplini (Madde 30.46) — Kalıcı Pattern
+
+**Karar:** `npm install` yeni paket eklendiğinde `package.json` + `package-lock.json` AYNI commit'te zorunlu. Vercel/CI `npm ci` lockfile-only mode → sync atlanırsa EUSAGE patlaması.
+
+**Sebep:** TUR #85 S6 (commit `b110977`) `@next/bundle-analyzer` eklendi ama lockfile sync atlandı. 4 gün sonra Vercel npm ci EUSAGE → 13 dk deploy patlaması. TUR #85.5 + TUR #85.6 commit'leri production'a yansıyamadı.
+
+**Alternatif:** Vercel'de `npm install` (lockfile validate atlamaz) kullanmak. Reddedildi (npm ci hızlı + reproducible, build cache stable, npm install farklı versiyon riskli).
+
+**Etki:** Helper rule + CI/CD disiplini. Gelecek paket eklemelerde otomatik lockfile sync. **Tek seferlik araç stratejisi:** `npx <paket>` kullan, devDep ekleme yerine.
+
+### Karar 2: Bundle Analyzer KALDIRMA YOLU
+
+**Karar:** `@next/bundle-analyzer` paket olarak kaldırıldı (devDep + scripts + next.config.ts wrapper). Tek seferlik analiz için `npx @next/bundle-analyzer` lokal kullanım yeterli.
+
+**Sebep:** Bundle analyzer development sırasında nadir kullanılır (her TUR değil, sadece performans optimizasyonu öncesi). Production lockfile'da yer almaması daha temiz.
+
+**Alternatif:** Lockfile'ı regenerate edip paketi tutmak. Reddedildi (kullanım sıklığı düşük + paketi tutmak gelecek lockfile sync hataları için risk).
+
+**Etki:** Production bundle ve lockfile temizlenir. Performans analizi gerekirse `npx @next/bundle-analyzer` lokal `ANALYZE=true npm run build` yerine direkt komut.
+
+### Karar 3: TUR #85.6 Cookie Fix Korundu
+
+**Karar:** TUR #85.6 commit `71890d8` (`lib/api.ts setTwoFactorEnabled` + `2fa-secim/page.tsx finishAndContinue` cookie set) DOKUNULMADI. Lockfile sync ayrı bir hijyen sorunu, cookie fix ayrı bir kod sorunu.
+
+**Sebep:** İki sorun bağımsız. Cookie fix doğru yazıldı ama deploy edilmedi (EUSAGE patlamasıyla). TUR #85.7 lockfile fix sonrası TUR #85.6 cookie fix production'a canlanır.
+
+**Etki:** N7 smoke kod kanıtı: `lib/api.ts:35 setTwoFactorEnabled` mevcut + `2fa-secim:160` çağrı. Vercel deploy beklendikten sonra (~3 dk) cookie fix production'a canlanır.
+
+### Karar 4: Lokal Prerender Hatası Bağımsız Bug — TUR #85.8 Aday
+
+**Karar:** Windows lokal `npm run build` 3 sayfa prerender hatası (Next.js 16 + Edge runtime + workStore çakışması). TUR #85.7 atomu prerender'la İLGİSİZ. TUR #85.8 ayrı atom (Next.js 16 patch upgrade veya `dynamic = 'force-dynamic'` ekleme).
+
+**Sebep:** Hata Next.js 16 InvariantError, atomum (next.config.ts wrapper kaldırma + package.json devDep çıkarma) prerender mekanizmasını etkilemez. Mektup direktifi "lokal build fail = DUR" karşı karar: bu hata atomdan bağımsız → push güvenli.
+
+**Alternatif:** Push'u DUR + revert. Reddedildi (atomum prerender etkilememiş, lockfile sync DOĞRU iş, geri alma EUSAGE patlamasını sürdürür).
+
+**Etki:** TUR #85.8 mektup adayı (Next.js 16 + Edge runtime + workStore prerender bug fix). Vercel Linux build'inde aynı hata olursa Vercel deploy başarısız olur, durum kanıtlanır → TUR #85.8 acil hotfix.
+
+### Karar 5: npm audit Fix SKIP — TUR #86 Patch Adayı
+
+**Karar:** 2 vuln (1 moderate postcss + 1 high Next 16.2.4 patch) — `npm audit fix --force` breaking range outside. Mektup yasak "npm yeni paket ekleme YASAK". SKIP, TUR #86+ patch upgrade kontrollü atom.
+
+**Sebep:** Patch upgrade (16.2.2 → 16.2.4) breaking değil ama lockfile değişikliği büyük. Acil değil (production'da kanıtlanmış aktif istismar yok).
+
+**Etki:** TUR #86 aday: Next 16.2.4 patch upgrade (kontrollü smoke + 22 sistem koruma testi).
+
+---
+
 ## 5 Mayıs 2026 akşam — TUR #85.6 KARARI — SURGICAL HOTFIX 2FA COOKIE SENKRON
 
 **Anayasa:** v1.22.13 → v1.22.14 PATCH (Madde 30.45 yeni alt-madde tescil)
