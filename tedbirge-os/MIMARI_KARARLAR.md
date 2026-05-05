@@ -6,6 +6,69 @@
 
 ---
 
+## 5 Mayıs 2026 17:08 — TUR #85.5 KARARI — SERVICEWORKER KILL SWITCH + REDIRECT DÖNGÜ HOTFIX
+
+**Anayasa:** v1.22.12 → v1.22.13 PATCH sürüm artışı (Madde 30.43 + Madde 30.44 yeni)
+**Tip:** Kalıcı yapı kararı (Madde 14.1.E) + Acil hotfix (CEO 5 ekran kanıt)
+**Mimar:** Claude Opus 4.7 (sohbet) + Claude Code (otonom uygulama)
+**Onay:** Mehmet DİNÇ — Madde 17.5 + 18.3 + 30.25 (CEO 4'lü zincir yenilemesi mektup içinde tescilli)
+
+### Karar 1: Service Worker Kill Switch — Kalıcı Defansif Pattern
+
+**Karar:** PWA SW kayıtlı kullanıcılarda eski SW'yi kalıcı olarak öldürmek için **kill switch SW pattern**: install `skipWaiting()` + activate `caches.delete(*)` + `clients.claim()` + `self.unregister()` + fetch no-op pass-through.
+
+**Sebep:** Eski SW (`PRECACHE_URLS = [..., "/dashboard", ...]` + Network First fallback) auth state'i cache'lediği için sonsuz redirect döngü yaratıyordu. CEO Image 1 (5 Mayıs 17:05) kanıt: 324 request `/dashboard ↔ /2fa-secim` ping-pong. Vercel deploy yetersiz çünkü SW kendi update kontrolü yapar.
+
+**Alternatif:** SW dosyasını silmek + 404 dönmek (eski SW alır → register hatası kalır). Reddedildi (eski SW persist edebilir, kill switch daha temiz).
+
+**Etki:** Kalıcı pattern (`public/sw.js` + `components/SwKillScript.tsx`) + Madde 30.44 emsali. Gelecek PWA gereksiniminde kill switch SW alt yapı olarak kalır, yeni SW eklenirse kill switch geçici olarak update edilir.
+
+### Karar 2: Auth Route'ta SW + ISR + CDN Public Cache YASAK (Madde 30.44)
+
+**Karar:** Auth-aware route'larda (`/login`, `/dashboard`, `/2fa-secim`, `/lawyer-dashboard`, `/temsilci`, `/musteri`) ASLA SW cache, ISR `revalidate`, veya CDN public cache (`Cache-Control: public`) kullanılmaz. Zorunlu: `Cache-Control: no-store, no-cache, must-revalidate, max-age=0` + `Pragma: no-cache`.
+
+**Sebep:** Cookie state'i içeren sayfalarda public cache state çatışması yaratır. Kullanıcı A login olur, kullanıcı B aynı sayfayı cache'ten alır → güvenlik açığı.
+
+**Alternatif:** `Cache-Control: private` (kullanıcı bazlı CDN cache). Reddedildi (Vercel/Cloudflare CDN private cache complex + cookie hashing risk).
+
+**Etki:** `next.config.ts headers()` 3 kural (sw.js + auth route root + sub-path). HARD 2FA enforcement felsefesi (TUR #82+#84) korunur — middleware her istekte çalışır.
+
+### Karar 3: 4 Katman Defense in Depth (Browser Cache Bug)
+
+**Karar:** Browser cache bug'lara karşı 4 katmanlı defansif pattern:
+1. Backend Cache-Control no-store (Madde 30.44)
+2. Server-side `proxy.ts` cookie tabanlı redirect (Madde 30.40)
+3. `public/sw.js` KILL SWITCH SW (eski SW unregister)
+4. Client-side komponentler: `SwKillScript` (SW unregister) + `RedirectGuard` (5+ nav/30sn halt)
+
+**Sebep:** CEO Image 1 ERR_TOO_MANY_REDIRECTS bug'ı sadece 1 katmanda çözülmez — SW + cookie + middleware + browser session farklı katmanlarda çalışır. Defense in depth pattern.
+
+**Alternatif:** Sadece SW kill switch + middleware. Reddedildi (RedirectGuard kullanıcı seviyesinde otomatik recovery sağlar — bug tekrarlanırsa kullanıcı manuel müdahale gerekmeden /login'e dönüş).
+
+**Etki:** Madde 30.44 + Madde 30.40 birleşik pattern. Gelecek auth bug'larında 4 katman zaten yerinde, yeni middleware/SW eklenmesi yeterli.
+
+### Karar 4: Browser Session Smoke Zorunlu (Madde 30.43 — CEO Görsel > Code Rapor 4. Uygulama)
+
+**Karar:** Endpoint curl smoke (HTTP status code) **yetersiz**. Auth + cookie + redirect zinciri içeren sistemler için TUR sonu **gerçek browser session smoke** zorunlu (10 madde — Madde 30.43).
+
+**Sebep:** TUR #85 S8 endpoint smoke 22 sistem yeşil rapor etti, ama CEO Image 1 SW cache redirect döngü tespit etti. Endpoint smoke browser state'ini (cache + SW + cookie) görmedi.
+
+**Alternatif:** E2E test framework (Playwright/Cypress). Reddedildi (kapsam genişler, CEO incognito test minimum yeterli + Madde 30.43 zorunlu kılar).
+
+**Etki:** Pattern olgunluğu — CEO Görsel > Code Rapor (TUR #72.10 → #72.11 → #85 → #85.5 zinciri 4. uygulama). 28. mimar hatası kalıcı önlem.
+
+### Karar 5: PWA Yarım Kurulu Tasarımdan Çıkış
+
+**Karar:** TUR #41 (PWA) emsali yarım kurulu — sw.js manuel + manifest.json yok = tutarsız. TUR #85.5 ile sw.js kill switch'e dönüştü, manifest hala yok. Yeni ziyaretçilerde **SW kayıt edilmiyor** (PwaProvider registerSW kaldırıldı). PWA özelliği ileride bilinçli olarak yeniden açılırsa Madde 30.44 disiplinine uymalı.
+
+**Sebep:** Yarım kurulu PWA = bug magneti. Kontrollü tam temizlik tercih edildi.
+
+**Alternatif:** PWA tam kurma (manifest + workbox + auth-aware). Reddedildi (kapsam genişler + Madde 30.44 ihlal riski).
+
+**Etki:** Push notification SW listener (sw.js içinde) korundu (TUR #74-#76 push subscriptions geçiş döneminde). Manifest gerekirse gelecek TUR'da bilinçli eklenebilir.
+
+---
+
 ## 5 Mayıs 2026 — TUR #85 KARARI — KAPSAMLI TEMİZLİK + HIZ OPTİMİZASYONU (ÜCRETSİZ FAZ 1)
 
 **Anayasa:** v1.22.11 → v1.22.12 PATCH sürüm artışı (Madde 30.41 + Madde 30.42 yeni alt-madde tescil)

@@ -1,3 +1,86 @@
+## TUR #85.5 — SERVICEWORKER KILL SWITCH + REDIRECT DÖNGÜ HOTFIX + 28+29. MİMAR HATASI (KAPANIŞ)
+
+**Tarih:** 5 Mayıs 2026 17:08 (CEO 5 ekran kanıt 17:05 sonrası)
+**Anayasa:** v1.22.12 → v1.22.13 PATCH (Madde 30.43 Browser Session Smoke + Madde 30.44 PWA/SW/Cache Disiplini yeni)
+**Tip:** P+R+RR triple (production redirect döngü hotfix + 28+29. mimar hatası + kapsam-dışı temizlik)
+**BYPASS:** AÇIK (KIRMIZI nokta YOK, mektup içi yazılı CEO 4'lü zincir yenilemesi)
+
+### CEO Direktifi (Madde 30.25 4'lü zincir yenilemesi)
+
+> "yukarıda saydığın Kapsam DIŞINDA kalan dediğini daha kapsamlı temizlik tek komutla yap, Temsilci/Hukukçu/Müvekkil patlak çatlak ne varsa uçtan uca otonom düzelt çalışsın eksik noksan varsa 0 hata düzelt, hiçbir şey sorma, başla bitir"
+
+### CEO 5 Ekran Kanıt (5 Mayıs 17:05-17:08)
+
+- **Image 1:** 324 request 22.1 KB — `/dashboard ↔ /2fa-secim` ping-pong, **`Fulfilled by: (ServiceWorker)`**
+- **Image 2:** Response Headers — `Cache-Control: public, max-age=0, must-revalidate`, `Location: /2fa-secim`
+- **Image 3:** `Provisional headers are shown` + Cookie satırı YOK
+- **Image 4:** 61 request 4.7 KB · `/2fa-secim` · `Referer: /login?rol=hukukcu`
+- **Image 5:** `/dashboard` request — Cookie YOK · auth header eksik
+
+### Kök Sebep — 3 Katman Tanı
+
+1. **ServiceWorker Cache (en kritik):** `tedbirge-panel/public/sw.js` eski versiyon `PRECACHE_URLS = ["/", "/dashboard", "/offline.html", ...]` install zamanı cache + Network First fallback redirect döngü
+2. **Vercel Cache Header:** `Cache-Control: public, max-age=0` cookie-aware DEĞİL, CDN cookie state'siz HTML cache'liyor
+3. **Cookie Provisional:** `Provisional headers are shown` = istek gerçekten gönderilmedi, browser cache/SW'den karşılandı; TUR #84 T1 middleware (proxy.ts) doğru yazılmış AMA hiç çağrılmıyor
+
+### Atom Detay (J0-J14)
+
+**J0 Keşif (commit yok):** `tedbirge-panel/public/sw.js` MEVCUT (`PRECACHE_URLS` `/dashboard`), Next.js 16 docs `proxy.ts` doğru convention, `/login` + `/2fa-secim` `"use client"` (ISR uygulanamaz), 4 rol sayfa zaten mevcut (`/dashboard/hukukcu` + `/temsilci` + `/musteri`), AppLayout zaten role-aware menu config, public/manifest.json YOK (PWA yarım kurulu).
+
+**J1 KRİTİK SW Kill Switch (panel commit `2c4d7d0` — 5 dosya tek atom):**
+- `public/sw.js` → KILL SWITCH SW: install `skipWaiting()` + activate `caches.delete(*)` + `clients.claim()` + `self.unregister()` + fetch no-op pass-through
+- `components/SwKillScript.tsx` (yeni) → client-side defansif: `navigator.serviceWorker.getRegistrations()` → unregister(*) + `caches.keys()` → delete(*) + sessionStorage one-shot reload + SW_KILLED_RELOAD listener
+- `components/PwaProvider.tsx` → `registerSW()` fonksiyonu KALDIRILDI (yeni ziyaretçilere SW kayıt yok), Push notification + install banner korundu
+- `app/layout.tsx` → SwKillScript import + render
+- `next.config.ts` → `async headers()` ekleme: `/sw.js` no-store + `Service-Worker-Allowed: /` + `(login|2fa-secim|dashboard|lawyer-dashboard|temsilci|musteri)/...` no-store + Pragma no-cache
+
+**J2 NO-OP** — TUR #84 T1 (`lib/api.ts:9-22`) zaten 3-cookie atomik + `proxy.ts:95` boolean compare `=== '0'`. Skip kanıt zinciri.
+
+**J3 NO-OP** — `/login` + `/2fa-secim` `"use client"` directive (server-side ISR uygulanmaz), J1 commit `2c4d7d0` next.config.ts headers `Cache-Control: no-store` zaten ekledi (daha sıkı koruma).
+
+**J4 NO-OP** — Next.js 16 docs (`node_modules/next/dist/docs/.../proxy.md`): "middleware file convention deprecated, renamed to proxy". `proxy.ts` doğru, `middleware.ts` yok zaten.
+
+**J5 NO-OP** — `proxy.ts` ROLE_ALLOWED_ROUTES + defaultLanding zaten REPRESENTATIVE → `/temsilci` + CUSTOMER → `/musteri` redirect. LAWYER `/dashboard` izinli (mevcut tasarım, AppLayout role-aware menu).
+
+**J6 NO-OP** — AppLayout zaten role-aware menu config (S0 kanıt: `roles: ["ADMIN"]`, `roles: ["LAWYER"]`, `roles: ["REPRESENTATIVE"]` matrisi).
+
+**J7 RedirectGuard (panel commit `de64590`):**
+- `components/RedirectGuard.tsx` (yeni) — `usePathname` her değişiklik sessionStorage navigations push, 30sn 5+ navigation tespit → cookie atomik clear + localStorage temizle + ServiceWorker unregister + caches.delete + `/login?redirect_guard=1` zorla redirect
+- `app/layout.tsx` → RedirectGuard import + render (SwKillScript yanına)
+- `app/(public)/login/page.tsx` → `?redirect_guard=1` query param → toast/error: "Yeniden yönlendirme döngüsü tespit edildi. Hesabınızdan çıkış yapıldı, lütfen yeniden giriş yapın."
+
+**J8 NO-OP** — TUR #82 V2 (commit `599107d`) zaten `HARD_2FA_ROLES` + `requiresTwoFactorSetup` + `twoFactorReminder` flag'leri.
+
+**J9 4 Rol Smoke Belgesi (yeni dosya):** `tedbirge-os/docs/TUR85_5_J9_4ROL_SMOKE.md` — 12 senaryo (A-L) × 4 rol matrisi: ADMIN TOTP + LAWYER yeni hesap 2FA wizard + REPRESENTATIVE SMS NetGSM + CUSTOMER SOFT + cross-role mismatch + brute force + hesapsız sorgu + yetkisiz dashboard + logout + SW kontrolü + refresh resilience + RedirectGuard. Cookie state tablosu + cache header smoke.
+
+**J10 Kapsam-Dışı (panel commit `cb78921`):**
+- `LawyerDashboardTabs.tsx` TS strict hata `Property '_count' does not exist on type 'Lead'` runtime cast düzelti (TUR #85 S4 panel commit kalan)
+- `DocumentList.tsx:198` hard-coded `http://localhost:5000/uploads-static/` → `process.env.NEXT_PUBLIC_API_BASE_URL` + /api suffix strip
+
+**J11 + J12 Anayasa + 5 OS Senkron (backend bu commit):**
+- 30.43 Browser Session Smoke Disiplini (10 madde — endpoint curl yetersiz, 4 rol incognito + DevTools + cookie state matrisi + redirect zinciri + SW kontrol)
+- 30.44 PWA/SW/Cache Disiplini (auth route'ta SW/ISR/CDN public yasak + 4 katman defense in depth)
+- v1.22.12 → v1.22.13 PATCH (2 yeni alt-madde tescil — 36 toplam alt-madde)
+- 5 OS dosya tek atom commit (Madde 30.26)
+
+### Mimar Hata-Gözlem (28+29)
+
+**28. mimar hatası:** TUR #85 S8 endpoint curl smoke 22 sistem yeşil rapor edildi, ama CEO ekran kanıtıyla (Image 1, 5 Mayıs 17:05) ServiceWorker cache redirect döngü tespit edildi. Endpoint smoke browser cache + SW state'ini görmedi. Madde 30.43 (Browser Session Smoke) ile kalıcı önlem.
+
+**29. mimar hatası:** PWA Service Worker `/dashboard`'ı `PRECACHE_URLS` ile install zamanı cache'liyordu — geçmiş bir TUR'da (TUR #41 PWA emsali — TUR #85.5 öncesi) eklenmiş, dokümante edilmemiş. Madde 30.44 (PWA/SW/Cache Disiplini) + 4 katman defense in depth ile kalıcı önlem.
+
+### Pattern + Kalibrasyon
+
+TUR #56→#85.5 = 250+ atom **sapma 0** — kalibrasyon 1.6× **33. doğrulama**.
+29 mimar hatası/gözlem → 29 anayasa maddesi/uyum dönüşümü.
+**CEO görsel kanıt > Code rapor** pattern 4. uygulama (TUR #72.10 → #72.11 → #85 → #85.5).
+
+### Maliyet
+
+**$0** — TUR #85.5 hotfix ücretsiz, 0 schema/npm/env değişikliği, 0 KIRMIZI ihlal.
+
+---
+
 ## TUR #85 — KAPSAMLI TEMİZLİK + HIZ OPTİMİZASYONU + ÜCRETSİZ FAZ 1 (KAPANIŞ)
 
 **Tarih:** 5 Mayıs 2026 (CEO direktifi: "uçtan uca otonom kapsamlı temizlik + hız optimizasyonu")

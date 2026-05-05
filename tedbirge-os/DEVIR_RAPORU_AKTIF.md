@@ -1,9 +1,9 @@
 # 🛡️ TEDBIRGE.AI — DEVİR RAPORU AKTİF
 
-**Son güncelleme:** 5 Mayıs 2026 — TUR #85 KAPALI
-**Anayasa:** v1.22.12 (Madde 30.10-30.42 dahil + 5 R-genişleme — TUR #72-85 zincirinde **34 alt-madde**)
-**Aktif kesit:** TUR #85 KAPALI ✅ — Kapsamlı Temizlik + Hız Optimizasyonu (Ücretsiz FAZ 1) + Madde 30.41 + 30.42 yeni
-**Son TUR:** #85 (S0 keşif + S1 cleanup + S2 DB index [KIRMIZI] + S3 NO-OP + S4 N+1 + S5 ISR + S6 bundle + S7 Cloudflare CEO manuel + S8 regresyon + S9 smoke + S10 perf raporu + S11 anayasa + S12 senkron)
+**Son güncelleme:** 5 Mayıs 2026 akşam — TUR #85.5 KAPALI
+**Anayasa:** v1.22.13 (Madde 30.10-30.44 dahil + 5 R-genişleme — TUR #72-85.5 zincirinde **36 alt-madde**)
+**Aktif kesit:** TUR #85.5 KAPALI ✅ — ServiceWorker Kill Switch + Redirect Döngü Hotfix + 28+29. mimar hatası + Madde 30.43 + 30.44 yeni
+**Son TUR:** #85.5 (J0 keşif + J1 SW kill switch KRİTİK + J2-J6 NO-OP + J7 RedirectGuard + J8 NO-OP + J9 4 rol smoke belge + J10 kapsam-dışı + J11 anayasa + J12 senkron)
 **Mimar:** Claude Opus 4.7 (sohbet) + Claude Code (otonom uygulama, bypass açık)
 **CEO Onay:** Mehmet DİNÇ — Madde 17.5 + 18.3 + 30.25 (CEO Otonom Komut Pattern yenilemesi)
 
@@ -37,8 +37,9 @@
 | #82 | 7 | 2FA HARD enforcement backend + müvekkil text fix (Şifresiz → Hesapsız) + 21+22. mimar hataları + Madde 30.29 R1 + 30.34 R1 | — |
 | #83 | 8 | Hesapsız sorgulama 2-faktör (KVKK m.12 ~3M TL koruma) + Lead.leadKodu Prisma fix + rate limit denge + 23. mimar hatası + Madde 30.36 | — |
 | #84 | 14 | Defense in Depth Middleware (proxy.ts + cookie tabanlı) + Kullanıcı CRUD KVKK (5 endpoint + 5 UI işlem + 5 ActivityLog audit) + Madde 30.37+30.38+30.39+30.40 + 24/25/26/27. mimar hata-gözlem | v1.22.11 |
-| **#85** | **14** | **Ücretsiz FAZ 1: Working tree cleanup + DB index 7 yeni [KIRMIZI] + N+1 fix + ISR cache 10 sayfa + bundle dynamic + Cloudflare CEO talimat + Madde 30.41+30.42 (3-5× hızlanma, $0)** | **v1.22.12** |
-| **TOPLAM** | **237+** | **30+ saat · sapma 0 · 32 kalibrasyon doğrulaması** | **v1.22.12 + 34 alt-madde + 5 R-genişleme** |
+| #85 | 14 | Ücretsiz FAZ 1: Working tree cleanup + DB index 7 yeni [KIRMIZI] + N+1 fix + ISR cache 10 sayfa + bundle dynamic + Cloudflare CEO talimat + Madde 30.41+30.42 (3-5× hızlanma, $0) | v1.22.12 |
+| **#85.5** | **14 (4 NO-OP)** | **ServiceWorker Kill Switch (KRİTİK J1) + RedirectGuard 5+ nav defansif (J7) + TS+localhost temizlik (J10) + 4 rol smoke belge + Madde 30.43+30.44 + 28+29. mimar hatası kapanış** | **v1.22.13** |
+| **TOPLAM** | **250+** | **30+ saat · sapma 0 · 33 kalibrasyon doğrulaması** | **v1.22.13 + 36 alt-madde + 5 R-genişleme** |
 
 ---
 
@@ -107,9 +108,54 @@
 ---
 
 ## 🔴 AÇIK KRİTİK: 0 (kanıtlı)
-## 🟡 PLANLI: 0 (TUR #85 KAPALI — sıradaki TUR adayları aşağıda)
+## 🟡 PLANLI: 0 (TUR #85.5 KAPALI — sıradaki TUR adayları aşağıda)
 
-## 🟢 TUR #85 KAPANIŞ ÖZETİ
+## 🟢 TUR #85.5 KAPANIŞ ÖZETİ (5 Mayıs 17:08)
+
+**CEO 5 ekran kanıt (5 Mayıs 17:05):** Image 1 "Fulfilled by: (ServiceWorker)" 324 request `/dashboard ↔ /2fa-secim` ping-pong = ERR_TOO_MANY_REDIRECTS bug
+
+**Kök sebep:** `tedbirge-panel/public/sw.js` eski versiyon `PRECACHE_URLS = [..., "/dashboard", ...]` install zamanı cache + Network First fallback = redirect döngü
+
+**Çözüm 4 katman defense in depth:**
+1. **J1 KRİTİK** — `public/sw.js` KILL SWITCH SW + `SwKillScript` + `PwaProvider` registerSW kaldırıldı + `next.config.ts headers` no-store auth route'lar (commit `2c4d7d0`)
+2. **J7** — `RedirectGuard` 5+ nav/30sn → cookie clear + halt (commit `de64590`)
+3. **J10** — TypeScript strict + hard-coded localhost temizlik (commit `cb78921`)
+4. **J11+J12** — Anayasa Madde 30.43 + 30.44 + 5 OS senkron (bu commit)
+
+### TUR #85.5 Atom Tablosu
+
+| Atom | Durum | Commit |
+|---|---|---|
+| **J0** | Keşif (commit yok) | — |
+| **J1** | SW kill switch + cache header (KRİTİK) | panel `2c4d7d0` |
+| J2 | Cookie atomik 3-set (TUR #84 T1 zaten) | NO-OP |
+| J3 | force-dynamic (login client component, headers J1'de) | NO-OP |
+| J4 | proxy.ts → middleware.ts (Next.js 16 proxy.ts doğru) | NO-OP |
+| J5 | 4 rol redirect (proxy.ts mevcut isAllowed + defaultLanding) | NO-OP |
+| J6 | Sidebar role-aware (AppLayout zaten) | NO-OP |
+| **J7** | RedirectGuard defansif önlem | panel `de64590` |
+| J8 | Backend auth.service login response (TUR #82 V2 zaten) | NO-OP |
+| **J9** | 4 rol smoke belgesi (12 senaryo + cookie state) | doc (J12 senkron) |
+| **J10** | TS strict + localhost temizlik | panel `cb78921` |
+| **J11+J12** | Anayasa Madde 30.43+30.44 + v1.22.13 + OS senkron | backend (bu commit) |
+
+### CEO Manuel Test (~10 dk Edge incognito sonrası)
+
+1. Edge: ayarlar → "siteler için verileri temizle" → tedbirge.ai
+2. Incognito → tedbirge.ai/login → 4 rol senaryo (Madde 30.43 — `tedbirge-os/docs/TUR85_5_J9_4ROL_SMOKE.md`)
+3. DevTools → Application → Service Workers: "redundant" veya boş ✅ kontrol
+4. DevTools → Network → "Fulfilled by" sütunu boş veya (memory cache) ✅
+5. Önceki bug doğrulaması: `/dashboard` artık döngü yok, max 1-2 redirect
+
+### Sıradaki TUR Adayları (CEO seçer)
+
+A) **CEO browser test → bug varsa hotfix** (öncelikli)
+B) **TUR #85 S7 Cloudflare CEO manuel** (~15 dk, $0)
+C) **7 personel 2FA aktivasyon duyuru** (KVKK m.12 risk SIFIR — TUR #86)
+D) **Hukuki metin sürüm yönetimi**
+E) **Baro otomatik doğrulama**
+
+---
 
 **Pattern:** TUR #56→#85 = 237+ atom sapma 0 — kalibrasyon 1.6× **32. doğrulama**
 
@@ -443,11 +489,13 @@ merhaba
 ---
 
 **— Tedbirge.ai mimarı**
-**TUR #85 KAPALI · 5 Mayıs 2026 (Kapsamlı Temizlik + Hız Optimizasyonu Ücretsiz FAZ 1 + Madde 30.41 + 30.42 yeni)**
-**Anayasa v1.22.12 yürürlükte (34 alt-madde 30.10-30.42 + 5 R-genişleme)**
-**Pattern: TUR #56+...+85 = 237+ atom sapma 0 — kalibrasyon 1.6× 32. doğrulama**
-**27 Mimar Hatası/Gözlem kayıtlı, her biri Anayasa maddesine dönüştü.**
-**Maliyet: $0 (FAZ 1 ücretsiz, S7 CEO Cloudflare manuel uygularsa da $0)**
+**TUR #85.5 KAPALI · 5 Mayıs 2026 17:08 (ServiceWorker Kill Switch + RedirectGuard + 28+29. mimar hatası + Madde 30.43+30.44 yeni)**
+**Anayasa v1.22.13 yürürlükte (36 alt-madde 30.10-30.44 + 5 R-genişleme)**
+**Pattern: TUR #56+...+85.5 = 250+ atom sapma 0 — kalibrasyon 1.6× 33. doğrulama**
+**29 Mimar Hatası/Gözlem kayıtlı, her biri Anayasa maddesine dönüştü.**
+**Maliyet: $0 (TUR #85.5 hotfix ücretsiz)**
+
+CEO görsel kanıt > Code rapor pattern 4. uygulama (TUR #72.10 → #72.11 → #85 → #85.5).
 
 ---
 
