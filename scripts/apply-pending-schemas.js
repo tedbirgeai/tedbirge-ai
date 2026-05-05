@@ -64,6 +64,18 @@ const STATEMENTS = [
   `ALTER TABLE "User" ADD COLUMN IF NOT EXISTS "mustChangePasswordOnNextLogin" BOOLEAN NOT NULL DEFAULT false`,
   `CREATE INDEX IF NOT EXISTS "User_deletedAt_idx" ON "User"("deletedAt")`,
   `CREATE INDEX IF NOT EXISTS "User_status_idx" ON "User"("status")`,
+
+  // ─── TUR #85 S2 — Performans indexler (Madde 30.41) ─────────────────────
+  // User: rol + durum filtreli ADMIN listesi
+  `CREATE INDEX IF NOT EXISTS "User_role_status_idx" ON "User"("role", "status")`,
+  // Lead: telefon ile arama + status filter + ownerId lookup
+  `CREATE INDEX IF NOT EXISTS "Lead_customerPhone_idx" ON "Lead"("customerPhone")`,
+  `CREATE INDEX IF NOT EXISTS "Lead_status_idx" ON "Lead"("status")`,
+  `CREATE INDEX IF NOT EXISTS "Lead_ownerId_idx" ON "Lead"("ownerId")`,
+  // ActivityLog: createdAt DESC sıralı, leadId/action filtreli sorgu
+  `CREATE INDEX IF NOT EXISTS "ActivityLog_createdAt_idx" ON "ActivityLog"("createdAt" DESC)`,
+  `CREATE INDEX IF NOT EXISTS "ActivityLog_leadId_createdAt_idx" ON "ActivityLog"("leadId", "createdAt" DESC)`,
+  `CREATE INDEX IF NOT EXISTS "ActivityLog_action_createdAt_idx" ON "ActivityLog"("action", "createdAt" DESC)`,
 ];
 
 (async () => {

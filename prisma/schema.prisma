@@ -33,6 +33,11 @@ model ActivityLog {
   detail    String?
   createdAt DateTime @default(now())
   Lead      Lead?    @relation(fields: [leadId], references: [id])
+
+  // TUR #85 S2 — Performans indexler (Madde 30.41)
+  @@index([createdAt(sort: Desc)])
+  @@index([leadId, createdAt(sort: Desc)])
+  @@index([action, createdAt(sort: Desc)])
 }
 
 model Assignment {
@@ -293,6 +298,11 @@ model Lead {
   aiAnalizOnayNote String?        @db.Text
   publicSummary    String?        @db.Text
   aciliyet         AciliyetSeviye @default(NORMAL)
+
+  // TUR #85 S2 — Performans indexler (Madde 30.41)
+  @@index([customerPhone])
+  @@index([status])
+  @@index([ownerId])
 }
 
 model Masraf {
@@ -415,6 +425,8 @@ model User {
 
   @@index([deletedAt])
   @@index([status])
+  // TUR #85 S2 — Performans index (rol+durum filtreli ADMIN listesi)
+  @@index([role, status])
 }
 
 // TUR #84 T3 — Kullanıcı CRUD durum enum (Madde 30.37)
