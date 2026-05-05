@@ -106,8 +106,141 @@
 ---
 
 ## 🔴 AÇIK KRİTİK: 0 (kanıtlı)
-## 🟡 PLANLI: 0
-## 📋 PATTERN: 180+ atom sapma 0 — kalibrasyon 1.6× **26. doğrulama** (kalıcı pattern)
+## 🟡 PLANLI: 1
+
+### 🟡 TUR #85 — Kapsamlı Temizlik + Hız Optimizasyonu (CEO direktifi 5 Mayıs)
+
+**Önkoşul:** TUR #84 KAPALI ✅
+**Felsefe:** ÜCRETSİZ çözümler — para harcanmadan **5-8× hızlanma**
+**Beklenen:** $0 maliyet, 4-5 saat süre
+**CEO direktifi:** *"uçtan uca otonom akıp gitsin hiçbir şey sormadan kritik çalışmayan bir şey varsa düzelt, temizlik işini kapsamlı yap, bana bir şey sorma başla bitir"*
+
+#### Atom Zinciri S0-S14 (sonraki sohbette uçtan uca otonom)
+
+**S0 — Kapsam Keşfi**
+- `git status` (untracked dosya sayısı: bu sohbette 11+ kalan)
+- `du -sh node_modules .next dist build` (boyut)
+- `find . -name "*.log" -size +10M` (büyük log)
+- psql: `SELECT relname, n_live_tup FROM pg_stat_user_tables ORDER BY n_live_tup DESC LIMIT 10`
+- Render logs: son 24 sa "[NetGSM]" + "[PERFORMANS]" pattern
+- `cat package.json` (gereksiz dependency kontrol)
+- ÇIKTI: `tedbirge-os/docs/TUR85_S0_KESIF.md`
+
+**S1 — Kapsamlı Temizlik (10 dk)**
+- `git clean -fd` untracked dosyalar (`MEKTUP_TUR45_*.md`, `check_*.js`, `tur46_*`, `tur47_*`, `tur49_*`, `tur69_5_b1_1.sql`, `tur83_smoke_ciktisi.txt` vs.)
+- `.gitignore` güncelle: `*.tmp`, `scripts/check_*.js`, `scripts/tur*_*.{js,sql,md}`, `MEKTUP_TUR*.md`, `.DS_Store`, `*.log` (build dışı)
+- `rm -rf .next/cache` (Vercel build cache)
+- `npm prune` (dev dependency temizle)
+- atom commit: *"chore(cleanup): TUR #85 S1 working tree + gitignore + cache temizliği"*
+
+**S2 — Database Index [KIRMIZI] (30 dk, +%40 hızlanma)**
+- `prisma/schema.prisma` ek indexler:
+  - `User`: `@@index([email]) @@index([role, status]) @@index([deletedAt])`
+  - `Lead`: `@@index([phoneNumber]) @@index([leadCode]) @@index([status])`
+  - `ActivityLog`: `@@index([createdAt(sort: Desc)]) @@index([userId, createdAt(sort: Desc)])`
+- `npx prisma migrate dev --name tur85_performance_indexes`
+- `psql: EXPLAIN ANALYZE` 3 yavaş query (önce/sonra ms karşılaştırma)
+- atom commit: *"feat(db): TUR #85 S2 performance indexes (User/Lead/ActivityLog) [KIRMIZI]"*
+
+**S3 — Auditor Tick 1dk → 5dk (5 dk, +%30 hızlanma)**
+- `src/agents/auditor.agent.js`: `TICK_INTERVAL_MS = 5 * 60 * 1000`
+- 16 modül batch query (tek scan)
+- ActivityLog buffer 10sn flush (memory queue)
+- atom commit: *"perf(auditor): TUR #85 S3 tick 1dk → 5dk + batch query (DB yükü %80 azalt)"*
+
+**S4 — Slow Query Log + N+1 Fix (1 sa, +%20 hızlanma)**
+- PostgreSQL `log_min_duration_statement=100` enable
+- Render Logs filter "slow query"
+- Top 5 N+1 query (genelde `include` yerine `select`)
+- Pattern: `prisma.user.findMany({ select: { id, name, email, role } })` (sadece gerekli kolonlar)
+- atom commit: *"perf(db): TUR #85 S4 N+1 query fix + select optimization (Top 5 endpoint)"*
+
+**S5 — Vercel ISR Cache (30 dk, +%15 hızlanma)**
+- `tedbirge-panel/app/(public)` sayfaları:
+  - `/login`: `export const revalidate = 86400` (24 sa)
+  - `/basvuru-sorgula`: `revalidate = 3600` (1 sa)
+  - `/sss`, `/hakkimizda`, `/iletisim`: `revalidate = 86400`
+- Dashboard: SWR client-side cache
+- atom commit: *"perf(panel): TUR #85 S5 ISR cache statik sayfalar"*
+
+**S6 — Bundle Analyzer + Lazy Load (45 dk, +%10 hızlanma)**
+- `npm i -D @next/bundle-analyzer`
+- `npx ANALYZE=true next build` → büyük chunk'lar
+- Modal/dialog dynamic import (`EditUserModal`, `ResetPasswordModal`, vb.)
+- Image → `next/image` (otomatik WebP)
+- atom commit: *"perf(panel): TUR #85 S6 bundle cleanup + dynamic imports + image optimization"*
+
+**S7 — Cloudflare Proxy Kurulum (CEO MANUEL — 15 dk)**
+1. cloudflare.com hesap (ücretsiz)
+2. tedbirge.ai domain ekle + DNS auto-detect
+3. Domain registrar nameserver değiştir
+4. SSL/TLS Full (strict)
+5. Speed → Auto Minify (HTML/CSS/JS)
+6. Caching → Standard
+7. Page Rules: `tedbirge.ai/*` → cache 24sa
+- Eğer CEO yapacak: S7 atom skip + DEVIR not düş
+- atom commit: *"docs(ops): TUR #85 S7 Cloudflare CEO manuel kurulum talimatı"*
+
+**S8 — Koruma Regresyon Check**
+- TUR #74-#84 başarıları korunsun (CEO TOTP, NetGSM SMS, KVKK 2-faktör, HARD enforcement, CRUD, 4 sekme login, eski "Avukat atandı" SMS)
+- atom commit: *"test(regression): TUR #85 S8 22 sistem koruma doğrulama"*
+
+**S9 — Production Smoke 14 Kanıt**
+- /health (önce/sonra ms) + agents-health HEALTHY + 4 rol login + /basvuru-sorgula + NetGSM SMS providerCode 00 + /dashboard/kullanicilar İşlemler kolonu + LAWYER incognito → /2fa-secim + /api/query-lead-otp KVKK reddi + EXPLAIN ANALYZE User listesi <50ms + Auditor 5 dk interval + Bundle size azalma >%20
+- ÇIKTI: `tedbirge-os/docs/TUR85_S9_SMOKE.md`
+- atom commit: *"test(smoke): TUR #85 S9 production 14/14 yeşil"*
+
+**S10 — Performans Raporu (önce/sonra)**
+- `tedbirge-os/docs/TUR85_PERFORMANS_RAPORU.md`
+- Tablo: Sayfa açılışı LCP / User listesi query / Lead arama / Bundle size / Auditor DB hit/dk
+- atom commit: *"docs(perf): TUR #85 S10 performans raporu"*
+
+**S11 — Anayasa Madde 30.41 + 30.42 (yeni — v1.22.12)**
+- **30.41** Performans Optimizasyon Disiplini (sayfa açılışı 1sn'i geçerse ücretsiz optimizasyon zorunlu — DB index + N+1 fix + ISR cache + bundle + CDN; ücretli upgrade sadece kanıtlı cold start)
+- **30.42** Working Tree Temizlik Disiplini (untracked 5'i geçerse zorunlu temizlik — git clean + .gitignore + npm prune + cache)
+- CHANGELOG: v1.22.11 → v1.22.12
+- atom commit: *"feat(anayasa): Madde 30.41 + 30.42 + v1.22.12"*
+
+**S12 — 5 OS Dosya Senkron (Madde 30.26 tek atom)**
+- CLAUDE.md (Madde 30.41 + 30.42 + v1.22.12)
+- DEVIR_RAPORU_AKTIF.md (TUR #85 KAPALI özet + perf önce/sonra tablo + 22 sistem korundu kanıt + CEO sıradaki: 7 personel duyuru)
+- IS_PLANI.md (TUR #85 satırı)
+- docs/OTONOM_RAPOR.md (TUR #85 detay + S10 perf raporu)
+- MIMARI_KARARLAR.md (ücretsiz optimizasyon stratejisi + Render Standard kanıt-bazlı)
+- atom commit: *"chore(os): TUR #85 close + 5-doc sync"*
+
+**S13 — Kapanış Raporu (Madde 26.5)**
+- TUR #85 KAPALI N atom M commit
+- Production smoke 14/14
+- Sayfa açılışı X sn → Y sn (Zx hızlanma)
+- Working tree temiz (untracked 0)
+- Anayasa v1.22.12 + 2 yeni madde
+- 22 sistem regresyon yok
+- Maliyet: $0 (FAZ 1 tamamen ücretsiz)
+- CEO sıradaki: tarayıcı test + Cloudflare manuel + 7 personel duyuru + (gerekirse Render Standard $25 kanıt-bazlı)
+
+**S14 — Regresyon Son Kontrol** — 22 sistem doğrulama (smoke + ActivityLog).
+
+#### Korunacak (DOKUNMA — TUR #74-#84 zincir)
+
+- CEO TOTP (TUR #76+#79)
+- NetGSM SMS (TUR #81 + CEO ENV fix)
+- KVKK 2-faktör /basvuru-sorgula (TUR #83)
+- HARD 2FA enforcement 3 katman (TUR #84 T1+T2+T3 + #82 V2/V3)
+- Kullanıcı CRUD (TUR #84 T2-T6)
+- 4 sekme login UI (TUR #79+#80+#81)
+- "Şifresiz" yanıltıcı text temiz (TUR #82 V6)
+- ISO 27001 footer rozet (TUR #79)
+- 16/16 modül auditor health (TUR #73)
+- Eski "Avukat atandı" notification SMS
+
+#### Yasaklar
+
+- ENV ekleme/değiştirme YASAK
+- Hard delete YASAK (KVKK m.6 — 5 yıl saklama)
+- Kullanıcılara HİÇBİR duyuru YAPILMAYACAK
+
+## 📋 PATTERN: 223+ atom sapma 0 — kalibrasyon 1.6× **31. doğrulama** (kalıcı pattern)
 
 ---
 
