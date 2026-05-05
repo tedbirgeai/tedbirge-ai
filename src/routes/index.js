@@ -42,6 +42,7 @@ const router = express.Router();
 
 router.use("/health", healthRoutes);
 router.use("/auth", authRoutes);
+router.use("/users", require("./users.routes")); // TUR #84 T2 — Kullanıcı CRUD (Madde 30.37)
 router.use("/leads", leadRoutes);
 router.use("/chat", chatRoutes);
 router.use("/crm", crmRoutes);
