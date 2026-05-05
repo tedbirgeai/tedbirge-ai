@@ -100,5 +100,7 @@ check_*.js
 apply_b*_*.js
 *_smoke_ciktisi.txt
 TUR*_KESIF.md
-TUR*_*.md
+# Sadece repo kökündeki TUR çalışma dosyaları yasak — tedbirge-os/docs/TUR*_*.md OS belgesi (istisna)
+/TUR*_*.md
+!tedbirge-os/docs/TUR*_*.md
 
