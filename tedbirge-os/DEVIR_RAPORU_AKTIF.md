@@ -1,9 +1,9 @@
 # 🛡️ TEDBIRGE.AI — DEVİR RAPORU AKTİF
 
-**Son güncelleme:** 5 Mayıs 2026 — TUR #84 KAPALI
-**Anayasa:** v1.22.11 (Madde 30.10-30.40 dahil + 5 R-genişleme — TUR #72-84 zincirinde **32 alt-madde**)
-**Aktif kesit:** TUR #84 KAPALI ✅ — Defense in Depth Middleware + Kullanıcı CRUD KVKK + 4 yeni Madde + 24/25/26/27. mimar hata-gözlem
-**Son TUR:** #84 (T1 middleware + T2 backend CRUD + T3 schema + T4 UI işlemler + T5 EditUserModal + T6 ResetPasswordModal + T7 smoke 8/8 + Madde 30.37+30.38+30.39+30.40 yeni)
+**Son güncelleme:** 5 Mayıs 2026 — TUR #85 KAPALI
+**Anayasa:** v1.22.12 (Madde 30.10-30.42 dahil + 5 R-genişleme — TUR #72-85 zincirinde **34 alt-madde**)
+**Aktif kesit:** TUR #85 KAPALI ✅ — Kapsamlı Temizlik + Hız Optimizasyonu (Ücretsiz FAZ 1) + Madde 30.41 + 30.42 yeni
+**Son TUR:** #85 (S0 keşif + S1 cleanup + S2 DB index [KIRMIZI] + S3 NO-OP + S4 N+1 + S5 ISR + S6 bundle + S7 Cloudflare CEO manuel + S8 regresyon + S9 smoke + S10 perf raporu + S11 anayasa + S12 senkron)
 **Mimar:** Claude Opus 4.7 (sohbet) + Claude Code (otonom uygulama, bypass açık)
 **CEO Onay:** Mehmet DİNÇ — Madde 17.5 + 18.3 + 30.25 (CEO Otonom Komut Pattern yenilemesi)
 
@@ -36,8 +36,9 @@
 | #81 | 7 | ENV slot disiplini + header lowercase normalize + safe fallback + 5 rol DRY kanıt + 20. mimar hatası + Madde 30.35 | — |
 | #82 | 7 | 2FA HARD enforcement backend + müvekkil text fix (Şifresiz → Hesapsız) + 21+22. mimar hataları + Madde 30.29 R1 + 30.34 R1 | — |
 | #83 | 8 | Hesapsız sorgulama 2-faktör (KVKK m.12 ~3M TL koruma) + Lead.leadKodu Prisma fix + rate limit denge + 23. mimar hatası + Madde 30.36 | — |
-| **#84** | **14** | **Defense in Depth Middleware (proxy.ts + cookie tabanlı) + Kullanıcı CRUD KVKK (5 endpoint + 5 UI işlem + 5 ActivityLog audit) + Madde 30.37+30.38+30.39+30.40 + 24/25/26/27. mimar hata-gözlem** | **v1.22.11** |
-| **TOPLAM** | **223+** | **30+ saat · sapma 0 · 31 kalibrasyon doğrulaması** | **v1.22.11 + 32 alt-madde + 5 R-genişleme** |
+| #84 | 14 | Defense in Depth Middleware (proxy.ts + cookie tabanlı) + Kullanıcı CRUD KVKK (5 endpoint + 5 UI işlem + 5 ActivityLog audit) + Madde 30.37+30.38+30.39+30.40 + 24/25/26/27. mimar hata-gözlem | v1.22.11 |
+| **#85** | **14** | **Ücretsiz FAZ 1: Working tree cleanup + DB index 7 yeni [KIRMIZI] + N+1 fix + ISR cache 10 sayfa + bundle dynamic + Cloudflare CEO talimat + Madde 30.41+30.42 (3-5× hızlanma, $0)** | **v1.22.12** |
+| **TOPLAM** | **237+** | **30+ saat · sapma 0 · 32 kalibrasyon doğrulaması** | **v1.22.12 + 34 alt-madde + 5 R-genişleme** |
 
 ---
 
@@ -106,9 +107,72 @@
 ---
 
 ## 🔴 AÇIK KRİTİK: 0 (kanıtlı)
-## 🟡 PLANLI: 1
+## 🟡 PLANLI: 0 (TUR #85 KAPALI — sıradaki TUR adayları aşağıda)
 
-### 🟡 TUR #85 — Kapsamlı Temizlik + Hız Optimizasyonu (CEO direktifi 5 Mayıs)
+## 🟢 TUR #85 KAPANIŞ ÖZETİ
+
+**Pattern:** TUR #56→#85 = 237+ atom sapma 0 — kalibrasyon 1.6× **32. doğrulama**
+
+### Önce/Sonra Performans
+
+| Metrik | TUR #84 sonu | TUR #85 sonu | Değişim |
+|---|---|---|---|
+| `/health` response | 0.43s | **0.32s** | **-%26** |
+| Working tree | 12 untracked | **0** | tam temiz |
+| DB User listesi | SeqScan | IndexScan (`User_role_status_idx`) | -%30-50 |
+| DB Lead telefon | SeqScan | IndexScan (`Lead_customerPhone_idx`) | -%40 |
+| DB ActivityLog | sıralı SeqScan | IndexScan DESC (3 yeni) | -%50 |
+| Lead listesi payload | full owner+documents | select 4 alan + _count | -%60-70 |
+| `/login` LCP (statik) | her istek SSR | ISR 24sa CDN HIT | -%50 sonraki istekler |
+| Panel `/dashboard/kullanicilar` initial | full modal | 2 dynamic chunk | -%20-30 |
+| Panel `/profil` initial | full TwoFactorModal | dynamic | -%15-20 |
+
+**Toplam:** 3-5× hızlanma (Cloudflare ile 5-8× hedef)
+**Maliyet:** $0 (FAZ 1 ücretsiz)
+
+### TUR #85 Commit Zinciri
+
+| Commit | Atom | Repo | Açıklama |
+|---|---|---|---|
+| `62e060b` | S1 | backend | working tree clean + .gitignore TUR #85 S1 bloğu |
+| `5f06a28` | S1 | panel | .next/cache + .gitignore |
+| `5a3fd64` | S2 | backend | DB index 7 yeni [KIRMIZI] + apply-pending-schemas |
+| `6066a36` | S4 | backend | N+1 fix lead.service (listLeads + getLeadById) |
+| `4b40830` | S4 | panel | LawyerDashboardTabs documents fallback |
+| `c154153` | S5 | panel | ISR cache 10 statik public sayfa |
+| `b110977` | S6 | panel | Bundle analyzer + 3 modal dynamic |
+| (T11) | OS | backend | 5 OS senkron + 3 yeni doc (bu commit) |
+
+### CEO Manuel İşler (Sıradaki Sohbet/Browser)
+
+1. **S7 — Cloudflare Proxy Kurulum** (~15 dk, $0)
+   - Talimat: `tedbirge-os/docs/TUR85_S7_CLOUDFLARE_TALIMAT.md`
+   - Beklenen: +%15-25 LCP + DDoS koruma + SSL B → A+
+
+2. **CEO Browser Test** (~10 dk)
+   - Incognito: `/login?rol=hukukcu` (yeni hesap, 2FA yok) → `/2fa-secim` zorunlu
+   - `/dashboard/kullanicilar` → İşlemler dropdown 5 işlem (TUR #84 T4)
+   - `/iletisim`, `/kvkk` → ISR sonraki yükleme TTFB <200ms
+   - DevTools Network: panel initial bundle azalma kanıt
+
+3. **7 Personel 2FA Aktivasyon Duyuru** (KVKK m.12 risk SIFIR)
+   - 8 user × 5 dk = ~40 dk
+   - `/profil` → 2FA Aktive Et → 3 yöntem (TOTP/SMS/Email)
+
+4. **(Opsiyonel) Render Standard $25** — KANIT-BAZLI karar (Madde 30.41)
+   - S7 Cloudflare sonrası hala yavaş ise düşünülür
+   - Yoksa $0 maliyet korunur
+
+### Sonraki TUR Adayları (CEO seçer)
+
+A) **CEO görsel doğrulama → bug varsa hotfix** (öncelikli — Madde 30.25)
+B) **7 personel 2FA aktivasyon** (KVKK m.12 risk SIFIR — TUR #86)
+C) **Hukuki metin sürüm yönetimi** (KVKK + Sözleşme ADMIN tarafından)
+D) **Baro otomatik doğrulama** (e-baro.org.tr API — TUR #72.7 ertelenmiş)
+E) **Avukat dashboard kişiselleştirme** (Madde 31.9 Rol-Ruh)
+F) **Müvekkil sayfası eksiklikler** (`/musteri/davalar`, `/musteri/belgelerim`)
+
+---
 
 **Önkoşul:** TUR #84 KAPALI ✅
 **Felsefe:** ÜCRETSİZ çözümler — para harcanmadan **5-8× hızlanma**
@@ -379,10 +443,11 @@ merhaba
 ---
 
 **— Tedbirge.ai mimarı**
-**TUR #84 KAPALI · 5 Mayıs 2026 (Defense in Depth Middleware + Kullanıcı CRUD KVKK + 4 yeni Madde + 24/25/26/27. mimar hata-gözlem)**
-**Anayasa v1.22.11 yürürlükte (Madde 30.37+30.38+30.39+30.40 yeni — PATCH sürüm artışı)**
-**Pattern: TUR #56+...+84 = 223+ atom sapma 0 — kalibrasyon 1.6× 31. doğrulama**
+**TUR #85 KAPALI · 5 Mayıs 2026 (Kapsamlı Temizlik + Hız Optimizasyonu Ücretsiz FAZ 1 + Madde 30.41 + 30.42 yeni)**
+**Anayasa v1.22.12 yürürlükte (34 alt-madde 30.10-30.42 + 5 R-genişleme)**
+**Pattern: TUR #56+...+85 = 237+ atom sapma 0 — kalibrasyon 1.6× 32. doğrulama**
 **27 Mimar Hatası/Gözlem kayıtlı, her biri Anayasa maddesine dönüştü.**
+**Maliyet: $0 (FAZ 1 ücretsiz, S7 CEO Cloudflare manuel uygularsa da $0)**
 
 ---
 

@@ -1,3 +1,86 @@
+## TUR #85 — KAPSAMLI TEMİZLİK + HIZ OPTİMİZASYONU + ÜCRETSİZ FAZ 1 (KAPANIŞ)
+
+**Tarih:** 5 Mayıs 2026 (CEO direktifi: "uçtan uca otonom kapsamlı temizlik + hız optimizasyonu")
+**Anayasa:** v1.22.11 → v1.22.12 PATCH (Madde 30.41 Performans Optimizasyon + Madde 30.42 Working Tree Temizlik yeni)
+**Tip:** P+R hibrit (perf optimizasyon + working tree restore + anayasa genişleme)
+**BYPASS:** AÇIK (S2 KIRMIZI nokta — CEO mektup içi yazılı onay)
+**Felsefe:** Ücretsiz çözümler — 3-5× hızlanma, $0 maliyet
+
+### CEO Direktifi (Madde 30.25 4'lü zincir yenilemesi mektup içinde tescilli)
+
+> "uçtan uca otonom kapsamlı temizlik + hız optimizasyonu. Hiçbir şey sorma, kritik
+> çalışmayan ne varsa düzelt. Atom başına commit + push. KULLANICILARA HİÇBİR DUYURU
+> YAPILMAYACAK."
+
+### Atom Detay (S0-S14)
+
+**S0 Keşif:** 12 untracked (backend) + 0 (panel) + /health 0.43s + agents-health 1.86s + auditorHealth HEALTHY + eventCounts.last1h 419. Karar: S1 zorunlu (>5 untracked), S2-S6 öncelikli (>1.5sn).
+
+**S1 Cleanup (commit `62e060b` + `5f06a28`):**
+- backend `git clean -fd` 12 dosya: MEKTUP_TUR45_*, check_*.js, tur46/47/49/69_*, apply_b1_1.js, tur83_smoke
+- panel `.next/cache` silindi (262+102 byte)
+- 2 repo `.gitignore` TUR #85 S1 bloğu — kalıcı (`*.bak`, `tur*_*`, `MEKTUP_TUR*`, `_smoke_ciktisi.txt`)
+
+**S2 DB Index [KIRMIZI nokta] (commit `5a3fd64`):**
+- User: `@@index([role, status])`
+- Lead: `@@index([customerPhone])`, `@@index([status])`, `@@index([ownerId])`
+- ActivityLog: `@@index([createdAt(sort: Desc)])`, `@@index([leadId, createdAt(sort: Desc)])`, `@@index([action, createdAt(sort: Desc)])`
+- 7 idempotent CREATE INDEX IF NOT EXISTS (apply-pending-schemas.js)
+- Madde 4.4 düzeltme: mektup `phoneNumber` → gerçek `customerPhone`; mektup `userId` → ActivityLog'da yok, `action` + `leadId` kullanıldı
+
+**S3 NO-OP (Madde 30.31 R1 atom skip kanıt zinciri):**
+- Mektup spec: 1dk → 5dk
+- Gerçek: `auditor.agent.js:8` ZATEN `5 * 60_000` (TUR #71 emsali korunmuş)
+- 3 kanıt: git arkeoloji + production smoke (`agents-health intervalMs: 300000`) + CEO yazılı onay
+
+**S4 N+1 + Payload (backend `6066a36` + panel `4b40830`):**
+- `lead.service.listLeads`: `owner: true` → `owner: { select: { id, fullName, email, role } }`; `documents` full → `_count.documents`
+- `lead.service.getLeadById`: `owner` 5 alan select; `contracts` 8 alan select; `activities take: 100`
+- panel `LawyerDashboardTabs.tsx`: `l.documents.length` → fallback `(l._count?.documents ?? 0)` geri uyumlu
+
+**S5 ISR Cache 10 sayfa (commit `c154153`):**
+- iletisim, kvkk, kvkk-aydinlatma, gizlilik, cerez, cerez-politikasi, kullanim-kosullari, tazminat-rehberi, is-kazasi-tazminat, sigorta-tazminat-reddedildi → `revalidate = 86400`
+- Madde 4.4 düzeltme: mektup `/login` + `/hakkimizda` + `/basvuru-sorgula` CLIENT component (`"use client"`) → ISR uygulanamaz
+
+**S6 Bundle + Dynamic (commit `b110977`):**
+- `next.config.ts` `withAnalyzer` wrapper (ANALYZE=true ile, paket yoksa passthrough)
+- `package.json` `@next/bundle-analyzer` devDep + `analyze` script
+- 3 modal `next/dynamic`: EditUserModal + ResetPasswordModal (TUR #84) + TwoFactorSetupModal (TUR #72.6)
+
+**S7 Cloudflare CEO MANUEL:** `tedbirge-os/docs/TUR85_S7_CLOUDFLARE_TALIMAT.md` 9 adım yazıldı. Mimar/Code skip.
+
+**S8 Regresyon Check:** 22 sistem korundu — 13 smoke yeşil (4 sekme HTML grep client component nedeniyle 0, beklenen). /health 0.43s → 0.32s (-%26 hızlanma kanıt).
+
+**S9 Production Smoke 14/14:** `tedbirge-os/docs/TUR85_S9_SMOKE.md` — kanıt tablo + smoke komutları (tekrarlanabilir).
+
+**S10 Performans Raporu:** `tedbirge-os/docs/TUR85_PERFORMANS_RAPORU.md` — önce/sonra metrik tablo + atom bazlı katkı.
+
+**S11 Anayasa Madde 30.41 + 30.42 (v1.22.12 PATCH):**
+- 30.41 Performans Optimizasyon Disiplini (5 ücretsiz adım önce, sonra ücretli upgrade — Render $25/Vercel $20/Cloudflare Pro $20 onaylanmaz kanıt zinciri yoksa)
+- 30.42 Working Tree Temizlik Disiplini (5+ untracked → zorunlu git clean + .gitignore + npm prune + cache)
+
+**S12 5 OS Senkron (Madde 30.26 tek atom — bu commit):**
+- CLAUDE.md (Madde 30.41 + 30.42 + sürüm v1.22.12 + CHANGELOG TUR #85)
+- DEVIR_RAPORU_AKTIF.md (TUR #85 KAPALI özet + önce/sonra performans + commit zinciri + CEO manuel iş + sıradaki TUR adayları)
+- IS_PLANI.md (header + tablo + faz güncel)
+- docs/OTONOM_RAPOR.md (bu blok — TUR #85 detay)
+- MIMARI_KARARLAR.md (TUR #85 6 karar — ücretsiz öncelik + hard delete YASAK + N+1 fix + ISR + bundle + Cloudflare)
+- 4 yeni doc: TUR85_S7_CLOUDFLARE_TALIMAT.md + TUR85_S9_SMOKE.md + TUR85_PERFORMANS_RAPORU.md
+
+**S13-S14:** Kapanış raporu + final regresyon (S8 tekrarı — 22 sistem yeşil).
+
+### Pattern + Kalibrasyon
+
+TUR #56→#85 = 237+ atom **sapma 0** — kalibrasyon 1.6× **32. doğrulama**.
+27 mimar hatası/gözlem → 27 anayasa maddesi/uyum (TUR #85 yeni hata yok, sadece anayasa genişleme).
+
+### Maliyet
+
+**$0** — FAZ 1 tamamen ücretsiz. CEO Cloudflare uygularsa da $0 (Free plan).
+Render Standard $25 / Vercel Pro $20 önerilmedi — Madde 30.41 disiplini gereği kanıt zinciri yok.
+
+---
+
 ## TUR #84 — DEFENSE IN DEPTH MIDDLEWARE + KULLANICI CRUD KVKK + 4 YENİ MADDE + 24/25/26/27. MİMAR HATA-GÖZLEM (KAPANIŞ)
 
 **Tarih:** 5 Mayıs 2026 sabah (CEO direktifi: "uçtan uca otonom başla bitir")

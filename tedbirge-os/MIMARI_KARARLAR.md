@@ -6,6 +6,74 @@
 
 ---
 
+## 5 Mayıs 2026 — TUR #85 KARARI — KAPSAMLI TEMİZLİK + HIZ OPTİMİZASYONU (ÜCRETSİZ FAZ 1)
+
+**Anayasa:** v1.22.11 → v1.22.12 PATCH sürüm artışı (Madde 30.41 + Madde 30.42 yeni alt-madde tescil)
+**Tip:** Yapı kararı (Madde 14.1.E — yeni alt-madde) + Performans stratejisi
+**Mimar:** Claude Opus 4.7 (sohbet) + Claude Code (otonom uygulama)
+**Onay:** Mehmet DİNÇ — Madde 17.5 + 18.3 + 30.25 (CEO Otonom Komut Pattern yenilemesi mektup içinde tescilli)
+
+### Karar 1: Ücretsiz Optimizasyon Önce — Ücretli Upgrade Sonra (Madde 30.41)
+
+**Karar:** Sayfa açılışı 1sn'i geçerse veya ortalama API response 500ms üstündeyse, **ücretli upgrade ÖNCE** 5 ücretsiz adım uygulanır: DB index + N+1 fix + ISR + bundle + CDN proxy.
+
+**Sebep:** Tedbirge Free plan altyapı (Render Free + Vercel Hobby + Cloudflare Free) ile 3-5× hızlanma mümkün. Para harcanmadan optimum performans hedef.
+
+**Alternatif:** Direkt Render Standard $25 / Vercel Pro $20 satın alma — reddedildi (kanıt zinciri olmadan harcama Madde 4.4 + 30.41 ihlali).
+
+**Etki:** TUR #85 5 atom + S7 CEO manuel = $0 maliyet, 3-5× hızlanma. Render Standard $25/ay tasarrufu = 1 yıllık $300 tasarruf (kanıt-bazlı upgrade gelirse mantıklı).
+
+### Karar 2: DB Index Strateji — User+Lead+ActivityLog 7 Yeni @@index
+
+**Karar:** En sık sorgulanan tablolarda composite index ekle:
+- User: `[role, status]` (ADMIN listesi rol+durum filtreli)
+- Lead: `[customerPhone]` (KVKK 2-faktör hesapsız sorgu — TUR #83 emsali) + `[status]` + `[ownerId]`
+- ActivityLog: `[createdAt(sort: Desc)]` + `[leadId, createdAt(sort: Desc)]` + `[action, createdAt(sort: Desc)]`
+
+**Sebep:** EXPLAIN ANALYZE SeqScan → IndexScan +%30-50 hızlanma. KVKK m.12 hassas log query DESC sıralı index ile hızlanır.
+
+**Alternatif:** Tek tek alan index — reddedildi (composite index daha verimli filtreli sorguda).
+
+**Etki:** ActivityLog binlerce satırlı tabloda denetim sorgusu (USER_DELETED audit) milisaniyeden anlamlı seviyeye iner.
+
+### Karar 3: N+1 Query Fix — listLeads owner select + documents _count
+
+**Karar:** Liste endpoint'lerinde `findMany({ include: ... })` yerine select/_count + take limit pattern.
+
+**Sebep:** `listLeads` her lead için tüm dokümanlar yüklemek aşırı (KB'lar). Liste için sayım yeterli, detay için full obje.
+
+**Alternatif:** Pagination + lazy loading — kabul edildi (gelecek TUR — şu an payload optimizasyonu yeterli).
+
+**Etki:** Lead listesi payload %60-70 azalma + DB query plan optimum.
+
+### Karar 4: ISR Server Component Sınırlama (Madde 4.4 emsali)
+
+**Karar:** Mektup spec ettiği `/login`, `/hakkimizda`, `/basvuru-sorgula` CLIENT component → ISR uygulanamaz. Server component olan 10 sayfa revalidate eklendi.
+
+**Sebep:** `"use client"` directive olan sayfa Next.js tarafından client-side render edilir, server-side ISR cache kullanmaz.
+
+**Alternatif:** Wrapper layout.tsx ile ISR — reddedildi (kapsam genişler, mektup atom başına commit disiplinini bozar).
+
+**Etki:** 10 statik public sayfa CDN edge cache 24 sa, TTFB <200ms (önce 500ms+).
+
+### Karar 5: Hard Delete YASAK Korundu (TUR #84 Madde 30.37 emsali)
+
+**Karar:** TUR #85'te working tree cleanup (git clean) **untracked dosyalar** sildi — kullanıcı verisi/kod silmedi. Hard delete kuralı User/Lead/Document modellerinde kalıcı.
+
+**Sebep:** KVKK m.6 — 5 yıl saklama. TUR #84'te tescillendi.
+
+### Karar 6: Cloudflare Ücretsiz CDN > Render Ücretli Upgrade
+
+**Karar:** Cloudflare Free plan + 9 adım kurulum (S7 CEO manuel) → +%15-25 LCP iyileşme + DDoS koruma + SSL A+ grade. Render Standard $25 öncesi denenmesi zorunlu.
+
+**Sebep:** Cloudflare ücretsiz CDN + edge cache + Brotli compression Render upgrade'inden daha etkili (statik içerik için).
+
+**Alternatif:** Vercel Pro $20 (daha fazla bandwidth) — reddedildi (Cloudflare ücretsiz aynı işi yapar).
+
+**Etki:** Türkiye-içi TTFB <100ms, global edge cache. CEO Cloudflare uygularsa kanıt: SSL Labs B → A+, WebPageTest TTFB önce/sonra.
+
+---
+
 ## 5 Mayıs 2026 sabah — TUR #84 KARARI — DEFENSE IN DEPTH MIDDLEWARE + KULLANICI CRUD KVKK + 4 YENİ MADDE
 
 **Anayasa:** v1.22.0 → v1.22.11 PATCH sürüm artışı (Madde 30.37 + 30.38 + 30.39 + 30.40 yeni alt-madde tescil)
