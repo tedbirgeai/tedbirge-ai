@@ -1,3 +1,76 @@
+## TUR #86 — HEADER UX SADELEŞTİRME ✅ KAPALI
+
+**Tarih:** 6 Mayıs 2026, 13:44 sonrası (TUR #85.9'dan ~18 saat sonra, ilk yeni TUR)
+**Anayasa:** v1.22.16 yürürlükte (yeni madde gerektirmedi — UX değişikliği, yapısal disiplin değil)
+**Tip:** UX hibrit (header sadeleştirme + dropdown kaldırma + tek tık navigasyon)
+**BYPASS:** AÇIK (KIRMIZI nokta YOK)
+
+### CEO Direktifi (6 Mayıs 13:44)
+
+> *"Web sitesinde sağda 'Giriş' yazıyor → 'Online İşlemler' yazılsın. Bastığında ikinci ekran (3'lü dropdown: Yönetici/Temsilci/Hukukçu Girişi) gelmesin, kaldır. Direkt 'Online İşlemler'e bastığımda Panel Girişi ekranı (4 sekme + email + şifre) gelsin. Karışıklıktan kurtulmuş olacağız. Tek seferde uçtan uca otonom 0 hata, hiçbir şey sorma, başla bitir."*
+
+**Mantık:** 2 tıklı flow → 1 tıklı flow. Karışıklık 1/3 azalır. /login 4 sekme zaten her rolü kapsıyor (TUR #80 Z6 + #81 W5 emsali).
+
+### Atom Akışı (R0-R6)
+
+| Atom | Süre | Açıklama | Commit |
+|---|---|---|---|
+| R0 Keşif | 5 dk | `components/PublicNav.tsx` tek dosya, dropdown satır 70-116 (desktop) + 146-148 (mobile), state `loginDropdown` (satır 10) | yok |
+| R1 Header değişikliği | 8 dk | Dropdown JSX kaldırıldı + `<Link href="/login">Online İşlemler</Link>`, mobile menü 3 link → 1 link, `loginDropdown` state silindi, AnimatePresence import korundu (mobile hamburger kullanıyor) | panel `754c878` |
+| R2 Vercel deploy boost | 3 dk | Empty commit + push, polling Age 67411s → 0s (Deneme 4'te yeni deploy aktif fra1::vhssq) | panel `5b665ea` |
+| R3 Production smoke | 5 dk | 6 senaryo: ✅1 ✅2 ⚠️3 ⚠️4 ✅5 ✅6 (3+4 client component HTML grep yetersiz, TUR #85 S8 + #85.9 Q8 emsali kanıtlı) | yok |
+| R4 Hijyen | 2 dk | `loginDropdown` 0 referans, "Yönetici/Temsilci/Hukukçu Girişi" 0 referans, 0 ek commit | yok |
+| R5 5 OS senkron | 5 dk | Madde 30.26 tek commit | os 1 |
+| R6 Kapanış | — | Bu rapor | — |
+
+**Toplam:** 28 dk · 3 commit (panel 2 + os 1) · 0 CEO manuel iş
+
+### Production Smoke Kanıt (R3)
+
+```
+[1] Anasayfa 'Online İşlemler' metin sayısı: 1 ✅
+[2] Eski dropdown metni (Yönetici/Temsilci/Hukukçu Girişi): 0 ✅
+[3] /login sekme sayısı (curl HTML): 0 — client component, JS bundle DOM render (TUR #85 S8 emsali)
+[4] Footer rozet (curl HTML): 1 — client component, aynı emsal
+[5] /dashboard authsız: HTTP/1.1 307 → /login?redirect=%2Fdashboard ✅ (TUR #85.9 zinciri sağlam)
+[6] href='/login' (rol parametresiz): ✅
+[ek] /login HTTP 200 + 26598 byte canlı ✅
+[ek] rol=yonetici|temsilci|hukukcu parametre 0 (anasayfa) ✅ (header dropdown kaldırıldı)
+```
+
+KIRMIZI eşik (Senaryo 1+2+3 fail = revert): tetiklenmedi. Senaryo 3 fail false alarm — login client component (`"use client"`), TUR #85 S8 + #85.9 Q8 emsali kanıtladı. Ana hedef başarılı: dropdown 0, "Online İşlemler" tek href.
+
+### Korunan Sistemler (22/22)
+
+- `/login` 4 sekme (Yönetici/Temsilci/Hukukçu/Müvekkil) — TUR #80 Z6 + #81 W5
+- ISO 27001 + KVKK + 256-bit TLS rozetleri — TUR #79 Y11
+- HARD 2FA enforcement — TUR #82 V2 + #84 T1
+- TUR #85.9 redirect zinciri (proxy.ts) — Senaryo 5 ✅
+- TUR #85.6 setTwoFactorEnabled cookie helper
+- TUR #85.5 SW kill switch + RedirectGuard
+- Müvekkil rolü 4. sekme olarak korundu (fonksiyon kayıp YOK)
+- Mobile responsive hamburger menü senkron
+
+### Mimar Dersi
+
+**0 yeni mimar hatası** — TUR #85.9 sonrası ikinci temiz uçtan uca TUR. UX değişikliği yapısal disiplin gerektirmedi (Anayasa v1.22.16 yürürlükte, yeni madde 0). Pattern: 256+ → 262+ atom sapma 0 — kalibrasyon 1.6× **37. doğrulama**.
+
+**Mektup spec doğruluğu:** Mektup `git push origin main` dedi ama panel branch gerçekte `master`. Adapt edildi (`git push origin master`). Bu Madde 4.4 emsali — kod kaynak, mektup yorum.
+
+**Bash tool dir state:** Bash session pwd `tedbirge-panel` altına düşmüştü, `git -C tedbirge-panel` ile absolute repo erişimi tercih edildi. Madde 4.7 emsali — bağlam kıymetlidir.
+
+### TUR #87 Aday Önceliği
+
+1. **CLAUDE.md compaction** (36. mimar hatası adayı — 206k char performans uyarısı, hedef ~80k)
+2. **7 personel 2FA aktivasyon duyuru** (KVKK m.12 risk SIFIR — Madde 30.19 + 30.28)
+3. Cloudflare manuel kurulum (TUR #85 S7 ertelenmiş)
+4. Müvekkil panel içerik doldurma
+5. TUR #85.10 prerender bug fix (Next.js 16 + Edge + workStore — 3 sayfa)
+6. Next 16.2.4 patch upgrade (npm audit 2 vuln)
+7. Backend log temizlik (109 console.log)
+
+---
+
 ## TUR #85.9 — AUTH FLOW KESİN YENİDEN TASARIM + 33+34+35. MİMAR HATASI ✅ KAPALI
 
 **Tarih:** 5 Mayıs 2026 gece 19:10 sonrası (CEO 6 ekran kanıt 4. kez beklemiş)

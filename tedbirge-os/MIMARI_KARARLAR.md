@@ -6,6 +6,51 @@
 
 ---
 
+## 6 Mayıs 2026, 13:44 sonrası — TUR #86 KARARI — HEADER UX SADELEŞTİRME
+
+**Anayasa:** v1.22.16 yürürlükte (yeni madde gerektirmedi — UX değişikliği)
+**Tip:** UX hibrit (header sadeleştirme + dropdown kaldırma + tek tık navigasyon)
+**Mimar:** Claude Opus 4.7 (sohbet) + Claude Code (otonom uygulama, BYPASS açık)
+**Onay:** Mehmet DİNÇ — Madde 17.5 + 30.25 (CEO 4'lü zincir 6 Mayıs 13:44 mektup içinde tescilli)
+
+### Karar 1: UX Sadeleştirme — Dropdown Menü Kullanıcı Kafası Karıştırıyorsa Kaldır (1 Tık > 2 Tık)
+
+**Karar:** PublicNav.tsx 3'lü dropdown menü (Yönetici/Temsilci/Hukukçu Girişi) kaldırıldı, yerine tek `<Link href="/login">Online İşlemler</Link>` linki kondu.
+
+**Sebep:** CEO direktifi 6 Mayıs 13:44 — *"Karışıklıktan kurtulmuş olacağız"*. 2 tıklı flow (Giriş ▼ → rol seç → /login?rol=X) kullanıcı kafasını karıştırıyordu. /login sayfasında zaten 4 sekme (TUR #80 Z6 + #81 W5) tüm rolleri kapsıyor — header'da rol seçimi DRY ihlali.
+
+**Alternatif:** Dropdown'u korumak + UX iyileştirme (tooltip, yardım metni). Reddedildi (kullanıcı zihinsel yük artar). Müvekkil için ayrı header link eklemek. Reddedildi (4 sekme zaten kapsıyor, Madde 4.5 ihlali).
+
+**Etki:** PublicNav.tsx satır 10 (`loginDropdown` state) + satır 70-116 (desktop dropdown JSX) + satır 146-148 (mobile 3 link) kaldırıldı. Tek `<Link>` 1 tık navigasyon. Mobile responsive senkron. Madde 31.9 emsali (rol-ruh tasarım) — ana sayfa (public marketing) "şeffaf güven" rolünde, dropdown karmaşıklığı bu role uymuyor.
+
+### Karar 2: Müvekkil Rolü 4. Sekme İçinde Kalır — Header'da Ayrı Link Gerekmez
+
+**Karar:** Müvekkil rolü `/login` sayfasının 4. sekmesi olarak korundu (TUR #80 Z6 + #81 W5 emsali). Header'da ayrı "Müvekkil Girişi" link eklenmedi.
+
+**Sebep:** Mevcut `/login` 4-sekme yapısı (Yönetici/Temsilci/Hukukçu/Müvekkil) zaten role-aware login flow'u DRY pattern ile yönetiyor. Müvekkil için header'da ayrı link eklemek 5. tık seçeneği yaratır + login sayfasının 4-sekme tasarımıyla çelişir. Müvekkil zaten /login → "Müvekkil" sekmesi → email + şifre ile aynı flow'u kullanıyor — fonksiyon kayıp YOK.
+
+**Alternatif:** Header'da "Müvekkil Girişi" + "Yönetici/Temsilci/Hukukçu Girişi" iki ayrı link. Reddedildi (ikinci dropdown gibi olur, TUR #86 amacına aykırı). Müvekkil sekmesini varsayılan yapmak. Reddedildi (mevcut Yönetici varsayılan tab CEO Mehmet Bey'in kullanım pattern'ine uygun).
+
+**Etki:** /login client-side `setRol` state'i sekme seçimi yönetiyor. Müvekkil 4. sekme defaultta görünür ama otomatik seçili değil. R3 production smoke ham çıktı: `/login` HTTP 200 + 26598 byte canlı, sekmeler client-side mount sonrası DOM'a eklenir.
+
+### Karar 3: /login Sayfasına Trust — Rol Seçimi Sayfa İçinde, Header'da Değil
+
+**Karar:** Header sadece **navigasyon erişim noktası** olur, rol seçimi `/login` sayfasının kendisine devredildi. Header'da rol parametresi (`?rol=yonetici/temsilci/hukukcu`) kullanılmadı (R3 smoke kanıt: anasayfada `rol=X` parametre 0).
+
+**Sebep:** Rol mantığı `/login` sayfasının içinde zaten zengin (TUR #80 Z6 + #81 W5 + #84 T1 cookie tabanlı middleware + #85.9 redirect zinciri). Header'da rol parametresi göndermek **tek source of truth** ihlali — rol seçimi 2 yerde yönetilir. Header sadece kullanıcıyı `/login`'e yönlendirir, içerik mantığını sayfa kendisi yönetir.
+
+**Alternatif:** Header'da `?rol=yonetici` default vermek (admin'in en sık kullandığı). Reddedildi (CEO için optimize ama 7 personel için yanlış default). Header'da rol seçici dropdown korumak ama tek tık (örn. `/login` her zaman aynı). Reddedildi (TUR #86 amacına aykırı, dropdown UI hala karışık).
+
+**Etki:** Madde 4.7 emsali (bağlam kıymetlidir) — header lean, /login zengin. Madde 31.10 emsali (Link prefetch disiplini) korundu — `<Link prefetch={...}>` panel/portal içinde değil, public header'da Next.js varsayılan davranışı (public marketing OK, prefetch SEO). Pattern 256+ → 262+ atom sapma 0 — kalibrasyon 37. doğrulama.
+
+### Üç Kalibrasyon Kanıt
+
+- **Pattern:** 256+ → 262+ atom (TUR #56'dan beri 30+ saat sürede sapma 0)
+- **Kalibrasyon 1.6×:** 37. doğrulama (TUR #85.9 sonrası ikinci temiz TUR, 0 yeni mimar hatası)
+- **Anayasa stabilite:** v1.22.16 yürürlükte (TUR #86 yeni madde 0 — UX değişikliği yapısal disiplin gerektirmiyor)
+
+---
+
 ## 5 Mayıs 2026 gece (19:10 sonrası) — TUR #85.9 KARARI — AUTH FLOW KESİN YENİDEN TASARIM + 33+34+35. MİMAR HATASI
 
 **Anayasa:** v1.22.15 → v1.22.16 PATCH (Madde 30.48 + 30.49 yeni alt-madde tescil — 40 toplam alt-madde 30.10-30.49 + 5 R-genişleme)

@@ -1,11 +1,11 @@
 # 🛡️ TEDBIRGE.AI — DEVİR RAPORU AKTİF
 
-**Son güncelleme:** 5 Mayıs 2026 gece (19:10 sonrası) — TUR #85.9 KAPALI
-**Anayasa:** v1.22.16 (Madde 30.10-30.49 dahil + 5 R-genişleme — TUR #72-85.9 zincirinde **40 alt-madde**)
-**Aktif kesit:** TUR #85.9 KAPALI ✅ — Auth Flow Kesin Yeniden Tasarım + 33+34+35. mimar hatası + Madde 30.48+30.49 yeni
-**Son TUR:** #85.9 (12 atom Q0-Q12 — Hipotez F BOZUK STATE bug fix + cross-device 2FA defansif + Madde 30.48 Auth State Bütünlüğü + Madde 30.49 Atomik Transaction)
+**Son güncelleme:** 6 Mayıs 2026, 13:44 sonrası — TUR #86 KAPALI
+**Anayasa:** v1.22.16 (Madde 30.10-30.49 dahil + 5 R-genişleme — TUR #72-85.9 zincirinde **40 alt-madde**, TUR #86 yeni madde gerektirmedi — UX değişikliği)
+**Aktif kesit:** TUR #86 KAPALI ✅ — Header UX Sadeleştirme (dropdown kaldırıldı, "Online İşlemler" tek tık navigasyon)
+**Son TUR:** #86 (6 atom R0-R6 — PublicNav.tsx dropdown→Link dönüşümü, /login 4 sekme TUR #80 Z6 + #81 W5 korundu, müvekkil sekmesi 4. sekme korundu)
 **Mimar:** Claude Opus 4.7 (sohbet) + Claude Code (otonom uygulama, bypass açık)
-**CEO Onay:** Mehmet DİNÇ — Madde 17.5 + 18.3 + 30.25 (CEO Otonom Komut Pattern yenilemesi)
+**CEO Onay:** Mehmet DİNÇ — Madde 17.5 + 30.25 (CEO 4'lü zincir 6 Mayıs 13:44 mektup içinde tescilli)
 
 ---
 
@@ -41,8 +41,9 @@
 | #85.5 | 14 (4 NO-OP) | ServiceWorker Kill Switch (KRİTİK J1) + RedirectGuard 5+ nav defansif (J7) + TS+localhost temizlik (J10) + 4 rol smoke belge + Madde 30.43+30.44 + 28+29. mimar hatası kapanış | v1.22.13 |
 | #85.6 | 1 atom | SURGICAL HOTFIX 2FA cookie senkron (3 satır kod) — finishAndContinue setTwoFactorEnabled(true) + Madde 30.45 + 30. mimar hatası kapanış (TUR #85.5 J1 ana döngüyü kırmadı, asıl bug cookie senkronsuzluğu) | v1.22.14 |
 | #85.7 | 10 atom (N1-N10) | Vercel Build Kurtarma — bundle-analyzer kaldırma + lockfile sync (TUR #85 S6 31. mimar hatası kapanış) + 6 hijyen tarama (0 net problem) + npm audit 2 vuln rapor + Madde 30.46 Lockfile Sync Disiplini | v1.22.15 |
-| **#85.9** | **12 atom (Q0-Q12)** | **Auth Flow Kesin Yeniden Tasarım — Hipotez F BOZUK STATE bug fix (proxy.ts:84-88 token+role-yok → next() bypass yasak → /login zorunlu) + 2fa-secim cross-device 2FA defansif + Madde 30.48 Auth State Bütünlüğü + Madde 30.49 Atomik Transaction + 33+34+35. mimar hatası kapanış (5 hotfix sonrası ana redirect döngü ANA bug FIX, Q8 Senaryo 1 ✅ GEÇTİ — authsız /dashboard → 307 /login 1 hop)** | **v1.22.16** |
-| **TOPLAM** | **256+** | **30+ saat · sapma 0 · 36 kalibrasyon doğrulaması** | **v1.22.16 + 40 alt-madde + 5 R-genişleme** |
+| #85.9 | 12 atom (Q0-Q12) | Auth Flow Kesin Yeniden Tasarım — Hipotez F BOZUK STATE bug fix (proxy.ts:84-88 token+role-yok → next() bypass yasak → /login zorunlu) + 2fa-secim cross-device 2FA defansif + Madde 30.48 Auth State Bütünlüğü + Madde 30.49 Atomik Transaction + 33+34+35. mimar hatası kapanış (5 hotfix sonrası ana redirect döngü ANA bug FIX, Q8 Senaryo 1 ✅ GEÇTİ — authsız /dashboard → 307 /login 1 hop) | v1.22.16 |
+| **#86** | **6 atom (R0-R6)** | **Header UX Sadeleştirme — PublicNav.tsx dropdown 3'lü menü kaldırıldı (Yönetici/Temsilci/Hukukçu Girişi), tek `<Link href="/login">Online İşlemler</Link>` (1 tık navigasyon, önce 2 tık), /login 4 sekme TUR #80 Z6 + #81 W5 korundu, müvekkil 4. sekme korundu, mobile responsive senkron, /dashboard authsız → 307 /login redirect korundu (TUR #85.9 zinciri sağlam), 0 yeni mimar hatası — TUR #85.9 sonrası 2. temiz TUR** | **v1.22.16** |
+| **TOPLAM** | **262+** | **30+ saat · sapma 0 · 37 kalibrasyon doğrulaması** | **v1.22.16 + 40 alt-madde + 5 R-genişleme** |
 
 ---
 
@@ -110,8 +111,15 @@
 
 ---
 
-## 🔴 AÇIK KRİTİK: 0 (TUR #85.9 ile auth flow kesin kapatıldı — Senaryo 1 ✅ GEÇTİ)
-## 🟡 PLANLI: 3 (TUR #85.10 prerender bug fix + TUR #86 Next 16.2.4 patch + backend log temizlik)
+## 🔴 AÇIK KRİTİK: 0 (TUR #85.9 ile auth flow kesin kapatıldı — Senaryo 1 ✅ GEÇTİ, TUR #86 ile header UX sadeleştirildi)
+## 🟡 PLANLI TUR #87 ADAYLARI: 4
+   a) **CLAUDE.md compaction** (36. mimar hatası adayı — 206k char performans uyarısı, ~80k hedef)
+   b) **7 personel 2FA aktivasyon duyuru** (KVKK m.12 risk SIFIR — Madde 30.19 + 30.28)
+   c) **Cloudflare manuel kurulum** (TUR #85 S7 ertelenmiş — 9 adım talimat docs/TUR85_S7_CLOUDFLARE_TALIMAT.md)
+   d) **Müvekkil panel içerik doldurma**
+   e) **TUR #85.10 prerender bug fix** (Next.js 16 + Edge runtime + workStore — 2 sayfa /blog/[slug] + /basvuru-sorgula + /dashboard/ajanda)
+   f) **Next 16.2.4 patch upgrade** (npm audit 2 vuln rapor — TUR #85.7 N4 emsali)
+   g) **Backend log temizlik** (109 console.log production gürültü — TUR #85.7 N8 hijyen tarama emsali)
 
 ## 🟢 TUR #85.9 KAPANIŞ ÖZETİ (5 Mayıs 19:10 sonrası)
 
