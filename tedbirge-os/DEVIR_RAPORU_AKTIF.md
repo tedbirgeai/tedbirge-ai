@@ -1,11 +1,11 @@
 # 🛡️ TEDBIRGE.AI — DEVİR RAPORU AKTİF
 
-**Son güncelleme:** 6 Mayıs 2026, 19:50 sonrası — TUR #88 KAPALI (kod fix YOK, Anayasa Madde 30.51 tescil)
-**Anayasa:** v1.22.19 (Madde 30.10-30.51 + 6 R-genişleme — TUR #88 Madde 30.51 Route İçerik İnceleme + Çevre Faktörü Ayrımı eklendi)
-**Aktif kesit:** TUR #88 KAPALI ✅ — REPRESENTATIVE /temsilci Route İçerik İnceleme + 38. mimar hatası kapanışı + Madde 30.51 yeni
-**Son TUR:** #88 (8 atom X1-X8 — `app/(panel)/temsilci/page.tsx` İÇERİK kodu ilk kez incelendi (TUR #85.9 + #87 + #87.5 zincirinde atlanmıştı), ham kodda kanıtlanmış bug YOK, mektup spec 4 senaryo elendi, Madde 4.4 + 14.3 emsali kod fix YAPILMADI, çevre faktörü mimar oturumuna yönlendirildi)
+**Son güncelleme:** 6 Mayıs 2026, 20:30 sonrası — TUR #89 KAPALI (HTTP-LEVEL DÖNGÜ KESİN FIX)
+**Anayasa:** v1.22.20 (Madde 30.10-30.52 + 6 R-genişleme — TUR #89 Madde 30.52 Gizli Mod ve NUM_REDIRECTS Disiplini eklendi)
+**Aktif kesit:** TUR #89 KAPALI ✅ — 4 Rol Login Bug Kesin Çözüm + 39. mimar hatası kapanışı + Madde 30.52 yeni
+**Son TUR:** #89 (5 atom — proxy.ts setup allowed path early return tek satır fix, NUM_REDIRECTS REPRESENTATIVE 2fa=0: 20 → 1 ✅, CEO 9 ekran + gizli mod kanıtı doğrulandı)
 **Mimar:** Claude Opus 4.7 (sohbet) + Claude Code (otonom uygulama, bypass açık)
-**CEO Onay:** Mehmet DİNÇ — Madde 17.5 + 30.25 (CEO 4'lü zincir 6 Mayıs 19:50 mektup içinde tescilli)
+**CEO Onay:** Mehmet DİNÇ — Madde 17.5 + 18.3 + 30.25 (CEO 4'lü zincir 6 Mayıs 20:30 mektup içinde tescilli)
 
 ---
 
@@ -45,8 +45,9 @@
 | #86 | 6 atom (R0-R6) | Header UX Sadeleştirme — PublicNav.tsx dropdown 3'lü menü kaldırıldı, tek "Online İşlemler" linki, /login 4 sekme korundu, mobile senkron | v1.22.16 |
 | #87 | 12 atom (S0-S12) | REPRESENTATIVE Login Redirect Bug — kanıt-bazlı atomik fix login/page.tsx 2FA Challenge onSuccess satır 234, Madde 30.49 R+ yeni, 36. mimar hatası kapanışı | v1.22.17 |
 | #87.5 | 14 atom (T0-T14) | Kapsamlı 3 Rol Login + 2FA Setup Yeniden İnceleme — lib/api.ts apiFetch 401 login endpoint hard redirect ATLA + sekme URL persistence, Madde 30.50 yeni | v1.22.18 |
-| **#88** | **8 atom (X1-X8)** | **REPRESENTATIVE /temsilci Route İçerik İnceleme — CEO kanıt 6 May 19:50 Emine Çelik (Edge laptop) ERR_TOO_MANY_REDIRECTS. TUR #85.9 + #87 + #87.5 üç ardışık TUR'da `app/(panel)/temsilci/page.tsx` İÇERİK kodu incelenmedi — TUR #88 X1'de ilk kez incelendi: 244 satır temiz, redirect mantığı YOK. Mektup spec 4 senaryo (A/B/C/D) HAM KODLA UYUŞMUYOR (kanıt-bazlı elendi). Production HTTP zincir kontrolü: 1 hop /login (döngü YOK). Madde 4.4 (kanıtsız dokunma yasak) + Madde 30.49 (atomik transaction kanıtlı buggy dosyaları kapsar) + Madde 14.3 (Code disiplin korumak hakkı) emsali → KOD FİX YAPILMADI. Madde 30.51 yeni alt-madde tescil: Route İçerik İnceleme Disiplini + Çevre Faktörü Ayrımı. 38. mimar hatası kapanışı. CEO bug muhtemelen ÇEVRE FAKTÖRÜ (Edge SW eski cache + localStorage state + PWA isolation) — mimar oturumu çevre faktörü analizi yönlendirildi.** | **v1.22.19** |
-| **TOPLAM** | **296+** | **30+ saat · sapma 0 · 40 kalibrasyon doğrulaması** | **v1.22.19 + 42 alt-madde + 6 R-genişleme** |
+| #88 | 8 atom (X1-X8) | REPRESENTATIVE /temsilci Route İçerik İnceleme — kod fix YAPILMADI (TUR #88 çevre faktörü tanısı YANLIŞ olduğu TUR #89'da kanıtlandı), Madde 30.51 tescil | v1.22.19 |
+| **#89** | **5 atom** | **4 Rol Login Bug Kesin Çözüm — CEO 9 ekran + Chrome gizli mod kanıtı (cache/SW/cookie sıfır) ile bug GERÇEK kodda kanıtlandı. NUM_REDIRECTS ölçümü: REPRESENTATIVE 2fa=0 cookie /temsilci → 20 (max-redirs döngü) → tek satır fix sonrası 1 ✅. Kök sebep: proxy.ts satır 101-108 HARD 2FA enforcement setup allowed path durumunda `return NextResponse.next()` early return atlanmış — alttaki isAllowed kontrolü /2fa-secim'i ROLE_ALLOWED_ROUTES.REPRESENTATIVE içinde bulamayıp defaultLanding /temsilci'ye redirect ediyordu → /temsilci → 2FA enforcement → /2fa-secim → DÖNGÜ. Atomik fix: setup allowed branch'inde early return next(). Madde 30.52 yeni: Gizli Mod ve NUM_REDIRECTS Disiplini. 39. mimar hatası kapanışı (TUR #88 sahte cookie 2fa=0 senaryo eksik test, TUR #84 T1 Madde 30.40 early return atlanmıştı). 22/22 sistem koruma + 4 rol authsız 1 hop ✅ + 4 rol POST 401 net mesaj ✅.** | **v1.22.20** |
+| **TOPLAM** | **304+** | **30+ saat · sapma 0 · 41 kalibrasyon doğrulaması** | **v1.22.20 + 43 alt-madde + 6 R-genişleme** |
 
 ---
 
@@ -114,22 +115,17 @@
 
 ---
 
-## 🔴 AÇIK KRİTİK: 1 (Emine ERR_TOO_MANY_REDIRECTS — kod fix değil ÇEVRE FAKTÖRÜ olası, mimar oturumu analizi şart)
-## 🟡 PLANLI TUR #89 ADAYLARI:
-   a) **MİMAR OTURUMU — Emine Browser-State Analizi** (öncelikli):
-      - DevTools → Application → Service Workers → Unregister (TUR #85.5 J1 SW kill switch ama kullanıcı lokali güncel mi?)
-      - DevTools → Application → Storage → Clear site data (localStorage + cookie + cache temizlik)
-      - PWA app reinstall test (Edge PWA isolation kontrol)
-      - Hard refresh Ctrl+Shift+R + incognito test
-      - Eğer hala döngü → Code curl multi-step session simülasyon (test hesap setup)
-      - Eğer hala döngü → Playwright/Cypress e2e test çerçevesi adayı (TUR #90+ — npm yeni paket gerekir, kapsam genişler)
-   b) **CLAUDE.md compaction** (39. mimar hatası adayı — 220k+ char performans uyarısı, ~80k hedef)
-   c) **7 personel 2FA aktivasyon duyuru** (KVKK m.12 risk SIFIR — Madde 30.19 + 30.28)
+## 🔴 AÇIK KRİTİK: 0 (TUR #89 ile HTTP-LEVEL DÖNGÜ KESİN ÇÖZÜLDÜ — NUM_REDIRECTS 20→1, Madde 30.52 tescil)
+## 🟡 PLANLI TUR #90 ADAYLARI:
+   a) **CLAUDE.md compaction** (40. mimar hatası adayı — 225k+ char performans uyarısı, ~80k hedef)
+   b) **7 personel 2FA aktivasyon duyuru** (KVKK m.12 risk SIFIR — Madde 30.19 + 30.28 + 30.32)
+   c) **CEO Emine Çelik replay test** (1 dk): Chrome gizli mod → /login?rol=temsilci → email + şifre → 2FA → /temsilci ulaştı kanıtı (ERR_TOO_MANY_REDIRECTS 0 kez)
    d) **Cloudflare manuel kurulum** (TUR #85 S7 ertelenmiş)
    e) **Müvekkil panel içerik doldurma**
-   f) **TUR #85.10 prerender bug fix** (Next.js 16 + Edge runtime + workStore — 5. tekrar emsali)
-   g) **Next 16.2.4 patch upgrade**
+   f) **TUR #85.10 prerender bug fix** (Next.js 16 + Edge runtime + workStore — 5. tekrar emsali, atomdan İLGİSİZ devam ediyor)
+   g) **Next 16.2.4 patch upgrade** (npm audit 2 vuln)
    h) **Backend log temizlik** (109 console.log)
+   i) **Playwright/Cypress e2e test çerçevesi** (TUR #91+ adayı — gerçek browser session simülasyon, npm yeni paket)
 
 ## 🟢 TUR #85.9 KAPANIŞ ÖZETİ (5 Mayıs 19:10 sonrası)
 

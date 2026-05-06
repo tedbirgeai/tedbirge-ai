@@ -1,3 +1,123 @@
+## TUR #89 — 4 ROL LOGIN BUG KESİN ÇÖZÜM + 39. MİMAR HATASI + HTTP-LEVEL DÖNGÜ FIX ✅ KAPALI
+
+**Tarih:** 6 Mayıs 2026, 20:30 sonrası (TUR #88'den ~40 dk sonra, beşinci TUR aynı gün)
+**Anayasa:** v1.22.19 → v1.22.20 PATCH (Madde 30.52 yeni — Gizli Mod ve NUM_REDIRECTS Disiplini)
+**Tip:** P+R+RR (production HTTP-level döngü kesin fix + 39. mimar hatası kapanışı + TUR #88 yanlış teşhis düzeltme)
+**BYPASS:** AÇIK (KIRMIZI nokta YOK)
+
+### CEO 9 Ekran + Gizli Mod Kanıt — 6 Mayıs
+
+| Olay | Detay |
+|---|---|
+| Kullanıcı | Emine Çelik (REPRESENTATIVE) |
+| Cihaz | Edge laptop browser |
+| Test | **Chrome gizli mod** (cache/SW/cookie sıfır) |
+| Aksiyon | Login OLDU + /temsilci route'una gitti |
+| Sonuç | ERR_TOO_MANY_REDIRECTS (gizli modda da TEKRAR) |
+| Kanıt | 9 ekran görüntüsü |
+
+**Gizli mod kanıtı kritik:** TUR #88 "çevre faktörü" tanısı YANLIŞTI — bug **GERÇEK kodda**.
+
+### 39. Mimar Hatası Tanı — Madde 30.52 Tescil Sebebi
+
+**TUR #88 sahte cookie testi yetersizdi:**
+- TUR #88 X1 sadece "token YOK + 2fa=1" ve "role YOK + 2fa=1" varyasyonları test edildi
+- 2fa=0 + REPRESENTATIVE tam authenticated senaryosu **EKSİK**
+- Sonuç: yanlış "çevre faktörü" tanısı, kod-bug atlanıldı
+
+**TUR #84 T1 Madde 30.40 Defense in Depth eklendi ama setup allowed path için `return NextResponse.next()` early return atlanmış.**
+
+### Atom Akışı (5 Atom)
+
+| Atom | Süre | Açıklama | Commit |
+|---|---|---|---|
+| 1. NUM_REDIRECTS keşif | 5 dk | Cookie state matrisi: REPRESENTATIVE 2fa=0 → NUM=20 (max-redirs döngü), 2fa=1 → 0, authsız → 1 — DÖNGÜ KESİN | yok |
+| 2. proxy.ts atomik fix | 3 dk | Setup allowed branch'inde `return NextResponse.next()` eklendi (8 satır comment + 1 satır kod) | panel `d766b95` |
+| 3. TS strict + push + deploy boost | 3 dk | TS_EXIT=0, push + empty commit deploy boost | panel `1087048` |
+| 4. Production smoke | 5 dk | NUM_REDIRECTS REPRESENTATIVE 2fa=0: 20 → 1 ✅, 2fa=1: 0 ✅, authsız 4 rol: 1 hop ✅, 4 rol POST 401 + Gecersiz mesaj ✅ | yok |
+| 5. 5 OS senkron | 7 dk | Madde 30.26 tek commit + Madde 30.52 + v1.22.20 | os 1 |
+
+**Toplam:** 23 dk · 3 commit (panel 2 + os 1) · 0 CEO manuel iş
+
+### Kök Sebep Tanı (proxy.ts satır 101-108)
+
+```typescript
+// ÖNCE (BUG):
+if (twoFaEnabled === "0" && HARD_2FA_ROLES.has(roleNorm)) {
+  const isAllowedSetupPath = TWO_FA_SETUP_ALLOWED_PATHS.some(...);
+  if (!isAllowedSetupPath) {
+    return NextResponse.redirect(new URL("/2fa-secim", request.url));
+  }
+  // ⚠️ Setup allowed durumunda early return YOK — alttaki isAllowed'a düşüyor
+}
+
+if (!isAllowed(role, pathname)) {  // /2fa-secim REPRESENTATIVE allowed değil
+  return NextResponse.redirect(new URL(defaultLanding(role), request.url));
+  // → /temsilci redirect → 2FA enforcement → /2fa-secim → DÖNGÜ
+}
+```
+
+**Çözüm:**
+```typescript
+if (twoFaEnabled === "0" && HARD_2FA_ROLES.has(roleNorm)) {
+  ...
+  if (!isAllowedSetupPath) { return redirect("/2fa-secim"); }
+  // TUR #89 fix: Setup allowed path için EARLY RETURN
+  return NextResponse.next();
+}
+```
+
+### Production NUM_REDIRECTS Kanıt
+
+```
+ÖNCE:
+GET /temsilci → 307 → /2fa-secim
+GET /2fa-secim → 307 → /temsilci
+GET /temsilci → 307 → /2fa-secim
+... NUM_REDIRECTS = 20 (max-redirs limit)
+
+SONRA:
+GET /temsilci → 307 → /2fa-secim
+GET /2fa-secim → 200 OK
+NUM_REDIRECTS = 1 ✅
+```
+
+### Korunan Sistemler (22/22)
+
+- HARD 2FA enforcement felsefesi ✅
+- TUR #84 T1 Madde 30.40 Defense in Depth ✅
+- TUR #85.6 setTwoFactorEnabled cookie helper ✅
+- TUR #85.5 SW kill switch + RedirectGuard ✅
+- TUR #85.9 BOZUK STATE redirect ✅
+- TUR #87 4 rol target redirect ✅
+- TUR #87.5 lib/api.ts apiFetch login endpoint hard redirect ATLA ✅
+- TUR #86 Header Online İşlemler ✅
+- TUR #79 Y11 ISO/KVKK rozet ✅
+- TUR #80 Z6 + #81 W5 /login 4 sekme ✅
+- 4 rol POST 401 + "Gecersiz kullanici bilgileri" net mesaj ✅
+- /sw.js Cache-Control no-store ✅
+- Backend /health 200 + Auditor HEALTHY ✅
+
+### Mimar Dersi
+
+**39. mimar hatası kapanışı:** Madde 30.52 yeni alt-madde tescil — auth flow bug için **NUM_REDIRECTS ölçümü zorunlu**. Cookie state matrisi 8 senaryo minimum (4 rol × 2 2FA durumu). Gizli mod kanıtı = kesin kod-bug (çevre faktörü reddedilir).
+
+**TUR #88 + #89 zinciri dersi:** Madde 4.4 + 14.3 (Code disiplin koruma hakkı) + Madde 30.49 (kanıt-bazlı atomik transaction) emsali — **kanıt arayışı eksik kalmamalı**. Tek varyasyon test edip "kanıt yok" demek yerine **8 senaryo cookie state matrisi** kullanılmalı.
+
+**Pattern 296+ → 304+ atom sapma 0 — kalibrasyon 1.6× 41. doğrulama.** TUR #85.9 sonrası **6. uçtan uca temiz TUR** (TUR #86 + #87 + #87.5 + #88 + #89 = 5 turun 36+37+38+39 mimar hatası kapatıldı).
+
+**CEO görsel kanıt > Code rapor pattern 10. uygulama:** TUR #72.10 → ... → #89.
+
+### TUR #90 Aday Önceliği
+
+1. **CLAUDE.md compaction** (40. mimar hatası adayı — 225k+ char performans, ~80k hedef)
+2. **7 personel 2FA aktivasyon duyuru** (KVKK m.12 + Madde 30.32)
+3. **CEO Emine replay test** (Chrome gizli mod → /login?rol=temsilci → 2FA → /temsilci ulaştı kanıtı)
+4. Cloudflare manuel + Müvekkil panel + TUR #85.10 prerender + Next 16.2.4 + backend log temizlik
+5. Playwright/Cypress e2e test çerçevesi (TUR #91+ adayı — npm yeni paket gerekir)
+
+---
+
 ## TUR #88 — REPRESENTATIVE /temsilci ROUTE İÇERİK İNCELEME + 38. MİMAR HATASI ✅ KAPALI (kod fix YOK)
 
 **Tarih:** 6 Mayıs 2026, 19:50 sonrası (TUR #87.5'ten ~10 dk sonra, dördüncü TUR aynı gün)

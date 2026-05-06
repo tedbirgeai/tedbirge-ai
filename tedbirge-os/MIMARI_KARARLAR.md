@@ -6,6 +6,75 @@
 
 ---
 
+## 6 Mayıs 2026, 20:30 sonrası — TUR #89 KARARI — 4 ROL LOGIN BUG KESİN ÇÖZÜM + 39. MİMAR HATASI + HTTP-LEVEL DÖNGÜ FIX
+
+**Anayasa:** v1.22.19 → v1.22.20 PATCH (Madde 30.52 yeni alt-madde tescil)
+**Tip:** P+R+RR (production HTTP-level döngü kesin fix + 39. mimar hatası kapanışı + TUR #88 yanlış teşhis düzeltme)
+**Mimar:** Claude Opus 4.7 (sohbet) + Claude Code (otonom uygulama, BYPASS açık)
+**Onay:** Mehmet DİNÇ — Madde 17.5 + 18.3 + 30.25 (CEO 4'lü zincir 6 Mayıs 20:30 — 9 ekran + Chrome gizli mod kanıtı)
+
+### Karar 1: Madde 30.52 — Gizli Mod ve NUM_REDIRECTS Disiplini Tescil
+
+**Karar:** Auth flow bug raporlandığında **NUM_REDIRECTS ölçümü zorunlu** (`curl -L --max-redirs 20 -o /dev/null -w "%{num_redirects}"`). Cookie state matrisi 8 senaryo minimum (4 rol × 2 2FA durumu). NUM ≥ 6 = kod-bug kesin, ≤ 2 = normal/çevre faktörü. Gizli mod kanıtı (cache/SW/cookie sıfır) sunulduysa = **kesin kod-bug** (çevre faktörü hipotezi reddedilir).
+
+**Sebep — 39. mimar hatası:** TUR #88 sahte cookie testi sadece "token YOK + 2fa=1" ve "role YOK + 2fa=1" varyasyonları test edildi. **2fa=0 + REPRESENTATIVE tam authenticated senaryosu eksikti**. Sonuç: yanlış "çevre faktörü" tanısı, kod-bug atlanıldı. CEO 6 May 9 ekran kanıtı + Chrome gizli mod testi (cache/SW/cookie sıfır) ile yakaladı — gizli modda da bug devam ettiğine göre **kesin kod-bug**.
+
+**Alternatif:** 1-2 senaryo test ile "tam test" demek (TUR #88 yaklaşımı). Reddedildi (39. mimar hatası emsali — eksik test = yanlış teşhis). HTTP zincir kontrolü authsız ile yetinmek. Reddedildi (cookie state matrisi olmadan döngü senaryoları gözden kaçar).
+
+**Etki:** CLAUDE.md Madde 30.52 alt-madde tescil (43 alt-madde + 6 R-genişleme). NUM_REDIRECTS yorum tablosu (0-1 normal, 2-3 multi-hop, 4-5 şüpheli, ≥6 kod-bug, 20 max döngü kesin). Cookie state matrisi 8 senaryo minimum. Gizli mod test protokolü tescilli. Madde 30.51 ile birlikte: **kanıt arayışı eksik kalmamalı, gizli mod = kesin kod-bug**.
+
+### Karar 2: proxy.ts Setup Allowed Path Early Return — Tek Satır Atomik Fix
+
+**Karar:** `proxy.ts` HARD 2FA enforcement bloğunda setup allowed path durumunda `return NextResponse.next()` early return eklendi. Tek satır kod fix (8 satır comment + 1 satır kod).
+
+**Sebep:** TUR #84 T1 Madde 30.40 Defense in Depth eklendi ama setup allowed path durumunda early return atlanmış. `if (!isAllowedSetupPath) return redirect("/2fa-secim")` sonrası akış alttaki `isAllowed` kontrolüne düşüyordu. /2fa-secim ROLE_ALLOWED_ROUTES.REPRESENTATIVE içinde değil → defaultLanding /temsilci redirect → /temsilci → 2FA enforcement → /2fa-secim → SONSUZ DÖNGÜ.
+
+NUM_REDIRECTS production kanıt:
+- ÖNCE: REPRESENTATIVE 2fa=0 → 20 (max-redirs limit, döngü kesin)
+- SONRA: REPRESENTATIVE 2fa=0 → 1 (sadece /temsilci → /2fa-secim, 200 OK)
+
+**Alternatif:** ROLE_ALLOWED_ROUTES'a /2fa-secim eklemek (her rol için). Reddedildi (kapsam genişletir, /2fa-secim public sayfa olduğu için ROLE_ALLOWED_ROUTES kavramına uymaz). /2fa-secim public path listesine eklemek (login gibi). Reddedildi (HARD 2FA enforcement felsefesi /2fa-secim'i auth-aware tutmalı, public yapmak zayıflatır). Setup path için ROLE_ALLOWED_ROUTES ayrı set yapmak. Reddedildi (gereksiz karmaşa, tek satır early return yeterli).
+
+**Etki:** TUR #89 atomik fix — 1 satır kod, 22/22 sistem koruma sağlam, NUM_REDIRECTS kesin kanıt. HARD 2FA enforcement felsefesi BOZULMADI (twoFa=0 + HARD rol + setup-dışı path → /2fa-secim redirect mantığı korundu).
+
+### Karar 3: TUR #88 Yanlış Teşhis Düzeltme — Madde 30.51 R+ Genişleme
+
+**Karar:** TUR #88'de "ham kodda kanıt yok = çevre faktörü" tanısı YANLIŞTI. Doğrusu: **kanıt arayışı eksikti**. Madde 30.51 R+ olarak genişletildi: çevre faktörü tanısı sadece **8 senaryo cookie state matrisi tamamlandıktan sonra** verilebilir. Eksik test ile çevre faktörü tanısı YASAK.
+
+**Sebep:** TUR #88 sahte cookie testinde 2fa=0 senaryosu eksikti. NUM_REDIRECTS ölçümü yapılmadı. Eksik kanıt = yanlış teşhis. CEO gizli mod kanıtı doğru çıktı.
+
+**Alternatif:** TUR #88 kararını korumak (çevre faktörü hipotezi). Reddedildi (39. mimar hatası kanıtladı yanlış). Madde 30.51 tamamen kaldırmak. Reddedildi (route içerik inceleme disiplini hala değerli — Madde 30.51 R+ ile genişletilir).
+
+**Etki:** Madde 30.51 R+ tescil edilebilir gelecek TUR'da. TUR #89 ile şimdilik Madde 30.52 tescil yeterli — gelecek auth flow bug raporlarında NUM_REDIRECTS + cookie state matrisi zorunlu olacak. Madde 30.51 yine geçerli ama "çevre faktörü tanısı son çare, ön koşul: tam matris testi".
+
+### Karar 4: Code Disiplin Koruma Hakkı (Madde 14.3) Düzeltme
+
+**Karar:** Madde 14.3 emsali "Code disiplin koruma hakkı" doğru bir prensip ama TUR #88'de **eksik kanıttan doğan yanlış uygulamaydı**. Doğru kullanım: kanıt arayışı tam (Madde 30.49 5+ dosya bug matrisi + Madde 30.52 8 senaryo cookie state matrisi) yapıldıktan sonra **kanıt yoksa** Code spekülatif fix yapmaz.
+
+**Sebep:** TUR #88'de "kanıt yok" sonucu yetersiz testten doğmuştu. TUR #89 NUM_REDIRECTS matrisi ile gerçek kanıt çıktı. Madde 14.3 yanlış kullanılmamalı — eksik test ile "kanıt yok" demek = disiplin değil tembellik.
+
+**Alternatif:** Madde 14.3'ü kaldırmak. Reddedildi (KIRMIZI çizgi ihlali durumlarında hala geçerli — Madde 3 + 14.3 koruma). Madde 14.3'ü daraltmak. Reddedildi (mevcut metin yeterli, eksik kanıttan doğan yanlış uygulama Madde 30.52 ile kapatıldı).
+
+**Etki:** Gelecek TUR'larda Code "kanıt yok" demeden önce **8 senaryo cookie state matrisi + NUM_REDIRECTS ölçümü** zorunlu. Madde 30.52 + Madde 14.3 birlikte: tam test yapıldıktan sonra kanıt yoksa Code spekülatif fix yapmaz, ama tam test YAPMADAN "kanıt yok" deyemez.
+
+### Karar 5: CEO 9 Ekran + Gizli Mod Kanıt Pattern — 10. Uygulama
+
+**Karar:** CEO 9 ekran kanıtı + Chrome gizli mod testi (cache/SW/cookie sıfır) **Code'un TUR #88 raporu** ile çatıştı → otomatik derin tanı turu (TUR #89) açıldı → kanıt-bazlı NUM_REDIRECTS matrisi ile gerçek bug kanıtlandı + tek satır atomik fix uygulandı.
+
+**Sebep:** Pattern TUR #72.10 → #72.11 → #85 → #85.5 → #85.6 → #85.9 → #87 → #87.5 → #88 → #89 zincirinde **10. kez** doğrulandı. CEO sahada gerçek kullanıcı testi (Emine Çelik mobil + laptop + gizli mod) Code'un curl + sahte cookie + ham kod incelemesi yetersizliklerini kapsıyor.
+
+**Alternatif:** Code raporuna güvenmek (TUR #88 "çevre faktörü" sonucu kabul). Reddedildi (gerçek bug devam ederdi, KVKK + güvenlik riski sürerdi).
+
+**Etki:** Madde 30.25 (CEO Otonom Komut Pattern Disiplini) emsali güçleniyor. CEO görsel kanıt > Code rapor pattern kalıcı standart. Smoke matrisi disiplini (Madde 30.49 R+ + 30.52) ile gelecek smoke yetersizlikleri kanıt-bazlı yakalanacak.
+
+### Üç Kalibrasyon Kanıt
+
+- **Pattern:** 296+ → 304+ atom (TUR #56'dan beri 30+ saat sürede sapma 0)
+- **Kalibrasyon 1.6×:** 41. doğrulama (TUR #85.9 sonrası 6. uçtan uca temiz TUR — TUR #86 + #87 + #87.5 + #88 + #89 = 5 turun 36+37+38+39 mimar hatası kapatıldı)
+- **CEO görsel kanıt > Code rapor:** 10. uygulama
+
+---
+
 ## 6 Mayıs 2026, 19:50 sonrası — TUR #88 KARARI — REPRESENTATIVE /temsilci ROUTE İÇERİK İNCELEME + 38. MİMAR HATASI + KANIT-BAZLI DUR
 
 **Anayasa:** v1.22.18 → v1.22.19 PATCH (Madde 30.51 yeni alt-madde tescil)

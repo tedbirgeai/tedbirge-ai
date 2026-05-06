@@ -1,20 +1,20 @@
 # TEDBİRGE.AI YOL HARİTASI v1.0
-**Son güncelleme:** 6 Mayıs 2026, 19:50 sonrası (TUR #88 KAPALI — REPRESENTATIVE /temsilci Route İçerik İnceleme, kod fix YOK, Madde 30.51 tescil)
-**Anayasa versiyonu:** v1.22.19 (Madde 30.51 yeni: Route İçerik İnceleme Disiplini + Çevre Faktörü Ayrımı)
+**Son güncelleme:** 6 Mayıs 2026, 20:30 sonrası (TUR #89 KAPALI — 4 Rol Login Bug HTTP-Level Döngü Kesin Çözüm)
+**Anayasa versiyonu:** v1.22.20 (Madde 30.52 yeni: Gizli Mod ve NUM_REDIRECTS Disiplini)
 **İlke:** MoSCoW + Now-Next-Later hibrit (Madde 24.5)
 
 ---
 
 ## 🎯 AKTİF KESİT
 
-**Faz:** REPRESENTATIVE /temsilci Route İçerik İnceleme KAPALI ✅ (TUR #88 ile `app/(panel)/temsilci/page.tsx` İÇERİK kodu ilk kez incelendi — TUR #85.9 + #87 + #87.5 zincirinde atlanmıştı; ham kodda kanıtlanmış bug YOK; mektup spec 4 senaryo HAM KODLA UYUŞMUYOR — Madde 4.4 + 14.3 emsali kod fix YAPILMADI)
-**Son TUR:** #88 — REPRESENTATIVE /temsilci Route İçerik İnceleme + 38. mimar hatası kapanışı + Madde 30.51 yeni (KAPALI, 8 atom X1-X8, kod commit 0, sadece OS senkron + Anayasa tescil)
-**Son düzeltme TUR'u:** ... + #87.5 + **#88** (DUR + raporla, çevre faktörü mimar oturumuna yönlendirildi)
-**🔴 AÇIK KRİTİK:** 1 — Emine ERR_TOO_MANY_REDIRECTS (kod fix DEĞİL, çevre faktörü olası: Edge SW eski cache + localStorage state + PWA isolation)
-**Önerilen sıradaki TUR #89 NOW:** **MİMAR OTURUMU — Emine Browser-State Analizi** (DevTools SW unregister + Storage clear + PWA reinstall + incognito test) → eğer hala döngü → Code multi-step session test → eğer hala döngü → Playwright/Cypress e2e test çerçevesi (TUR #90+ adayı, npm yeni paket)
-**TUR #89+ NEXT:** CLAUDE.md compaction (220k+ char) + 7 personel 2FA aktivasyon duyuru + Cloudflare manuel + Müvekkil panel içerik + TUR #85.10 prerender + Next 16.2.4 patch + backend log temizlik
-**Anayasa:** v1.22.19 (42 alt-madde 30.10-30.51 + 6 R-genişleme — TUR #88 Madde 30.51 Route İçerik İnceleme + Çevre Faktörü Ayrımı)
-**Son güncelleme:** 6 Mayıs 2026, 19:50 sonrası (TUR #88 KAPANIŞ — kod fix yok, Anayasa v1.22.18 → v1.22.19, mimar oturumu çevre analizi yönlendirildi)
+**Faz:** 4 Rol Login HTTP-Level Döngü Bug KESİN KAPALI ✅ (TUR #89 ile proxy.ts setup allowed path early return tek satır kanıt-bazlı atomik fix, NUM_REDIRECTS 20 → 1, 39. mimar hatası kapanışı + TUR #88 yanlış çevre faktörü tanısı düzeltildi)
+**Son TUR:** #89 — 4 Rol Login Bug Kesin Çözüm + 39. mimar hatası kapanışı + Madde 30.52 yeni (KAPALI, 5 atom, panel `d766b95` atomik fix + `1087048` deploy boost)
+**Son düzeltme TUR'u:** ... + #88 + **#89** (HTTP-LEVEL döngü kesin fix, CEO 9 ekran + gizli mod kanıtı doğrulandı)
+**🔴 AÇIK KRİTİK:** 0 (Emine ERR_TOO_MANY_REDIRECTS bug GERÇEK koddaydı, kod fix uygulandı, NUM_REDIRECTS production smoke 20→1)
+**Önerilen sıradaki TUR #90 NOW:** CLAUDE.md compaction (40. mimar hatası adayı — 225k+ char performans, ~80k hedef) + 7 personel 2FA aktivasyon duyuru (KVKK m.12) + CEO Emine replay test
+**TUR #90+ NEXT:** Cloudflare manuel + Müvekkil panel içerik + TUR #85.10 prerender + Next 16.2.4 patch + backend log temizlik + Playwright/Cypress e2e (TUR #91+ adayı, npm yeni paket)
+**Anayasa:** v1.22.20 (43 alt-madde 30.10-30.52 + 6 R-genişleme — TUR #89 Madde 30.52 Gizli Mod ve NUM_REDIRECTS Disiplini)
+**Son güncelleme:** 6 Mayıs 2026, 20:30 sonrası (TUR #89 KAPANIŞ — HTTP-level döngü kesin fix, Anayasa v1.22.19 → v1.22.20)
 
 ### 4 TUR Yol Haritası (CEO HAYALİ — 2 Mayıs gece)
 
