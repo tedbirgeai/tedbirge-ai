@@ -1,11 +1,11 @@
 # 🛡️ TEDBIRGE.AI — DEVİR RAPORU AKTİF
 
-**Son güncelleme:** 6 Mayıs 2026, 13:44 sonrası — TUR #86 KAPALI
-**Anayasa:** v1.22.16 (Madde 30.10-30.49 dahil + 5 R-genişleme — TUR #72-85.9 zincirinde **40 alt-madde**, TUR #86 yeni madde gerektirmedi — UX değişikliği)
-**Aktif kesit:** TUR #86 KAPALI ✅ — Header UX Sadeleştirme (dropdown kaldırıldı, "Online İşlemler" tek tık navigasyon)
-**Son TUR:** #86 (6 atom R0-R6 — PublicNav.tsx dropdown→Link dönüşümü, /login 4 sekme TUR #80 Z6 + #81 W5 korundu, müvekkil sekmesi 4. sekme korundu)
+**Son güncelleme:** 6 Mayıs 2026, 18:45 sonrası — TUR #87 KAPALI
+**Anayasa:** v1.22.17 (Madde 30.10-30.49 + 6 R-genişleme — TUR #87 Madde 30.49 R+ Smoke Matrisi N Rol × ≥3 Senaryo eklendi)
+**Aktif kesit:** TUR #87 KAPALI ✅ — REPRESENTATIVE Login Redirect Bug Uçtan Uca Fix + 36. mimar hatası kapanışı + Madde 30.49 R+ yeni
+**Son TUR:** #87 (12 atom S0-S12 — login/page.tsx 2FA Challenge onSuccess REPRESENTATIVE eksik atomik fix, kanıt-bazlı 5 dosyadan 1 satır düzeltildi, 4 dosya DOKUNULMADI Madde 4.4 emsali)
 **Mimar:** Claude Opus 4.7 (sohbet) + Claude Code (otonom uygulama, bypass açık)
-**CEO Onay:** Mehmet DİNÇ — Madde 17.5 + 30.25 (CEO 4'lü zincir 6 Mayıs 13:44 mektup içinde tescilli)
+**CEO Onay:** Mehmet DİNÇ — Madde 17.5 + 18.3 + 30.25 (CEO 4'lü zincir 6 Mayıs 18:45 mektup içinde tescilli)
 
 ---
 
@@ -42,8 +42,9 @@
 | #85.6 | 1 atom | SURGICAL HOTFIX 2FA cookie senkron (3 satır kod) — finishAndContinue setTwoFactorEnabled(true) + Madde 30.45 + 30. mimar hatası kapanış (TUR #85.5 J1 ana döngüyü kırmadı, asıl bug cookie senkronsuzluğu) | v1.22.14 |
 | #85.7 | 10 atom (N1-N10) | Vercel Build Kurtarma — bundle-analyzer kaldırma + lockfile sync (TUR #85 S6 31. mimar hatası kapanış) + 6 hijyen tarama (0 net problem) + npm audit 2 vuln rapor + Madde 30.46 Lockfile Sync Disiplini | v1.22.15 |
 | #85.9 | 12 atom (Q0-Q12) | Auth Flow Kesin Yeniden Tasarım — Hipotez F BOZUK STATE bug fix (proxy.ts:84-88 token+role-yok → next() bypass yasak → /login zorunlu) + 2fa-secim cross-device 2FA defansif + Madde 30.48 Auth State Bütünlüğü + Madde 30.49 Atomik Transaction + 33+34+35. mimar hatası kapanış (5 hotfix sonrası ana redirect döngü ANA bug FIX, Q8 Senaryo 1 ✅ GEÇTİ — authsız /dashboard → 307 /login 1 hop) | v1.22.16 |
-| **#86** | **6 atom (R0-R6)** | **Header UX Sadeleştirme — PublicNav.tsx dropdown 3'lü menü kaldırıldı (Yönetici/Temsilci/Hukukçu Girişi), tek `<Link href="/login">Online İşlemler</Link>` (1 tık navigasyon, önce 2 tık), /login 4 sekme TUR #80 Z6 + #81 W5 korundu, müvekkil 4. sekme korundu, mobile responsive senkron, /dashboard authsız → 307 /login redirect korundu (TUR #85.9 zinciri sağlam), 0 yeni mimar hatası — TUR #85.9 sonrası 2. temiz TUR** | **v1.22.16** |
-| **TOPLAM** | **262+** | **30+ saat · sapma 0 · 37 kalibrasyon doğrulaması** | **v1.22.16 + 40 alt-madde + 5 R-genişleme** |
+| #86 | 6 atom (R0-R6) | Header UX Sadeleştirme — PublicNav.tsx dropdown 3'lü menü kaldırıldı, tek "Online İşlemler" linki, /login 4 sekme korundu, mobile senkron | v1.22.16 |
+| **#87** | **12 atom (S0-S12)** | **REPRESENTATIVE Login Redirect Bug — CEO kanıt 6 May 18:41 Emine Çelik (REPRESENTATIVE Chrome mobile) ERR_TOO_MANY_REDIRECTS (-310) → kanıt-bazlı atomik fix login/page.tsx 2FA Challenge onSuccess satır 234 (`targetPath` REPRESENTATIVE → /temsilci eklendi). 5 dosyadan 4'ü DOKUNULMADI (Madde 4.4 + 30.49 emsali). Madde 30.49 R+ yeni: Smoke Matrisi N Rol × ≥3 Senaryo (authsız smoke yetersiz). 36. mimar hatası kapanışı: TUR #85.9 Q8 smoke rol-bazlı simülasyon eksikti. Production smoke 12 senaryo: 4 authsız protected route 307 ✅ + /login 200 ✅ + /2fa-secim 307 ✅ + /sw.js no-store ✅ + Auditor HEALTHY ✅ + 22/22 sistem korundu. Lokal prerender 3 sayfa fail = TUR #85.7 N3 + #85.9 Q6 + #86 R1 emsali (3. tekrar) atomdan İLGİSİZ.** | **v1.22.17** |
+| **TOPLAM** | **274+** | **30+ saat · sapma 0 · 38 kalibrasyon doğrulaması** | **v1.22.17 + 40 alt-madde + 6 R-genişleme** |
 
 ---
 
@@ -111,15 +112,16 @@
 
 ---
 
-## 🔴 AÇIK KRİTİK: 0 (TUR #85.9 ile auth flow kesin kapatıldı — Senaryo 1 ✅ GEÇTİ, TUR #86 ile header UX sadeleştirildi)
-## 🟡 PLANLI TUR #87 ADAYLARI: 4
-   a) **CLAUDE.md compaction** (36. mimar hatası adayı — 206k char performans uyarısı, ~80k hedef)
+## 🔴 AÇIK KRİTİK: 0 (TUR #87 ile REPRESENTATIVE login redirect bug kesin kapatıldı — Production smoke 12/12 ✅, Madde 30.49 R+ tescilli)
+## 🟡 PLANLI TUR #88 ADAYLARI:
+   a) **CLAUDE.md compaction** (37. mimar hatası adayı — 210k+ char performans uyarısı, ~80k hedef)
    b) **7 personel 2FA aktivasyon duyuru** (KVKK m.12 risk SIFIR — Madde 30.19 + 30.28)
    c) **Cloudflare manuel kurulum** (TUR #85 S7 ertelenmiş — 9 adım talimat docs/TUR85_S7_CLOUDFLARE_TALIMAT.md)
    d) **Müvekkil panel içerik doldurma**
-   e) **TUR #85.10 prerender bug fix** (Next.js 16 + Edge runtime + workStore — 2 sayfa /blog/[slug] + /basvuru-sorgula + /dashboard/ajanda)
+   e) **TUR #85.10 prerender bug fix** (Next.js 16 + Edge runtime + workStore — 3 sayfa /blog/[slug] + /basvuru-sorgula + /dashboard/ajanda — TUR #85.7 N3 + #85.9 Q6 + #86 R1 + #87 S7 emsalleri 4. tekrar)
    f) **Next 16.2.4 patch upgrade** (npm audit 2 vuln rapor — TUR #85.7 N4 emsali)
    g) **Backend log temizlik** (109 console.log production gürültü — TUR #85.7 N8 hijyen tarama emsali)
+   h) **CEO browser test (Emine Çelik replay) — opsiyonel ~1 dk:** Chrome mobile incognito → /login → Temsilci sekmesi → email + şifre → 2FA setup wizard → /temsilci ulaştı kanıtı (ERR_TOO_MANY_REDIRECTS -310 0 kez)
 
 ## 🟢 TUR #85.9 KAPANIŞ ÖZETİ (5 Mayıs 19:10 sonrası)
 

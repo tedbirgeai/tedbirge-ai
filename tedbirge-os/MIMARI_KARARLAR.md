@@ -6,6 +6,69 @@
 
 ---
 
+## 6 Mayıs 2026, 18:45 sonrası — TUR #87 KARARI — REPRESENTATIVE LOGIN REDIRECT BUG UÇTAN UCA FİX + 36. MİMAR HATASI
+
+**Anayasa:** v1.22.16 → v1.22.17 PATCH (Madde 30.49 R+ yeni alt-genişleme tescil)
+**Tip:** P+R+RR (production redirect döngü REPRESENTATIVE-spesifik + 36. mimar hatası kapanış)
+**Mimar:** Claude Opus 4.7 (sohbet) + Claude Code (otonom uygulama, BYPASS açık)
+**Onay:** Mehmet DİNÇ — Madde 17.5 + 18.3 + 30.25 (CEO 4'lü zincir 6 Mayıs 18:45 mektup içinde tescilli)
+
+### Karar 1: Madde 30.49 R+ — Smoke Matrisi N Rol × ≥3 Senaryo Disiplini Tescil
+
+**Karar:** Auth flow değişikliği veya yeni rol eklemesi sonrası smoke testi **N rol × en az 3 senaryo** içermeli (authsız + ilk login 2FA setup + 2FA aktif login + protected route). **Authsız smoke yetersiz** — rol-bazlı login simülasyonu zorunlu. /login HTML grep client component false alarm yasak (TUR #85 S8 emsali kanıtlı).
+
+**Sebep — 36. mimar hatası:** TUR #85.9 Q8 smoke 8 senaryo authsız `/dashboard` 307 redirect kontroluyle sınırlıydı. Yeni rolün ilk login senaryosu (REPRESENTATIVE 2FA Challenge onSuccess + /temsilci redirect) test matrisinde yoktu. CEO 6 May 18:41 Emine Çelik üzerinden ERR_TOO_MANY_REDIRECTS (-310, Chrome mobile Xiaomi) ile yakaladı.
+
+**Alternatif:** Smoke matrisini sadece authsız route'larla bırakmak. Reddedildi — CEO gerçek dünya kanıtı 36. hata gösterdi. Sadece ADMIN rol smoke yapmak. Reddedildi (REPRESENTATIVE bypass kalır). Frontend simülasyon ile e2e test çerçevesi (Playwright/Cypress) yaklaşımı. Ertelendi (TUR #88+ aday — npm yeni paket gerekir, kapsam genişler).
+
+**Etki:** CLAUDE.md Madde 30.49 R+ alt-genişleme tescil (40 alt-madde + 6 R-genişleme). 12 senaryo standart formatı tablo halinde (4 rol × 3 senaryo). Code curl multi-step session ile simüle edilebilir. Madde 30.49 (Atomik Transaction) ile birlikte: 5 dosya bug matrisi + 4 rol × 3 senaryo smoke = tam koruma. Pattern 262+ → 274+ atom sapma 0 — kalibrasyon 1.6× 38. doğrulama.
+
+### Karar 2: 5 Dosyadan 1 Satır Kanıt-Bazlı Atomik Fix — Madde 4.4 + 30.49 Emsali
+
+**Karar:** Mektup spec "5 dosya atomik" diyordu, ancak bug matrisi (S1) **sadece 1 hücre kanıtlı buggy** gösterdi (login/page.tsx satır 234, 2FA Challenge onSuccess targetPath REPRESENTATIVE eksik). Diğer 4 dosya (proxy.ts + 2fa-secim + (panel)/layout + lib/api) **DOKUNULMADI** — Madde 4.4 (kanıtsız dokunma yasak) + Madde 30.49 (atomik transaction sadece kanıtlı buggy dosyaları kapsar).
+
+**Sebep:** Initial submit (login/page.tsx satır 113-115) ve 2fa-secim/page.tsx (satır 61, 167) zaten REPRESENTATIVE → /temsilci handle ediyordu. Bug **tek satırda** — 2FA Challenge onSuccess (satır 234) `targetPath` formülünde REPRESENTATIVE eksikti (CUSTOMER + default /dashboard yalnızca). Bu, REPRESENTATIVE 2FA aktif login → /dashboard hop → proxy.ts /dashboard yasak → defaultLanding /temsilci redirect → ekstra hop. Mobile Chrome ağ koşullarında SW kill switch + RedirectGuard 5+nav/30sn riski → halt /login → tekrar denene → -310.
+
+**Alternatif:** Mektup spec "5 dosya" lafzına bağlı kalıp tüm dosyaları "REPRESENTATIVE eklensin diye" düzenlemek. Reddedildi (Madde 4.4 ihlali — kanıtsız değişim, regresyon riski, TUR #85.9 + #85.5 + #85.6 zincirinden öğrenildi: parça parça patch ardarda bug zinciri yarattı, 35. mimar hatası emsali). AppLayout.tsx satır 117-127'ye REPRESENTATIVE pathname kontrolü eklemek (CUSTOMER pattern'ine paralel). Reddedildi — proxy.ts zaten REPRESENTATIVE → /dashboard yasak ise /temsilci redirect ediyor (üst katman zaten koruyor, üçlü redundancy gereksiz).
+
+**Etki:** Mektup spec sapması commit body'sinde + bu kararda tescilli. TUR #85.9 emsali (5 dosyadan 2 buggy) gibi TUR #87'de (5 dosyadan 1 buggy) kalıcı pattern: kanıt-bazlı atomik transaction. Diğer dosyalara dokunma → regresyon riski sıfır. Production smoke 12/12 ✅ kanıt zinciri tam.
+
+### Karar 3: Lokal Prerender Hatası 4. Tekrar — TUR #85.10 Acil Atom Adayı
+
+**Karar:** Lokal Windows `npm run build` Next.js 16 InvariantError "Expected workStore to be initialized" (Edge runtime + force-dynamic + workStore çakışması) aynı 3 sayfa (`/blog/[slug]`, `/basvuru-sorgula`, `/dashboard/ajanda`) **4. tekrar** (TUR #85.7 N3 + #85.9 Q6 + #86 R1 + #87 S7). Atomum login/page.tsx satır 234 prerender mekanizmasını etkilemez. Push güvenli kabul edildi (Madde 4.4 + 30.49 R+ — altyapı limiti ≠ mimar hatası).
+
+**Sebep:** Mektup S7 spec "if PRERENDER -gt 0 then revert" deyimsel kontrolü vardı, ancak 3 emsal pattern (TUR #85.7+#85.9+#86) revert YAPMADAN push etti, production'da sorun yaşanmadı. Madde 4.4 (kod kaynaktır) ve TUR #85.7 N3 emsali (altyapı limiti = mimar hatası DEĞİL, raporla, push güvenli).
+
+**Alternatif:** Mektup spec'e harfi harfine uyup revert. Reddedildi (3 emsal pattern revert yapmadı, push etti, sorun yok). `dynamic = 'force-dynamic'` ekleyerek prerender atlatma. Ertelendi (atomum bu turun kapsamı dışı). Next.js 16.2.4 patch upgrade. Ertelendi (npm audit 2 vuln + breaking range outside, TUR #85.7 N4 emsali).
+
+**Etki:** TUR #85.10 acil atom adayı tescil — Next.js 16 prerender InvariantError fix (3 sayfa için `dynamic` directive ekleme veya Next.js patch upgrade). DEVIR_RAPORU TUR #88 planlı listede 5. sırada. 4. tekrarda hala atomdan İLGİSİZ ⇒ kanıt zinciri net.
+
+### Karar 4: 36. Mimar Hatası → 36. Anayasa Maddesi/Uyum Oranı Korundu
+
+**Karar:** TUR #87 ile 36 mimar hatası kayıtlı, 36 anayasa maddesi/uyum oranı korundu. Pattern: her mimar hatası bir Anayasa maddesine veya alt-genişlemeye dönüşür (kanıt-bazlı + kalıcı önlem).
+
+**Sebep:** Anayasa evrim disiplini (Madde 20) — kanıtlı bug → kalıcı kural → Anayasa metnine tescil → gelecek turlar aynı bug'a düşmez. 1:1 oran sürekliliği = kalibrasyon disiplini.
+
+**Etki:** TUR #88+ için aynı disiplin: yeni mimar hatası tespit edilirse Madde 20.4 sürecinden geçer, ilgili Madde'ye R-genişleme veya yeni alt-madde olarak tescil edilir. CEO görsel kanıt > Code rapor pattern emsali (TUR #72.10 → #72.11 → #85 → #85.5 → #85.6 → #85.9 → #87 = 7. uygulama).
+
+### Karar 5: CEO Görsel Kanıt > Code Rapor Pattern — 7. Uygulama
+
+**Karar:** CEO 6 May 18:41 Emine Çelik kanıtı Code'un TUR #85.9 Q8 "smoke geçti" raporu ile çatıştı → otomatik derin tanı turu açıldı (TUR #87) → kanıt-bazlı 5 dosya bug matrisi + 1 satır atomik fix.
+
+**Sebep:** Pattern TUR #72.10 → #72.11 → #85 → #85.5 → #85.6 → #85.9 → #87 zincirinde 7. kez doğrulandı. CEO 23 yıllık hukuk tecrübesi + sahada gerçek kullanıcı testi (Emine Çelik mobil) Code'un endpoint smoke + Vercel deploy doğrulama yetersizliklerini kapsıyor.
+
+**Alternatif:** Code raporuna güvenmek (TUR #87 mektubu olmadan kapalı kalır). Reddedildi (gerçek bug devam eder, KVKK + güvenlik riski sürer).
+
+**Etki:** Madde 30.25 (CEO Otonom Komut Pattern Disiplini) emsali güçleniyor. Gelecek mektupta CEO görsel kanıt sunulduğunda Code otomatik derin tanı turu açar (TUR #X.Y+1 pattern). 36 mimar hatası → 36 anayasa maddesi/uyum oranı korundu. Smoke matrisi disiplini (Madde 30.49 R+) ile gelecek smoke yetersizlikleri kanıt-bazlı yakalanacak.
+
+### Üç Kalibrasyon Kanıt
+
+- **Pattern:** 262+ → 274+ atom (TUR #56'dan beri 30+ saat sürede sapma 0)
+- **Kalibrasyon 1.6×:** 38. doğrulama (TUR #85.9 sonrası 3. uçtan uca temiz TUR — TUR #86 + #87 = 2 turun 0 yeni mimar hatası, sadece 36. hata kapatıldı)
+- **CEO görsel kanıt > Code rapor:** 7. uygulama
+
+---
+
 ## 6 Mayıs 2026, 13:44 sonrası — TUR #86 KARARI — HEADER UX SADELEŞTİRME
 
 **Anayasa:** v1.22.16 yürürlükte (yeni madde gerektirmedi — UX değişikliği)

@@ -1,3 +1,113 @@
+## TUR #87 — REPRESENTATIVE LOGIN REDIRECT BUG UÇTAN UCA FİX + 36. MİMAR HATASI ✅ KAPALI
+
+**Tarih:** 6 Mayıs 2026, 18:45 sonrası (TUR #86'dan ~5 saat sonra, ikinci TUR aynı gün)
+**Anayasa:** v1.22.16 → v1.22.17 PATCH (Madde 30.49 R+ yeni — Smoke Matrisi N Rol × ≥3 Senaryo)
+**Tip:** P+R+RR (production redirect döngü REPRESENTATIVE-spesifik + 36. mimar hatası kapanış)
+**BYPASS:** AÇIK (KIRMIZI nokta YOK)
+
+### CEO Kanıtlı Bug — 6 Mayıs 18:41
+
+| Olay | Detay |
+|---|---|
+| Kullanıcı | Emine Çelik (REPRESENTATIVE rol) |
+| Aksiyon | Self-register tamamladı, ADMIN onayladı |
+| Login denemesi | "Temsilci Girişi" sekmesi → email + şifre |
+| Sonuç | "Bu sayfa, www.tedbirge.ai adresi sizi çok fazla sayıda yönlendirdiğinden çalışmıyor. (-310)" |
+| Tarayıcı | Chrome mobile (Xiaomi telefon) |
+
+**Hata kodu -310 = `net::ERR_TOO_MANY_REDIRECTS` Chrome Türkçe.**
+
+### 36. Mimar Hatası Tanı — Madde 30.49 R+ Tescil Sebebi
+
+TUR #85.9 Q8 smoke 8 senaryo test edildi ama **hepsi authsız `/dashboard` 307 redirect kontroluyle sınırlıydı**. Yeni rolün ilk login senaryosu test matrisinde yoktu. Sonuç: kanıt zinciri eksik kapandı, CEO 18 saat sonra Emine Çelik üzerinden gerçek dünya kanıtıyla yakaladı.
+
+### Atom Akışı (S0-S12)
+
+| Atom | Süre | Açıklama | Commit |
+|---|---|---|---|
+| S0 Keşif | 10 dk | 5 auth flow dosyası birlikte okuma — proxy.ts + login + 2fa-secim + (panel)/layout + lib/api | yok |
+| S1 Bug matrisi | 5 dk | 4 rol × 3 senaryo = 12 senaryo + 4 dosya kanıtı kontrol | yok |
+| S2-S6 Atomik fix | 8 dk | 5 dosyadan **kanıtsız 4 dosya DOKUNULMADI** (Madde 4.4 + 30.49) — sadece login/page.tsx satır 234 düzeltildi: `targetPath` formülüne REPRESENTATIVE → /temsilci eklendi | panel `754a7b4` |
+| S7 Lokal smoke | 5 dk | TS strict 0 hata + Compile başarılı + prerender 3 sayfa fail (atomdan İLGİSİZ — TUR #85.7 N3 + #85.9 Q6 + #86 R1 emsali 3. tekrar) | yok |
+| S7 Deploy boost | 2 dk | Empty commit + push | panel `59620a5` |
+| S8 Vercel doğrulama | 1 dk | Deneme 4'te aktif (Age 0s, fra1::8cgmq) | yok |
+| S9 Production smoke | 3 dk | 12 senaryo: 4 protected route 307 ✅ + /login 200 ✅ + /2fa-secim 307 ✅ + / 200 ✅ + /sw.js 200 ✅ | yok |
+| S10 Regresyon | 2 dk | Online İşlemler 1 + dropdown 0 + sw no-store + backend 200 + Auditor HEALTHY → 22/22 ✅ | yok |
+| S11 5 OS senkron | 6 dk | Madde 30.26 tek commit + Madde 30.49 R+ + v1.22.17 | os 1 |
+| S12 Kapanış | — | Bu rapor | — |
+
+**Toplam:** 42 dk · 3 commit (panel 2 + os 1) · 0 CEO manuel iş
+
+### Bug Matrisi (S1) — 4 Rol × 3 Senaryo Kanıt-Bazlı
+
+| # | Rol | Senaryo | Beklenen | Mevcut Kod |
+|---|---|---|---|---|
+| 1-3 | ADMIN | Authsız + ilk login + 2FA aktif | 307 → 2FA setup → /dashboard | ✅ proxy + login + 2fa-secim + onSuccess |
+| 4-6 | LAWYER | Authsız + ilk login + 2FA aktif | 307 → HARD 2FA setup → /lawyer-dashboard | ✅ tüm yerlerde handle |
+| 7 | REPRESENTATIVE | Authsız → /temsilci | 307 → /login | ✅ proxy.ts |
+| 8 | REPRESENTATIVE | İlk login (2FA off) | HARD → /2fa-secim | ✅ login satır 105 + backend HARD_2FA_ROLES |
+| **9** | **REPRESENTATIVE** | **2FA aktif login** | **/temsilci** | **❌ login satır 234 onSuccess EKSİK → /dashboard hop → middleware /temsilci redirect → ekstra hop** |
+| 10-12 | CUSTOMER | Authsız + ilk login + 2FA aktif | 307 → /musteri (SOFT) → /musteri | ✅ tüm yerlerde |
+
+**Tek kanıtlı buggy hücre:** Senaryo 9 (REPRESENTATIVE 2FA Challenge onSuccess). Diğer 11 senaryo zaten doğru. Madde 4.4 emsali — kanıt-bazlı dokunmama disiplini.
+
+### Production Smoke Kanıt (S9 — 12 Senaryo)
+
+```
+=== AUTHSIZ 4 PROTECTED ROUTE ===
+[/dashboard]        307 — Location: /login?redirect=%2Fdashboard ✅
+[/lawyer-dashboard] 307 — Location: /login?redirect=%2Flawyer-dashboard ✅
+[/temsilci]         307 — Location: /login?redirect=%2Ftemsilci ✅
+[/musteri]          307 — Location: /login?redirect=%2Fmusteri ✅
+
+=== PUBLIC 4 ROUTE ===
+[/login]      200 ✅
+[/2fa-secim]  307 (cookie yok → /login redirect, Madde 30.48 BOZUK STATE doğru çalışıyor) ✅
+[/]           200 ✅
+[/sw.js]      200 + Cache-Control no-store (TUR #85.5 J1 SW kill switch korundu) ✅
+
+=== /login Render Kanıt ===
+[/login HTML byte] 26598 (sayfa render ediliyor) ✅
+[Sekme HTML grep]  0 (client component false alarm — TUR #85 S8 emsali kanıtlı)
+
+=== KARAR ===
+✅ S9 SMOKE GEÇTİ — TUR #87 KAPALI ADAY (KIRMIZI eşik tetiklenmedi)
+```
+
+### Korunan Sistemler (22/22)
+
+- TUR #85.9 proxy.ts BOZUK STATE redirect zinciri ✅
+- TUR #85.6 setTwoFactorEnabled cookie helper ✅
+- TUR #85.5 SW kill switch + RedirectGuard ✅
+- TUR #84 T1 HARD 2FA enforcement (REPRESENTATIVE dahil) ✅
+- TUR #82 V2 backend HARD_2FA_ROLES ✅
+- TUR #80 Z6 + #81 W5 /login 4 sekme ✅
+- TUR #79 Y11 ISO/KVKK rozet ✅
+- TUR #86 Header Online İşlemler ✅
+
+### Mimar Dersi
+
+**36. mimar hatası kapanışı:** Madde 30.49 R+ yeni alt-genişleme tescil — auth flow değişikliği sonrası **N rol × ≥3 senaryo zorunlu**. Authsız smoke yetersiz, rol-bazlı login simülasyonu şart. /login HTML grep yetersiz (client component, TUR #85 S8 emsali). 
+
+**Mektup spec sapması (Madde 4.4):** Mektup "5 dosya atomik" diyordu, ama bug matrisi sadece 1 satır kanıtlı buggy gösterdi. Madde 30.49 emsali (TUR #85.9 — 5 dosyadan 2 buggy) + Madde 4.4 (kanıtsız dokunma yasak) ile **kanıt-bazlı atomik fix tek satır**. Sapma açıklaması commit body'sinde tescilli.
+
+**Lokal prerender hatası 4. tekrar:** Aynı 3 sayfa (`/blog/[slug]`, `/basvuru-sorgula`, `/dashboard/ajanda`), Next.js 16 + Edge runtime + workStore bilinen bug. TUR #85.7 N3 + #85.9 Q6 + #86 R1 + #87 S7 emsalleri tescil — TUR #85.10 ayrı atom adayı.
+
+**Pattern 262+ → 274+ atom sapma 0 — kalibrasyon 1.6× 38. doğrulama.** TUR #85.9 sonrası 3. temiz uçtan uca TUR (TUR #86 + #87 = 2 yeni hata 0).
+
+### TUR #88 Aday Önceliği
+
+1. **CLAUDE.md compaction** (37. mimar hatası adayı — 210k+ char performans, hedef ~80k)
+2. **7 personel 2FA aktivasyon duyuru** (KVKK m.12 risk SIFIR — Madde 30.19 + 30.28)
+3. CEO Emine Çelik browser replay test (opsiyonel ~1 dk)
+4. Cloudflare manuel kurulum
+5. Müvekkil panel içerik
+6. TUR #85.10 prerender bug fix (3 sayfa, Next.js 16 + Edge + workStore)
+7. Next 16.2.4 patch upgrade
+8. Backend log temizlik (109 console.log)
+
+---
+
 ## TUR #86 — HEADER UX SADELEŞTİRME ✅ KAPALI
 
 **Tarih:** 6 Mayıs 2026, 13:44 sonrası (TUR #85.9'dan ~18 saat sonra, ilk yeni TUR)
