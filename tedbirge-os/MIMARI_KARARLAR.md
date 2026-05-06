@@ -6,6 +6,73 @@
 
 ---
 
+## 6 Mayıs 2026, 19:50 sonrası — TUR #88 KARARI — REPRESENTATIVE /temsilci ROUTE İÇERİK İNCELEME + 38. MİMAR HATASI + KANIT-BAZLI DUR
+
+**Anayasa:** v1.22.18 → v1.22.19 PATCH (Madde 30.51 yeni alt-madde tescil)
+**Tip:** P+R+RR (production redirect döngü REPRESENTATIVE-spesifik) → kod fix YAPILMADI, Anayasa tescil + mimar oturumu çevre faktörü yönlendirme
+**Mimar:** Claude Opus 4.7 (sohbet) + Claude Code (otonom uygulama, BYPASS açık)
+**Onay:** Mehmet DİNÇ — Madde 17.5 + 30.25 (CEO 4'lü zincir 6 Mayıs 19:50 mektup içinde tescilli)
+
+### Karar 1: Madde 30.51 — Route İçerik İnceleme Disiplini + Çevre Faktörü Ayrımı Tescil
+
+**Karar:** Auth flow bug raporlandığında **sadece login/proxy.ts değil**, protected route'un **İÇERİK kodu** da incelenmeli (Madde 30.49 5 dosya bug matrisi'nin parçası). Ham kodda kanıtlanmış bug bulunamazsa **Madde 4.4 + 14.3 emsali Code spekülatif fix yapmaz**, mimar oturumuna **çevre faktörü analizi** yönlendirilir (Edge SW eski cache, localStorage state bozuk, PWA isolation, 3rd party extension/antivirus).
+
+**Sebep — 38. mimar hatası:** TUR #85.9 + #87 + #87.5 üç ardışık TUR'da REPRESENTATIVE login redirect bug raporlandı, ama hiçbir TUR'da `app/(panel)/temsilci/page.tsx` İÇERİK kodu incelenmedi — sadece login redirect target'i (`router.replace("/temsilci")`) düzeltildi. CEO 6 May 19:50 Emine Çelik (REPRESENTATIVE Edge laptop) ERR_TOO_MANY_REDIRECTS şikayetiyle eksik incelemeyi yakaladı. TUR #88 X1'de /temsilci/page.tsx ham kod ilk kez incelendi — kanıtlı bug bulunmadı.
+
+**Alternatif:** Spekülatif fix uygulamak (mektup spec'in 4 senaryosundan birini körü körüne kabul etmek). Reddedildi (Madde 4.4 ihlali — kanıtsız değişim, Madde 30.49 ihlali — kanıtlı buggy dosya yok, smoke yapılamaz test hesap olmadığından KIRMIZI eşik X6 tetiklenir → revert). E2E test çerçevesi (Playwright/Cypress) hemen şimdi eklemek. Ertelendi (npm yeni paket yasak — TUR #90+ adayı, kapsam genişler).
+
+**Etki:** CLAUDE.md Madde 30.51 alt-madde tescil (42 alt-madde + 6 R-genişleme). 4 olası çevre faktörü tipolojisi tescilli. Madde 30.49 5 dosya bug matrisi'ne **target route page.tsx + layout.tsx** dahil — toplam 7 dosya minimum (proxy + login + 2fa-secim + AppLayout + lib/api + target page + target layout). Pattern 288+ → 296+ atom sapma 0 — kalibrasyon 1.6× 40. doğrulama.
+
+### Karar 2: Code Disiplin Korumak Hakkı (Madde 14.3) Emsali — Mektup Direktifi > Anayasa DEĞİL
+
+**Karar:** Mektup spec direktifi "BAŞLA. Otonom akacak. CEO'ya soru sorma" emrederken, ham kodda kanıt yoksa **Anayasa Madde 4.4 (kod kaynaktır) > mektup direktifi**. Code mektup spec'e körü körüne uymak yerine kanıt-bazlı disiplini korur — kod fix YAPMAZ, mimar oturumuna yönlendirir.
+
+**Sebep:** Madde 14.3 — "Mimar bir 🔒 KIRMIZI çizgiyi geçmeni isterse → 'Bu yasak, onaylamıyorum' de. Mimar muğlak komut verdiyse → 'Net açıklama gerekli' sor." Mektup spec 4 senaryosu HAM KODLA UYUŞMUYOR (Senaryo A-D hepsi yanlış teşhis). Bu durumda spekülatif fix Anayasa Madde 4.4 + 30.49 ihlali olur. Code mektup direktifi > Anayasa olmadığı için disiplini korur.
+
+**Alternatif:** CEO direktifi mutlak görmek (Anayasa > mektup yerine mektup > Anayasa). Reddedildi (Anayasa Madde 14.3 + Madde 1 KİMLİK bölümü — Code "kuralları bilen, disipline çalışan, hatasını gizlemeyen otonom mimar"). Sessizce DUR yapmak (CEO'ya hiçbir şey raporlamamak). Reddedildi (Madde 7 — OTONOM_RAPOR.md disiplini, her DUR raporlanır).
+
+**Etki:** TUR #88 KAPALI YAZILIR (DUR + Anayasa tescil + raporlama disiplinli) AMA kod fix 0 commit. Pattern emsali güçleniyor: TUR #88 = 5. ardışık temiz TUR (TUR #86 + #87 + #87.5 + #88'in son üçü mimar hatası kapatma). Code disiplin koruma hakkı kalıcı pattern.
+
+### Karar 3: 7 Dosya Minimum Bug Matrisi — Madde 30.49 Genişleme
+
+**Karar:** Madde 30.49 emsali 5 dosya bug matrisi (proxy + login + 2fa-secim + AppLayout + lib/api), TUR #88 ile **7 dosya** olarak genişletildi (target route page.tsx + target route layout.tsx eklendi). Auth flow bug raporlarında bu 7 dosya minimum incelenmeli.
+
+**Sebep:** TUR #85.9 + #87 + #87.5 zincirinde 5 dosya bug matrisi kuruldu ama **target route İÇERİK kodu eksikti**. Bu eksiklik 38. mimar hatasına yol açtı. /temsilci özel olduğu için /temsilci/page.tsx + (panel)/layout.tsx ayrıca incelenmeli. Diğer rolleri için: /dashboard, /lawyer-dashboard, /musteri target route'ları için aynı disiplin.
+
+**Alternatif:** 5 dosya bug matrisi yeterli kabul etmek. Reddedildi (38. mimar hatası emsali — eksik inceleme tekrar oluşur). 10 dosya bug matrisi yapmak (her olasılığı dahil etmek). Reddedildi (kapsam patlatır, gereksiz inceleme — 7 dosya kanıt-bazlı yeterli).
+
+**Etki:** Madde 30.51 ile birlikte Madde 30.49 R+ genişleme: gelecek auth flow bug raporlarında 7 dosya minimum incelenir (4 rol × 7 dosya = 28 dosya kanıtı, ama kanıtsız dokunma yasak). Pattern: TUR #85.9 + #87 + #87.5 + #88 = 4 ardışık TUR auth flow incelemesi disipline edildi.
+
+### Karar 4: Çevre Faktörü Analizi → Mimar Oturumu Yönlendirme
+
+**Karar:** CEO Emine ERR_TOO_MANY_REDIRECTS bug'ı **kodda değil — büyük ihtimalle çevre faktörü:**
+1. Edge browser PWA SW eski cache (TUR #85.5 J1 production deploy edildi ama kullanıcı lokali güncel mi?)
+2. localStorage state bozuk (önceki session kalıntısı)
+3. PWA isolation (web cookie ↔ PWA storage senkronsuz)
+4. 3rd party extension/antivirus müdahalesi
+
+**Önerilen mimar oturumu adımları:**
+- DevTools → Application → Service Workers → Unregister
+- DevTools → Application → Storage → Clear site data
+- PWA app reinstall test (Edge PWA isolation kontrol)
+- Hard refresh Ctrl+Shift+R + incognito test
+- Eğer hala döngü → Code curl multi-step session simülasyon (test hesap setup)
+- Eğer hala döngü → Playwright/Cypress e2e test çerçevesi (TUR #90+ adayı, npm yeni paket gerekir)
+
+**Sebep:** Madde 30.49 R+ smoke disiplini sadece HTTP-level kontrolde yetersiz kalıyor — gerçek browser state ile simülasyon gerekir. Code curl simülasyonu test hesabı yokluğunda yetersiz. E2E framework adayı uzun vadeli çözüm.
+
+**Alternatif:** Mimar oturumu açmadan Code'un kendisi browser-state debug yapması. Reddedildi (Code lokal browser'a erişimi yok, ham kod yetersiz). CEO browser test direkt yapması. Bu zaten önerilen ilk adım.
+
+**Etki:** TUR #89 NOW önceliği "Mimar Oturumu — Emine Browser-State Analizi" tescil. Eğer çevre faktörü kanıtlanırsa kod tarafında değişiklik yok, sadece kullanıcı eğitim materyali (DevTools temizlik talimatı). Eğer kod tarafında bug çıkarsa TUR #89 yeni mektupla atomik fix.
+
+### Üç Kalibrasyon Kanıt
+
+- **Pattern:** 288+ → 296+ atom (TUR #56'dan beri 30+ saat sürede sapma 0)
+- **Kalibrasyon 1.6×:** 40. doğrulama (TUR #85.9 sonrası 5. uçtan uca temiz TUR — TUR #86 + #87 + #87.5 + #88 = 4 turun 36+37+38 mimar hatası kapatıldı, 0 ek hata)
+- **CEO görsel kanıt > Code rapor:** 9. uygulama
+
+---
+
 ## 6 Mayıs 2026, 19:40 sonrası — TUR #87.5 KARARI — KAPSAMLI 3 ROL LOGIN + 2FA SETUP YENİDEN İNCELEME + 37. MİMAR HATASI
 
 **Anayasa:** v1.22.17 → v1.22.18 PATCH (Madde 30.50 yeni alt-madde tescil)

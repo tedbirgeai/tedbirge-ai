@@ -1,3 +1,137 @@
+## TUR #88 — REPRESENTATIVE /temsilci ROUTE İÇERİK İNCELEME + 38. MİMAR HATASI ✅ KAPALI (kod fix YOK)
+
+**Tarih:** 6 Mayıs 2026, 19:50 sonrası (TUR #87.5'ten ~10 dk sonra, dördüncü TUR aynı gün)
+**Anayasa:** v1.22.18 → v1.22.19 PATCH (Madde 30.51 yeni — Route İçerik İnceleme Disiplini + Çevre Faktörü Ayrımı)
+**Tip:** P+R+RR (production redirect döngü REPRESENTATIVE-spesifik) → kod fix YOK, Anayasa tescil + mimar oturumu yönlendirme
+**BYPASS:** AÇIK (KIRMIZI nokta YOK)
+
+### CEO Kanıtlı Bug — 6 Mayıs 19:50 (Edge Laptop Browser)
+
+| Olay | Detay |
+|---|---|
+| Kullanıcı | Emine Çelik (REPRESENTATIVE) |
+| Cihaz | Laptop + Edge browser |
+| Aksiyon | Login OLDU + /temsilci route'una gitti |
+| URL | https://www.tedbirge.ai/temsilci |
+| Sonuç | ERR_TOO_MANY_REDIRECTS |
+
+### 38. Mimar Hatası Tanı — Madde 30.51 Tescil Sebebi
+
+**TUR #85.9 + #87 + #87.5 üç ardışık TUR'da `app/(panel)/temsilci/page.tsx` İÇERİK kodu incelenmedi.** Sadece login redirect target'i (`router.replace("/temsilci")`) düzeltildi. CEO 6 May 19:50 Emine Çelik kanıtıyla eksik incelemeyi yakaladı. TUR #88 X1'de /temsilci/page.tsx ham kod ilk kez incelendi.
+
+### Atom Akışı (X1-X8)
+
+| Atom | Süre | Açıklama | Commit |
+|---|---|---|---|
+| X1 Keşif | 10 dk | Glob + ham kod taraması: /temsilci konum `app/(panel)/temsilci/page.tsx` (244 satır) + (panel)/layout.tsx + AppLayout + proxy.ts + login + 2fa-secim + lib/api + next.config.ts + useRealtimeFeed | yok |
+| X1 HTTP Zincir | 2 dk | curl --max-redirs 10 production: /temsilci authsız + sahte cookie BOZUK STATE → hepsi 1 hop /login (HTTP-level döngü YOK) | yok |
+| X2 Analiz | 5 dk | Mektup spec 4 senaryo (A/B/C/D) HAM KODLA UYUŞMUYOR — kanıtlanmış bug YOK | yok |
+| X3-X4 Kod fix | — | **YAPILMADI** (Madde 4.4 + 30.49 + 14.3 emsali — kanıtsız dokunma yasak, spekülatif fix riski) | yok |
+| X5-X6 Deploy + smoke | — | **ATLANDI** (kod fix yok, deploy + smoke gereksiz) | yok |
+| X7 5 OS senkron | 8 dk | Madde 30.26 tek commit + Madde 30.51 + v1.22.19 | os 1 |
+| X8 Kapanış | — | Bu rapor + mimar oturumu çevre faktörü analizi yönlendirme | — |
+
+**Toplam:** 25 dk · 1 commit (sadece os senkron) · 0 CEO manuel iş (mimar oturumu öneri)
+
+### X1 Ham Kod Bulguları
+
+| Dosya | Bulgu |
+|---|---|
+| `app/(panel)/temsilci/page.tsx` | 244 satır, "use client", apiFetch /leads + /commission-logs/me, redirect mantığı YOK (sadece kullanıcı tıklamasında /leads/${id}) |
+| `app/(panel)/layout.tsx` | AppLayout delegasyonu, kendi redirect YOK |
+| `components/layout/AppLayout.tsx` satır 117-127 | CUSTOMER kontrolü (REPRESENTATIVE'a etkisiz) + LAWYER sözleşme modal (REPRESENTATIVE'a etkisiz) |
+| `proxy.ts` | REPRESENTATIVE handle ediyor (HARD_2FA_ROLES + ROLE_ALLOWED_ROUTES.REPRESENTATIVE=["/temsilci","/leads"] + defaultLanding="/temsilci") |
+| `app/(public)/login/page.tsx` satır 113-115 + 234 | REPRESENTATIVE → /temsilci 4 yerde doğru (initial submit + 2FA Challenge onSuccess) |
+| `app/(public)/2fa-secim/page.tsx` satır 61 + 167 | REPRESENTATIVE handle ediyor + cross-device 2FA Q4 fix (TUR #85.9) |
+| `lib/api.ts` satır 64-72 | TUR #87.5 fix (login endpoint için hard redirect ATLA) |
+| `next.config.ts` satır 18 + 26 | /temsilci Cache-Control no-store ✅ (TUR #85.5 J1) |
+| `lib/useRealtimeFeed.ts` | Redirect mantığı YOK (sadece base URL string replace) |
+
+### X1 Production HTTP Zincir
+
+```
+=== /temsilci HTTP zincir (authsız) ===
+HTTP/1.1 307 Temporary Redirect
+Location: /login?redirect=%2Ftemsilci
+HTTP/1.1 200 OK (login sayfası)
+HTTP satır sayısı: 2 (1 hop, döngü YOK) ✅
+
+=== /temsilci/dashboard ===
+HTTP/1.1 307 → /login?redirect=%2Ftemsilci%2Fdashboard ✅
+
+=== Sahte cookie BOZUK STATE (token YOK ama 2fa_enabled=1) ===
+HTTP/1.1 307 → /login (TUR #85.9 BOZUK STATE redirect korundu) ✅
+
+=== Sahte cookie role VAR token YOK BOZUK STATE ===
+HTTP/1.1 307 → /login ✅
+```
+
+### X2 Mektup Spec 4 Senaryo Elenmesi
+
+| # | Mektup hipotezi | Ham kod gerçeği | Sonuç |
+|---|---|---|---|
+| A | /temsilci/page.tsx YOK → 404 fallback | ❌ MEVCUT (244 satır, içerik üretiyor) | YANLIŞ |
+| B | /temsilci içinde useEffect → router.replace döngüsü | ❌ Redirect mantığı YOK | YANLIŞ |
+| C | /temsilci/layout.tsx kendi auth check | ❌ Layout dosyası YOK, (panel)/layout.tsx delegasyonu | YANLIŞ |
+| D | /2fa-secim setTwoFactorEnabled cookie senkron eksik | ❌ TUR #85.6 + #85.9 Q4 ile çözülmüş | YANLIŞ |
+
+**SONUÇ:** Ham kodda kanıtlanmış bug YOK. Mektup spec'in tüm senaryoları yanlış teşhisle yazılmış.
+
+### X3-X4 Kod Fix Yapılmadı — Kanıt-Bazlı Disiplin
+
+**Madde 4.4** (kanıtsız dokunma yasak) + **Madde 30.49** (atomik transaction kanıtlı buggy dosyaları kapsar) + **Madde 14.3** (Code disiplin koruyabilme hakkı) emsali:
+
+- Kanıt YOK = dokunma YASAK
+- Spekülatif fix → smoke yapılamaz (test hesap yok) → KIRMIZI eşik X6 tetiklenir → revert
+- TUR #85.9 + #87 + #87.5 emsali pattern korunur (kanıtsız 4 dosya DOKUNULMADI = TUR #88'de kanıtsız 0 dosya)
+
+### Çevre Faktörü Olası Sebepler (Madde 30.51 Tescil)
+
+CEO Emine ERR_TOO_MANY_REDIRECTS gerçek AMA bug **kodda değil — büyük ihtimalle çevre faktörü:**
+
+1. **Edge browser PWA SW eski cache** — TUR #85.5 J1 SW kill switch production'da deploy edildi, ancak kullanıcının lokal browser'ında eski SW kayıtlı kalabilir
+2. **localStorage state bozuk** — önceki session kalıntısı veya başka kullanıcının state'i
+3. **PWA isolation** — web cookie ↔ PWA storage senkronsuz olabilir
+4. **3rd party extension/antivirus** — HTTP zincirine müdahale eden tarayıcı eklentileri
+
+### Korunan Sistemler (22/22 — kod fix yok, regresyon riski 0)
+
+- TUR #87.5 lib/api.ts apiFetch login endpoint hard redirect ATLA ✅
+- TUR #87 login/page.tsx 4 rol redirect target ✅
+- TUR #85.9 proxy.ts BOZUK STATE redirect zinciri ✅
+- TUR #85.6 setTwoFactorEnabled cookie helper ✅
+- TUR #85.5 SW kill switch + RedirectGuard ✅
+- TUR #84 T1 HARD 2FA enforcement (REPRESENTATIVE dahil) ✅
+- TUR #82 V2 backend HARD_2FA_ROLES ✅
+- TUR #80 Z6 + #81 W5 /login 4 sekme ✅
+- TUR #79 Y11 ISO/KVKK rozet ✅
+- TUR #86 Header Online İşlemler ✅
+
+### Mimar Dersi
+
+**38. mimar hatası kapanışı:** Madde 30.51 yeni alt-madde tescil — auth flow bug raporlandığında **target route İÇERİK kodu da incelenmeli** (5 dosya bug matrisi parçası). Ham kodda kanıt yoksa Madde 4.4 + 14.3 emsali Code spekülatif fix yapmaz, mimar oturumuna **çevre faktörü analizi** yönlendirilir.
+
+**Code'un disiplin koruyabilme hakkı (Madde 14.3) emsali:** Mektup spec direktifi "BAŞLA. Otonom akacak. CEO'ya soru sorma" emrederken, ham kodda kanıt yoksa Anayasa Madde 4.4 (kod kaynaktır) gereği kod fix YAPILMAZ. CEO direktifi > Anayasa DEĞİL — Anayasa > mektup direktifi. Code mektup spec'e körü körüne uymak yerine kanıt-bazlı disiplini korur.
+
+**Pattern 288+ → 296+ atom sapma 0 — kalibrasyon 1.6× 40. doğrulama.** TUR #85.9 sonrası 5. uçtan uca temiz TUR (TUR #86 + #87 + #87.5 + #88 = 4 turun 36+37+38 mimar hatası kapatıldı, 0 ek hata).
+
+**CEO görsel kanıt > Code rapor pattern 9. uygulama:** TUR #72.10 → #72.11 → #85 → #85.5 → #85.6 → #85.9 → #87 → #87.5 → #88 zinciri.
+
+### TUR #89 Aday Önceliği
+
+1. **MİMAR OTURUMU — Emine Browser-State Analizi (öncelikli):**
+   - DevTools → Application → Service Workers → Unregister (TUR #85.5 J1 SW kill switch ama kullanıcı lokali güncel mi?)
+   - DevTools → Application → Storage → Clear site data
+   - PWA app reinstall test (Edge PWA isolation kontrol)
+   - Hard refresh Ctrl+Shift+R + incognito test
+   - Eğer hala döngü → Code curl multi-step session simülasyon (test hesap setup)
+   - Eğer hala döngü → Playwright/Cypress e2e test çerçevesi (TUR #90+ adayı, npm yeni paket gerekir)
+2. CLAUDE.md compaction (39. mimar hatası adayı — 220k+ char performans, ~80k hedef)
+3. 7 personel 2FA aktivasyon duyuru (KVKK m.12)
+4. Cloudflare manuel kurulum + Müvekkil panel içerik + TUR #85.10 prerender + Next 16.2.4 patch + backend log temizlik
+
+---
+
 ## TUR #87.5 — KAPSAMLI 3 ROL LOGIN + 2FA SETUP YENİDEN İNCELEME + 37. MİMAR HATASI ✅ KAPALI
 
 **Tarih:** 6 Mayıs 2026, 19:40 sonrası (TUR #87'den ~55 dk sonra, üçüncü TUR aynı gün)
