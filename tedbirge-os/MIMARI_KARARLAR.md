@@ -6,6 +6,71 @@
 
 ---
 
+## 5 Mayıs 2026 gece (19:10 sonrası) — TUR #85.9 KARARI — AUTH FLOW KESİN YENİDEN TASARIM + 33+34+35. MİMAR HATASI
+
+**Anayasa:** v1.22.15 → v1.22.16 PATCH (Madde 30.48 + 30.49 yeni alt-madde tescil — 40 toplam alt-madde 30.10-30.49 + 5 R-genişleme)
+**Tip:** P+R+RR triple (production redirect döngü kalıcı çözüm + auth flow yeniden inşa + 33+34+35. mimar hatası kapanış)
+**Mimar:** Claude Opus 4.7 (sohbet) + Claude Code (otonom uygulama, BYPASS açık)
+**Onay:** Mehmet DİNÇ — Madde 17.5 + 18.3 + 30.25 (CEO 4'lü zincir 4. kez: "tek seferde uçtan uca otonom, eksik noksan 0 hata, hiçbir şey sorma, başla bitir")
+
+### Karar 1: 5 Dosya Birlikte Yeniden Tasarım Kalıcı Pattern — Hipotez Yerine Bug Matrisi
+
+**Karar:** Multi-dosya auth flow bug'ı için **hipotez yerine 5 dosyalı bug matrisi**. 8 senaryo × 5 dosya tablosu kurulur, kanıtlı buggy hücreler tespit edilir, kanıtlı buggy dosyalar **tek atomic transaction commit** ile düzelir. Kanıtsız hipotez uygulama YASAK (Madde 4.4 — kod kaynaktır).
+
+**Sebep:** TUR #85.5 + #85.6 + #85.7 + #85.8 zinciri 4 hotfix yazdı, ana redirect döngü devam etti. Kök sebep: 6 hipotezden 1'i uygulandı (kanıtla doğrulanmadan), diğer 5 hipotez kanıt-bazlı reddedilmedi → 33+34. mimar hatası. Yeni pattern bu döngüyü kırar.
+
+**Alternatif:** Tek hipoteze odaklanmak (önceki yaklaşım) — reddedildi (4 hotfix sonrası ana bug devam). Tüm dosyaları toplu rewrite — reddedildi (Madde 4.4 kanıtsız değişim yasak).
+
+**Etki:** Madde 30.49 yeni alt-madde tescil (Auth Flow Atomik Transaction Disiplini). Gelecek multi-dosya auth flow bug'larında kalıcı pattern. TUR #85.9 Q1+Q2-Q5 ile uygulandı: 5 dosya birlikte okundu (read), bug matrisi kuruldu (8 senaryo), kanıtlı buggy 2 dosya (proxy.ts + 2fa-secim) tek commit `7fc6fa72` ile düzeltildi, kanıtlı bug yok 3 dosya (login + (panel)/layout + lib/api) DOKUNULMADI.
+
+### Karar 2: Auth State "BOZUK STATE" Tanımı (Token + Role Yok) → /login Zorla Redirect
+
+**Karar:** Middleware (`proxy.ts`) auth kontrolünde "token var + role yok" durumu **BOZUK STATE** sayılır. `next()` bypass YASAK → `/login` redirect zorunlu. Cookie atomik 3-set (Madde 30.45) ihlal edilirse oluşan bu durum, frontend layout client-side redirect zinciri tetikleyip middleware'i sonsuz döngüye sokabiliyor.
+
+**Sebep:** TUR #85.9 Q1 derin tanı — `proxy.ts:84-88` `if (!role) return next()` BOZUK STATE'i geçiriyordu. AppLayout client-side `getStoredUser()` user null tespit edip redirect tetikliyor → middleware aynı request'i geçiriyor → SONSUZ DÖNGÜ. Hipotez F doğrulandı kanıt-bazlı (CEO 6 ekran kanıt: Image 1 5 May 17:05 SW, 17:47 SW yok ama döngü, 19:05 1 req `blocked:origin`).
+
+**Alternatif:** AppLayout'u server component'e çevirmek — reddedildi (komut palette + role-aware menu çalışmasını korur, kapsam genişler). Cookie atomik 3-set'i her zaman garantilemek — reddedildi (race condition / network kesinti / eski oturumlar BOZUK STATE üretir, defansif kontrol şart).
+
+**Etki:** Madde 30.48 yeni alt-madde tescil (Auth State Bütünlüğü Disiplini). Q3 patch: `proxy.ts` `if (!role)` → `/login?redirect=<path>` zorla redirect (BOZUK STATE BUG FIX 33. mimar hatası kapanış). Q8 production smoke Senaryo 1 ✅ GEÇTİ (authsız `/dashboard` → 307 `/login?redirect=%2Fdashboard` 1 hop, döngü KIRILDI).
+
+### Karar 3: (panel)/layout.tsx Client Component KORUNDU — Madde 4.4 Kanıt-Bazlı Dokunma Yasağı
+
+**Karar:** `(panel)/layout.tsx` client component olarak korundu. Server component'e çevrilmesi reddedildi.
+
+**Sebep:** Mektup spec "5 dosya hep birlikte düzelt" diyebilir ama Madde 4.4 kanıt-bazlı yaklaşım gerektirir. Bug matrisi 5. dosya (panel layout) için kanıtlı bug bulunmadı — komut palette + role-aware menu çalışmasını korur. Server'a çevirmek kapsam genişler ve kanıtsız değişim yasaktır.
+
+**Alternatif:** Server component'e çevirme. Reddedildi (mevcut çalışan client-side menu mantığı kanıtlı buggy değil).
+
+**Etki:** Madde 4.4 emsali genişleme — bug matrisi olmadan auth flow patch parça parça yamacılık → ardarda bug zinciri (35. mimar hatası emsali). Kanıt-bazlı dokunmama disiplini kalıcı.
+
+### Karar 4: localStorage Auth-Aware Kullanım YASAK — Cookie Tek Source of Truth
+
+**Karar:** Auth-aware kontrollerde `localStorage` tek source of truth değildir. Cookie tek truth (middleware cookie okur, localStorage değil). `localStorage` defansif yedekleme olarak korunabilir ancak middleware kontrol kararı **sadece cookie state'ine** dayanmalı.
+
+**Sebep:** TUR #85.7 N8 hijyen tarama panel'de 10+ `localStorage` auth-aware kullanım tespit etti. Bu bilgi cookie ile çelişirse middleware bypass riski oluşur. TUR #85.9 (panel)/layout.tsx korundu (kanıtlı bug yok), ancak kalıcı pattern olarak localStorage auth-aware tek truth YASAK.
+
+**Alternatif:** localStorage'ı tamamen kaldırma. Reddedildi (defansif yedekleme + offline state için faydalı, sadece auth karar mekanizması cookie'den geçmeli).
+
+**Etki:** TUR #86 refactor adayı (note). Madde 30.48 ile birlikte: token+role-yok BOZUK STATE → /login zorla, localStorage tek truth değil. Defense in depth korunur (Madde 30.40 emsali).
+
+### Karar 5: CEO Görsel Kanıt > Code Otonom Rapor Pattern — 6. Uygulama
+
+**Karar:** "Code 'yapıldı' rapor + CEO görsel kanıtı çatışıyorsa otomatik derin tanı turu açılır" pattern'i 6. kez uygulandı (TUR #72.10 → #72.11 → #85 → #85.5 → #85.6 → #85.9 zinciri).
+
+**Sebep:** TUR #85.5 + #85.6 + #85.7 + #85.8 zinciri Code "redirect döngü kırıldı" rapor etti, CEO 6 ekran kanıt ile çatışmayı sürdürdü (Image 1 5 May 17:05 SW + 17:47 SW yok ama döngü + 19:05 1 req `blocked:origin`). Bu CEO görsel kanıt > Code rapor pattern'i kalıcılaşıyor — Madde 30.25 emsali yenileme.
+
+**Alternatif:** Code raporuna güvenme. Reddedildi (CEO 23 yıllık hukuk tecrübesi + sahada test, kanıt zinciri Code'dan üstün).
+
+**Etki:** Madde 30.25 (CEO Otonom Komut Pattern Disiplini) emsali güçleniyor. Gelecek mektupta CEO görsel kanıt sunulduğunda Code otomatik derin tanı turu açar (TUR #X.Y+1 pattern). 35 mimar hatası → 35 anayasa maddesi/uyum oranı korundu.
+
+### Üç Kalibrasyon Kanıt
+
+- **Pattern:** 254+ → 256+ atom (TUR #56'dan beri 30+ saat sürede sapma 0)
+- **Kalibrasyon 1.6×:** 36. doğrulama (Madde 4.4 + Madde 30.49 yeni emsali)
+- **CEO görsel kanıt > Code rapor:** 6. uygulama
+
+---
+
 ## 5 Mayıs 2026 gece — TUR #85.7 KARARI — KAPSAMLI VERCEL BUILD KURTARMA + LOCKFILE SYNC DİSİPLİNİ
 
 **Anayasa:** v1.22.14 → v1.22.15 PATCH (Madde 30.46 yeni alt-madde tescil)

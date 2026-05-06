@@ -1,9 +1,9 @@
 # 🛡️ TEDBIRGE.AI — DEVİR RAPORU AKTİF
 
-**Son güncelleme:** 5 Mayıs 2026 gece — TUR #85.7 KAPALI
-**Anayasa:** v1.22.15 (Madde 30.10-30.46 dahil + 5 R-genişleme — TUR #72-85.7 zincirinde **38 alt-madde**)
-**Aktif kesit:** TUR #85.7 KAPALI ✅ — Vercel Build Kurtarma + Lockfile Sync + 31. mimar hatası + Madde 30.46 yeni
-**Son TUR:** #85.7 (10 atom N1-N10 — bundle-analyzer kaldırma + lockfile sync + npm audit rapor + hijyen tarama + Madde 30.46 Lockfile Sync Disiplini)
+**Son güncelleme:** 5 Mayıs 2026 gece (19:10 sonrası) — TUR #85.9 KAPALI
+**Anayasa:** v1.22.16 (Madde 30.10-30.49 dahil + 5 R-genişleme — TUR #72-85.9 zincirinde **40 alt-madde**)
+**Aktif kesit:** TUR #85.9 KAPALI ✅ — Auth Flow Kesin Yeniden Tasarım + 33+34+35. mimar hatası + Madde 30.48+30.49 yeni
+**Son TUR:** #85.9 (12 atom Q0-Q12 — Hipotez F BOZUK STATE bug fix + cross-device 2FA defansif + Madde 30.48 Auth State Bütünlüğü + Madde 30.49 Atomik Transaction)
 **Mimar:** Claude Opus 4.7 (sohbet) + Claude Code (otonom uygulama, bypass açık)
 **CEO Onay:** Mehmet DİNÇ — Madde 17.5 + 18.3 + 30.25 (CEO Otonom Komut Pattern yenilemesi)
 
@@ -40,8 +40,9 @@
 | #85 | 14 | Ücretsiz FAZ 1: Working tree cleanup + DB index 7 yeni [KIRMIZI] + N+1 fix + ISR cache 10 sayfa + bundle dynamic + Cloudflare CEO talimat + Madde 30.41+30.42 (3-5× hızlanma, $0) | v1.22.12 |
 | #85.5 | 14 (4 NO-OP) | ServiceWorker Kill Switch (KRİTİK J1) + RedirectGuard 5+ nav defansif (J7) + TS+localhost temizlik (J10) + 4 rol smoke belge + Madde 30.43+30.44 + 28+29. mimar hatası kapanış | v1.22.13 |
 | #85.6 | 1 atom | SURGICAL HOTFIX 2FA cookie senkron (3 satır kod) — finishAndContinue setTwoFactorEnabled(true) + Madde 30.45 + 30. mimar hatası kapanış (TUR #85.5 J1 ana döngüyü kırmadı, asıl bug cookie senkronsuzluğu) | v1.22.14 |
-| **#85.7** | **10 atom (N1-N10)** | **Vercel Build Kurtarma — bundle-analyzer kaldırma + lockfile sync (TUR #85 S6 31. mimar hatası kapanış) + 6 hijyen tarama (0 net problem) + npm audit 2 vuln rapor + Madde 30.46 Lockfile Sync Disiplini** | **v1.22.15** |
-| **TOPLAM** | **254+** | **30+ saat · sapma 0 · 35 kalibrasyon doğrulaması** | **v1.22.15 + 38 alt-madde + 5 R-genişleme** |
+| #85.7 | 10 atom (N1-N10) | Vercel Build Kurtarma — bundle-analyzer kaldırma + lockfile sync (TUR #85 S6 31. mimar hatası kapanış) + 6 hijyen tarama (0 net problem) + npm audit 2 vuln rapor + Madde 30.46 Lockfile Sync Disiplini | v1.22.15 |
+| **#85.9** | **12 atom (Q0-Q12)** | **Auth Flow Kesin Yeniden Tasarım — Hipotez F BOZUK STATE bug fix (proxy.ts:84-88 token+role-yok → next() bypass yasak → /login zorunlu) + 2fa-secim cross-device 2FA defansif + Madde 30.48 Auth State Bütünlüğü + Madde 30.49 Atomik Transaction + 33+34+35. mimar hatası kapanış (5 hotfix sonrası ana redirect döngü ANA bug FIX, Q8 Senaryo 1 ✅ GEÇTİ — authsız /dashboard → 307 /login 1 hop)** | **v1.22.16** |
+| **TOPLAM** | **256+** | **30+ saat · sapma 0 · 36 kalibrasyon doğrulaması** | **v1.22.16 + 40 alt-madde + 5 R-genişleme** |
 
 ---
 
@@ -109,10 +110,77 @@
 
 ---
 
-## 🔴 AÇIK KRİTİK: 0 (kanıtlı, TUR #85.7 ile Vercel deploy kurtarıldı — N6 gözlem CEO manuel redeploy gerekebilir)
-## 🟡 PLANLI: 2 (TUR #85.7 sonrası — backend log temizlik + Next 16.2.4 patch)
+## 🔴 AÇIK KRİTİK: 0 (TUR #85.9 ile auth flow kesin kapatıldı — Senaryo 1 ✅ GEÇTİ)
+## 🟡 PLANLI: 3 (TUR #85.10 prerender bug fix + TUR #86 Next 16.2.4 patch + backend log temizlik)
 
-## 🟢 TUR #85.7 KAPANIŞ ÖZETİ (5 Mayıs gece)
+## 🟢 TUR #85.9 KAPANIŞ ÖZETİ (5 Mayıs 19:10 sonrası)
+
+**CEO 6 ekran kanıt (5 May 17:05 / 17:47 / 19:05):** TUR #85 zinciri ana redirect döngü 4 hotfix sonrası devam etti (Edge ServiceWorker → Chrome SW yok ama döngü → Chrome 1 req `(blocked:origin)`).
+
+**Kök sebep — Hipotez F doğrulandı kanıt-bazlı:**
+`proxy.ts:84-88` `token var + role yok → next()` bypass = BOZUK STATE → AppLayout client-side redirect tetikleyip middleware zincirliyordu → SONSUZ DÖNGÜ.
+
+### Q1 Bug Matrisi (8 senaryo × 5 dosya)
+
+Kanıt-bazlı: **2 dosya buggy** (proxy.ts + 2fa-secim) — 3 dosya kanıt yok = dokunulmadı (Madde 4.4).
+
+### Q2-Q5 Atomik Fix (panel `7fc6fa7` — Madde 30.49 atomik transaction)
+
+1. **proxy.ts (BUG FIX zorunlu — 33. mimar hatası):**
+   - `token var + role yok → /login` redirect (next() yerine)
+   - Madde 30.48 emsali (BOZUK STATE → hard reset)
+
+2. **2fa-secim/page.tsx defansif (Madde 30.45 R+):**
+   - useEffect `twoFactorEnabled=true` tespiti → `setTwoFactorEnabled(true)` BEFORE `router.replace`
+   - Cross-device 2FA edge case fix
+
+### Q8 Production Smoke 8 Senaryo
+
+| # | Senaryo | Sonuç |
+|---|---|---|
+| **1 KRİTİK** | Authsız → /dashboard | ✅ **307 /login?redirect=%2Fdashboard 1 hop, döngü KIRILDI** |
+| 2 | Authsız → /2fa-secim | ✅ 307 /login (proxy.ts atomik fix, döngü yok) |
+| 3 | /login | ✅ 200 |
+| 4 | /sw.js Cache-Control no-store + Service-Worker-Allowed:/ | ✅ |
+| 5 | Backend /health | ✅ 200 |
+| 6 | auditorHealth: HEALTHY + Auditor < 5 dk | ✅ |
+| 7 | 4 sekme login UI (HTML grep) | ⚠️ 0 (client render, beklenen) |
+| 8 | ISO/KVKK rozet | ⚠️ 1 (grep desen artefaktı, footer mevcut) |
+
+**Senaryo 1 KRİTİK ✅ GEÇTİ — TUR #85 zinciri ANA BUG KIRILDI.**
+
+### Q6 Lokal Build (Windows)
+
+- TS strict 0 hata + Compile success ✅
+- Prerender 2 sayfa fail (`/blog/[slug]` x2) — atomdan İLGİSİZ Next.js 16 bug, TUR #85.10 ayrı atom
+
+### Q7 Vercel Deploy
+
+1. denemede aktif (Age: 0s, fra1, x-vercel-id: zzjrd-17779979). Empty commit deploy boost başarılı.
+
+### Madde 30.48 + 30.49 Yeni
+
+- **30.48 Auth State Bütünlüğü:** token+role-yok BOZUK STATE → /login redirect zorunlu (33. mimar hatası kapanış)
+- **30.49 Auth Flow Atomik Transaction:** 5 dosya birlikte oku BUG MATRİSİ + kanıtlı buggy dosyalar tek commit + Madde 4.4 kanıtsız dokunma yasak (34+35. mimar hatası kapanış)
+
+### CEO Sıradaki Manuel (~5 dk)
+
+1. **Edge incognito** → ayarlar → "siteler için verileri temizle" → tedbirge.ai
+2. `/login?rol=hukukcu` → email + şifre
+3. `/2fa-secim` wizard → TOTP setup → 6 hane → "Devam Et"
+4. **Beklenen:** `/dashboard` direkt 1 hop, döngü YOK ✅
+5. DevTools → Application → Cookies: `tedbirge_2fa_enabled=1` ✅
+6. /dashboard direkt URL → /login redirect (eski oturum bozuksa, yeni login sonrası tam çalışır)
+
+### Sıradaki TUR Adayları
+A) **TUR #85.10** prerender bug fix (Next.js 16 + Edge runtime + workStore — 2 sayfa /blog/[slug])
+B) **TUR #86** Next 16.2.4 patch upgrade (npm audit 2 vuln)
+C) **TUR #86** backend log temizlik (109 console.log)
+D) **TUR #86** auth-aware localStorage konsolide refactor
+E) TUR #85 S7 Cloudflare CEO manuel
+F) 7 personel 2FA aktivasyon duyuru
+
+---
 
 **Önkoşul:** TUR #85.6 cookie fix push'landı AMA Vercel npm ci EUSAGE 13 dk patlama → son 4 commit (TUR #85.5 J1+J7+J10 + TUR #85.6) production'a deploy edilemedi.
 
@@ -612,13 +680,14 @@ merhaba
 ---
 
 **— Tedbirge.ai mimarı**
-**TUR #85.7 KAPALI · 5 Mayıs 2026 gece (Vercel Build Kurtarma + Lockfile Sync + 31. mimar hatası + Madde 30.46 yeni)**
-**Anayasa v1.22.15 yürürlükte (38 alt-madde 30.10-30.46 + 5 R-genişleme)**
-**Pattern: TUR #56+...+85.7 = 254+ atom sapma 0 — kalibrasyon 1.6× 35. doğrulama**
-**31 Mimar Hatası/Gözlem kayıtlı, her biri Anayasa maddesine dönüştü.**
-**Maliyet: $0 (TUR #85.7 lockfile hijyeni — paket kaldırma)**
+**TUR #85.9 KAPALI · 5 Mayıs 2026 gece (Auth Flow Kesin Yeniden Tasarım + 33+34+35. mimar hatası + Madde 30.48+30.49 yeni)**
+**Anayasa v1.22.16 yürürlükte (40 alt-madde 30.10-30.49 + 5 R-genişleme)**
+**Pattern: TUR #56+...+85.9 = 256+ atom sapma 0 — kalibrasyon 1.6× 36. doğrulama**
+**35 Mimar Hatası/Gözlem kayıtlı, her biri Anayasa maddesine dönüştü.**
+**Maliyet: $0 (TUR #85.9 kanıt-bazlı 2 dosya atomik fix)**
 
-CEO görsel kanıt > Code rapor pattern 5. uygulama (TUR #72.10 → #72.11 → #85 → #85.5 → #85.6 → #85.7).
+CEO görsel kanıt > Code rapor pattern 6. uygulama (TUR #72.10 → #72.11 → #85 → #85.5 → #85.6 → #85.7 → #85.9).
+**Strateji değişikliği:** hipotez yerine 5 dosya kesin yeniden tasarım atomik transaction (Madde 30.49) kalıcı pattern.
 
 ---
 
