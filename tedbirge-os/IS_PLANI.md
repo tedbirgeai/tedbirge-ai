@@ -1,19 +1,19 @@
 # TEDBİRGE.AI YOL HARİTASI v1.0
-**Son güncelleme:** 6 Mayıs 2026, 18:45 sonrası (TUR #87 KAPALI — REPRESENTATIVE Login Redirect Bug Uçtan Uca Fix)
-**Anayasa versiyonu:** v1.22.17 (Madde 30.49 R+ yeni: Smoke Matrisi N Rol × ≥3 Senaryo)
+**Son güncelleme:** 6 Mayıs 2026, 19:40 sonrası (TUR #87.5 KAPALI — Kapsamlı 3 Rol Login + 2FA Setup Yeniden İnceleme)
+**Anayasa versiyonu:** v1.22.18 (Madde 30.50 yeni: Login Smoke Disiplini)
 **İlke:** MoSCoW + Now-Next-Later hibrit (Madde 24.5)
 
 ---
 
 ## 🎯 AKTİF KESİT
 
-**Faz:** REPRESENTATIVE Login Redirect Bug KAPALI ✅ (TUR #87 ile login/page.tsx 2FA Challenge onSuccess kanıt-bazlı atomik fix, 36. mimar hatası kapanışı)
-**Son TUR:** #87 — REPRESENTATIVE Login Redirect Bug Uçtan Uca Fix (KAPALI, 12 atom S0-S12, 1 satır kod 5 dosyadan 1 dosya, Madde 4.4 + 30.49 emsali)
-**Son düzeltme TUR'u:** #66.7 + #69+#69.5+#70 + #71 + #72 + #72.5+#72.6+#72.7+#72.8+#72.9+#72.10+#72.11 + #73 + #74 + #75 + #76 + #77 + #78 + #79 + #80 + #81 + #82 + #83 + #84 + #85 + #85.5 + #85.6 + #85.7 + #85.9 + #86 + **#87**
-**Önerilen sıradaki TUR #88 NOW:** CLAUDE.md compaction (37. mimar hatası adayı — 210k+ char performans, ~80k hedef) + 7 personel 2FA aktivasyon duyuru (KVKK m.12)
+**Faz:** Login 401 Hard Redirect + Sekme Persistence Bug KAPALI ✅ (TUR #87.5 ile lib/api.ts apiFetch login endpoint hard redirect ATLA + login/page.tsx sekme URL ?rol= update, 37. mimar hatası kapanışı)
+**Son TUR:** #87.5 — Kapsamlı 3 Rol Login + 2FA Setup Yeniden İnceleme (KAPALI, 14 atom T0-T14, kanıt-bazlı 5 dosyadan 1 KRİTİK + 1 UX, 4 dosya DOKUNULMADI Madde 4.4 emsali)
+**Son düzeltme TUR'u:** #66.7 + #69+#69.5+#70 + #71 + #72 + #72.5+#72.6+#72.7+#72.8+#72.9+#72.10+#72.11 + #73 + #74 + #75 + #76 + #77 + #78 + #79 + #80 + #81 + #82 + #83 + #84 + #85 + #85.5 + #85.6 + #85.7 + #85.9 + #86 + #87 + **#87.5**
+**Önerilen sıradaki TUR #88 NOW:** CLAUDE.md compaction (38. mimar hatası adayı — 215k+ char performans, ~80k hedef) + 7 personel 2FA aktivasyon duyuru (KVKK m.12)
 **TUR #88+ NEXT:** Cloudflare manuel + Müvekkil panel içerik + TUR #85.10 prerender + Next 16.2.4 patch + backend log temizlik + CEO Emine Çelik browser replay test (opsiyonel)
-**Anayasa:** v1.22.17 (40 alt-madde 30.10-30.49 + 6 R-genişleme — TUR #87 Madde 30.49 R+ Smoke Matrisi N Rol × ≥3 Senaryo)
-**Son güncelleme:** 6 Mayıs 2026, 18:45 sonrası (TUR #87 KAPANIŞ — REPRESENTATIVE login redirect, Anayasa v1.22.16 → v1.22.17)
+**Anayasa:** v1.22.18 (41 alt-madde 30.10-30.50 + 6 R-genişleme — TUR #87.5 Madde 30.50 Login Smoke Disiplini)
+**Son güncelleme:** 6 Mayıs 2026, 19:40 sonrası (TUR #87.5 KAPANIŞ — login 401 hard redirect + sekme persistence, Anayasa v1.22.17 → v1.22.18)
 
 ### 4 TUR Yol Haritası (CEO HAYALİ — 2 Mayıs gece)
 

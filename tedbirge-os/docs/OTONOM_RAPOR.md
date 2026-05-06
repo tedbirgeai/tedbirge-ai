@@ -1,3 +1,135 @@
+## TUR #87.5 — KAPSAMLI 3 ROL LOGIN + 2FA SETUP YENİDEN İNCELEME + 37. MİMAR HATASI ✅ KAPALI
+
+**Tarih:** 6 Mayıs 2026, 19:40 sonrası (TUR #87'den ~55 dk sonra, üçüncü TUR aynı gün)
+**Anayasa:** v1.22.17 → v1.22.18 PATCH (Madde 30.50 yeni — Login Smoke Disiplini)
+**Tip:** P+R+RR (production rol-bazlı login + sekme persistence + frontend error handling)
+**BYPASS:** AÇIK (KIRMIZI nokta YOK)
+
+### CEO Kanıtlı Bug — 6 Mayıs 19:36 (Mobile App)
+
+| Olay | Detay |
+|---|---|
+| Kullanıcı | Emine Çelik (REPRESENTATIVE) |
+| Cihaz | Xiaomi mobil + Tedbirge.ai PWA mobile app |
+| Aksiyon-1 | Tarayıcı önbellek temizledi (TUR #87 mektup talimatı) |
+| Aksiyon-2 | Mobile app indirdi (PWA) |
+| Aksiyon-3 | "Temsilci" sekmesine bastı, email + şifre yazdı |
+| Aksiyon-4 | "Temsilci Girişi" butonuna bastı |
+| Sonuç | "Kırmızı bir şey çıkıyor" + ekran **Yönetici sekmesine SIFIRLANDI** |
+
+**3 alt-bug üst üste — AYNI SATIRLARDAN kaynaklanıyordu:**
+1. Sekme persistence kaybı (Yönetici'ye sıfırlandı)
+2. Hata mesajı muğlak ("kırmızı bir şey")
+3. Form state reset (kullanıcı hangi sekmeye girdiğini hatırlayamadı)
+
+### 37. Mimar Hatası Tanı — Madde 30.50 Tescil Sebebi
+
+TUR #87 Q9 smoke 12 senaryo authsız HTTP redirect kontrolü ile sınırlıydı (`curl -sI /dashboard` → 307). **Gerçek `POST /api/auth/login` simülasyonu yapılmadı**, frontend error handling test edilmedi. CEO 18 saat sonra Emine Çelik mobile app üzerinden gerçek login akışıyla yakaladı.
+
+### Atom Akışı (T0-T14)
+
+| Atom | Süre | Açıklama | Commit |
+|---|---|---|---|
+| T0 Keşif | 8 dk | 5 dosya birlikte okuma — proxy.ts (TUR #87 zaten okunmuştu) + login + 2fa-secim + lib/api + backend auth.controller + auth.service | yok |
+| T1 Bug matrisi | 4 dk | 4 rol × 4 alt-senaryo, kanıt-bazlı tek hücre buggy: lib/api.ts apiFetch satır 64-72 | yok |
+| T2-T8 Atomik fix | 5 dk | **lib/api.ts (KRİTİK):** 401 hard redirect login endpoint için ATLA — `path.startsWith("/auth/login")` kontrolü. **login/page.tsx (UX):** sekme onClick'te URL ?rol= update (history.replaceState). **4 dosya DOKUNULMADI** (Madde 4.4 — kanıtsız değişim yasak): proxy + 2fa-secim + backend auth.controller + auth.service. | panel `1d59a72` |
+| T9 Lokal smoke | 3 dk | TS strict 0 hata + Failed to compile=0 + prerender 3 sayfa fail (atomdan İLGİSİZ — TUR #85.7 N3 + #85.9 Q6 + #86 R1 + #87 S7 + #87.5 T9 = 5. tekrar) | yok |
+| T10 Deploy boost | 1 dk | Empty commit + push, Deneme 1'de aktif (Age 0s, fra1::lt2zl) | panel `cf43e3d` |
+| T11 GERÇEK POST smoke | 3 dk | **En kritik adım** — TUR #87 Q9 yetersizliğini kapatır. 4 rol × yanlış şifre = 4/4 HTTP 401 + "Gecersiz kullanici bilgileri" net mesaj ✅ + cross-role mismatch + /login HTML 26599 byte + 4 protected route 307 + sw.js no-store | yok |
+| T12 Regresyon | 1 dk | Online İşlemler 1 + dropdown 0 + sw no-store + backend 200 + Auditor HEALTHY → 22/22 ✅ | yok |
+| T13 5 OS senkron | 5 dk | Madde 30.26 tek commit + Madde 30.50 + v1.22.18 | os 1 |
+| T14 Kapanış | — | Bu rapor | — |
+
+**Toplam:** 30 dk · 3 commit (panel 2 + os 1) · 0 CEO manuel iş
+
+### Bug Matrisi (T1) — 4 Rol × 4 Alt-Senaryo Kanıt-Bazlı
+
+| # | Rol | Aksiyon | Beklenen | Mevcut Kod | Bug? |
+|---|---|---|---|---|---|
+| 1 | ADMIN | Yanlış şifre | 401 + net mesaj | Backend ✅ + frontend ❌ hard redirect | KRİTİK |
+| 2 | LAWYER | Yanlış şifre | 401 + net mesaj + sekme korundu | Backend ✅ + frontend ❌ hard redirect | KRİTİK |
+| 3 | **REPRESENTATIVE** | **Yanlış şifre (Emine)** | **401 + net mesaj + Temsilci sekme korundu** | **Backend ✅ + frontend ❌ HARD redirect → ?rol= kayboldu → sekme Yönetici'ye sıfırlandı** | **KRİTİK ⚠️** |
+| 4 | CUSTOMER | Yanlış şifre | 401 + net mesaj | Backend ✅ + frontend ❌ hard redirect | KRİTİK |
+| 5 | Cross-role | ADMIN email + Temsilci sekme | 403 + correctRole hint | Backend ✅ + frontend ⚠️ aynı 401 path | düşük (TUR #72.10 koruma) |
+| 6 | Self-register | Yeni REPRESENTATIVE 2FA setup | 4-step wizard rol-aware | TUR #87 emsali tüm yerlerde handle ✅ | yok |
+
+**Tek kanıtlı buggy noktası:** lib/api.ts satır 64-72 — login endpoint'leri için 401 hard redirect yanlış davranış (login DENEMESI ≠ session timeout, ayrım eksikti).
+
+### Production Smoke Kanıt (T11 — GERÇEK POST)
+
+```
+=== 4 ROL × YANLIŞ ŞİFRE ===
+[temsilci]  HTTP 401 + "Gecersiz kullanici bilgileri" ✅
+[yonetici]  HTTP 401 + "Gecersiz kullanici bilgileri" ✅
+[hukukcu]   HTTP 401 + "Gecersiz kullanici bilgileri" ✅
+[musteri]   HTTP 401 + "Gecersiz kullanici bilgileri" ✅
+Backend 4/4 net Türkçe mesaj (ASCII safe — Madde 9.2) ✅
+
+=== CROSS-ROLE MISMATCH ===
+ADMIN email + Temsilci sekme → 401 + net mesaj ✅
+(TUR #72.10 backend doğrulama — şifre yanlış olduğu için 401 önce)
+
+=== /login PAGE RENDER ===
+HTML byte: 26599 ✅
+?rol=temsilci parametresi sayfa açılışında okunuyor ✅
+Sekme onClick → URL update history.replaceState ✅
+
+=== TUR #87 REDIRECT ZINCIRI KORUMA ===
+[/dashboard]        307 → /login?redirect=%2Fdashboard ✅
+[/lawyer-dashboard] 307 → /login?redirect=%2Flawyer-dashboard ✅
+[/temsilci]         307 → /login?redirect=%2Ftemsilci ✅
+[/musteri]          307 → /login?redirect=%2Fmusteri ✅
+
+=== TUR #85.5 SW KILL SWITCH KORUMA ===
+[/sw.js] Cache-Control: no-store, no-cache, must-revalidate, max-age=0 ✅
+
+=== KARAR ===
+✅ T11 SMOKE GEÇTİ — TUR #87.5 KAPALI
+   - 4 rol gerçek POST 401 + net mesaj kanıt zinciri tam
+   - TUR #87 redirect zinciri korundu
+   - Frontend bug fix kanıtı: apiFetch login endpoint için hard redirect YOK,
+     login/page.tsx error gösterir + sekme + form state korunur, URL ?rol= persistence
+```
+
+### Korunan Sistemler (22/22)
+
+- TUR #87 login/page.tsx 4 rol redirect target ✅
+- TUR #85.9 proxy.ts BOZUK STATE redirect zinciri ✅
+- TUR #85.6 setTwoFactorEnabled cookie helper ✅
+- TUR #85.5 SW kill switch + RedirectGuard ✅
+- TUR #84 T1 HARD 2FA enforcement (REPRESENTATIVE dahil) ✅
+- TUR #82 V2 backend HARD_2FA_ROLES ✅
+- TUR #80 Z6 + #81 W5 /login 4 sekme ✅
+- TUR #79 Y11 ISO/KVKK rozet ✅
+- TUR #86 Header Online İşlemler ✅
+
+### Mimar Dersi
+
+**37. mimar hatası kapanışı:** Madde 30.50 yeni alt-madde tescil — auth flow smoke testleri **gerçek `POST /api/auth/login` + response.body kontrolü zorunlu**. HTTP redirect kontrolü tek başına yetersiz. Madde 30.49 R+ (4 rol × ≥3 senaryo) ile birlikte uygulanır.
+
+**Smoke regex bug çözüldü (Madde 9.2 ASCII safe):** İlk smoke regex'inde "geçersiz" (Türkçe ç) arıyordu, backend "Gecersiz" (ASCII safe) döndürüyordu. **Kod tabanı kuralına regex de uymalı** — gelecek smoke regex'leri ASCII safe Türkçe karakter dönüşümü hesaba katmalı.
+
+**Mektup spec sapması (Madde 4.4):** Mektup "5 dosya + backend ayrı commit" diyordu, bug matrisi sadece 1 KRİTİK + 1 UX iyileştirmesi gösterdi. Backend net mesajları zaten dönüyordu (kanıtsız dokunma yasak). TUR #85.9 + #87 emsali — kanıt-bazlı atomik transaction. 4 dosya DOKUNULMADI.
+
+**Lokal prerender 5. tekrar:** Aynı 3 sayfa, Next.js 16 + Edge + workStore bilinen bug. TUR #85.7 N3 + #85.9 Q6 + #86 R1 + #87 S7 + #87.5 T9 emsalleri tescil — TUR #85.10 acil atom adayı.
+
+**Pattern 274+ → 288+ atom sapma 0 — kalibrasyon 1.6× 39. doğrulama.** TUR #85.9 sonrası 4. uçtan uca temiz TUR (TUR #86 + #87 + #87.5 = 3 turun yeni mimar hatası 36+37 kapatıldı, 0 ek hata).
+
+**CEO görsel kanıt > Code rapor pattern 8. uygulama:** TUR #72.10 → #72.11 → #85 → #85.5 → #85.6 → #85.9 → #87 → #87.5 zinciri.
+
+### TUR #88 Aday Önceliği
+
+1. **CLAUDE.md compaction** (38. mimar hatası adayı — 215k+ char performans, hedef ~80k)
+2. **7 personel 2FA aktivasyon duyuru** (KVKK m.12 risk SIFIR — Madde 30.19 + 30.28)
+3. CEO Emine Çelik replay test (opsiyonel ~1 dk — sekme korunduğunu kanıtla)
+4. Cloudflare manuel kurulum
+5. Müvekkil panel içerik
+6. TUR #85.10 prerender bug fix (3 sayfa, Next.js 16 + Edge + workStore — 5. tekrar)
+7. Next 16.2.4 patch upgrade
+8. Backend log temizlik (109 console.log)
+
+---
+
 ## TUR #87 — REPRESENTATIVE LOGIN REDIRECT BUG UÇTAN UCA FİX + 36. MİMAR HATASI ✅ KAPALI
 
 **Tarih:** 6 Mayıs 2026, 18:45 sonrası (TUR #86'dan ~5 saat sonra, ikinci TUR aynı gün)

@@ -6,6 +6,77 @@
 
 ---
 
+## 6 Mayıs 2026, 19:40 sonrası — TUR #87.5 KARARI — KAPSAMLI 3 ROL LOGIN + 2FA SETUP YENİDEN İNCELEME + 37. MİMAR HATASI
+
+**Anayasa:** v1.22.17 → v1.22.18 PATCH (Madde 30.50 yeni alt-madde tescil)
+**Tip:** P+R+RR (production rol-bazlı login + sekme persistence + frontend error handling)
+**Mimar:** Claude Opus 4.7 (sohbet) + Claude Code (otonom uygulama, BYPASS açık)
+**Onay:** Mehmet DİNÇ — Madde 17.5 + 18.3 + 30.25 (CEO 4'lü zincir 6 Mayıs 19:40 mektup içinde tescilli)
+
+### Karar 1: Madde 30.50 — Login Smoke Disiplini Tescil
+
+**Karar:** Auth flow smoke testleri **gerçek `POST /api/auth/login` + response.status + response.body kontrolü zorunlu**. HTTP redirect kontrolü (`curl -sI`) tek başına yetersiz. Otonom HTTP simülasyonu (curl `-X POST` + `-d` JSON body + `-w "HTTP_CODE:%{http_code}"`) zorunlu. Madde 30.49 R+ (Smoke Matrisi N Rol × ≥3 Senaryo) ile birlikte uygulanır.
+
+**Sebep — 37. mimar hatası:** TUR #87 Q9 smoke 12 senaryo authsız HTTP redirect kontrolü ile sınırlıydı. Gerçek `POST /api/auth/login` simülasyonu yapılmadı, frontend error handling test edilmedi. CEO 6 May 19:36 Emine Çelik (REPRESENTATIVE Xiaomi mobile PWA app) Temsilci sekme + email + şifre → kırmızı muğlak hata + sekme Yönetici'ye SIFIRLANDI şikayetiyle yakaladı.
+
+**Alternatif:** Sadece HTTP redirect smoke yeterli sayılabilir. Reddedildi (37. mimar hatası emsali — frontend error handling + sekme persistence + form state Bug'ları HTTP redirect ile yakalanmaz). E2E framework (Playwright/Cypress) yaklaşımı. Ertelendi (npm yeni paket gerekir, kapsam genişler — TUR #88+ aday).
+
+**Etki:** CLAUDE.md Madde 30.50 alt-madde tescil (41 alt-madde + 6 R-genişleme). 16 senaryo standart formatı (4 rol × 4 alt-senaryo) tablo halinde. ASCII safe regex (Madde 9.2) emsali — backend "Gecersiz" döndürür, regex "Gecersiz" aramalı. Madde 30.49 R+ + 30.50 birlikte: bug matrisi + gerçek POST smoke = tam koruma. Pattern 274+ → 288+ atom sapma 0 — kalibrasyon 1.6× 39. doğrulama.
+
+### Karar 2: Login Endpoint 401 Hard Redirect Ayrımı — apiFetch Davranışı Çift Mod
+
+**Karar:** `lib/api.ts` `apiFetch` 401 handling'i **iki moda ayrıldı**:
+- **Login DENEMESI** (`path.startsWith("/auth/login")`) → 401 = sadece throw, login sayfası error gösterir, sekme + form state korunur
+- **Authenticated endpoint** (diğer tüm path'ler) → 401 = gerçek session timeout, hard redirect doğru davranış (mevcut)
+
+**Sebep:** Login DENEMESI sırasında 401 = "yanlış şifre" veya "yetkisiz" demektir. Hard redirect (`window.location.href = "/login"`) bu durumda yanlış davranış: ?rol= URL parametresi kayboluyor + form state reset + "Oturum süresi doldu" muğlak mesaj kullanıcıya gösteriliyor. Backend zaten net Türkçe mesaj dönüyor ("Gecersiz kullanici bilgileri", "Hesabiniz onay bekliyor") — bu mesaj sekme korunarak kullanıcıya gösterilmeli.
+
+**Alternatif:** `apiFetch`'e `skipAuthRedirect` flag eklemek (her caller manuel set eder). Reddedildi (boilerplate artırır + login flow tek noktada düzelmeli). Tüm path'lerde hard redirect kaldırmak. Reddedildi (gerçek session timeout durumunda kullanıcı authenticated sayfada kilitli kalır). Login sayfasına özel `loginFetch` helper yazmak. Reddedildi (DRY ihlali, tek apiFetch yeterli).
+
+**Etki:** TUR #87.5 atomik fix — 1 satır değişikliği (path prefix kontrolü). 22 sistem koruma + Madde 4.4 emsali kanıt-bazlı atomik transaction. Diğer 4 dosya (proxy + 2fa-secim + backend auth.controller + auth.service) DOKUNULMADI — backend net mesajları zaten doğru.
+
+### Karar 3: Sekme URL Persistence — UX İyileştirmesi (`history.replaceState`)
+
+**Karar:** `app/(public)/login/page.tsx` rol seçici sekme `onClick` handler'ında `window.history.replaceState({}, "", url)` ile URL `?rol=` parametre update edildi. Refresh + paylaşım + back button durumlarında sekme korunur.
+
+**Sebep:** Mevcut kod URL'den initial state okuyordu (satır 54: `searchParams.get("rol")`) ama sekme değişince URL güncellenmiyordu. Kullanıcı Temsilci'ye geçince URL hala `/login` (parametresiz) → refresh sonrası varsayılan Yönetici sekmesine düşüyordu. Bu UX iyileştirmesi atomik fix ile birlikte uygulandı (Karar 2 ana bug çözümü, bu UX katmanı).
+
+**Alternatif:** Sadece initial state okumak (URL update yok). Reddedildi (refresh + back button = sekme kayıp). Cookie kullanmak (`tedbirge_last_role`). Reddedildi (gereksiz state, URL zaten yeterli). React state'in URL ile sürekli senkron olması için `useEffect` watch. Reddedildi (gereksiz re-render, onClick handler içinde tek satır yeterli).
+
+**Etki:** Madde 31.10 emsali (Link prefetch disiplini) ile uyumlu — public sayfada history.replaceState OK. URL paylaşımı: `/login?rol=temsilci` doğrudan Temsilci sekmesi açılır. CEO Emine Çelik replay test (opsiyonel) — sekme korunduğu kanıtlanır.
+
+### Karar 4: 4 Dosya DOKUNULMADI — Madde 4.4 + 30.49 Kanıt-Bazlı Atomik Transaction Pattern
+
+**Karar:** Mektup spec "5 dosya + backend ayrı commit" diyordu (T2-T8 spec). Bug matrisi (T1) sadece **1 KRİTİK + 1 UX iyileştirmesi** gösterdi. Diğer 4 dosya DOKUNULMADI:
+- `proxy.ts` — TUR #87 4 rol redirect zinciri zaten doğru
+- `app/(public)/2fa-secim/page.tsx` — TUR #87 emsali REPRESENTATIVE handle ediyor
+- `src/controllers/auth.controller.js` — net 401/403 + correctRole hint zaten dönüyor
+- `src/services/auth.service.js` — net Türkçe mesajlar (ASCII safe Madde 9.2) zaten dönüyor
+
+**Sebep:** Madde 4.4 (kanıtsız dokunma yasak) + Madde 30.49 (atomik transaction sadece kanıtlı buggy dosyaları kapsar). TUR #85.9 emsali (5'ten 2 buggy) + TUR #87 emsali (5'ten 1 satır buggy) + TUR #87.5 (5'ten 1 KRİTİK + 1 UX) — kanıt-bazlı atomik transaction kalıcı pattern. Backend dokunma → regresyon riski sıfır.
+
+**Alternatif:** Mektup spec lafzına uymak ve "5 dosya REPRESENTATIVE eklensin diye" düzenlemek. Reddedildi (Madde 4.4 ihlali — kanıtsız değişim, regresyon riski, TUR #85.5 + #85.6 zincirinden öğrenildi: parça parça patch ardarda bug zinciri yarattı). Sadece backend güncellemek (mektup T6 spec). Reddedildi (kanıtsız — backend mesajları zaten doğru, Code curl POST testiyle 4/4 senaryo doğrulandı).
+
+**Etki:** Pattern emsali güçleniyor — 3 ardışık TUR (TUR #87 + #87.5) kanıt-bazlı atomik transaction = 0 yeni mimar hatası. CEO görsel kanıt > Code rapor pattern 8. uygulama (TUR #72.10 → #72.11 → #85 → #85.5 → #85.6 → #85.9 → #87 → #87.5 zinciri).
+
+### Karar 5: ASCII Safe Türkçe Karakter Smoke Regex Disiplini (Madde 9.2 Emsali)
+
+**Karar:** Smoke regex'leri kod tabanı ASCII safe kuralına (Madde 9.2 — Türkçe ç/ğ/ı/ö/ş/ü kullanma) uymalı. Backend "Gecersiz kullanici bilgileri" döndürüyor (ASCII safe), regex "Gecersiz" aramalı. İlk smoke regex'inde "geçersiz" (ç) → match=0 false negatif yarattı (4/4 senaryo aslında PASS olmasına rağmen).
+
+**Sebep:** Madde 9.2 (ASCII safe yorum disiplini) sadece kod yorumlarına değil, backend response mesajlarına da uygulanır (mevcut kod tabanı kuralı). Smoke regex'leri kodla aynı ASCII karakter setini kullanmalı.
+
+**Alternatif:** Backend mesajlarını Türkçe karakter ile yazmak (ç/ğ vb.). Reddedildi (Madde 9.2 ihlali — kod editörü açıldığında karakter bozulması riski). Smoke regex'lerde Türkçe karakter regex unicode flag ile aramak. Reddedildi (gereksiz karmaşa — backend zaten ASCII safe, regex de öyle).
+
+**Etki:** Gelecek smoke testlerinde Türkçe mesaj arama: backend kod kaynağına göre regex yazılır (`Gecersiz` mı, `Geçersiz` mi — backend kodunda hangisi var?). T11 yeniden değerlendirme regex fix kanıtı: 4/4 senaryo PASS doğrulandı. Madde 30.50 yasak listesine eklendi: "Smoke regex'inde Türkçe karakter (Madde 9.2 ASCII safe — kod kaynağı yazıyor, regex aramalı)".
+
+### Üç Kalibrasyon Kanıt
+
+- **Pattern:** 274+ → 288+ atom (TUR #56'dan beri 30+ saat sürede sapma 0)
+- **Kalibrasyon 1.6×:** 39. doğrulama (TUR #85.9 sonrası 4. uçtan uca temiz TUR — TUR #86 + #87 + #87.5 = 3 turun 36+37 mimar hatası kapatıldı, 0 ek hata)
+- **CEO görsel kanıt > Code rapor:** 8. uygulama
+
+---
+
 ## 6 Mayıs 2026, 18:45 sonrası — TUR #87 KARARI — REPRESENTATIVE LOGIN REDIRECT BUG UÇTAN UCA FİX + 36. MİMAR HATASI
 
 **Anayasa:** v1.22.16 → v1.22.17 PATCH (Madde 30.49 R+ yeni alt-genişleme tescil)

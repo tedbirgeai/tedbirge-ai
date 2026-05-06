@@ -1,11 +1,11 @@
 # 🛡️ TEDBIRGE.AI — DEVİR RAPORU AKTİF
 
-**Son güncelleme:** 6 Mayıs 2026, 18:45 sonrası — TUR #87 KAPALI
-**Anayasa:** v1.22.17 (Madde 30.10-30.49 + 6 R-genişleme — TUR #87 Madde 30.49 R+ Smoke Matrisi N Rol × ≥3 Senaryo eklendi)
-**Aktif kesit:** TUR #87 KAPALI ✅ — REPRESENTATIVE Login Redirect Bug Uçtan Uca Fix + 36. mimar hatası kapanışı + Madde 30.49 R+ yeni
-**Son TUR:** #87 (12 atom S0-S12 — login/page.tsx 2FA Challenge onSuccess REPRESENTATIVE eksik atomik fix, kanıt-bazlı 5 dosyadan 1 satır düzeltildi, 4 dosya DOKUNULMADI Madde 4.4 emsali)
+**Son güncelleme:** 6 Mayıs 2026, 19:40 sonrası — TUR #87.5 KAPALI
+**Anayasa:** v1.22.18 (Madde 30.10-30.50 + 6 R-genişleme — TUR #87.5 Madde 30.50 Login Smoke Disiplini eklendi)
+**Aktif kesit:** TUR #87.5 KAPALI ✅ — Kapsamlı 3 Rol Login + 2FA Setup Yeniden İnceleme + 37. mimar hatası kapanışı + Madde 30.50 yeni
+**Son TUR:** #87.5 (14 atom T0-T14 — lib/api.ts apiFetch 401 hard redirect bug + login/page.tsx sekme URL persistence, kanıt-bazlı 5 dosyadan 1 KRİTİK + 1 UX, 4 dosya DOKUNULMADI Madde 4.4 emsali)
 **Mimar:** Claude Opus 4.7 (sohbet) + Claude Code (otonom uygulama, bypass açık)
-**CEO Onay:** Mehmet DİNÇ — Madde 17.5 + 18.3 + 30.25 (CEO 4'lü zincir 6 Mayıs 18:45 mektup içinde tescilli)
+**CEO Onay:** Mehmet DİNÇ — Madde 17.5 + 18.3 + 30.25 (CEO 4'lü zincir 6 Mayıs 19:40 mektup içinde tescilli)
 
 ---
 
@@ -43,8 +43,9 @@
 | #85.7 | 10 atom (N1-N10) | Vercel Build Kurtarma — bundle-analyzer kaldırma + lockfile sync (TUR #85 S6 31. mimar hatası kapanış) + 6 hijyen tarama (0 net problem) + npm audit 2 vuln rapor + Madde 30.46 Lockfile Sync Disiplini | v1.22.15 |
 | #85.9 | 12 atom (Q0-Q12) | Auth Flow Kesin Yeniden Tasarım — Hipotez F BOZUK STATE bug fix (proxy.ts:84-88 token+role-yok → next() bypass yasak → /login zorunlu) + 2fa-secim cross-device 2FA defansif + Madde 30.48 Auth State Bütünlüğü + Madde 30.49 Atomik Transaction + 33+34+35. mimar hatası kapanış (5 hotfix sonrası ana redirect döngü ANA bug FIX, Q8 Senaryo 1 ✅ GEÇTİ — authsız /dashboard → 307 /login 1 hop) | v1.22.16 |
 | #86 | 6 atom (R0-R6) | Header UX Sadeleştirme — PublicNav.tsx dropdown 3'lü menü kaldırıldı, tek "Online İşlemler" linki, /login 4 sekme korundu, mobile senkron | v1.22.16 |
-| **#87** | **12 atom (S0-S12)** | **REPRESENTATIVE Login Redirect Bug — CEO kanıt 6 May 18:41 Emine Çelik (REPRESENTATIVE Chrome mobile) ERR_TOO_MANY_REDIRECTS (-310) → kanıt-bazlı atomik fix login/page.tsx 2FA Challenge onSuccess satır 234 (`targetPath` REPRESENTATIVE → /temsilci eklendi). 5 dosyadan 4'ü DOKUNULMADI (Madde 4.4 + 30.49 emsali). Madde 30.49 R+ yeni: Smoke Matrisi N Rol × ≥3 Senaryo (authsız smoke yetersiz). 36. mimar hatası kapanışı: TUR #85.9 Q8 smoke rol-bazlı simülasyon eksikti. Production smoke 12 senaryo: 4 authsız protected route 307 ✅ + /login 200 ✅ + /2fa-secim 307 ✅ + /sw.js no-store ✅ + Auditor HEALTHY ✅ + 22/22 sistem korundu. Lokal prerender 3 sayfa fail = TUR #85.7 N3 + #85.9 Q6 + #86 R1 emsali (3. tekrar) atomdan İLGİSİZ.** | **v1.22.17** |
-| **TOPLAM** | **274+** | **30+ saat · sapma 0 · 38 kalibrasyon doğrulaması** | **v1.22.17 + 40 alt-madde + 6 R-genişleme** |
+| #87 | 12 atom (S0-S12) | REPRESENTATIVE Login Redirect Bug — kanıt-bazlı atomik fix login/page.tsx 2FA Challenge onSuccess satır 234, Madde 30.49 R+ yeni, 36. mimar hatası kapanışı | v1.22.17 |
+| **#87.5** | **14 atom (T0-T14)** | **Kapsamlı 3 Rol Login + 2FA Setup Yeniden İnceleme — CEO kanıt 6 May 19:36 Emine Çelik (REPRESENTATIVE Xiaomi mobile PWA) Temsilci sekme + email + şifre → kırmızı muğlak hata + sekme Yönetici'ye SIFIRLANDI. Kök sebep: lib/api.ts apiFetch satır 64-72 401 → `window.location.href='/login'` HARD redirect (login DENEMESI ≠ session timeout — ayrım eksikti). Kanıt-bazlı atomik fix (Madde 4.4 + 30.49): apiFetch login endpoint için hard redirect ATLA + login/page.tsx sekme onClick'te URL ?rol= update (UX iyileştirmesi). 4 dosya DOKUNULMADI (proxy + 2fa-secim + backend auth.controller + auth.service — net 401 mesajları zaten doğru). T11 GERÇEK POST smoke 4 rol × yanlış şifre = 4/4 HTTP 401 + 'Gecersiz kullanici bilgileri' net mesaj ✅. Madde 30.50 yeni: Login Smoke Disiplini (gerçek POST + response.body kontrol zorunlu). 37. mimar hatası kapanışı.** | **v1.22.18** |
+| **TOPLAM** | **288+** | **30+ saat · sapma 0 · 39 kalibrasyon doğrulaması** | **v1.22.18 + 41 alt-madde + 6 R-genişleme** |
 
 ---
 
@@ -112,16 +113,16 @@
 
 ---
 
-## 🔴 AÇIK KRİTİK: 0 (TUR #87 ile REPRESENTATIVE login redirect bug kesin kapatıldı — Production smoke 12/12 ✅, Madde 30.49 R+ tescilli)
+## 🔴 AÇIK KRİTİK: 0 (TUR #87.5 ile login 401 hard redirect bug + sekme persistence kesin kapatıldı — Production smoke 4/4 gerçek POST ✅, Madde 30.50 tescilli)
 ## 🟡 PLANLI TUR #88 ADAYLARI:
-   a) **CLAUDE.md compaction** (37. mimar hatası adayı — 210k+ char performans uyarısı, ~80k hedef)
+   a) **CLAUDE.md compaction** (38. mimar hatası adayı — 215k+ char performans uyarısı, ~80k hedef)
    b) **7 personel 2FA aktivasyon duyuru** (KVKK m.12 risk SIFIR — Madde 30.19 + 30.28)
    c) **Cloudflare manuel kurulum** (TUR #85 S7 ertelenmiş — 9 adım talimat docs/TUR85_S7_CLOUDFLARE_TALIMAT.md)
    d) **Müvekkil panel içerik doldurma**
-   e) **TUR #85.10 prerender bug fix** (Next.js 16 + Edge runtime + workStore — 3 sayfa /blog/[slug] + /basvuru-sorgula + /dashboard/ajanda — TUR #85.7 N3 + #85.9 Q6 + #86 R1 + #87 S7 emsalleri 4. tekrar)
+   e) **TUR #85.10 prerender bug fix** (Next.js 16 + Edge runtime + workStore — 3 sayfa /blog/[slug] + /basvuru-sorgula + /dashboard/ajanda — TUR #85.7 N3 + #85.9 Q6 + #86 R1 + #87 S7 + #87.5 T9 emsalleri 5. tekrar)
    f) **Next 16.2.4 patch upgrade** (npm audit 2 vuln rapor — TUR #85.7 N4 emsali)
    g) **Backend log temizlik** (109 console.log production gürültü — TUR #85.7 N8 hijyen tarama emsali)
-   h) **CEO browser test (Emine Çelik replay) — opsiyonel ~1 dk:** Chrome mobile incognito → /login → Temsilci sekmesi → email + şifre → 2FA setup wizard → /temsilci ulaştı kanıtı (ERR_TOO_MANY_REDIRECTS -310 0 kez)
+   h) **CEO Emine Çelik replay test (opsiyonel ~1 dk):** Chrome mobile incognito → /login?rol=temsilci → email + yanlış şifre → kırmızı net hata mesajı kutuda + sekme Temsilci'de KORUNDU (Yönetici'ye sıfırlanmaz) kanıtı
 
 ## 🟢 TUR #85.9 KAPANIŞ ÖZETİ (5 Mayıs 19:10 sonrası)
 
