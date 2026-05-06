@@ -1,5 +1,5 @@
 # TEDBİRGE.AI YOL HARİTASI v1.0
-**Son güncelleme:** 6 Mayıs 2026, 20:30 sonrası (TUR #89 KAPALI — 4 Rol Login Bug HTTP-Level Döngü Kesin Çözüm)
+**Son güncelleme:** 6 Mayıs 2026, 21:30 (TUR #89.5 devir hazırlığı — CLAUDE.md compaction TUR #90'a ertelendi)
 **Anayasa versiyonu:** v1.22.20 (Madde 30.52 yeni: Gizli Mod ve NUM_REDIRECTS Disiplini)
 **İlke:** MoSCoW + Now-Next-Later hibrit (Madde 24.5)
 
@@ -7,14 +7,15 @@
 
 ## 🎯 AKTİF KESİT
 
-**Faz:** 4 Rol Login HTTP-Level Döngü Bug KESİN KAPALI ✅ (TUR #89 ile proxy.ts setup allowed path early return tek satır kanıt-bazlı atomik fix, NUM_REDIRECTS 20 → 1, 39. mimar hatası kapanışı + TUR #88 yanlış çevre faktörü tanısı düzeltildi)
-**Son TUR:** #89 — 4 Rol Login Bug Kesin Çözüm + 39. mimar hatası kapanışı + Madde 30.52 yeni (KAPALI, 5 atom, panel `d766b95` atomik fix + `1087048` deploy boost)
-**Son düzeltme TUR'u:** ... + #88 + **#89** (HTTP-LEVEL döngü kesin fix, CEO 9 ekran + gizli mod kanıtı doğrulandı)
-**🔴 AÇIK KRİTİK:** 0 (Emine ERR_TOO_MANY_REDIRECTS bug GERÇEK koddaydı, kod fix uygulandı, NUM_REDIRECTS production smoke 20→1)
-**Önerilen sıradaki TUR #90 NOW:** CLAUDE.md compaction (40. mimar hatası adayı — 225k+ char performans, ~80k hedef) + 7 personel 2FA aktivasyon duyuru (KVKK m.12) + CEO Emine replay test
-**TUR #90+ NEXT:** Cloudflare manuel + Müvekkil panel içerik + TUR #85.10 prerender + Next 16.2.4 patch + backend log temizlik + Playwright/Cypress e2e (TUR #91+ adayı, npm yeni paket)
-**Anayasa:** v1.22.20 (43 alt-madde 30.10-30.52 + 6 R-genişleme — TUR #89 Madde 30.52 Gizli Mod ve NUM_REDIRECTS Disiplini)
-**Son güncelleme:** 6 Mayıs 2026, 20:30 sonrası (TUR #89 KAPANIŞ — HTTP-level döngü kesin fix, Anayasa v1.22.19 → v1.22.20)
+**Faz:** 4 Rol Login HTTP-Level Döngü Bug KESİN KAPALI ✅ (TUR #89 ile proxy.ts setup allowed path early return tek satır kanıt-bazlı atomik fix, NUM_REDIRECTS 20 → 1, 39. mimar hatası kapanışı)
+**Son TUR:** #89.5 — Devir Hazırlığı (5 OS dosya senkron, kod commit YOK, CLAUDE.md compaction ERTELE)
+**Son düzeltme TUR'u:** ... + #88 + #89 + **#89.5** (devir hazırlığı, yeni sohbete temiz aktarım)
+**🔴 AÇIK KRİTİK:** 0
+**🟡 TUR #90 NOW:** **CLAUDE.md compaction** (40. mimar hatası adayı — 225k+ char Code performans bağımlılığı, ~80k hedef, mantıksal grup + docs/CLAUDE_MADDE_30_DETAY.md ayırma)
+**🟡 TUR #91 NEXT:** 7 personel 2FA aktivasyon duyuru (KVKK m.12, ~40 dk) + CEO Emine replay test (gizli mod, ~2 dk)
+**🟡 TUR #92 LATER:** Cloudflare manuel kurulum + Müvekkil panel içerik + TUR #85.10 prerender + Next 16.2.4 patch + backend log temizlik + Playwright/Cypress e2e (npm yeni paket adayı)
+**Anayasa:** v1.22.20 (43 alt-madde 30.10-30.52 + 6 R-genişleme)
+**Son güncelleme:** 6 Mayıs 2026, 21:30 (TUR #89.5 devir hazırlığı — sonraki sohbete CLAUDE.md compaction taşıma)
 
 ### 4 TUR Yol Haritası (CEO HAYALİ — 2 Mayıs gece)
 
