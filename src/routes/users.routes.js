@@ -15,6 +15,8 @@ router.get("/two-factor-adoption", auth, role("ADMIN"), controller.twoFactorAdop
 router.post("/:id/send-2fa-reminder", auth, role("ADMIN"), controller.send2faReminder);
 // TUR #93 W4 — Avukat Workload widget endpoint (Madde 30.53)
 router.get("/lawyer-workload", auth, role("ADMIN"), controller.lawyerWorkload);
+// TUR #95 H5 — Mimar Sağlık Skoru widget endpoint (Madde 14.4)
+router.get("/architect-health", auth, role("ADMIN"), controller.architectHealth);
 router.patch("/:id",           auth, role("ADMIN"), controller.updateUser);
 router.patch("/:id/password",  auth, role("ADMIN"), controller.resetUserPasswordByAdmin);
 router.patch("/:id/status",    auth, role("ADMIN"), controller.updateUserStatus);

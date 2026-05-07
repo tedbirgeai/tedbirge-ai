@@ -488,3 +488,91 @@ exports.send2faReminder = asyncHandler(async (req, res) => {
   // Madde 30.37 — ActivityLog audit (sendOnboardingReminder içinde zaten yazıyor)
   res.json({ success: true, message: "Hatırlatma email gönderildi", userId: user.id });
 });
+
+// TUR #95 H5 — Mimar Sağlık Skoru widget endpoint (Madde 14.4)
+// 4 KPI: 2FA adoption + Lawyer workload + Auditor + RealtimeEvent + arch health score
+exports.architectHealth = asyncHandler(async (_req, res) => {
+  const lastHour = new Date(Date.now() - 60 * 60 * 1000);
+
+  // KPI 1-2: 2FA adoption (HARD rolleri)
+  const HARD_2FA_ROLES = ["ADMIN", "LAWYER", "REPRESENTATIVE", "SALES"];
+  const [twoFaUsers, totalHard2faUsers] = await Promise.all([
+    prisma.user.count({
+      where: {
+        role: { in: HARD_2FA_ROLES },
+        twoFactorEnabled: true,
+        deletedAt: null,
+      },
+    }).catch(() => 0),
+    prisma.user.count({
+      where: {
+        role: { in: HARD_2FA_ROLES },
+        deletedAt: null,
+      },
+    }).catch(() => 0),
+  ]);
+  const adoptionRate = totalHard2faUsers > 0
+    ? Math.round((twoFaUsers / totalHard2faUsers) * 100)
+    : 100;
+
+  // KPI 3: Aktif avukat sayım (Assignment table — TUR #93 emsali, Lead.atananAvukatId YOK)
+  const [activeAssignments, distinctActiveLawyers] = await Promise.all([
+    prisma.assignment.count({
+      where: {
+        status: "ACTIVE",
+        lead: { status: { in: ["ASSIGNED_TO_LAWYER", "ACTIVE", "CONTRACT_PENDING"] } },
+      },
+    }).catch(() => 0),
+    prisma.assignment.findMany({
+      where: { status: "ACTIVE" },
+      select: { lawyerId: true },
+      distinct: ["lawyerId"],
+    }).then((arr) => arr.length).catch(() => 0),
+  ]);
+
+  // KPI 4-5: Auditor + RealtimeEvent saatlik aktivite
+  const [auditorEventsHour, realtimeEventsHour] = await Promise.all([
+    prisma.agentEvent.count({
+      where: { agentName: "Auditor", createdAt: { gte: lastHour } },
+    }).catch(() => 0),
+    prisma.realtimeEvent.count({
+      where: { createdAt: { gte: lastHour } },
+    }).catch(() => 0),
+  ]);
+
+  // mimarHatasi son tick (Madde 14.4)
+  const archHealthEvent = await prisma.agentEvent.findFirst({
+    where: { agentName: "mimarHatasi", eventType: "STATUS_CHECK" },
+    orderBy: { createdAt: "desc" },
+    select: { payload: true, severity: true, createdAt: true },
+  }).catch(() => null);
+
+  // Pending migrations
+  let pendingMigrations = 0;
+  try {
+    const r = await prisma.$queryRaw`SELECT COUNT(*)::int AS pending FROM "_prisma_migrations" WHERE finished_at IS NULL`;
+    pendingMigrations = Number(r?.[0]?.pending) || 0;
+  } catch (_) {}
+
+  res.json({
+    success: true,
+    kpi: {
+      adoptionRate,
+      twoFaUsers,
+      totalHard2faUsers,
+      activeAssignments,
+      distinctActiveLawyers,
+      auditorEventsHour,
+      realtimeEventsHour,
+      pendingMigrations,
+    },
+    archHealth: {
+      score: archHealthEvent?.payload?.archHealthScore ?? null,
+      severity: archHealthEvent?.severity || "UNKNOWN",
+      checks: archHealthEvent?.payload?.checks || {},
+      details: archHealthEvent?.payload?.details || {},
+      issues: archHealthEvent?.payload?.issues ?? null,
+      lastRun: archHealthEvent?.createdAt || null,
+    },
+  });
+});

@@ -198,6 +198,8 @@ class AuditorAgent extends BaseAgent {
       "ai", "analyzer", "appearance", "backup", "compliance",
       "costGuard", "deploy", "insurance", "maintenance", "navigation",
       "notifications", "performance", "pulse", "recovery", "security", "uyapControl",
+      // TUR #95 H2 — Mimar Hatası Proaktif Tarama (Madde 14.4)
+      "mimarHatasi",
     ];
 
     const start = Date.now();
@@ -235,6 +237,8 @@ class AuditorAgent extends BaseAgent {
       "ai", "analyzer", "appearance", "backup", "compliance",
       "costGuard", "deploy", "insurance", "maintenance", "navigation",
       "notifications", "performance", "pulse", "recovery", "security", "uyapControl",
+      // TUR #95 H2 — Mimar Hatası Proaktif Tarama (Madde 14.4)
+      "mimarHatasi",
     ];
 
     const start = Date.now();

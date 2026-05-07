@@ -92,6 +92,8 @@ const modules = {
   auditor:       safeRequire('./modules/auditor', 'auditor'),
   healer:        safeRequire('./modules/healer', 'healer'),
   reporter:      safeRequire('./modules/reporter', 'reporter'),
+  // TUR #95 H2 — Mimar Hatası Proaktif Tarama (Madde 14.4)
+  mimarHatasi:   safeRequire('./modules/mimarHatasi', 'mimarHatasi'),
   kvkk:          safeRequire('./adapters/kvkk', 'kvkk'),
 };
 
