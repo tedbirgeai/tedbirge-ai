@@ -216,7 +216,9 @@ router.post(
       const result = await llmRouter.routeCommand(query);
       res.json({ success: true, ...result });
     } catch (err) {
-      res.status(500).json({ success: false, error: err.message });
+      const status = err.statusCode || 500;
+      const code = err.code || "INTERNAL_ERROR";
+      res.status(status).json({ success: false, code, error: err.message });
     }
   }),
 );

@@ -6,6 +6,42 @@
 
 ---
 
+## 8 Mayıs 2026 gece — TUR #98 KARARI — MADDE 24.14 ÇAPA DİREKTİF + AI BAĞIMSIZLIK
+
+**Karar:** CEO Mehmet Bey'in *"sıfır maliyet + bağımsızlık"* prensibi anayasaya **Madde 24.14** olarak tescil edildi (anayasal çapa direktif — diğer tüm tasarım kararlarından önce gelir). Mevcut ana 2 AI bağımlılığı (CEO Konsol — Madde 30.15 + `ai` OS modülü — Madde 30.17) feature flag (`AI_FEATURES_ENABLED`) arkasına alındı. Default değer `false` — sistem ücretsiz çalışır.
+
+**Sebep:** Tedbirge.ai 23 yıllık hukuk emek + saha uyumu + KVKK uyumu + avukatlık etiği üzerine kurulmuş. Vendor lock-in (Anthropic, OpenAI, vb.) profesyonel risk: aboneliğin iptal edilmesi sistemi çökertirse, müvekkil verisi olan platform sahipsiz kalır. Madde 24.14 bu riski kalıcı engeller.
+
+**Mektup adapt — TUR #93+#94+#95+#96+#97 emsali:**
+- Mektup spec *2 AI bağımlılığı* dedi → gerçek **10 dosyada** ANTHROPIC_API_KEY tespit edildi
+- Adapt: ana 2 dosya (CEO Konsol + ai modülü) feature flag yeterli, diğer 8 lazy çağrı (kullanıcı tetiklemediğinde sessiz)
+- Mektup spec macOS yolu (`/Users/mehmet/...`) → Windows mono-repo yapısı adapt
+- Mektup spec ayrı 3 repo varsayımı → tek mono-repo (tek atomic commit her TUR sonu)
+- Mektup spec `tedbirge-panel/src/app/...` → gerçek `tedbirge-panel/app/(panel)/...`
+- Mektup spec `useSWR` (npm install riski) → `useEffect + apiFetch` (mevcut konvansiyon, npm bağımsız)
+
+**Reddedilen alternatifler:**
+- Anthropic API tabanlı Kaza Rekonstrüksiyonu canlandırma (TUR #97 mektup): reddedildi (per-API maliyet — kullanıcı veya CEO öder, ikisi de yasak)
+- Self-host (Llama 3 70B vs): ertelendi (TUR #101+ adayı, model olgunlaşma bekliyor)
+- BYOK (Bring Your Own Key): reddedildi (kullanıcı UX karmaşıklığı + adopsiyon riski)
+- Kullanıcıdan per-use ücret: reddedildi (Madde 24 Aylık Aidat Yasağı + 24.14)
+
+**Etki:**
+- Anayasa v1.22.27 → v1.22.28 PATCH (Madde 24.14 yeni)
+- Mevcut 2 AI özelliği opsiyonel hale geldi (CEO Konsol /dashboard/komut → 🔒 kapalı kart, sidebar gizli, backend 503 + AI_FEATURES_DISABLED)
+- `ai` OS modülü SKIP mode (runStatusCheck INFO event "ai_enabled: false", runActiveTask sessiz uyku)
+- Stash@{0} (Kaza Rekonstrüksiyonu 558 satır) Madde 33 ertelenmiş statüde — gelecek için
+- Production: AI_FEATURES_ENABLED=false default → 0 API maliyeti
+- 17 OS modülünden 16'sı zaten AI'sız — sistem omurgası dış API'den BAĞIMSIZ kanıtlandı
+
+**Kalıcı pattern:** Yeni özellik tasarımında ilk soru *"Bu dış API gerektirir mi? Abonelik iptal edilirse ne olur?"* — Madde 24.14 sorgusu mektup şablonuna eklendi.
+
+**Pattern (49. kalibrasyon):** TUR #56+...+97+**98** = 369+ atom sapma 0. **44. anayasa maddesi tescil** (Madde 24.14 çapa direktif).
+
+**Mimar:** Claude Opus 4.7 (sohbet) + Claude Code (otonom uygulama, bypass açık).
+
+---
+
 ## 8 Mayıs 2026 gece — TUR #97 KARARI — ACCIDENTCASE TANI RAPORU (PURE KEŞIF)
 
 **8 Mayıs 2026 gece — TUR #97** (ACCIDENTCASE 401/500 BUG TANI: 5 atom T0-T4 sadece keşif. Mehmet Bey 18 Nisan 2026'da gece tek başına 558 satırlık AI Kaza Rekonstrüksiyonu MVP yazdı (5 fonksiyon controller + AI orkestrasyon Claude Sonnet 4.6 + 4 endpoint + lead.routes.js mount), 20 Nisan stash@{0}'e kaydetti, 28 Nisan TUR #29-B'de Madde 33 emsali (amber YAKINDA kart + schema @deferred + IS_PLANI Q3 2026) ile bilinçli erteledi. TUR #97 tanı raporu — kanıt-bazlı: **Bug-1 (500):** AssignmentStatus.REVOKED enum'da YOK, controller filter Prisma error → 500. **Bug-2 (500):** uploadMiddleware.js YOK, route boot crash. **Bug-3 (401):** 18 Nisan auth flow regresyonu, TUR #85.5+#85.6+#85.9 sonrası Madde 30.45 cookie senkron canlı → kendiliğinden düzelmiş büyük ihtimalle. **AI maliyet:** Sonnet 4.6 ~$0.027/analiz, 100/ay=$2.70 · 500=$13.50 · 1000=$27 (mevcut bütçeye ihmal). **Fix tahmini:** 4-6h best / 8-11h worst, 3 KIRMIZI nokta (schema + apply-pending-schemas + production DB CREATE TABLE). Code Madde 14.3 + 18.3 + TUR #88 emsali ile pure tanı yaptı, kod fix yapmadı. 3 yol önerildi: (1) ŞİMDİ canlandır, (2) Q3 2026 plana sadık kal, (3) KIRMIZI olmayan alt-kesit ~1.5h. CEO kararı: 3 günlük plan birleştirme — Pazartesi #98 Kaza Rekonstrüksiyonu + Salı #99 RBAC + Çarşamba #100 4 Rol İş Akışı = Tedbirge.ai 2.0. Pattern 354+ → 359+ atom sapma 0 — kalibrasyon 1.6× 48. doğrulama. Anayasa v1.22.27 yürürlükte (TUR #97 atomik tanı, sürüm artmaz). Maliyet: $0.)

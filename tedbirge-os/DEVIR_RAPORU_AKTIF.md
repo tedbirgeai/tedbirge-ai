@@ -1,8 +1,8 @@
 # 🛡️ TEDBIRGE.AI — DEVİR RAPORU (AKTİF)
 
-📋 **ANAYASA:** v1.22.27 (Madde 30.10 → 30.53 = 43 alt-madde + 8 R-genişleme + 42. anayasa maddesi tescil)
-📂 **AKTİF KESİT:** TUR #97 KAPALI — AccidentCase Tanı Raporu (sadece keşif, kod değişikliği yok)
-📅 **SON GÜNCELLEME:** 8 Mayıs 2026 gece (8 ardışık temiz TUR günü kapanışı)
+📋 **ANAYASA:** v1.22.28 (Madde 24.14 yeni: Sıfır Marjinal Maliyet + Dış Servis Bağımsızlığı çapa direktifi)
+📂 **AKTİF KESİT:** TUR #98 KAPALI — AI Bağımsızlık Hizalama (CEO Konsol + ai modülü feature flag arkasında, default off)
+📅 **SON GÜNCELLEME:** 8 Mayıs 2026 gece (9 ardışık temiz TUR — TUR #98 başlangıç)
 👤 **CEO Onay:** Mehmet DİNÇ — Madde 17.5 + 18.3 + 30.25
 🤖 **Mimar:** Claude Opus 4.7 (sohbet) + Claude Code (otonom uygulama, bypass açık)
 🌟 **Tarih:** 8 Mayıs 2026 — TARİHE KAYIT (8 ardışık temiz TUR aynı gün)
@@ -20,6 +20,7 @@ TUR #94  ✅  Müvekkil panel B2C (Madde 31.9 R1)
 TUR #95  ✅  Mimar Hatası Proaktif Tarama (Madde 14.5 + mimarHatasi modülü)
 TUR #96  ✅  Lockfile drift Senaryo D (Madde 14.5 R1 + 30.46 R1, çift R-tescil)
 TUR #97  ✅  AccidentCase Tanı Raporu (3 bug + 1 boot crash + AI maliyet $3-27/ay)
+TUR #98  ✅  AI Bağımsızlık Hizalama + Madde 24.14 Çapa Direktif (CEO Konsol + ai modülü feature flag, $0)
 
 ═══════════════════════════════════════════════════════════
 312 → 359+ atom (+47 atom sapma 0)

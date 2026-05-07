@@ -75,14 +75,23 @@ async function executeSql(sql) {
 }
 
 async function routeCommand(userQuery) {
+  // Madde 24.14 — Sifir Maliyet + Dis Servis Bagimsizligi
+  if (process.env.AI_FEATURES_ENABLED !== "true") {
+    const err = new Error(
+      "AI ozellikleri kapali. Sistem yoneticisi AI_FEATURES_ENABLED=true ayarladiktan sonra kullanabilirsiniz."
+    );
+    err.statusCode = 503;
+    err.code = "AI_FEATURES_DISABLED";
+    throw err;
+  }
   const apiKey = process.env.ANTHROPIC_API_KEY;
   if (!apiKey) {
-    return {
-      answer: "ANTHROPIC_API_KEY yapılandırılmamış. CEO Konsol şu an pasif.",
-      data: null,
-      sql: null,
-      tokenUsage: { input: 0, output: 0 },
-    };
+    const err = new Error(
+      "AI ozellikleri yapilandirilmamis. ANTHROPIC_API_KEY tanimli degil."
+    );
+    err.statusCode = 503;
+    err.code = "AI_KEY_MISSING";
+    throw err;
   }
 
   const client = new Anthropic.default({ apiKey });

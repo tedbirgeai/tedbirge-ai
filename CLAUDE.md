@@ -1167,6 +1167,44 @@ Güncelleme **mimar mektubu içinde** yapılır — bağımsız commit değil.
 - ❌ Tedbirge'i avukatlık hizmeti veriyor gibi gösterme (24.1 ihlali — yasal risk)
 - ❌ KDV/stopaj sorumluluğunu Tedbirge'e atfetme (24.4 ihlali — Avukatlık K. ihlali)
 
+### 24.14 — Sıfır Marjinal Maliyet + Dış Servis Bağımsızlığı (TUR #98 — 7 May 2026 CEO çapa direktifi)
+
+**Çapa Direktif (anayasal düzeyde):**
+
+CEO Mehmet Bey 7 Mayıs 2026 sabah:
+> *"Ne ben ne kullanıcılar sisteme girerken hiçbir ücret ödemeyecektir. Bu kesin. Ben sistemi kurduktan sonra bağımsız ve 0 maliyet üzerine kuruyorum."*
+
+Tedbirge.ai sistemi **sıfır marjinal maliyetle** çalışmalıdır. Ne CEO ne kullanıcılar (avukat / temsilci / müvekkil / yönetici) abonelik veya per-use ücreti ödemez.
+
+**Yasak:**
+- ❌ Per-kullanıcı, per-API, per-analiz ücretlendirme tasarımları (Aylık Aidat Yasağı genişlemesi)
+- ❌ Aylık abonelik modelleri kullanıcılar için
+- ❌ Dış üçüncü taraf API'sini **olmazsa olmaz** kılan tasarımlar
+- ❌ CEO Anthropic / OpenAI / vb. aboneliğini iptal ederse ÇÖKEN tasarımlar
+- ❌ Vendor lock-in (aboneliğin iptal edilmesi sistemi çökertirse, müvekkil verisi olan platform sahipsiz kalır)
+
+**Zorunlu:**
+- ✅ Tüm dış API kullanımı **opsiyonel/feature flag arkasında**
+- ✅ Feature flag kapalı olduğunda sistem **0 hata + 0 CRITICAL flood** ile çalışır
+- ✅ Ana CRM + komisyon + KVKK işlevleri dış API'den **bağımsız**
+- ✅ Yeni özellik tasarımında *"abonelik iptal edildiğinde ne olur?"* sorusu zorunlu
+
+**Mevcut feature flag'ler (TUR #98):**
+- `AI_FEATURES_ENABLED` (backend) + `NEXT_PUBLIC_AI_FEATURES_ENABLED` (frontend)
+- Etki noktaları: CEO Konsol — Madde 30.15 (`/dashboard/komut` + `/admin-os/command`) + `ai` OS modülü — Madde 30.17 (runStatusCheck + runActiveTask)
+- Varsayılan: `false` (sistem ücretsiz çalışır)
+- Aktif olduğunda: `ANTHROPIC_API_KEY` zorunlu, CEO maliyetin sahibi
+
+**Pattern (TUR #99+ için):**
+
+Yeni özellik mektubu yazımında her LLM/AI/dış API çağrısı atomu için:
+1. **Feature flag belirt** (env var adı + varsayılan değer)
+2. **Off-state davranışı tanımla** (UI gizleme + backend 503 + modül SKIP mode)
+3. **Smoke senaryolarına ekle** (flag false + flag true her ikisi test)
+4. **Madde 24.14 referansı** mektupta açık yer
+
+**TUR #98 emsal:** Mevcut ana 2 AI bağımlılığı (CEO Konsol + `ai` modülü) tek mektupta feature flag arkasına alındı. Diğer 8 AI servisi (analyzer, bilirkisi, contract, lexscan, ai.service, anthropic adapter, boot, auditor) **lazy çağrı** — kullanıcı tetiklemediğinde çalışmaz, ana CRM AI'sız çalışır kanıtlı. Stash@{0}'de bekleyen Kaza Rekonstrüksiyonu "Yakında" amber kart yerinde — gelecek bağımsız altyapı (self-host Llama, vb.) veya komisyon-finansmanlı çözüm bekliyor.
+
 ---
 
 ## 25. PAZARLAMADİSİPLİNİ (Özet)
@@ -3358,10 +3396,10 @@ Mehmet Bey sahaya çıkabilsin diye bu disiplin var.
 
 ---
 
-**— Tedbirge Mimari Anayasası v1.22.27**  
-**Toplam 97 TUR · 359+ atom sapma 0 · 48 kalibrasyon · 42 mimar hatası → 43 anayasa maddesi**  
-**Aktif Kesit:** TUR #97 KAPALI (AccidentCase Tanı Raporu — sadece keşif) · **Devir:** TUR #97.5 ✅  
-**Yarın Planı:** TUR #98 (Kaza Rekonstrüksiyonu) + TUR #99 (RBAC) + TUR #100 (4 Rol İş Akışı) — Tedbirge.ai 2.0  
+**— Tedbirge Mimari Anayasası v1.22.28**  
+**Toplam 98 TUR · 369+ atom sapma 0 · 49 kalibrasyon · 42 mimar hatası → 44 anayasa maddesi**  
+**Aktif Kesit:** TUR #98 KAPALI (AI Bağımsızlık + Madde 24.14 Tescil — sıfır maliyet)  
+**Sıradaki:** TUR #99 (RBAC Yetki Matrisi) + TUR #100 (4 Rol İş Akışı) — Tedbirge.ai 2.0  
 **Tüm sürüm geçmişi + TUR detayları + atom kayıtları: `tedbirge-os/MIMARI_KARARLAR.md`**
 
 **Versiyon geçmişi: tedbirge-os/MIMARI_KARARLAR.md**  

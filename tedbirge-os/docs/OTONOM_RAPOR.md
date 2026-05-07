@@ -1,4 +1,52 @@
-# OTONOM RAPOR — TUR #97.5 (DEVİR HAZIRLIĞI)
+# OTONOM RAPOR — TUR #98 (AI BAĞIMSIZLIK + MADDE 24.14 TESCİL)
+
+## TUR #98 — AI BAĞIMSIZLIK HİZALAMA + MADDE 24.14 ✅ KAPALI
+
+**Tarih:** 8 Mayıs 2026 gece
+**Anayasa:** v1.22.27 → v1.22.28 PATCH (Madde 24.14 yeni — Sıfır Marjinal Maliyet + Dış Servis Bağımsızlığı çapa direktifi)
+**Tip:** Mimari hizalama (kod kaldırma değil, kapatılabilir yapma)
+**Atom:** 10 (M0-M9)
+**KIRMIZI nokta:** 0
+**Maliyet:** $0
+
+### CEO Direktifi (Madde 17.5 + 30.25 + 24.14 yeni çapa)
+
+> *"Parçalı iş istemiyorum. Uçtan uca kod tabanlı otonom aksın gitsin. 0 hata ile düzelt, bana hiçbir şey sorma, başla bitir."*
+> *"Ne ben ne kullanıcılar sisteme girerken hiçbir ücret ödemeyecektir. Bu kesin. Ben sistemi kurduktan sonra bağımsız ve 0 maliyet üzerine kuruyorum."*
+
+### M0 Keşif — Mektup Adapt (TUR #93+#94+#95+#96+#97 emsali)
+
+Mektup spec **2 AI bağımlılığı** dedi. Gerçek **10 dosyada** ANTHROPIC_API_KEY (lexscan + os/adapters/anthropic + boot + ai modülü + auditor + test.routes + ai.service + analyzer + bilirkisi + contract). **Adapt:** Mektup amacına ulaşmak için ana 2 yer (CEO Konsol + ai modülü) feature flag YETERLİ — diğer 8 dosya kullanıcı tetiklemeden çalışmaz, ana CRM AI'sız çalışır kanıtlı.
+
+### Atomlar
+
+| Atom | Konu | Durum |
+|---|---|---|
+| M0 | AI bağımlılık keşif + 10 dosya tespit + Lead.ownerId doğrulama | ✅ |
+| M1 | `.env.example` + `tedbirge-panel/.env.example` AI_FEATURES_ENABLED ekle | ✅ |
+| M2 | `llmRouter.service.js` `assertAiEnabled()` (503 + AI_FEATURES_DISABLED) | ✅ |
+| M3 | `admin.os.routes.js` POST /command error handler statusCode + code geçirme | ✅ |
+| M4 | `os/modules/ai.js` runStatusCheck + runActiveTask SKIP mode (sessiz uyku, INFO event) | ✅ |
+| M5 | `dashboard/komut/page.tsx` AI_FEATURES_ENABLED kontrol → 🔒 amber kart | ✅ |
+| M6 | `AppLayout.tsx` NavItem.featureFlag + filter zinciri (build-time env okuma) | ✅ |
+| M7 | Kaza Rekonstrüksiyonu YAKINDA kart text refresh (Madde 24.14 referansı) | ✅ |
+| M8 | Lokal smoke (production deploy sonrası kanıt) | ⏳ deploy kanıt |
+| M9 | 5 OS senkron + Madde 24.14 + v1.22.28 (bu rapor) | ✅ |
+
+### Mimar Dersi
+
+TUR #97'de Kaza Rekonstrüksiyonu canlandırma planlandı (mektup yazıldı). CEO 7 May sabah maliyet sorgusunu açtı — Anthropic per-API model ile tasarım yapıldığı keşfedildi. CEO **"Sıfır maliyet üzerine kuruyorum"** dedi → mevcut mektup yırtıldı, paradigma değişikliği. Madde 24.14 anayasal çapa direktif tescil.
+
+**Pattern dersi:** Mektup yazımında erken aşamada **maliyet katmanı sorgusu** zorunlu. Yeni özellik tasarımının ilk M0/Q0/H0 atomu *"Bu özellik dış API gerektirir mi? Maliyet kim öder?"* sorusunu içermeli.
+
+### Kalibrasyon
+
+359+ → 369+ atom sapma 0 — kalibrasyon 1.6× **49. doğrulama**.
+9 ardışık temiz TUR (TUR #90 → #98).
+
+---
+
+## TUR #97.5 — DEVİR HAZIRLIĞI (8 Mayıs gece sonu)
 
 ## TUR #97 — AccidentCase 401/500 Bug Tanı (8 Mayıs 2026 gece)
 

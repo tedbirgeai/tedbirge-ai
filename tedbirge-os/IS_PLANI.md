@@ -1,29 +1,24 @@
 # TEDBİRGE.AI YOL HARİTASI v1.0
-**Son güncelleme:** 8 Mayıs 2026 gece (TUR #97 KAPALI — AccidentCase Tanı Raporu + TUR #97.5 Devir Hazırlığı)
-**Anayasa versiyonu:** v1.22.27 (Madde 14.5 R1 + Madde 30.46 R1: Hijyen Script 2 Katman Doğrulama Disiplini)
+**Son güncelleme:** 8 Mayıs 2026 gece (TUR #98 KAPALI — AI Bağımsızlık + Madde 24.14 Tescil)
+**Anayasa versiyonu:** v1.22.28 (Madde 24.14 yeni — Sıfır Marjinal Maliyet + Dış Servis Bağımsızlığı çapa direktifi)
 **İlke:** MoSCoW + Now-Next-Later hibrit (Madde 24.5)
 
 ---
 
-## NOW — Aktif Çalışma (8 Mayıs 2026 gece sonu)
+## NOW — Aktif Çalışma (8 Mayıs 2026 gece — TUR #98 → #99 → #100 otonom akış)
 
-**Durum:** 8 ardışık temiz TUR (TUR #90 → #97) tamamlandı, devir hazırlığı yapıldı.
+**Durum:** TUR #98 KAPALI ✅ (AI Bağımsızlık + Madde 24.14 çapa direktif tescil). CEO 7 May iki direktifi: (1) "Uçtan uca otonom akış" + (2) "Sıfır maliyet + dış servis bağımsızlığı". Paradigma değişikliği — TUR #97'de Kaza Rekonstrüksiyonu Anthropic per-API model planlanmıştı, 24.14 tescil sonrası **stash@{0} Madde 33 ertelenmiş statüde kaldı** (gelecek bağımsız altyapı veya komisyon-finansmanlı çözüm bekliyor).
 
-**Yarın için:** TUR #98 → Kaza Rekonstrüksiyonu Canlandırma (3 günlük planın 1. günü)
+**Sıradaki:** TUR #99 → RBAC Yetki Yönetim Paneli (1 KIRMIZI: RolePermission tablo)
 
-**3 önkoşul karar (Mehmet Bey sabah verecek):**
-1. Rol mimarisi onayı (ADMIN/LAWYER/REPRESENTATIVE/CUSTOMER eşlemesi)
-2. AI model seçimi (Sonnet 4.6 default + Opus 4.7 premium)
-3. Aylık AI maliyet limiti ($50/$200/sınırsız)
+## NEXT — Tedbirge.ai 2.0 Akışı
 
-## NEXT — Sıradaki 3 Gün
-
-| Gün | TUR | İş | Süre | KIRMIZI |
+| TUR | İş | Atom | KIRMIZI | Anayasa |
 |---|---|---|---|---|
-| Pazartesi | #98 | Kaza Rekonstrüksiyonu Canlandırma | 4-7 saat | 1-2 |
-| Salı | #99 | RBAC Yetki Yönetim Paneli | 6-10 saat | 1 |
-| Çarşamba | #100 | 4 Rol İş Akışı Refactor | 4-8 saat | 0 |
-| **TOPLAM** | 3 TUR | **Tedbirge.ai 2.0** | ~20 saat | ~3 |
+| #98 ✅ | AI Bağımsızlık + Madde 24.14 Tescil | M0-M9 (10) | 0 | v1.22.28 |
+| #99 | RBAC Yetki Yönetim Paneli + Madde 30.55 | Q0-Q12 (13) | 1 (RolePermission) | v1.22.29 |
+| #100 | 4 Rol İş Akışı Refactor + Madde 31.9 R2 | H0-H10 (11) | 0 | v1.22.30 |
+| **TOPLAM** | **Tedbirge.ai 2.0** | 34 atom | 1 KIRMIZI | $0 maliyet |
 
 ## LATER — TUR #101+ Adayları
 

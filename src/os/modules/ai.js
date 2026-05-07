@@ -367,6 +367,25 @@ try {
 async function runStatusCheck() {
   const start = Date.now();
   const prisma = require("../../config/db");
+
+  // Madde 24.14 — Sifir Maliyet + Dis Servis Bagimsizligi
+  if (process.env.AI_FEATURES_ENABLED !== "true") {
+    await prisma.agentEvent.create({
+      data: {
+        agentName: "ai",
+        eventType: "STATUS_CHECK",
+        severity: "INFO",
+        payload: {
+          message: "AI ozellikleri kapali (Madde 24.14). Modul SKIP mode.",
+          ai_enabled: false,
+          api_calls_24h: 0,
+          api_cost_usd_24h: 0,
+        },
+      },
+    });
+    return;
+  }
+
   const apiKey = process.env.ANTHROPIC_API_KEY;
 
   let claudeOK = false;
@@ -496,6 +515,13 @@ function shouldRunActiveTask() {
 }
 
 async function runActiveTask() {
+  // Madde 24.14 — Sifir Maliyet + Dis Servis Bagimsizligi
+  // AI kapaliysa sessiz uyku (CRITICAL flood ve gereksiz DB sorgu YOK)
+  if (process.env.AI_FEATURES_ENABLED !== "true") {
+    lastActiveTaskAt_ai = Date.now();
+    return;
+  }
+
   const startTs = Date.now();
   const prismaClient = require("../../config/db");
   const since1h = new Date(Date.now() - 60 * 60 * 1000);
