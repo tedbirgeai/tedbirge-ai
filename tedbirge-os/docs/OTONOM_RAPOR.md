@@ -1,3 +1,74 @@
+## TUR #96 — ROOT LOCKFILE DRIFT FIX 🛑 DUR (Senaryo C — Madde 18.3 KIRMIZI yazılı onay bekliyor)
+
+**Tarih:** 7 Mayıs 2026 (TUR #95 sonrası, hijyen script ilk meyve)
+**Anayasa:** v1.22.26 (henüz değişmedi — DUR durumunda)
+**Tip:** Lockfile drift fix (potansiyel KIRMIZI nokta)
+**BYPASS:** AÇIK ama L0 sonrası DUR (Code disiplin Madde 14.3 + 18.3)
+
+### CEO Direktifi (Madde 30.25)
+
+> *"TUR #96 başla — root lockfile drift fix"* (CEO 4'lü zincir tetiklendi)
+
+### L0 Keşif — 3 Kritik Soru × Kanıt
+
+**Q1 — `package.json` mevcut?**
+✅ EVET — ROOT `package.json` (`tedbirge-ai`, commonjs, 28 dep + 4 devDep, postinstall `prisma generate && prisma migrate deploy && node scripts/apply-pending-schemas.js`)
+
+**Q2 — Deploy ediliyor mu?**
+✅ EVET — `render.yaml` mevcut: `buildCommand: npm ci --omit=dev && npx prisma generate && npx prisma migrate deploy` + Frankfurt region + `healthCheckPath: /health` (canlı: `https://tedbirge-ai.onrender.com/health` 200 OK)
+
+**Q3 — Drift kaynağı?**
+- TUR #72.8 H1 commit `8604c6a` (4 May 12:46) `package.json scripts.postinstall` değişti
+- Last lockfile commit `e117f11` (23 Nisan 05:13) — DELTA 977765s = **11 gün** (mektup ölçümü doğrulandı)
+- `git diff e117f11 HEAD -- package.json` çıktısı: **sadece scripts.postinstall** (dependencies + devDependencies listesi DEĞİŞMEDİ)
+
+### Senaryo Tanı — Mektup öngörmediği Senaryo D
+
+| Mektup Senaryo | Bizim Durum |
+|---|---|
+| A: package.json YOK | ❌ uymaz |
+| B: var + DEPLOY EDİLMİYOR | ❌ Render deploy var |
+| C: var + DEPLOY EDİLİYOR | ✅ TEKNİK olarak uyar |
+| **D (yeni — mektup öngörmedi)** | ✅ scripts-only diff → operasyonel false-positive |
+
+**Operasyonel kanıt:** `npm ci` `package.json` ↔ `package-lock.json` paket listesi eşleşmesini kontrol eder, `scripts` field'ı değil. 95+ TUR boyunca Render canlı deploy başarılı (TUR #95 commit `7735c09` push 7 May Render deploy 200 OK kanıt).
+
+### Mimar/CEO Kararı Gereken 3 Yol
+
+1. **Yol 1 (mektup Senaryo B uygula):** `npm install` + atomik commit + Render deploy doğrula (TUR #85.7 patlama riski tekrarı — transitive dep checksum güncellemesi)
+2. **Yol 2 (Senaryo D yeni protokol):** Hijyen script güçlendir — paket listesi diff'i ile false-positive engelle. Render'a dokunulmaz, RİSK SIFIR. Madde 14.5 R1 olarak tescil edilebilir.
+3. **Yol 3 (mektup Senaryo C aynen):** DUR + Mehmet Bey yazılı onay (Madde 18.3) — **mevcut durum**
+
+### Atom Durumu
+
+| Atom | Durum |
+|---|---|
+| L0 — Keşif + 3 soru kanıt | ✅ TAMAM |
+| L1 — Karar + Uygulama | 🛑 BEKLİYOR (CEO/mimar yazılı onay) |
+| L2 — Hijyen yeşil | ⏸ |
+| L3 — Production smoke | ⏸ |
+| L4 — 5 OS senkron + Madde 14.5 R1 | ⏸ |
+
+### Mimar Dersi — Madde 14.3 Code Disiplin Koruma
+
+> "Mimar muğlak komut verdiyse net açıklama gerekli." — Mektup Senaryo C "DUR + raporla" diyor, ben Senaryo D buldum (mektup öngörmedi). TUR #49 emsali (Madde 4.3 + 18.3 birlikte) — mektubun ÖNGÖRMEDİĞİ alternatif yolu Code uygulamadan CEO onayı almak doğru disiplin.
+
+### Hijyen Script Çıktı (BEFORE — L0 kanıt)
+
+```
+📦 Lockfile sync (Madde 30.46):
+  ✅ tedbirge-panel: delta 165s OK
+  ❌ tedbirge-ai (root): package.json ↔ package-lock.json delta 977765s > 60s (npm install eksik?)
+```
+
+### Production Etki
+
+- 0 schema · 0 npm · 0 commit · 0 push · 0 maliyet
+- Hijyen script bulgusu yarım kaldı (DUR durumunda)
+- TUR #95 mimarHatasi modülü canlı + 5 dk Auditor tick devam
+
+---
+
 ## TUR #95 — MİMAR HATASI PROAKTİF TARAMA + MADDE 14.5 ✅ KAPALI
 
 **Tarih:** 7 Mayıs 2026 gece (TUR #94 Müvekkil panel sonrası, beşinci TUR aynı gün)
