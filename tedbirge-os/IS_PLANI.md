@@ -1,21 +1,21 @@
 # TEDBİRGE.AI YOL HARİTASI v1.0
-**Son güncelleme:** 7 Mayıs 2026 öğleden sonra (TUR #91 KAPALI — Performans uçak hızı FAZ 2)
-**Anayasa versiyonu:** v1.22.22 (Madde 30.41 R1 yeni: Performans FAZ 2 Disiplini)
+**Son güncelleme:** 7 Mayıs 2026 akşam (TUR #92 KAPALI — Adopsiyon UX otonom)
+**Anayasa versiyonu:** v1.22.23 (Madde 30.32 R1 yeni: Adopsiyon UX Disiplini 8 katman)
 **İlke:** MoSCoW + Now-Next-Later hibrit (Madde 24.5)
 
 ---
 
 ## 🎯 AKTİF KESİT
 
-**Faz:** Performans Uçak Hızı FAZ 2 KAPALI ✅ (TUR #91 ile anasayfa Total 1.2s → 0.55s -56%, agents-health TTFB 2.6s → 0.96s -64% X-Cache:HIT, 6 yeni DB index + 4 ISR sayfa + memory cache + AVIF + preconnect, 22/22 sistem koruma sağlam)
-**Son TUR:** #91 — Performans FAZ 2 (KAPALI, 9 atom P0-P8, Madde 30.41 R1 tescil, panel commit `2e271e4` + backend commit `e0dfc94`, 0 npm + 0 schema + 0 env)
-**Son düzeltme TUR'u:** ... + #90 + **#91** (CLAUDE.md compaction sonrası performans FAZ 2)
+**Faz:** Adopsiyon UX Otonom KAPALI ✅ (TUR #92 ile sistem personeli kendi yönlendirir — wizard EMAIL default + 3 yöntem açıklamalı + saat 09:00 onboarding cron 3 gün debounce + ADMIN sistem-durumu üstüne 2FA widget + Auditor adoption metric + Email OTP rate limit, CEO manuel iş YOK)
+**Son TUR:** #92 — Adopsiyon UX (KAPALI, 10 atom Q0-Q9, Madde 30.32 R1 tescil, panel commit `6e92d42` + backend commit `ba8a998` + os senkron, $0 maliyet)
+**Son düzeltme TUR'u:** ... + #91 + **#92** (Performans FAZ 2 sonrası adopsiyon UX otonom — Mehmet Bey'in altın cümlesi: "personellere ben manuel iş yap diyemem")
 **🔴 AÇIK KRİTİK:** 0
-**🟡 TUR #92 NOW:** **Cloudflare manuel kurulum** (Mehmet Bey ~15 dk, $0 ek %15-25 hızlanma) + **7 personel 2FA aktivasyon duyuru** (KVKK m.12)
-**🟡 TUR #93 NEXT:** CEO Emine replay test (gizli mod, ~2 dk) + Müvekkil panel içerik + TUR #85.10 prerender + Next 16.2.4 patch + backend log temizlik
-**🟡 TUR #94 LATER:** Playwright/Cypress e2e (npm yeni paket adayı) + e-baro doğrulama API + UYAP API tam entegrasyon
-**Anayasa:** v1.22.22 (45 alt-madde — Madde 27.6 + Madde 30.10-30.52 + Madde 30.41 R1 + 6 R-genişleme)
-**Son güncelleme:** 7 Mayıs 2026 öğleden sonra (TUR #91 KAPANIŞ — Performans FAZ 2 tamamlandı, kullanıcı algısı 2-3× hız)
+**🟡 TUR #93 NOW:** **4 Rol İş Akışı Güçlendirme** (Lead → Avukat → Müvekkil → Komisyon zinciri yatay smoke + UX) + Cloudflare manuel (~15 dk, +%15-25 hızlanma)
+**🟡 TUR #94 NEXT:** CEO Emine replay test (gizli mod, ~2 dk) + Müvekkil panel içerik + TUR #85.10 prerender + Next 16.2.4 patch + backend log temizlik
+**🟡 TUR #95 LATER:** Playwright/Cypress e2e (npm yeni paket adayı) + e-baro doğrulama API + UYAP API tam entegrasyon
+**Anayasa:** v1.22.23 (46 alt-madde — Madde 27.6 + Madde 30.10-30.52 + Madde 30.41 R1 + Madde 30.32 R1 + 8 R-genişleme)
+**Son güncelleme:** 7 Mayıs 2026 akşam (TUR #92 KAPANIŞ — Adopsiyon UX otonom, sistem personeli kendi yönlendirir)
 
 ### 4 TUR Yol Haritası (CEO HAYALİ — 2 Mayıs gece)
 

@@ -1,8 +1,8 @@
 # 🛡️ TEDBIRGE.AI — DEVİR RAPORU (AKTİF)
 
-📋 **ANAYASA:** v1.22.22 (Madde 30.41 R1 yeni: Performans FAZ 2 Disiplini + Madde 27.6 + Madde 30.10 → 30.52 = 44 alt-madde + 7 R-genişleme)
-📂 **AKTİF KESİT:** TUR #91 KAPALI — Performans uçak hızı FAZ 2 (anasayfa Total 1.2s → 0.55s, agents-health 2.6s → 0.96s)
-📅 **SON GÜNCELLEME:** 7 Mayıs 2026 öğleden sonra (TUR #91 Performans FAZ 2)
+📋 **ANAYASA:** v1.22.23 (Madde 30.32 R1 yeni: Adopsiyon UX Disiplini 8 katman + 46 alt-madde + 8 R-genişleme)
+📂 **AKTİF KESİT:** TUR #92 KAPALI — Adopsiyon UX + 2FA wizard rehber + ADMIN görünürlük (sistem otonom, CEO manuel iş yapmaz)
+📅 **SON GÜNCELLEME:** 7 Mayıs 2026 akşam (TUR #92 Adopsiyon UX)
 👤 **CEO Onay:** Mehmet DİNÇ — Madde 17.5 + 18.3 + 30.25 (CEO 4'lü zincir 6 Mayıs mektup içinde tescilli)
 🤖 **Mimar:** Claude Opus 4.7 (sohbet) + Claude Code (otonom uygulama, bypass açık)
 
@@ -25,6 +25,7 @@
 - **TUR #89:** NUM_REDIRECTS matrisi + 1 satır proxy.ts fix — 39. mimar hatası **KAPATILDI**
 - **TUR #90 (C0-C7):** CLAUDE.md compaction 246k → 162k (%34 azalma) + Madde 27.6 Compaction Pattern + docs/CLAUDE_MADDE_30_DETAY.md (31k yeni dosya) + sürüm geçmişi MIMARI_KARARLAR.md tek doğru yer (~75k tasarruf) + 4 büyük Madde 30 alt-maddesi sıkıştırıldı (~10k ek tasarruf) — **40. anayasa maddesi tescil**
 - **TUR #91 (P0-P8):** Performans uçak hızı FAZ 2 — anasayfa 1.2s → 0.55s (-56%), agents-health 2.6s → 0.96s (-64% X-Cache:HIT), 6 yeni DB index + 4 ISR sayfa + memory cache + AVIF + preconnect — **Madde 30.41 R1 tescil (Performans FAZ 2 Disiplini)**
+- **TUR #92 (Q0-Q9):** Adopsiyon UX otonom — 2fa-secim wizard EMAIL default + 3 yöntem açıklamalı (30sn/2dk/1dk) + Reporter saat 09:00 onboarding cron (3 gün debounce) + ADMIN sistem-durumu üstüne 2FA widget (8 user görünürlük + manuel hatırlatma) + Auditor security adoption % metric (< 50% CRITICAL ADMIN_FEED) + Email OTP rate limit (5dk × 3) — **Madde 30.32 R1 tescil (Adopsiyon UX Disiplini 8 katman)**
 
 ---
 
@@ -81,24 +82,25 @@ Production stable. /temsilci redirect döngü **KESİN ÇÖZÜLDÜ** (NUM_REDIRE
 
 ## 🎯 SIRADAKİ ÖNERİLEN İŞ
 
-**TUR #92 → Cloudflare manuel kurulum** (Mehmet Bey ~15 dk, $0 ek hızlanma %15-25) + **7 personel 2FA aktivasyon duyuru** (KVKK m.12)
+**TUR #93 → 4 Rol İş Akışı Güçlendirme** (Lead → Avukat → Müvekkil → Komisyon zinciri smoke + UX) + Cloudflare manuel (~15 dk, +%15-25)
 
-TUR #91 Performans FAZ 2 **TAMAMLANDI** ✅ — anasayfa 0.55s + agents-health 0.96s (cache HIT). Detay: `tedbirge-os/docs/TUR91_PERFORMANS_RAPORU.md`. Cloudflare ile +%15-25 daha → LCP <1.5s gerçekçi.
+TUR #92 Adopsiyon UX **TAMAMLANDI** ✅ — Mehmet Bey artık personellere "2FA aktive et" demek zorunda değil. Sistem otonom: cron 09:00 hatırlatma + ADMIN widget izleme + adopsiyon < 50% CRITICAL bildirim. 7 gün içinde organik adopsiyon ~%87-100 beklenir. CEO manuel iş: sadece widget'tan tekil "Hatırlat" butonu (opsiyonel, cron zaten otomatik).
 
 ---
 
-## 📈 PATTERN İSTATİSTİKLERİ (TUR #56 → #91)
+## 📈 PATTERN İSTATİSTİKLERİ (TUR #56 → #92)
 
-- **Atom:** 321+ (sapma 0)
-- **Kalibrasyon:** 1.6× (43. doğrulama)
-- **Anayasa:** v1.22.0 → v1.22.22 (22 PATCH)
-- **Alt-madde:** 45 (Madde 30.10 → 30.52 + Madde 27.6 + Madde 30.41 R1)
-- **Mimar hatası:** 40 → 40 anayasa maddesi (1:1 dönüşüm)
-- **Maliyet:** $0 (Faz 1+2 baştan sona)
+- **Atom:** 331+ (sapma 0)
+- **Kalibrasyon:** 1.6× (44. doğrulama)
+- **Anayasa:** v1.22.0 → v1.22.23 (23 PATCH)
+- **Alt-madde:** 46 (Madde 27.6 + Madde 30.10-30.52 + Madde 30.41 R1 + Madde 30.32 R1)
+- **Mimar hatası:** 41 → 41 anayasa maddesi (1:1 dönüşüm — 41. mimar hatası TUR #92'de tescil: "CEO duyuru beklentisi yerine sistem otonom yapmalı")
+- **Maliyet:** $0 (Faz 1+2+3 baştan sona)
 - **14 hotfix sabırla aşıldı**
 - **Madde 30.25 emsali** (CEO görsel > Code rapor): 10 uygulama
 - **CLAUDE.md compaction:** 246k → 162k (%34 azalma, TUR #90)
 - **Performans FAZ 2:** anasayfa 1.2s → 0.55s (-56%), agents-health 2.6s → 0.96s (-64%, TUR #91)
+- **Adopsiyon UX (TUR #92):** sistem otonom — cron + widget + metric + rate limit, CEO manuel iş YOK
 
 ---
 

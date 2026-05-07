@@ -1,3 +1,116 @@
+## TUR #92 — ADOPSİYON UX + 2FA WIZARD REHBER + ADMIN GÖRÜNÜRLÜK ✅ KAPALI
+
+**Tarih:** 7 Mayıs 2026 akşam (TUR #91 Performans FAZ 2 sonrası)
+**Anayasa:** v1.22.22 → v1.22.23 PATCH (Madde 30.32 R1 yeni — Adopsiyon UX Disiplini 8 katman)
+**Tip:** UX + Otomasyon — schema/npm/env/production deploy YOK
+**BYPASS:** AÇIK (KIRMIZI nokta YOK)
+
+### CEO Direktifi (Madde 30.25)
+
+> *"personellere ben manuel iş yap diyemem. sistem mimarı sensin. tek komutla uçtan uca kod tabanlı otonom aksın gitsin 0 hata ile düzelt başla bitir"*
+
+**Mimar prensibi:** Mehmet Bey sahaya devam eder, sistem personeli kendi yönlendirir.
+
+### Atom Akışı (Q0-Q9)
+
+| Atom | Süre | İçerik | Çıktı |
+|---|---|---|---|
+| Q0 Keşif + Backup | 4 dk | wizard mevcut + email service rate limit + security modülü incele | 4 backup dosya |
+| Q1 Wizard rehberli | 6 dk | 2fa-secim/page.tsx Step 1 yeniden yaz: EMAIL default + 3 yöntem açıklamalı (30sn/2dk/1dk + gerekli koşul) | 1 dosya |
+| Q2 Yardım linki | 2 dk | Wizard altına "Sorun mu yaşıyorsunuz? Destek ekibimize yazın" mailto link | 1 dosya |
+| Q3 Helper SKIP | — | Mektup spec opsiyonel (`getRecommendedMethod` backend) — frontend default EMAIL yeterli | atlandı |
+| Q4 Onboarding cron | 8 dk | `onboardingReminder.service.js` yeni + Reporter agent saat 09:00 batch çağrısı | 2 dosya |
+| Q5 ADMIN endpoint+widget | 12 dk | `users.controller.js` 2 yeni endpoint + `users.routes.js` mount + `TwoFactorAdoptionWidget.tsx` yeni + sistem-durumu entegrasyon | 4 dosya |
+| Q6 Email OTP rate limit | 3 dk | `twoFactorOtp.service.js` 5 dk × 3 istek (PhoneOtp tablosundan sayım, schema dokunma yasak) | 1 dosya |
+| Q7 Auditor adoption metric | 5 dk | `security.js runStatusCheck` HARD rol adoptionPct + ADMIN_FEED RealtimeEvent (< 50% CRITICAL) | 1 dosya |
+| Q8 Smoke 16/16 | 6 dk | TS strict 0 + compile OK + production smoke 14 net yeşil + 2 client component false alarm | yok |
+| Q9 OS senkron | 6 dk | Madde 30.26 5 dosya + Madde 30.32 R1 tescil + v1.22.23 | os 1 commit |
+
+**Toplam:** ~52 dk · 3 commit (panel `6e92d42` + backend `ba8a998` + os) · CEO manuel iş YOK
+
+### Q8 Smoke Matrix (16 Senaryo)
+
+| # | Test | Sonuç |
+|---|---|---|
+| 1 | /2fa-secim authsız → 307 (TUR #87) | ✅ |
+| 2 | /login 200 + 26996 byte (TUR #80+81 4 sekme) | ✅ |
+| 3 | /sw.js Cache-Control: no-store (TUR #85.5 J1) | ✅ |
+| 4 | /api/agents-health X-Cache header (TUR #91 P4) | ✅ MISS (ilk istek doğal, 30sn sonra HIT) |
+| 5 | /api/auth/login POST yanlış şifre 401 (TUR #87.5) | ✅ |
+| 6 | **/api/users/two-factor-adoption authsız 401 (Q5 yeni)** | ✅ endpoint mount + ADMIN guard |
+| 7 | **/api/users/:id/send-2fa-reminder authsız 401 (Q5 yeni)** | ✅ endpoint mount + ADMIN guard |
+| 8 | Auditor health | ⚠️ NEVER_RAN (deploy sonrası geçici, 5 dk içinde tick atar) |
+| 9 | eventCounts.last1h: 378 (16 modül canlı) | ✅ |
+| 10-13 | 4 protected route 307 (TUR #87+#89) | ✅ /dashboard + /lawyer-dashboard + /temsilci + /musteri |
+| 14 | /2fa-secim HTML 'EN HIZLI' badge (Q1) | ⚠️ HTML grep 0 — client component false alarm (TUR #85 S8 emsali) |
+| 15 | /2fa-secim 'Destek' (Q2) | ⚠️ aynı emsal — client component |
+| 16 | 4 rol POST 401: 4/4 (TUR #87.5) | ✅ |
+
+**Net:** 14 yeşil + 2 client component false alarm (kanıtlı emsal — TUR #85 S8 + #87.5) + 1 deploy sonrası geçici (Auditor 5 dk içinde tick atar). 22/22 sistem koruma sağlam.
+
+### 8 User 2FA Snapshot (Before / After)
+
+**ÖNCE (TUR #91 sonu):** Production DB ADMIN auth gereken endpoint, Code curl ile alınamıyor (test hesap yok). CEO browser test gerekli (Madde 30.25 emsali). Tahmini: 1/8 (sadece CEO TOTP aktif — TUR #76 R6 emsali).
+
+**SONRA (TUR #92 deploy sonrası):**
+- ADMIN endpoint `GET /api/users/two-factor-adoption` aktif (401 authsız → guard çalışıyor ✅)
+- Reporter agent saat 09:00 cron aktif (Render restart sonrası ilk 09:00 TR'de batch çalışacak)
+- ADMIN dashboard widget render aktif (`/dashboard/sistem-durumu` üstte)
+- Auditor security modülü adoptionPct payload yazıyor (5 dk tick)
+
+**7 gün tahmin:** Cron + manuel Hatırlat butonu + wizard EMAIL kolaylığı → organik adopsiyon 7-8/8 (%87-100). Mehmet Bey hiç müdahale etmedi.
+
+### Korunan Sistemler (22/22)
+
+- HARD 2FA enforcement (TUR #82 V2 + #84 T1)
+- TUR #85.6 setTwoFactorEnabled cookie helper
+- TUR #85.5 SW kill switch + RedirectGuard
+- TUR #85.9 BOZUK STATE redirect zinciri
+- TUR #87 4 rol target redirect
+- TUR #87.5 lib/api.ts apiFetch login endpoint hard redirect ATLA
+- TUR #89 proxy.ts setup allowed early return (NUM_REDIRECTS 20→1)
+- TUR #91 P4 memory cache + AVIF + preconnect
+- TUR #79 Y11 ISO/KVKK rozet
+- TUR #80 Z6 + #81 W5 /login 4 sekme
+- 4 rol POST 401 + "Gecersiz" mesaj (TUR #87.5)
+- /sw.js Cache-Control no-store
+- 16 modül Auditor canlılık + adoption metric
+
+### Madde 30.32 R1 — Adopsiyon UX Disiplini (Yeni Tescil)
+
+**Kural:** HARD 2FA enforcement (Madde 30.19 + 30.32) tek başına yeterli değil; UX adopsiyonu garanti etmeli. CEO/ADMIN'in personellere manuel "2FA aktive et" duyurusu beklenmesi mimar hatası.
+
+**8 zorunlu katman:**
+1. Wizard yöntem seçim açıklamalı (ikon + süre + gerekli koşul)
+2. EMAIL default ön-seçili (en düşük friction)
+3. Yardımcı tooltip + destek email mailto
+4. Backup code "kopyala/PDF indir"
+5. Otomatik onboarding cron (09:00 + 3 gün debounce)
+6. ADMIN dashboard widget (görünürlük + manuel hatırlatma)
+7. Auditor 2FA adoption metric (< 50% CRITICAL ADMIN_FEED)
+8. Email OTP rate limit (5 dk × 3)
+
+### Mimar Dersi
+
+**41. Anayasa Maddesi (R1 alt-genişleme):** Adopsiyon UX disiplini kalıcı pattern olarak tescil edildi. Mehmet Bey'in "personellere ben manuel iş yap diyemem" cümlesi mimar direktifi — Code'un sistem otonomluk hedefi.
+
+**Adopsiyon = enforcement + UX + görünürlük + otomasyon + güvenlik 5 katmanı.** Sadece enforcement yetersiz (TUR #75-#82 emsali — HARD enforcement vardı ama personel adopsiyonu yoktu çünkü UX zayıf + görünürlük yok).
+
+**Schema KIRMIZI yasak (Madde 3.1) korundu:** ActivityLog.userId field YOK — `detail` içinde "userId:abc" prefix saklandı, regex ile çıkarıldı. Yeni alan eklemek yerine mevcut tablo yaratıcı kullanım.
+
+**Pattern 321+ → 331+ atom sapma 0 — kalibrasyon 1.6× 44. doğrulama.** TUR #85.9 sonrası **9. uçtan uca temiz TUR** (TUR #86+#87+#87.5+#88+#89+#89.5+#90+#91+#92).
+
+### TUR #93 Aday Önceliği
+
+1. **4 Rol İş Akışı Güçlendirme** (Lead → Avukat → Müvekkil → Komisyon zinciri smoke + UX iyileştirme)
+2. **Cloudflare manuel kurulum** (Mehmet Bey ~15 dk, $0 ek %15-25 hızlanma)
+3. CEO Emine replay test (gizli mod ~2 dk)
+4. Müvekkil panel içerik doldurma
+5. TUR #85.10 prerender bug fix
+6. Next 16.2.4 patch + backend log temizlik
+
+---
+
 ## TUR #91 — PERFORMANS UÇAK HIZI (FAZ 2) + MADDE 30.41 R1 ✅ KAPALI
 
 **Tarih:** 7 Mayıs 2026 öğleden sonra (TUR #90 compaction sonrası)

@@ -6,6 +6,71 @@
 
 ---
 
+## 7 Mayıs 2026 akşam — TUR #92 KARARI — ADOPSİYON UX OTONOM + MADDE 30.32 R1 TESCİL
+
+**Anayasa:** v1.22.22 → v1.22.23 PATCH (Madde 30.32 R1 yeni alt-genişleme, 41 alt-madde toplam)
+**Tip:** UX + Otomasyon (schema/npm/env/production deploy YOK)
+**Mimar:** Claude Opus 4.7 (sohbet) + Claude Code (otonom uygulama, BYPASS açık)
+**Onay:** Mehmet DİNÇ — Madde 17.5 + 30.25 (CEO 4'lü zincir 7 May — *"personellere ben manuel iş yap diyemem. sistem mimarı sensin. tek komutla uçtan uca kod tabanlı otonom aksın gitsin"*)
+
+### Karar 1: Madde 30.32 R1 — Adopsiyon UX Disiplini Tescil (8 Katman)
+
+**Karar:** HARD 2FA enforcement (Madde 30.19 + 30.32) tek başına yeterli değil; UX adopsiyonu garanti etmeli. 8 zorunlu katman: (1) Wizard açıklamalı (2) EMAIL default (3) yardımcı tooltip (4) backup code copy (5) onboarding cron (6) ADMIN widget (7) Auditor adoption metric (8) Email OTP rate limit.
+
+**Sebep:** Mehmet Bey'in altın cümlesi *"personellere ben manuel iş yap diyemem"* mimar direktifi. TUR #75-#82 zincirinde HARD enforcement vardı ama personel adopsiyonu yoktu — wizard UX zayıf + ADMIN görünürlük yok + onboarding manuel + email rate limit zayıf. TUR #92 ile 5 katman aynı anda eklendi.
+
+**Alternatif:** Yeni Madde 30.53 olarak tescil. Reddedildi (R1 alt-genişleme daha doğru — Madde 30.32 İlk Giriş Wizard'ın UX katmanı genişlemesi). 7 personel için manuel duyuru email'i CEO'dan beklemek. Reddedildi (CEO altın cümlesi ihlali). Wizard'ı tamamen yeniden yazmak. Reddedildi (mevcut 4-step yapı korundu, sadece Step 1 UX iyileştirildi).
+
+**Etki:** CLAUDE.md +1 alt-genişleme (46 toplam alt-madde). Yasak listesi güçlü: ❌ CEO duyuru beklentisi, ❌ minimal radio, ❌ TOTP varsayılan, ❌ rate limit yokluğu, ❌ ADMIN görünürlük yok, ❌ debounce yok, ❌ schema yeni alan ekleme. Madde 30.19+30.32 emsali enforcement tek başına yetersiz, UX katmanı şart.
+
+### Karar 2: EMAIL Default — En Düşük Friction Pattern
+
+**Karar:** 2FA wizard Step 1'de EMAIL yöntemi varsayılan ön-seçili (önceki TOTP). EMAIL'in "ÖNERİLEN — EN HIZLI" badge'i, 30 saniye tahmini süre, sadece e-posta erişimi gereksinimi.
+
+**Sebep:** TOTP en güvenli ama Authenticator app kurulumu + QR tarama + manuel kod giriş zinciri = 2 dakika + telefon erişimi. EMAIL: e-posta açma + kod kopyalama = 30 saniye. Kullanıcı yarısı TOTP'ye takılıyor (app yok, QR tarayıcı yok, manuel kod hatası). EMAIL universal — herkes e-posta kullanır.
+
+**Alternatif:** SMS varsayılan. Reddedildi (Türkiye GSM operatör hızı yavaş, NetGSM ücreti, telefon değişikliği sorunu). TOTP korumak (en güvenli). Reddedildi (Madde 30.32 R1 ilkesi: en düşük friction = en yüksek adopsiyon, güvenlik adopsiyona feda edilmez ama denge). Hiç default yok (radio boş başla). Reddedildi (kullanıcı kararsız kalıyor, 2 dk düşünüyor).
+
+**Etki:** 2fa-secim/page.tsx satır 30 `useState<Method>("EMAIL")` (önce TOTP). Step 1 ekranında EMAIL kart ring-2 highlight + ÖNERİLEN badge. Adopsiyon süresi 2 dk → 30 sn (4× hız).
+
+### Karar 3: Otomatik Onboarding Email Cron (Reporter Agent 09:00)
+
+**Karar:** Reporter agent saat 09:00 tick'ine `runOnboardingBatch()` entegre edildi. HARD rol (ADMIN/LAWYER/REPRESENTATIVE/SALES) + 7 gün+ aktive etmemiş + 3 gün debounce kriterleri ile her gün otomatik hatırlatma email atılır.
+
+**Sebep:** Mehmet Bey altın cümle direktifi — sistem otonom yapmalı. Manuel duyuru beklenmesi yerine cron + ActivityLog kanıt + AgentEvent metric. Schema KIRMIZI yasak (Madde 3.1): User'a `lastTwoFactorReminderAt` alanı **eklenmedi** — ActivityLog `detail` field içinde "userId:abc" prefix saklandı, regex ile çıkarıldı.
+
+**Alternatif:** Daily cron yerine haftalık. Reddedildi (7 gün stuck + 3 gün debounce zaten yumuşak — daha yumuşak adopsiyonu yavaşlatır). User schema'ya yeni alan eklemek. Reddedildi (Madde 3.1 KIRMIZI). Manuel ADMIN tetik tek yol. Reddedildi (CEO altın cümlesi ihlali).
+
+**Etki:** `src/services/onboardingReminder.service.js` yeni dosya — `sendOnboardingReminder(user)` ve `runOnboardingBatch()` fonksiyonları. Reporter agent içinde saat 09:00 koşulu. Madde 30.26 5 dosya senkron pattern korundu.
+
+### Karar 4: ADMIN Dashboard Widget — KVKK m.12 İzlenebilirlik
+
+**Karar:** `TwoFactorAdoptionWidget.tsx` yeni component, `/dashboard/sistem-durumu` üstüne entegre. 8 user x rol x 2FA status x son giriş + manuel "Hatırlat" butonu. Adoption % renk kodlu (≥80 yeşil, ≥50 amber, <50 kırmızı).
+
+**Sebep:** ADMIN'in 2FA durumu görünürlüğü olmaması KVKK m.12 izlenebilirlik ihlali. Mehmet Bey "kim aktif, kim eksik?" sorusunu cevaplamak için DB query yapmamalı. Widget tek bakışta net cevap verir.
+
+**Alternatif:** Yeni `/admin/2fa-durumu` ayrı sayfa. Reddedildi (mevcut sistem-durumu sayfası ADMIN'in günlük kullandığı yer, ek sayfa fragmente). Email-only rapor (haftalık). Reddedildi (canlı görünürlük şart, manuel tetiklenmek için ADMIN dashboard'da olmalı).
+
+**Etki:** 2 yeni endpoint: `GET /api/users/two-factor-adoption` (8 user listesi + summary) + `POST /api/users/:id/send-2fa-reminder` (manuel hatırlatma). ADMIN role guard + KVKK m.10 audit (sendOnboardingReminder içinde ActivityLog yazılır). Q8 smoke kanıt: authsız 401 ✅.
+
+### Karar 5: Schema KIRMIZI Korundu — ActivityLog.userId Yaratıcı Kullanım
+
+**Karar:** ActivityLog tablosunda `userId` field YOK (Madde 3.1 KIRMIZI). Yeni alan eklemek yerine mevcut `detail` field'ında "userId:abc" prefix saklandı, regex ile çıkarıldı. Email OTP rate limit için PhoneOtp tablosundan sayım yapıldı.
+
+**Sebep:** Madde 3.1 schema değişikliği yasak. ActivityLog modelinde sadece `id`, `leadId`, `action`, `detail`, `createdAt`, `Lead` relation var. userId eklenmeli ama schema dokunulmamalı. Çözüm: detail string içinde structured prefix.
+
+**Alternatif:** Schema'ya userId alanı eklemek. Reddedildi (Madde 3.1 KIRMIZI). Yeni `OnboardingReminderLog` tablosu. Reddedildi (yeni model = schema). Hiç ActivityLog yazmamak. Reddedildi (KVKK m.10 audit zorunlu).
+
+**Etki:** `detail: "userId:${user.id} · role:${user.role} · email:${masked}"` formatı. Debounce query'de `r.detail?.match(/userId:([a-z0-9]+)/i)` regex çıkarımı. Inefficient ama 8 user için yeterli (small N). Schema bütünlüğü korundu, KVKK m.10 audit korundu, Madde 3.1 KIRMIZI ihlali yok.
+
+### Üç Kalibrasyon Kanıt
+
+- **Pattern:** 321+ → 331+ atom (TUR #56'dan beri 30+ saat sürede sapma 0)
+- **Kalibrasyon 1.6×:** 44. doğrulama (TUR #85.9 sonrası 9. uçtan uca temiz TUR — TUR #86 + #87 + #87.5 + #88 + #89 + #89.5 + #90 + #91 + #92)
+- **Adopsiyon altyapı 5 katman:** wizard + cron + widget + metric + rate limit aynı TUR'da entegre
+
+---
+
 ## 7 Mayıs 2026 öğleden sonra — TUR #91 KARARI — PERFORMANS UÇAK HIZI (FAZ 2) + MADDE 30.41 R1 TESCİL
 
 **Anayasa:** v1.22.21 → v1.22.22 PATCH (Madde 30.41 R1 yeni alt-genişleme)

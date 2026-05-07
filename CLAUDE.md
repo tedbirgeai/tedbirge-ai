@@ -2006,6 +2006,39 @@ TUR #79 İŞ 1 (NetGSM regression fix) *"TUR #78'de git arkeoloji yapıldı, kod
 - ❌ Backup kod adımı atlamak (Madde 30.19 m.12 ihlali)
 - ❌ Wizard sonrası kullanıcıyı yanlış panele yönlendirmek (rol bazlı redirect zorunlu)
 
+### 30.32 R1 — Adopsiyon UX Disiplini (TUR #92)
+
+**Kural:** HARD 2FA enforcement (Madde 30.19 + 30.32) tek başına yeterli değil; kullanıcı UX'i adopsiyonu garanti etmeli. CEO/ADMIN'in personellere manuel "2FA aktive et" duyurusu beklenmesi mimar hatası — sistem **otonom** yapmalı.
+
+**Zorunlu 8 katman:**
+1. Wizard yöntem seçim ekranı **açıklamalı** (her yöntem yanında 1-cümle + ikon + tahmini süre + gerekli koşul)
+2. **Email yöntemi varsayılan ön-seçili** (en düşük friction, app kurulumu yok)
+3. Her step'te **yardımcı tooltip + destek email mailto link**
+4. Backup code adımında "kopyala / PDF indir" butonu
+5. Sistem **otomatik onboarding email** (7 gün+ aktive etmemiş user'a 09:00 cron, 3 gün debounce)
+6. **ADMIN dashboard widget** — N user 2FA durumu görünür (yeşil/kırmızı + son login + manuel hatırlatma butonu)
+7. **Auditor 2FA adopsiyon metric** (security modülü AgentEvent + adoptionPct payload, < 50% CRITICAL ADMIN_FEED RealtimeEvent)
+8. **Email OTP rate limit** — 5 dk içinde max 3 istek (TUR #74 W4 emsali genişleme, PhoneOtp tablosundan sayım)
+
+**TUR #92 emsali (7 May 2026):**
+- /2fa-secim/page.tsx EMAIL varsayılan + 3 yöntem açıklamalı (30sn/2dk/1dk + gerekli koşul)
+- Reporter agent saat 09:00 cron `runOnboardingBatch()` (HARD rol + 7 gün+ + 3 gün debounce)
+- ADMIN dashboard sistem-durumu üstüne `TwoFactorAdoptionWidget` (8 user görünürlük)
+- Auditor security modülü `runStatusCheck()` adoptionPct + ADMIN_FEED RealtimeEvent
+- Email OTP 5 dk × 3 istek rate limit
+- Schema KIRMIZI yasak: ActivityLog.userId field YOK → `detail` içine "userId:abc" prefix saklanır, regex ile çıkarılır
+
+**Madde 30.19 + 30.32 tamamlayıcısı:** Enforcement (zorla yönlendirme) + UX (kolay aktivasyon) + Görünürlük (ADMIN izleme) + Otomasyon (cron hatırlatma) + Güvenlik (rate limit). Beş katman = adopsiyon garantisi.
+
+**Yasak:**
+- ❌ CEO veya ADMIN'in personellere manuel "2FA aktive et" duyurusu beklenmesi (sistem otonom yapmalı)
+- ❌ Wizard'da minimal radio (3 buton, açıklama yok)
+- ❌ TOTP varsayılan (en yüksek friction, en düşük adopsiyon — EMAIL daha düşük friction)
+- ❌ Email OTP rate limit yokluğu (brute force riski)
+- ❌ ADMIN'in 2FA durumu görünürlüğü olmaması (KVKK m.12 izlenebilir değil)
+- ❌ Onboarding cron debounce yokluğu (aynı user'a günde 5 email = spam)
+- ❌ Schema'da yeni alan açmak (`lastTwoFactorReminderAt` User'a ekleme YASAK — ActivityLog detail field türetme)
+
 ### 30.30 — Provider Onay Doğruluk Disiplini (TUR #76)
 
 **Kural:** Tüm 2FA / OTP / bildirim kanalları için **provider onayı** zorunlu kontrol — "API call yapıldı" yetersiz, "API onayladı + son ucu kanıtlandı" şart (Madde 4.4 emsali genişleme).
@@ -3147,8 +3180,8 @@ Mehmet Bey sahaya çıkabilsin diye bu disiplin var.
 
 ---
 
-**— Tedbirge Mimari Anayasası v1.22.22**  
-**Toplam 91 TUR · 321+ atom sapma 0 · 43 kalibrasyon · 40 mimar hatası → 40 anayasa maddesi**  
+**— Tedbirge Mimari Anayasası v1.22.23**  
+**Toplam 92 TUR · 331+ atom sapma 0 · 44 kalibrasyon · 41 mimar hatası → 41 anayasa maddesi**  
 **Tüm sürüm geçmişi + TUR detayları + atom kayıtları: `tedbirge-os/MIMARI_KARARLAR.md`**
 
 **Versiyon geçmişi: tedbirge-os/MIMARI_KARARLAR.md**  
