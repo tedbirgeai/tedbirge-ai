@@ -234,3 +234,33 @@ exports.verifyApproval = asyncHandler(async (req, res) => {
 
   res.json({ success: true, data: updated, message: "Sözleşme başarıyla onaylandı." });
 });
+
+// TUR #94 M1 — Bildirim merkezi (Madde 31.9 R1)
+// Müvekkil kendi RealtimeEvent feed'ini görür (TUR #93 emsali — channel/eventType/payload).
+// CUSTOMER kindleri: LEAD_LAWYER_ASSIGNED + LEAD_STATUS_CHANGED + LAWYER_NOTE
+exports.getNotifications = asyncHandler(async (req, res) => {
+  const userId = req.user.id;
+
+  // CUSTOMER kullanıcısının kendi userId'sine direkt event veya CUSTOMER_${userId} channel
+  // RealtimeEvent gerçek schema (TUR #93 emsali): channel + eventType + payload + userId
+  const events = await prisma.realtimeEvent.findMany({
+    where: {
+      OR: [
+        { userId },
+        { channel: `CUSTOMER_${userId}` },
+      ],
+    },
+    select: {
+      id: true,
+      channel: true,
+      eventType: true,
+      payload: true,
+      createdAt: true,
+      consumed: true,
+    },
+    orderBy: { createdAt: "desc" },
+    take: 50,
+  });
+
+  res.json({ success: true, events });
+});
