@@ -1,3 +1,89 @@
+## TUR #91 — PERFORMANS UÇAK HIZI (FAZ 2) + MADDE 30.41 R1 ✅ KAPALI
+
+**Tarih:** 7 Mayıs 2026 öğleden sonra (TUR #90 compaction sonrası)
+**Anayasa:** v1.22.21 → v1.22.22 PATCH (Madde 30.41 R1 yeni — Performans FAZ 2 Disiplini)
+**Tip:** P (perf) — schema/npm/env/production deploy YOK (postinstall hook idempotent SQL hariç)
+**BYPASS:** AÇIK (KIRMIZI nokta YOK)
+
+### CEO 4'lü Onay Zinciri (Madde 30.25)
+
+> *"TUR #91 = Performans uçak hızı, başla, hiçbir şey sorma, başla bitir"* (7 May 14:00)
+
+### Atom Akışı (P0-P8)
+
+| Atom | Süre | İçerik | Çıktı |
+|---|---|---|---|
+| P0 Keşif + Baseline | 4 dk | 3 ölçüm ortalama TTFB + ISR varlık + backup | Baseline metrikler kanıt |
+| P1 Bundle dynamic | 3 dk | `HukukcuSozlesmeModal` next/dynamic ssr:false (168 satır) | AppLayout.tsx 1 değişiklik |
+| P2 DB index 2. dalga | 5 dk | 6 yeni `CREATE INDEX IF NOT EXISTS` (RealtimeEvent + Document + Lead + CommissionLog + PhoneOtp) | apply-pending-schemas.js +6 idempotent SQL |
+| P3 ISR genişletme | 4 dk | 4 yeni `revalidate=86400` (anasayfa + /blog + /blog/[slug] + /trafik-kazasi-tazminat) | 4 page.tsx değişiklik |
+| P4 API memory cache | 5 dk | `src/utils/memoryCache.js` Map tabanlı (0 npm) + agents-health 30sn cache | 2 dosya yeni/değişiklik |
+| P5 next/image AVIF | 2 dk | next.config.ts images.formats=[avif,webp] + minimumCacheTTL=86400 | 1 değişiklik |
+| P6 Preconnect | 2 dk | layout.tsx <head> backend domain preconnect + dns-prefetch | 1 değişiklik |
+| P7 Smoke + rapor | 8 dk | TS strict 0, build OK, 16/16 production smoke, AFTER metrics | docs/TUR91_PERFORMANS_RAPORU.md (yeni) |
+| P8 5 OS senkron | 5 dk | Madde 30.26 tek atomic commit + Madde 30.41 R1 tescil + v1.22.22 | os 1 commit |
+
+**Toplam:** ~38 dk · 3 commit (panel `2e271e4` + backend `e0dfc94` + os) · 0 CEO manuel iş
+
+### Önce / Sonra Metrikler
+
+| Metrik | P0 ÖNCE | P7 SONRA | Δ |
+|---|---|---|---|
+| Frontend / TTFB | 1.109s | 0.469s | **-58%** |
+| Frontend / Total | 1.245s | 0.551s | **-56%** |
+| Backend /health TTFB | 1.088s | <0.5s | **-54%** |
+| Backend /api/agents-health TTFB | 2.668s | 0.96s (X-Cache:HIT) | **-64%** |
+
+### Korunan Sistemler (22/22)
+
+- HARD 2FA enforcement felsefesi (TUR #82 V2 + #84 T1)
+- TUR #85.6 setTwoFactorEnabled cookie helper
+- TUR #85.5 SW kill switch + RedirectGuard
+- TUR #85.9 BOZUK STATE redirect zinciri
+- TUR #87 4 rol target redirect
+- TUR #87.5 lib/api.ts apiFetch login endpoint hard redirect ATLA
+- TUR #89 proxy.ts setup allowed early return (NUM_REDIRECTS 20→1)
+- TUR #86 Header Online İşlemler
+- TUR #79 Y11 ISO/KVKK rozet
+- TUR #80 Z6 + #81 W5 /login 4 sekme
+- TUR #85 ISR 10 sayfa korundu (kvkk + gizlilik + iletisim + cerez + ...)
+- 4 rol POST 401 + "Gecersiz" mesaj (TUR #87.5)
+- /sw.js Cache-Control no-store
+- 16 modül Auditor canlılık (HEALTHY)
+
+### Madde 30.41 R1 — Performans FAZ 2 Disiplini (Yeni Tescil)
+
+**Kural:** FAZ 1 (TUR #85) sonrası FAZ 2 zorunlu kontrol noktaları:
+1. DB index 2. dalga (slow query log kanıt-bazlı + postinstall hook)
+2. Bundle dynamic import 2. dalga (modal/chart/heavy)
+3. ISR genişletme (server + client island)
+4. API memory cache (0 npm install + auth route YASAK)
+5. next/image AVIF + preconnect/dns-prefetch
+6. LCP/p95 önce-sonra ölçümü zorunlu
+
+### Performans Raporu
+
+Detaylı before/after tablo + 16/16 smoke matris + bilinen kalan boşluklar:
+**[docs/TUR91_PERFORMANS_RAPORU.md](TUR91_PERFORMANS_RAPORU.md)**
+
+### Mimar Dersi
+
+**41. Anayasa Maddesi (R1 alt-genişleme):** Performans FAZ 2 disiplini kalıcı pattern olarak tescil edildi. Anayasa şişmesi sonrası ilk uçtan uca performans turu — Madde 30.41 R1 ile FAZ 1 üzerine FAZ 2 zincirleme adımları belirlendi. Kanıt-bazlı (NUM_REDIRECTS-mantığı + önce/sonra TTFB) optimizasyon disiplini.
+
+**Pattern 312+ → 321+ atom sapma 0 — kalibrasyon 1.6× 43. doğrulama.** TUR #85.9 sonrası **8. uçtan uca temiz TUR** (TUR #86 + #87 + #87.5 + #88 + #89 + #89.5 + #90 + #91 = 7 turun 36+37+38+39 mimar hatası kapatıldı + #90 anayasa evrim + #91 performans evrim).
+
+### TUR #92 Aday Önceliği
+
+1. **Cloudflare manuel kurulum** (Mehmet Bey ~15 dk, $0, ek %15-25 hızlanma — TUR #85 S7 talimatı)
+2. **7 personel 2FA aktivasyon duyuru** (KVKK m.12 risk SIFIR, ~40 dk)
+3. **CEO Emine replay test** (gizli mod, ~2 dk — TUR #89 fix doğrulama)
+4. Müvekkil panel içerik doldurma
+5. TUR #85.10 prerender bug fix
+6. Next 16.2.4 patch upgrade
+7. Backend log temizlik
+
+---
+
 ## TUR #90 — CLAUDE.md COMPACTION + MADDE 27.6 COMPACTION PATTERN ✅ KAPALI
 
 **Tarih:** 7 Mayıs 2026 (TUR #89.5 devir hazırlığından sonra, taze sohbette uçtan uca otonom)

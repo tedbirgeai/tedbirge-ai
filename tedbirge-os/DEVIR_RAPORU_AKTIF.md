@@ -1,8 +1,8 @@
 # 🛡️ TEDBIRGE.AI — DEVİR RAPORU (AKTİF)
 
-📋 **ANAYASA:** v1.22.21 (Madde 27.6 yeni: Compaction Pattern + Madde 30.10 → 30.52 = 43 alt-madde + 6 R-genişleme)
-📂 **AKTİF KESİT:** TUR #90 KAPALI — CLAUDE.md compaction (246k → 162k, %34 azalma, bilgi kaybı SIFIR)
-📅 **SON GÜNCELLEME:** 7 Mayıs 2026 (TUR #90 CLAUDE.md compaction)
+📋 **ANAYASA:** v1.22.22 (Madde 30.41 R1 yeni: Performans FAZ 2 Disiplini + Madde 27.6 + Madde 30.10 → 30.52 = 44 alt-madde + 7 R-genişleme)
+📂 **AKTİF KESİT:** TUR #91 KAPALI — Performans uçak hızı FAZ 2 (anasayfa Total 1.2s → 0.55s, agents-health 2.6s → 0.96s)
+📅 **SON GÜNCELLEME:** 7 Mayıs 2026 öğleden sonra (TUR #91 Performans FAZ 2)
 👤 **CEO Onay:** Mehmet DİNÇ — Madde 17.5 + 18.3 + 30.25 (CEO 4'lü zincir 6 Mayıs mektup içinde tescilli)
 🤖 **Mimar:** Claude Opus 4.7 (sohbet) + Claude Code (otonom uygulama, bypass açık)
 
@@ -24,6 +24,7 @@
 - **TUR #88 (X1-X8):** Çevre faktörü tanısı (YANLIŞ TANI) — 38. mimar hatası
 - **TUR #89:** NUM_REDIRECTS matrisi + 1 satır proxy.ts fix — 39. mimar hatası **KAPATILDI**
 - **TUR #90 (C0-C7):** CLAUDE.md compaction 246k → 162k (%34 azalma) + Madde 27.6 Compaction Pattern + docs/CLAUDE_MADDE_30_DETAY.md (31k yeni dosya) + sürüm geçmişi MIMARI_KARARLAR.md tek doğru yer (~75k tasarruf) + 4 büyük Madde 30 alt-maddesi sıkıştırıldı (~10k ek tasarruf) — **40. anayasa maddesi tescil**
+- **TUR #91 (P0-P8):** Performans uçak hızı FAZ 2 — anasayfa 1.2s → 0.55s (-56%), agents-health 2.6s → 0.96s (-64% X-Cache:HIT), 6 yeni DB index + 4 ISR sayfa + memory cache + AVIF + preconnect — **Madde 30.41 R1 tescil (Performans FAZ 2 Disiplini)**
 
 ---
 
@@ -80,23 +81,24 @@ Production stable. /temsilci redirect döngü **KESİN ÇÖZÜLDÜ** (NUM_REDIRE
 
 ## 🎯 SIRADAKİ ÖNERİLEN İŞ
 
-**TUR #91 → 7 personel 2FA aktivasyon duyuru** (KVKK m.12 risk SIFIR)
+**TUR #92 → Cloudflare manuel kurulum** (Mehmet Bey ~15 dk, $0 ek hızlanma %15-25) + **7 personel 2FA aktivasyon duyuru** (KVKK m.12)
 
-CLAUDE.md compaction TUR #90'da **TAMAMLANDI** ✅ (246k → 162k, %34 azalma, docs/CLAUDE_MADDE_30_DETAY.md 31k yeni dosya, bilgi kaybı SIFIR). Code oturum açılışı ~2× daha hızlı.
+TUR #91 Performans FAZ 2 **TAMAMLANDI** ✅ — anasayfa 0.55s + agents-health 0.96s (cache HIT). Detay: `tedbirge-os/docs/TUR91_PERFORMANS_RAPORU.md`. Cloudflare ile +%15-25 daha → LCP <1.5s gerçekçi.
 
 ---
 
-## 📈 PATTERN İSTATİSTİKLERİ (TUR #56 → #90)
+## 📈 PATTERN İSTATİSTİKLERİ (TUR #56 → #91)
 
-- **Atom:** 312+ (sapma 0)
-- **Kalibrasyon:** 1.6× (42. doğrulama)
-- **Anayasa:** v1.22.0 → v1.22.21 (21 PATCH)
-- **Alt-madde:** 44 (Madde 30.10 → 30.52 + Madde 27.6 yeni)
+- **Atom:** 321+ (sapma 0)
+- **Kalibrasyon:** 1.6× (43. doğrulama)
+- **Anayasa:** v1.22.0 → v1.22.22 (22 PATCH)
+- **Alt-madde:** 45 (Madde 30.10 → 30.52 + Madde 27.6 + Madde 30.41 R1)
 - **Mimar hatası:** 40 → 40 anayasa maddesi (1:1 dönüşüm)
-- **Maliyet:** $0 (Faz 1 baştan sona)
+- **Maliyet:** $0 (Faz 1+2 baştan sona)
 - **14 hotfix sabırla aşıldı**
 - **Madde 30.25 emsali** (CEO görsel > Code rapor): 10 uygulama
 - **CLAUDE.md compaction:** 246k → 162k (%34 azalma, TUR #90)
+- **Performans FAZ 2:** anasayfa 1.2s → 0.55s (-56%), agents-health 2.6s → 0.96s (-64%, TUR #91)
 
 ---
 

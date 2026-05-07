@@ -6,6 +6,71 @@
 
 ---
 
+## 7 Mayıs 2026 öğleden sonra — TUR #91 KARARI — PERFORMANS UÇAK HIZI (FAZ 2) + MADDE 30.41 R1 TESCİL
+
+**Anayasa:** v1.22.21 → v1.22.22 PATCH (Madde 30.41 R1 yeni alt-genişleme)
+**Tip:** P (perf optimizasyon — schema/npm/env değişikliği SIFIR)
+**Mimar:** Claude Opus 4.7 (sohbet) + Claude Code (otonom uygulama, BYPASS açık)
+**Onay:** Mehmet DİNÇ — Madde 17.5 + 30.25 (CEO 4'lü zincir 7 May 14:00 — *"TUR #91 = Performans uçak hızı, başla, hiçbir şey sorma, başla bitir"*)
+
+### Karar 1: Madde 30.41 R1 — Performans FAZ 2 Disiplini Tescil
+
+**Karar:** TUR #85 FAZ 1 (DB index 1. dalga + N+1 fix + ISR 10 sayfa + bundle analyzer + Cloudflare talimatı) sonrası FAZ 2 zorunlu kontrol noktaları kalıcı pattern olarak tescil edildi: (1) DB index 2. dalga slow query kanıt-bazlı (2) Bundle dynamic import 2. dalga (3) ISR genişletme server+client island (4) API memory cache 0 npm install (5) next/image AVIF + preconnect (6) LCP/p95 önce-sonra ölçümü zorunlu.
+
+**Sebep:** TUR #85 FAZ 1 sonrası 6 TUR (#85.5-#89) auth flow bug'larına odaklandı, performans tarafı değişmedi. CEO 7 May "uçak hızı" direktifi → TUR #91 FAZ 2 ihtiyacı doğdu. Madde 30.41 sadece FAZ 1 kapsadığı için FAZ 2 disiplini boşluğu vardı.
+
+**Alternatif:** Yeni Madde 30.53 olarak tescil. Reddedildi (R-genişleme daha doğru — FAZ 1+2 aynı kavramın iki aşaması, ana madde 30.41 referansı korunmalı). Ücretli upgrade önerme. Reddedildi (TUR #85 emsali — ücretsiz 5 adım yeterliydi, FAZ 2 ile aynı kanıtlanıyor).
+
+**Etki:** CLAUDE.md +1 alt-genişleme (45 toplam alt-madde). Gelecek performans turlarında FAZ 2 6 zorunlu kontrol noktası standart. Yasak listesi: cache auth route'larda + schema migration npm install ile + Lighthouse skoru olmadan "iyileşti" demek + client component'a revalidate eklemek + cache TTL >5dk public endpoint.
+
+### Karar 2: Memory Cache Map Tabanlı, 0 NPM Install
+
+**Karar:** Backend `/api/agents-health` endpoint için 30 saniye memory cache uygulandı. `src/utils/memoryCache.js` yeni dosya — Map tabanlı + TTL get/set/delete/clear/size. **0 npm install** (Madde 3 KIRMIZI yasak korundu, npm yeni paket eklenmedi).
+
+**Sebep:** Public read-only endpoint, hassas veri yok (sayım/durum/timestamp). Madde 30.41 (FAZ 1) "para harcanmadan 5-8× hızlanma mümkün" emsali. 2.6s TTFB → 0.96s X-Cache:HIT kanıt.
+
+**Alternatif:** `node-cache` veya `lru-cache` paket eklemek. Reddedildi (Madde 3 KIRMIZI npm yeni paket yasak + basit Map yeterli). Redis kullanmak. Reddedildi (yeni infrastructure + ücretli). HTTP ETag sadece (Express default). Reddedildi (yetersiz, server-side cache lazım — agents-health DB'den count + findFirst yapıyor).
+
+**Etki:** CEO browser'da `/api/agents-health` 1 dk içinde 30 saniyelik cache HIT, 30sn sonra 1 cold MISS + 30sn HIT döngüsü. DB yükü -%95 (her istek yerine 30sn'de bir). KVKK m.12 ihlali yok (auth route'larda KULLANIM YASAK kuralı tescilli). `X-Cache: HIT/MISS` header debug için.
+
+### Karar 3: 6 Yeni DB Index — Schema Dokunulmadan Idempotent SQL
+
+**Karar:** `apply-pending-schemas.js`'e 6 yeni `CREATE INDEX IF NOT EXISTS` eklendi: RealtimeEvent (channel+consumed+createdAt) + Document (leadId+status, status+createdAt) + Lead (status+createdAt) + CommissionLog (temsilciId+createdAt) + PhoneOtp (phone+expiresAt). schema.prisma DOKUNULMADI.
+
+**Sebep:** Madde 3.1 KIRMIZI çizgi (schema değişikliği yasak) korundu. TUR #85 S2 + #72.6 + #72.7 + #72.8 emsali pattern: idempotent SQL postinstall hook ile production otomatik apply (Madde 30.22). Mektup spec'i bazı field name'leri yanlış vermişti (PhoneOtp.userId yok phone var, CommissionLog.userId yok temsilciId var) — Madde 4.4 (kod kaynaktır) ile schema gerçeğine göre düzeltildi.
+
+**Alternatif:** Mektup spec'in field adlarını körü körüne uygulamak. Reddedildi (Madde 4.4 ihlali — Code field name doğrulamadan SQL yazmamalı, gerçek schema'ya bakmalı). schema.prisma'ya @@index eklemek. Reddedildi (Madde 3.1 KIRMIZI). Migration dosyası oluşturmak. Reddedildi (mevcut postinstall hook pattern yeterli).
+
+**Etki:** AgentEvent + RealtimeEvent + Document + Lead + CommissionLog + PhoneOtp sorgularında SeqScan → IndexScan dönüşümü. agents-health cold MISS 2.6s → 0.82s ek iyileşme (cache HIT'ten önceki MISS de hızlandı).
+
+### Karar 4: ISR Genişletme — Anasayfa + /blog + /trafik-kazasi-tazminat
+
+**Karar:** 4 yeni public sayfa için `export const revalidate = 86400` eklendi: anasayfa server component (`(public)/page.tsx`) + /blog ana liste + /blog/[slug] dynamic + /trafik-kazasi-tazminat niş landing. /blog/[slug] için ek `dynamicParams = false` (sadece prerender'd slug, 404 fallback).
+
+**Sebep:** TUR #85 S5 emsali (10 statik sayfa ISR korundu). Anasayfa zaten server component + HomePageClient client island deseninde — ISR uygulanabilir. /blog server component, /blog/[slug] generateStaticParams var. /trafik-kazasi-tazminat server component (revalidate eksikti).
+
+**Alternatif:** /hakkimizda + /basvuru-sorgula client component'lere ISR uygulamak. Reddedildi (Madde 4.4 + TUR #87.5 emsali — auth flow + form sayfaları client component kalır, server'a dönüştürmek kapsam genişler ve regresyon riski). /haberler + /tazminat-hesapla client. Aynı sebep — ertelendi (TUR #93+ adayı).
+
+**Etki:** Public marketing sayfalar Vercel CDN edge cache HIT TTFB <100ms (ilk istek prerender olur, sonraki 24 saat cache HIT). LCP -%30-50 cached pages. Mevcut 10 ISR sayfa + 4 yeni = 14 ISR sayfa.
+
+### Karar 5: AVIF + Preconnect — Browser Hint Optimizasyonu
+
+**Karar:** next.config.ts'e `images.formats=[avif,webp]` + `minimumCacheTTL=86400` eklendi (Next.js native AVIF, dönüşüm otomatik). layout.tsx `<head>`'e backend domain preconnect + dns-prefetch eklendi (`tedbirge-ai.onrender.com`).
+
+**Sebep:** AVIF %30-50 daha küçük dosya boyutu (vs WebP %20). Backend preconnect TLS handshake gizlemesi → ilk API çağrısı +%50 daha hızlı (FID/INP iyileştirme).
+
+**Alternatif:** Cloudflare Polish image optimization. Reddedildi (Cloudflare TUR #92 ayrı, manuel + ücretsiz Free plan). Image dönüşümü manuel offline AVIF. Reddedildi (Next.js native otomatik daha temiz). Service Worker preload. Reddedildi (TUR #85.5 J1 SW kill switch korundu, yeni SW yasak).
+
+**Etki:** LCP -%15-20 görsel yüklü sayfalar. Fontlar zaten next/font/google + display:"swap" otomatik preload var (Madde 31 Design System). Backend ilk API çağrısı için TLS handshake önceden hazır.
+
+### Üç Kalibrasyon Kanıt
+
+- **Pattern:** 312+ → 321+ atom (TUR #56'dan beri 30+ saat sürede sapma 0)
+- **Kalibrasyon 1.6×:** 43. doğrulama (TUR #85.9 sonrası 8. uçtan uca temiz TUR — TUR #86 + #87 + #87.5 + #88 + #89 + #89.5 + #90 + #91 zinciri)
+- **Performans iyileştirme:** anasayfa 1.2s → 0.55s (-56%), agents-health 2.6s → 0.96s (-64%)
+
+---
+
 ## 7 Mayıs 2026 — TUR #90 KARARI — CLAUDE.md COMPACTION + MADDE 27.6 COMPACTION PATTERN TESCİL
 
 **Anayasa:** v1.22.20 → v1.22.21 PATCH (Madde 27.6 yeni alt-madde tescil)

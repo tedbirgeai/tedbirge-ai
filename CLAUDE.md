@@ -2472,6 +2472,32 @@ Tek katman yetersiz — kullanıcı doğrudan URL/API ile bypass denerse middlew
 - ❌ Statik public sayfada SSR her istekte (ISR yerine)
 - ❌ Modal/dialog full bundle ilk yükleme (dynamic import yerine)
 
+### 30.41 R1 — Performans FAZ 2 Disiplini (TUR #91)
+
+**Kural:** FAZ 1 (TUR #85) sonrası FAZ 2 zorunlu kontrol noktaları (kullanıcı algısında "uçak hızı" hedefi):
+
+1. **DB index 2. dalga** — slow query log kanıt-bazlı, schema dokunulmaz, `apply-pending-schemas.js` postinstall hook (Madde 30.22 emsali)
+2. **Bundle dynamic import 2. dalga** — modal/chart/heavy component için `next/dynamic` + `ssr:false`
+3. **ISR genişletme** — server component + client island deseni, client component'e `revalidate` eklemek YASAK
+4. **API response memory cache** — Map tabanlı (0 npm install), public read-only endpoint OK, **auth route YASAK** (KVKK m.12)
+5. **next/image AVIF + preconnect/dns-prefetch** — backend domain için browser hint
+6. **LCP/p95 önce-sonra ölçümü zorunlu** (Madde 30.41 kanıt zinciri emsali)
+
+**TUR #91 emsali (7 May 2026):**
+- /api/agents-health TTFB 2.6s → 0.96s (-64%, X-Cache: HIT kanıt)
+- Anasayfa Total 1.2s → 0.55s (-56%)
+- 6 yeni DB index (RealtimeEvent + Document + Lead + CommissionLog + PhoneOtp)
+- 4 yeni ISR sayfa (anasayfa + /blog + /blog/[slug] + /trafik-kazasi-tazminat)
+- HukukcuSozlesmeModal dynamic import
+- next.config.ts AVIF + minimumCacheTTL=86400
+
+**Yasak:**
+- ❌ Cache auth route'larda (`/api/auth/*` no-store korunmalı, KVKK m.12)
+- ❌ Schema migration npm install ile (Madde 3 KIRMIZI — `apply-pending-schemas.js` idempotent SQL kullan)
+- ❌ Lighthouse skoru olmadan "iyileşti" demek (önce-sonra ölçüm zorunlu, Madde 30.41 emsali)
+- ❌ Client component'a `export const revalidate` eklemek (no-op, build hatası riski)
+- ❌ Cache TTL >5dk public endpoint'te (stale data kullanıcıya yansır, 30sn-2dk yeter)
+
 ### 30.42 — Working Tree Temizlik Disiplini (TUR #85)
 
 **Kural:** Untracked dosya **5'i geçerse** o TUR sonu zorunlu temizlik:
@@ -3121,8 +3147,8 @@ Mehmet Bey sahaya çıkabilsin diye bu disiplin var.
 
 ---
 
-**— Tedbirge Mimari Anayasası v1.22.21**  
-**Toplam 90 TUR · 312+ atom sapma 0 · 42 kalibrasyon · 40 mimar hatası → 40 anayasa maddesi**  
+**— Tedbirge Mimari Anayasası v1.22.22**  
+**Toplam 91 TUR · 321+ atom sapma 0 · 43 kalibrasyon · 40 mimar hatası → 40 anayasa maddesi**  
 **Tüm sürüm geçmişi + TUR detayları + atom kayıtları: `tedbirge-os/MIMARI_KARARLAR.md`**
 
 **Versiyon geçmişi: tedbirge-os/MIMARI_KARARLAR.md**  
