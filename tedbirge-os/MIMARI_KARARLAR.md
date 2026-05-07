@@ -6,6 +6,75 @@
 
 ---
 
+## 7 Mayıs 2026 gece — TUR #93 KARARI — YATAY CRM BİLDİRİM ZİNCİRİ + MADDE 30.53 TESCİL
+
+**Anayasa:** v1.22.23 → v1.22.24 PATCH (Madde 30.53 yeni alt-madde, 47 alt-madde toplam)
+**Tip:** Kanıt-bazlı UX + RealtimeEvent zinciri (schema/npm/env değişikliği SIFIR)
+**Mimar:** Claude Opus 4.7 (sohbet) + Claude Code (otonom uygulama, BYPASS açık)
+**Onay:** Mehmet DİNÇ — Madde 17.5 + 30.25 (CEO 4'lü zincir 7 May TUR #92 sonrası)
+**Yaklaşım:** Madde 4.4 + 14.3 + TUR #88 emsali — kanıtsız değişim yasak
+
+### Karar 1: Madde 30.53 — Yatay CRM Bildirim Zinciri Disiplini Tescil
+
+**Karar:** Lead state geçişleri için 4 rol kopuksuz bildirim zinciri + ADMIN_FEED audit kayıt kalıcı pattern. Mevcut trigger'lara dokunmadan kanıtlanmış eksikler **kanıt-bazlı** eklenir.
+
+**Sebep:** CEO direktifi *"yatay CRM modüllerinin geliştirilmesi, 4 rol iş akışı"*. Mevcut sistem zaten zengin (18 dosya RealtimeEvent + 7 lawyerNotifications + 11 OS modülü + 3-kanal müvekkil bildirim) — kanıtsız "yamalı bohça" yapmak Madde 4.1 + 4.4 ihlali olur. 32-hücre matris ile mevcut/eksik kanıtlandı.
+
+**Alternatif:** Mektup spec 12 atom W0-W11 körü körüne uygulamak (mevcut çalışan trigger'a dokunmak). Reddedildi (Madde 4.4 + 14.3 + TUR #88 emsali — kanıtsız değişim yasak). Sadece W4 widget eklemek. Reddedildi (W1+W2 kanıtlı net eksik kapatma şart). 12 atom hepsini uygulamak. Reddedildi (8 atomda kanıtlı eksikler kapandı, geri kalan kanıtsız kapsam genişletme yasak).
+
+**Etki:** CLAUDE.md +1 alt-madde (47 toplam). 4 yapısal yenilik: (a) assignment ADMIN_FEED+REPRESENTATIVE+LAWYER RT (b) kvkk ADMIN_FEED RT (c) ROLE_KINDS frontend export (d) Avukat Workload widget. Mevcut sistem envanteri kalıcı tescilli (18 dosya + 7 trigger + 3-kanal + 11 OS modülü).
+
+### Karar 2: Schema KIRMIZI Korundu — RealtimeEvent Gerçek Field'ları
+
+**Karar:** RealtimeEvent gerçek schema field'ları `channel + eventType + payload + userId + consumed` kullanıldı. Mektup spec'in önerdiği `scope/kind/title/body/severity/metadata` ayrı field'ları YANLIŞ — Madde 4.4 emsali (kod kaynak). `payload` JSON içinde tüm metadata saklandı.
+
+**Sebep:** Mektup spec eski varsayımla yazılmış. Gerçek schema kontrol edildi (Madde 4.4 — `awk '/^model RealtimeEvent/,/^}/' prisma/schema.prisma`) — sadece 5 ana field. Schema değişikliği yasak (Madde 3.1 KIRMIZI). Field'ları `payload.title`, `payload.body`, `payload.severity` olarak iç içe tutuldu.
+
+**Alternatif:** schema.prisma'ya yeni alanlar eklemek. Reddedildi (Madde 3.1 KIRMIZI). Mektup spec field adlarını körü körüne kullanmak. Reddedildi (Prisma error verir, build patlar). Yeni RealtimeEventV2 modeli yaratmak. Reddedildi (gereksiz schema, mevcut payload JSON yeterli).
+
+**Etki:** Madde 4.4 emsali güçlendi — mimar mektubu yorumdur, kod kaynaktır. Gerçek schema'ya uygun trigger'lar yazıldı. Frontend useRealtimeFeed `data.type` (RealtimeEvent.eventType ile eşleşir) zaten doğru, yeni filtre ROLE_KINDS bu pattern'a uygun.
+
+### Karar 3: Mektup Spec Lead Field Adları YANLIŞ — Assignment Table Pattern
+
+**Karar:** Mektup spec'in `lead.atananAvukatId/getirenTemsilciId/customerId` field'ları YOK. Gerçek schema:
+- Avukat ataması: `Assignment` tablosu (lead.assignments[].lawyerId, status: ACTIVE)
+- Temsilci: `lead.createdById` (User → REPRESENTATIVE rol kontrolü)
+- Müvekkil: `lead.ownerId` (User → CUSTOMER rol) veya `customerEmail/customerPhone/customerName`
+
+**Sebep:** Madde 4.4 + 9.5 (assertLeadAccess pattern). Mektup eski TUR #55 öncesi varsayımla yazılmış olabilir. assignment.service.js'de ZATEN doğru pattern var (Assignment.create + lead.update status). Code mektup spec'in yanlış field adlarını kullanmadı, gerçek schema'ya uydu.
+
+**Alternatif:** lead.atananAvukatId field eklemek. Reddedildi (Madde 3.1 KIRMIZI + mevcut Assignment table çalışıyor). Mektup spec'i körü körüne uygulamak. Reddedildi (Prisma error).
+
+**Etki:** assignment.service.js W1 fix `lead.createdById` üzerinden REPRESENTATIVE bildirim, Assignment.lawyerId üzerinden LAWYER bildirim. lead.ownerId (CUSTOMER) zaten mevcut updateLeadStatus'ta sendToUser ile push alıyor (TUR #93'te dokunulmadı, mevcut çalışıyor).
+
+### Karar 4: Avukat Workload Widget — TUR #92 Pattern Emsali
+
+**Karar:** ADMIN dashboard sistem-durumu sayfasına `LawyerWorkloadWidget` eklendi. Aktif/Won/Total assignment sayım + lastAssignedAt + load enum (idle/normal/busy/overloaded). TUR #92 `TwoFactorAdoptionWidget` pattern emsali (DRY).
+
+**Sebep:** ADMIN'in "kim kaç leade aktif, kim atıl" sorusunu cevaplamak için DB query yapmamalı. Widget tek bakışta net cevap. TUR #92 widget pattern başarılı (8 user 2FA görünürlük + adoption %), aynı pattern lawyer workload için uygulanabilir.
+
+**Alternatif:** Yeni `/admin/lawyer-workload` ayrı sayfa. Reddedildi (mevcut sistem-durumu sayfası ADMIN'in günlük kullandığı yer). Email-only rapor. Reddedildi (canlı görünürlük şart).
+
+**Etki:** `/api/users/lawyer-workload` yeni endpoint (ADMIN guard). `LawyerWorkloadWidget.tsx` yeni component. sistem-durumu üstüne (2FA Adoption widget altına) entegre. Production smoke 401 authsız doğrulu (W6 [N7]).
+
+### Karar 5: 0 Yeni Mimar Hatası — 10. Uçtan Uca Temiz TUR
+
+**Karar:** TUR #93 sonunda 41 mimar hatası → 41 anayasa maddesi 1:1 oranı korundu. **Yeni mimar hatası YOK.**
+
+**Sebep:** Madde 4.4 + 14.3 + TUR #88 emsali sıkı uygulandı — mevcut sistem envantere alındı önce, kanıtsız değişim yasak. 8 atom (W0-W7) ile mektup spec'in 12 atomu (W0-W11) yerine kanıt-bazlı minimal yaklaşım. Madde 30.53 tescil edildi, yeni hata oluşmadı.
+
+**Alternatif:** "Mimar yorumu yapmadan tüm spec'i uygula" — TUR #88 hatası emsali (kanıtsız uygulama). Reddedildi.
+
+**Etki:** Pattern 331+ → 339+ atom sapma 0 · kalibrasyon 1.6× **45. doğrulama**. TUR #85.9 sonrası 10. uçtan uca temiz TUR (#86 + #87 + #87.5 + #88 + #89 + #89.5 + #90 + #91 + #92 + #93).
+
+### Üç Kalibrasyon Kanıt
+
+- **Pattern:** 331+ → 339+ atom (TUR #56'dan beri 30+ saat sürede sapma 0)
+- **Kalibrasyon 1.6×:** 45. doğrulama
+- **Mevcut sistem dokunmama:** 18 dosya RealtimeEvent + 7 lawyerNotifications + 11 OS modülü + 3-kanal müvekkil bildirim KORUNDU
+
+---
+
 ## 7 Mayıs 2026 akşam — TUR #92 KARARI — ADOPSİYON UX OTONOM + MADDE 30.32 R1 TESCİL
 
 **Anayasa:** v1.22.22 → v1.22.23 PATCH (Madde 30.32 R1 yeni alt-genişleme, 41 alt-madde toplam)

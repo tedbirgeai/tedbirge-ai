@@ -1,8 +1,8 @@
 # 🛡️ TEDBIRGE.AI — DEVİR RAPORU (AKTİF)
 
-📋 **ANAYASA:** v1.22.23 (Madde 30.32 R1 yeni: Adopsiyon UX Disiplini 8 katman + 46 alt-madde + 8 R-genişleme)
-📂 **AKTİF KESİT:** TUR #92 KAPALI — Adopsiyon UX + 2FA wizard rehber + ADMIN görünürlük (sistem otonom, CEO manuel iş yapmaz)
-📅 **SON GÜNCELLEME:** 7 Mayıs 2026 akşam (TUR #92 Adopsiyon UX)
+📋 **ANAYASA:** v1.22.24 (Madde 30.53 yeni: Yatay CRM Bildirim Zinciri Disiplini + 47 alt-madde + 8 R-genişleme)
+📂 **AKTİF KESİT:** TUR #93 KAPALI — Yatay CRM 4 rol bildirim zinciri (kanıt-bazlı 2 net eksik kapatıldı, mevcut 18 dosya + 7 trigger DOKUNULMADI)
+📅 **SON GÜNCELLEME:** 7 Mayıs 2026 gece (TUR #93 Yatay CRM)
 👤 **CEO Onay:** Mehmet DİNÇ — Madde 17.5 + 18.3 + 30.25 (CEO 4'lü zincir 6 Mayıs mektup içinde tescilli)
 🤖 **Mimar:** Claude Opus 4.7 (sohbet) + Claude Code (otonom uygulama, bypass açık)
 
@@ -26,6 +26,7 @@
 - **TUR #90 (C0-C7):** CLAUDE.md compaction 246k → 162k (%34 azalma) + Madde 27.6 Compaction Pattern + docs/CLAUDE_MADDE_30_DETAY.md (31k yeni dosya) + sürüm geçmişi MIMARI_KARARLAR.md tek doğru yer (~75k tasarruf) + 4 büyük Madde 30 alt-maddesi sıkıştırıldı (~10k ek tasarruf) — **40. anayasa maddesi tescil**
 - **TUR #91 (P0-P8):** Performans uçak hızı FAZ 2 — anasayfa 1.2s → 0.55s (-56%), agents-health 2.6s → 0.96s (-64% X-Cache:HIT), 6 yeni DB index + 4 ISR sayfa + memory cache + AVIF + preconnect — **Madde 30.41 R1 tescil (Performans FAZ 2 Disiplini)**
 - **TUR #92 (Q0-Q9):** Adopsiyon UX otonom — 2fa-secim wizard EMAIL default + 3 yöntem açıklamalı (30sn/2dk/1dk) + Reporter saat 09:00 onboarding cron (3 gün debounce) + ADMIN sistem-durumu üstüne 2FA widget (8 user görünürlük + manuel hatırlatma) + Auditor security adoption % metric (< 50% CRITICAL ADMIN_FEED) + Email OTP rate limit (5dk × 3) — **Madde 30.32 R1 tescil (Adopsiyon UX Disiplini 8 katman)**
+- **TUR #93 (W0-W7):** Yatay CRM 4 rol bildirim zinciri — W0 32-hücre kanıt matrisi (kanıt-bazlı tanı, mevcut 18 dosya RealtimeEvent + 7 lawyerNotifications trigger DOKUNULMADI) + 2 net eksik kapatıldı: (a) `assignment.service.js` ADMIN_FEED + REPRESENTATIVE_${createdById} + LAWYER_${id} RT (mevcut SMS/Email/WhatsApp KORUNDU) (b) `kvkk.service.js` createPublicRequest ADMIN_FEED RT (KVKK m.11 30 gün yanıt süresi) + 2 yapısal yenilik: (c) `useRealtimeFeed` ROLE_KINDS export (rol-spesifik filtre) (d) ADMIN "Avukat Workload" widget — **Madde 30.53 tescil (Yatay CRM Bildirim Zinciri Disiplini, kanıt-bazlı yaklaşım)**
 
 ---
 
@@ -82,25 +83,26 @@ Production stable. /temsilci redirect döngü **KESİN ÇÖZÜLDÜ** (NUM_REDIRE
 
 ## 🎯 SIRADAKİ ÖNERİLEN İŞ
 
-**TUR #93 → 4 Rol İş Akışı Güçlendirme** (Lead → Avukat → Müvekkil → Komisyon zinciri smoke + UX) + Cloudflare manuel (~15 dk, +%15-25)
+**TUR #94 → Cloudflare manuel kurulum** (Mehmet Bey ~15 dk, +%15-25 hızlanma) + **Müvekkil panel içerik doldurma** (kabuklar var, müvekkil görünüm boş)
 
-TUR #92 Adopsiyon UX **TAMAMLANDI** ✅ — Mehmet Bey artık personellere "2FA aktive et" demek zorunda değil. Sistem otonom: cron 09:00 hatırlatma + ADMIN widget izleme + adopsiyon < 50% CRITICAL bildirim. 7 gün içinde organik adopsiyon ~%87-100 beklenir. CEO manuel iş: sadece widget'tan tekil "Hatırlat" butonu (opsiyonel, cron zaten otomatik).
+TUR #93 Yatay CRM **TAMAMLANDI** ✅ — Madde 30.53 tescil. Detay: `tedbirge-os/docs/TUR93_TRIGGER_MATRISI_RAPORU.md`. ADMIN dashboard 2 widget (2FA Adoption + Lawyer Workload) sistem-durumu üstünde canlı.
 
 ---
 
-## 📈 PATTERN İSTATİSTİKLERİ (TUR #56 → #92)
+## 📈 PATTERN İSTATİSTİKLERİ (TUR #56 → #93)
 
-- **Atom:** 331+ (sapma 0)
-- **Kalibrasyon:** 1.6× (44. doğrulama)
-- **Anayasa:** v1.22.0 → v1.22.23 (23 PATCH)
-- **Alt-madde:** 46 (Madde 27.6 + Madde 30.10-30.52 + Madde 30.41 R1 + Madde 30.32 R1)
-- **Mimar hatası:** 41 → 41 anayasa maddesi (1:1 dönüşüm — 41. mimar hatası TUR #92'de tescil: "CEO duyuru beklentisi yerine sistem otonom yapmalı")
+- **Atom:** 339+ (sapma 0)
+- **Kalibrasyon:** 1.6× (45. doğrulama)
+- **Anayasa:** v1.22.0 → v1.22.24 (24 PATCH)
+- **Alt-madde:** 47 (Madde 27.6 + Madde 30.10-30.53 + Madde 30.41 R1 + Madde 30.32 R1)
+- **Mimar hatası:** 41 → 41 anayasa maddesi (1:1 dönüşüm — TUR #93'te 0 yeni hata, 10. uçtan uca temiz TUR)
 - **Maliyet:** $0 (Faz 1+2+3 baştan sona)
 - **14 hotfix sabırla aşıldı**
 - **Madde 30.25 emsali** (CEO görsel > Code rapor): 10 uygulama
 - **CLAUDE.md compaction:** 246k → 162k (%34 azalma, TUR #90)
 - **Performans FAZ 2:** anasayfa 1.2s → 0.55s (-56%), agents-health 2.6s → 0.96s (-64%, TUR #91)
 - **Adopsiyon UX (TUR #92):** sistem otonom — cron + widget + metric + rate limit, CEO manuel iş YOK
+- **Yatay CRM (TUR #93):** kanıt-bazlı 2 net eksik kapatıldı (assignment + kvkk ADMIN_FEED), mevcut 18 dosya RealtimeEvent + 7 lawyerNotifications + 11 OS modülü DOKUNULMADI
 
 ---
 

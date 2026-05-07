@@ -2868,6 +2868,36 @@ Birinde değişiklik yaparken **diğer 4'ünün uyumu kontrol edilmeden parça-b
 
 **Detay (NUM_REDIRECTS yorum tablosu + 8 senaryo cookie matrisi bash + verbose döngü çıktısı + gizli mod test protokolü + 39. mimar hatası kayıt):** [`tedbirge-os/docs/CLAUDE_MADDE_30_DETAY.md`](tedbirge-os/docs/CLAUDE_MADDE_30_DETAY.md) — 30.52 bölümü.
 
+### 30.53 — Yatay CRM Bildirim Zinciri Disiplini (TUR #93)
+
+**Kural:** Lead state geçişleri (atama, status, commission, KVKK başvurusu, AI analiz, doküman) için **4 rol kopuksuz bildirim zinciri** + **ADMIN_FEED audit kayıt** zorunlu (KVKK m.10 izlenebilirlik). Mevcut trigger'lara dokunmadan kanıtlanmış eksikler **kanıt-bazlı** eklenir (Madde 4.4 + 14.3 + TUR #88 emsali).
+
+**Schema KIRMIZI (Madde 3.1) korundu:** RealtimeEvent gerçek field'ları `channel + eventType + payload + userId + consumed` (mektup spec'in `scope/kind/title/body/severity/metadata` field'ları YANLIŞ — payload JSON içinde tutulur).
+
+**Zorunlu zincir noktaları:**
+1. Lead atama → 4 paralel: ADMIN_FEED + LAWYER_${id} + REPRESENTATIVE_${id} + Müvekkil (mevcut SMS/Email/WhatsApp)
+2. Lead status update → 3 rol push (LAWYER + REPRESENTATIVE + CUSTOMER ownerId)
+3. CommissionLog created → REPRESENTATIVE bildirim
+4. DataSubjectRequest yeni → ADMIN_FEED + LAWYER (SILME ise mevcut notif)
+5. AI Analiz / Document / Contract / Dava aşama → mevcut lawyerNotifications korunur
+
+**TUR #93 emsali:** W0 32-hücre kanıt matrisi (4 rol × 8 trigger) → 18 dosya RealtimeEvent + 7 lawyerNotifications + 11 OS modülü zaten mevcut. Sadece 2 net eksik kapatıldı: (a) assignment.service ADMIN_FEED + REPRESENTATIVE_${createdById} (b) kvkk.service ADMIN_FEED.
+
+**Mevcut envanter (kanıt):**
+- `lawyerNotifications.service.js` 7 trigger fonksiyonu
+- `assignment.service.js` 3-kanal müvekkil bildirim (SMS + Email + WhatsApp)
+- `lead.service.js updateLeadStatus` push (sendToUser ownerId) + SMS
+- 18 dosya `prisma.realtimeEvent.create` çağrısı
+- 11 OS modülü adopsiyon/güvenlik/yedekleme bildirimleri
+
+**Yasak:**
+- ❌ Mevcut çalışan trigger'a kanıtsız dokunmak (Madde 4.4 ihlali — TUR #88 emsali)
+- ❌ Schema yeni alan ekleyerek bildirim trigger eklemek (Madde 3.1 KIRMIZI)
+- ❌ ADMIN_FEED audit eksik trigger eklemek (KVKK m.10 izlenebilirlik)
+- ❌ Müvekkil rıza yokluğunda otomatik email (mevcut KVKK pattern korunur)
+- ❌ Sessiz state geçişi (3 rol bildirim alır — mevcut zincir korunur)
+- ❌ RealtimeEvent şeması scope/kind/title field'ları (gerçek: channel/eventType/payload)
+
 ---
 
 ## 31. TASARIM DİSİPLİNİ — Tedbirge Design System v1.0
@@ -3180,8 +3210,8 @@ Mehmet Bey sahaya çıkabilsin diye bu disiplin var.
 
 ---
 
-**— Tedbirge Mimari Anayasası v1.22.23**  
-**Toplam 92 TUR · 331+ atom sapma 0 · 44 kalibrasyon · 41 mimar hatası → 41 anayasa maddesi**  
+**— Tedbirge Mimari Anayasası v1.22.24**  
+**Toplam 93 TUR · 339+ atom sapma 0 · 45 kalibrasyon · 41 mimar hatası → 41 anayasa maddesi**  
 **Tüm sürüm geçmişi + TUR detayları + atom kayıtları: `tedbirge-os/MIMARI_KARARLAR.md`**
 
 **Versiyon geçmişi: tedbirge-os/MIMARI_KARARLAR.md**  
