@@ -3359,7 +3359,9 @@ Mehmet Bey sahaya çıkabilsin diye bu disiplin var.
 ---
 
 **— Tedbirge Mimari Anayasası v1.22.27**  
-**Toplam 96 TUR · 359+ atom sapma 0 · 48 kalibrasyon · 42 mimar hatası → 43 anayasa maddesi**  
+**Toplam 97 TUR · 359+ atom sapma 0 · 48 kalibrasyon · 42 mimar hatası → 43 anayasa maddesi**  
+**Aktif Kesit:** TUR #97 KAPALI (AccidentCase Tanı Raporu — sadece keşif) · **Devir:** TUR #97.5 ✅  
+**Yarın Planı:** TUR #98 (Kaza Rekonstrüksiyonu) + TUR #99 (RBAC) + TUR #100 (4 Rol İş Akışı) — Tedbirge.ai 2.0  
 **Tüm sürüm geçmişi + TUR detayları + atom kayıtları: `tedbirge-os/MIMARI_KARARLAR.md`**
 
 **Versiyon geçmişi: tedbirge-os/MIMARI_KARARLAR.md**  

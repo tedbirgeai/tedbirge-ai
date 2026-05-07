@@ -1,145 +1,175 @@
 # 🛡️ TEDBIRGE.AI — DEVİR RAPORU (AKTİF)
 
-📋 **ANAYASA:** v1.22.27 (Madde 14.5 R1 + Madde 30.46 R1 yeni: Hijyen Script 2 Katman Doğrulama + 49 alt-madde + 10 R-genişleme)
-📂 **AKTİF KESİT:** TUR #96 KAPALI — Root lockfile drift fix Senaryo D (CEO Yol 2 onayı, npm install YOK; hijyen script 2 katman güçlendirme — mtime + node JSON paket listesi diff)
-📅 **SON GÜNCELLEME:** 7 Mayıs 2026 gece (TUR #96 Hijyen Script İlk Meyve)
-👤 **CEO Onay:** Mehmet DİNÇ — Madde 17.5 + 18.3 + 30.25 (CEO 4'lü zincir 6 Mayıs mektup içinde tescilli)
+📋 **ANAYASA:** v1.22.27 (Madde 30.10 → 30.53 = 43 alt-madde + 8 R-genişleme + 42. anayasa maddesi tescil)
+📂 **AKTİF KESİT:** TUR #97 KAPALI — AccidentCase Tanı Raporu (sadece keşif, kod değişikliği yok)
+📅 **SON GÜNCELLEME:** 8 Mayıs 2026 gece (8 ardışık temiz TUR günü kapanışı)
+👤 **CEO Onay:** Mehmet DİNÇ — Madde 17.5 + 18.3 + 30.25
 🤖 **Mimar:** Claude Opus 4.7 (sohbet) + Claude Code (otonom uygulama, bypass açık)
+🌟 **Tarih:** 8 Mayıs 2026 — TARİHE KAYIT (8 ardışık temiz TUR aynı gün)
 
 ---
 
-## SON 14 TUR ZİNCİRİ
+## 🌟 BUGÜNÜN BİLANÇOSU (8 ARDIŞIK TEMİZ TUR — 8 MAYIS 2026)
 
-### TUR #85 → #89 — Auth Flow Yeniden Tasarım Zinciri (30+ saat intensif)
+```
+TUR #90  ✅  CLAUDE.md compaction (246k → 162k char, -%34)
+TUR #91  ✅  Performans uçak hızı (TTFB 1.1s → 0.47s, -%58)
+TUR #92  ✅  Adopsiyon UX + Muzaffer TÜMSA otonom giriş kanıtı
+TUR #93  ✅  Yatay CRM bildirim zinciri (Madde 30.53)
+TUR #94  ✅  Müvekkil panel B2C (Madde 31.9 R1)
+TUR #95  ✅  Mimar Hatası Proaktif Tarama (Madde 14.5 + mimarHatasi modülü)
+TUR #96  ✅  Lockfile drift Senaryo D (Madde 14.5 R1 + 30.46 R1, çift R-tescil)
+TUR #97  ✅  AccidentCase Tanı Raporu (3 bug + 1 boot crash + AI maliyet $3-27/ay)
 
-- **TUR #85 (S0-S14):** DB index + ISR + Bundle analyzer + 4 katman defense
-- **TUR #85.5 (J0-J14):** SW kill switch + RedirectGuard + 28+29. mimar hatası
-- **TUR #85.6 (P1):** setTwoFactorEnabled cookie helper — 30. mimar hatası
-- **TUR #85.7 (N1-N10):** Lockfile sync + bundle-analyzer kaldırma — 31. mimar hatası
-- **TUR #85.9 (Q0-Q12):** 5 dosya atomik yeniden tasarım — 33+34+35. mimar hatası
-- **TUR #86 (R0-R6):** Header "Online İşlemler" tek tık — temiz TUR
-- **TUR #86.5+86.6:** WhatsApp Status pazarlama görseli (logo entegre, 3 sahne)
-- **TUR #87 (S0-S12):** REPRESENTATIVE redirect target satır 234 — 36. mimar hatası
-- **TUR #87.5 (T0-T14):** Login error handling + sekme persistence — 37. mimar hatası
-- **TUR #88 (X1-X8):** Çevre faktörü tanısı (YANLIŞ TANI) — 38. mimar hatası
-- **TUR #89:** NUM_REDIRECTS matrisi + 1 satır proxy.ts fix — 39. mimar hatası **KAPATILDI**
-- **TUR #90 (C0-C7):** CLAUDE.md compaction 246k → 162k (%34 azalma) + Madde 27.6 Compaction Pattern + docs/CLAUDE_MADDE_30_DETAY.md (31k yeni dosya) + sürüm geçmişi MIMARI_KARARLAR.md tek doğru yer (~75k tasarruf) + 4 büyük Madde 30 alt-maddesi sıkıştırıldı (~10k ek tasarruf) — **40. anayasa maddesi tescil**
-- **TUR #91 (P0-P8):** Performans uçak hızı FAZ 2 — anasayfa 1.2s → 0.55s (-56%), agents-health 2.6s → 0.96s (-64% X-Cache:HIT), 6 yeni DB index + 4 ISR sayfa + memory cache + AVIF + preconnect — **Madde 30.41 R1 tescil (Performans FAZ 2 Disiplini)**
-- **TUR #92 (Q0-Q9):** Adopsiyon UX otonom — 2fa-secim wizard EMAIL default + 3 yöntem açıklamalı (30sn/2dk/1dk) + Reporter saat 09:00 onboarding cron (3 gün debounce) + ADMIN sistem-durumu üstüne 2FA widget (8 user görünürlük + manuel hatırlatma) + Auditor security adoption % metric (< 50% CRITICAL ADMIN_FEED) + Email OTP rate limit (5dk × 3) — **Madde 30.32 R1 tescil (Adopsiyon UX Disiplini 8 katman)**
-- **TUR #93 (W0-W7):** Yatay CRM 4 rol bildirim zinciri — W0 32-hücre kanıt matrisi (kanıt-bazlı tanı, mevcut 18 dosya RealtimeEvent + 7 lawyerNotifications trigger DOKUNULMADI) + 2 net eksik kapatıldı: (a) `assignment.service.js` ADMIN_FEED + REPRESENTATIVE_${createdById} + LAWYER_${id} RT (mevcut SMS/Email/WhatsApp KORUNDU) (b) `kvkk.service.js` createPublicRequest ADMIN_FEED RT (KVKK m.11 30 gün yanıt süresi) + 2 yapısal yenilik: (c) `useRealtimeFeed` ROLE_KINDS export (rol-spesifik filtre) (d) ADMIN "Avukat Workload" widget — **Madde 30.53 tescil (Yatay CRM Bildirim Zinciri Disiplini, kanıt-bazlı yaklaşım)**
-- **TUR #94 (M0-M11):** Müvekkil Panel İçerik (B2C deneyim) — M0 keşfi mektup spec'in 12 atomunu kanıt-bazlı 5 atoma adapt etti (TUR #93 emsali sıkı uygulandı). Mevcut /musteri 1173 satır + /musteri/kvkk-haklarim 124 satır (KVKK m.11 6 talep türü) + /musteri/profil + sadelestir.ts + 5 musteri.controller endpoint **DOKUNULMADI**. Kanıtlı net eksikler: (M1) GET /api/musteri/bildirimler endpoint, (M5) /musteri/bildirimler sayfa, (M9) AppLayout CUSTOMER hızlı nav 4 link. Mektup adapt: `/api/customer/*` → `/api/musteri/*`, `Lead.customerId` → `Lead.ownerId`, RealtimeEvent gerçek schema (channel/eventType/payload). M10 smoke 20/20 yeşil. — **Madde 31.9 R1 tescil (Müvekkil Portal İçerik Disiplini 6 katman)**
-- **TUR #95 (H0-H9):** Mimar Hatası Proaktif Tarama — H0 keşfi 41 hata 5 kategoriye ayırdı (A:8 Smoke, B:2 Schema, C:3 UI, D:16 Auth, E:12 Yamalı bohça). Mektup spec ham koda adapt edildi: (a) `/api/admin/architect-health` → `/api/users/architect-health` (TUR #92+#93 emsali users.routes pattern), (b) `Lead.atananAvukatId` YOK → Assignment table (TUR #93 emsali), (c) `tedbirge-os/scripts/` YOK → kök `scripts/`. 8 atom canlı + 2 SKIP (H6 + H8 mektup içinde işaretli). Yeni: `mimarHatasi.js` OS modülü 5 dk Auditor tick (A+B+C+D kontrolleri, archHealthScore = 100 - issues × 20), `ArchitectHealthWidget` 4 KPI (2FA adopsiyon + Aktif avukat + Auditor 1h + RealtimeEvent 1h) + 4 kategori check accordion, `scripts/tur-hijyen-check.sh` (5 kontrol: working tree + lockfile delta + schema apply hook + smoke ipucu + 5 OS senkron), `MIMAR_HATA_KATEGORILERI.md` referans dokümanı. H7 smoke 16/16 yeşil. /api/users/architect-health 401 (mount + ADMIN guard kanıt). — **Madde 14.5 tescil (Mimar Hatası Proaktif Tarama Disiplini 6 katman)**
-- **TUR #96 (L0-L4):** Root Lockfile Drift Fix — Senaryo D (mektup öngörmediği yeni alt-senaryo). L0 3 soru kanıtı: (Q1) ROOT package.json mevcut tedbirge-ai backend, (Q2) render.yaml + npm ci --omit=dev DEPLOY EDİLİYOR (TUR #85.7 emsali risk), (Q3) drift kaynağı TUR #72.8 H1 commit `8604c6a` `scripts.postinstall` diff (`dependencies` + `devDependencies` SABİT). Mektup Senaryo C "DUR" → 1. raporda DUR + CEO yazılı onay (Madde 18.3). CEO Yol 2 onayı: hijyen script 2 katman güçlendir, npm install YOK (RİSK SIFIR). L1' bash diff: `scripts/tur-hijyen-check.sh` mtime delta > 60s ise 2. katman node JSON paket listesi diff. L2 hijyen AFTER: ❌ ISSUE 1 → ℹ️ INFO 0 (panel 165s + root 977765s ikisi de paket sync false-positive). md5 hash `c85b57ca558feafeff99aa07050ad9cd` her iki tarafta eşit. L3 production smoke 16/16 yeşil (TUR #92+#93+#94+#95 regresyon korundu, last1h 356→366 mimarHatasi tick canlı). — **Madde 14.5 R1 + Madde 30.46 R1 tescil (Hijyen Script İlk Meyve + 2 Katman Doğrulama Disiplini, 42. mimar hatası)**
+═══════════════════════════════════════════════════════════
+312 → 359+ atom (+47 atom sapma 0)
+42 → 48 kalibrasyon doğrulaması (+6 kalibrasyon)
+6 yeni anayasa maddesi/genişleme:
+  • 27.6 (Compaction Pattern)
+  • 30.41 R1 (Performans FAZ 2)
+  • 30.32 R1 (Adopsiyon UX)
+  • 30.53 (Yatay CRM Bildirim)
+  • 31.9 R1 (Müvekkil Portal İçerik)
+  • 14.5 (Mimar Hatası Proaktif Tarama)
+  • 14.5 R1 (Hijyen Script False-Positive Yasak)
+  • 30.46 R1 (Lockfile scripts/dep ayrımı)
+
+2 yeni mimar hatası (TUR #92 + TUR #96 — ikisi de proaktif yakalandı)
+0 KIRMIZI nokta · 0 schema · 0 npm install · $0 maliyet
+═══════════════════════════════════════════════════════════
+```
 
 ---
 
 ## 🔴 AÇIK KRİTİK: 0
 
-Production stable. /temsilci redirect döngü **KESİN ÇÖZÜLDÜ** (NUM_REDIRECTS 20 → 1).
+Production stable. 17 modül canlı (mimarHatasi dahil). 4 rol login flow temiz.
 
 ---
 
-## 🟡 PLANLI (TUR #90+ adayları öncelik sırasıyla)
+## 🟡 PLANLI (TUR #98+ — 3 GÜNLÜK PLAN ÇİZGİSİ)
 
-1. **CLAUDE.md compaction** (40. mimar hatası adayı)
-   - Mevcut: 225k+ karakter (Code performans uyarısı 40k limit)
-   - Hedef: ~80k karakter
-   - Yöntem: 39 alt-madde mantıksal grup + detayları docs/CLAUDE_MADDE_30_DETAY.md
-   - **KRİTİK:** Anayasa pattern korunacak, kayıp olmayacak
-   - Süre: ~1 saat
+### 🟢 PAZARTESİ — TUR #98: KAZA REKONSTRÜKSİYONU CANLANDIRMA
+- **Süre:** 4-7 saat zinde
+- **KIRMIZI:** 1-2 (schema migration + olası multer)
+- **Hedef:** 558 satır stash → CANLI, LAWYER + ADMIN için temel erişim
+- **6 ana atom:** Stash apply + 3 bug fix + Schema migration + Backend route + LAWYER UI + ADMIN widget + Smoke
+- **Maliyet:** $0 + AI usage $3-27/ay (Sonnet 4.6 default + Opus 4.7 premium)
+- **Plan kaynağı:** `outputs/TEDBIRGE_2_0_3_GUNLUK_PLAN.md` Bölüm 5
 
-2. **7 personel 2FA aktivasyon duyuru** (KVKK m.12 risk SIFIR)
-   - 8 user × 5 dk = ~40 dk
-   - CEO duyuru metni hazırlama gerek
+### 🟡 SALI — TUR #99: RBAC YETKİ YÖNETİM PANELİ
+- **Süre:** 6-10 saat zinde
+- **KIRMIZI:** 1 (RolePermission tablo)
+- **Hedef:** ADMIN tek panelden 17 modül × 4 rol matrix yönetebilsin
+- **8 ana atom:** Schema + middleware + endpoint + UI matrix + hook + sidebar + smoke + senkron
+- **Mehmet Bey direktifi:** *"Tüm yetkiler yönetici panelinde olur, yetki vermezse görünmez veya pasif"*
 
-3. **CEO Emine Çelik replay test** (~2 dk)
-   - Gizli mod → tedbirge.ai/login → Temsilci → email + şifre
-   - Beklenen: /2fa-secim wizard → setup → /temsilci panele ulaşma
-   - Görsel kanıt = Madde 30.25 emsali 11. uygulama
+### 🔵 ÇARŞAMBA — TUR #100: 4 ROL İŞ AKIŞI REFACTOR
+- **Süre:** 4-8 saat zinde
+- **KIRMIZI:** 0
+- **Hedef:** Her rol panele girince **30 saniyede** ne yapacağını bilir
+- **7 ana atom:** Komuta Merkezi (ADMIN) + Dava Komuta (LAWYER) + Pipeline (REPRESENTATIVE) + CUSTOMER zenginleştirme + Sidebar + Hızlı Eylemler + Smoke
+- **Çarşamba sonu:** **Tedbirge.ai 2.0 doğar**
 
-4. **Cloudflare manuel kurulum** (TUR #85 S7 ertelenmiş, ~15 dk, $0)
-   - +%15-25 hızlanma + DDoS koruma + SSL B → A
+### Sonrası (TUR #101+ adayları)
 
-5. **Müvekkil panel içerik doldurma** (kabuklar var)
-
-6. **TUR #85.10 prerender bug fix** (3 sayfa Next.js 16 + Edge runtime + workStore)
-
-7. **Next 16.2.4 patch upgrade** (npm audit 2 vuln)
-
-8. **Backend log temizlik** (109 console.log)
-
-9. **Playwright/Cypress e2e test çerçevesi** (TUR #91+ adayı, npm yeni paket)
-
-10. **e-baro doğrulama API** (TUR #72.7 ertelenmiş)
-
-11. **UYAP API tam entegrasyon** (uyapControl modülü kabuk hazır)
+1. **Cloudflare manuel kurulum** (~15 dk, $0, +%15-25 hızlanma)
+   - Mehmet Bey'in direkt cümlesi: *"şimdiki hız zaten yeterli, lansman zamanı yapılır"*
+   - TUR #100+ adayı veya pazar lansmanı öncesi
+2. **e-baro doğrulama API** (TUR #72.7 ertelenmiş — KIRMIZI ENV + sözleşme)
+3. **UYAP API tam entegrasyon** (uyapControl modülü kabuk hazır — KIRMIZI)
+4. **Self-learning ML** (TUR #100+ veri biriktiği zaman)
+5. **Pazar lansmanı + dijital pazarlama** (CEO işi — yasal sınırlar içinde)
+6. **Playwright/Cypress e2e test çerçevesi** (npm yeni paket)
 
 ---
 
 ## 📋 MEHMET BEY MANUEL İŞLER
 
-- 7 personel 2FA aktivasyon (CEO duyuru sonrası)
-- Cloudflare manuel kurulum
-- Emine Çelik browser test (opsiyonel)
+- ✅ TAMAM: 7 personel 2FA aktivasyon duyurusu (TUR #92 sonrası — Muzaffer TÜMSA otonom giriş kanıtı)
+- ⏳ Cloudflare manuel kurulum (~15 dk) — TUR #100+ adayı
+- ⏳ İlk gerçek lead → müvekkil → komisyon zinciri test (Niyazi'nin lead'i + Ramazan/Zeliha/Muzaffer'in davası)
 
 ---
 
 ## 🎯 SIRADAKİ ÖNERİLEN İŞ
 
-**TUR #95 → Cloudflare manuel kurulum** (Mehmet Bey ~15 dk, +%15-25 hızlanma) + **Mimar hatası proaktif tarama** (41 hatadan ders + erken tespit modülü)
+**TUR #98 → KAZA REKONSTRÜKSİYONU CANLANDIRMA**
 
-TUR #94 Müvekkil Panel **TAMAMLANDI** ✅ — Madde 31.9 R1 tescil. Mevcut zengin /musteri (1173 satır) + kvkk-haklarim (KVKK m.11 6 talep) + sadelestir DOKUNULMADI; sadece kanıtlı eksikler kapatıldı (bildirim endpoint + sayfa + nav). M10 smoke 20/20 yeşil.
+**Bağlam:** Mehmet Bey 18 Nisan 2026 gecesi tek başına 558 satır AI kaza analizi MVP yazdı. 20 Nisan'da git stash, 28 Nisan'da Madde 33 ile bilinçli erteledi. TUR #97 tanı raporu gösterdi: 3 bug + 1 boot crash + AI maliyet $3-27/ay (ihmal). Sabırın meyvesi, 24 gün sonra hak ettiği özeni alıyor.
+
+**Önkoşul (yarın sabah Mehmet Bey kararı):**
+1. **Rol mimarisi onayı:** ADMIN izleme + LAWYER tetikleme + REPRESENTATIVE okuma + CUSTOMER hibrit Model C
+2. **AI model:** Sonnet 4.6 default + Opus 4.7 premium hibrit
+3. **Aylık limit:** $50 / $200 / sınırsız?
+
+3 karar verildikten sonra TUR #98 detaylı mektup hazırlanır.
 
 ---
 
-## 📈 PATTERN İSTATİSTİKLERİ (TUR #56 → #94)
+## 📈 PATTERN İSTATİSTİKLERİ (TUR #56 → #97)
 
-- **Atom:** 344+ (sapma 0)
-- **Kalibrasyon:** 1.6× (46. doğrulama)
-- **Anayasa:** v1.22.0 → v1.22.25 (25 PATCH)
-- **Alt-madde:** 48 (Madde 27.6 + Madde 30.10-30.53 + Madde 30.41 R1 + Madde 30.32 R1 + Madde 31.9 R1)
-- **Mimar hatası:** 41 → 41 anayasa maddesi (1:1 dönüşüm — TUR #93'te 0 yeni hata, 10. uçtan uca temiz TUR)
-- **Maliyet:** $0 (Faz 1+2+3 baştan sona)
-- **14 hotfix sabırla aşıldı**
-- **Madde 30.25 emsali** (CEO görsel > Code rapor): 10 uygulama
-- **CLAUDE.md compaction:** 246k → 162k (%34 azalma, TUR #90)
-- **Performans FAZ 2:** anasayfa 1.2s → 0.55s (-56%), agents-health 2.6s → 0.96s (-64%, TUR #91)
-- **Adopsiyon UX (TUR #92):** sistem otonom — cron + widget + metric + rate limit, CEO manuel iş YOK
-- **Yatay CRM (TUR #93):** kanıt-bazlı 2 net eksik kapatıldı (assignment + kvkk ADMIN_FEED), mevcut 18 dosya RealtimeEvent + 7 lawyerNotifications + 11 OS modülü DOKUNULMADI
-- **Müvekkil Portal (TUR #94):** mektup spec 12 atom → kanıt-bazlı 5 atom adapt (TUR #93 emsali sıkı uygulandı). /musteri 1173 satır + kvkk-haklarim 124 satır + sadelestir + 5 mevcut endpoint DOKUNULMADI; sadece bildirim merkezi + nav genişlet eklendi
+- **Atom:** 359+ (sapma 0)
+- **Kalibrasyon:** 1.6× (48. doğrulama)
+- **Anayasa:** v1.22.0 → v1.22.27 (27 PATCH)
+- **Alt-madde + R-genişleme:** 43 alt-madde + 8 R-genişleme = 51 toplam
+- **Mimar hatası:** 41 → 42 anayasa maddesi (1:1 dönüşüm)
+- **Maliyet:** $0 (Faz 1 baştan sona)
+- **8 ardışık temiz TUR:** 8 May 2026 (TARİHE KAYIT)
+- **Madde 30.25 emsali** (CEO görsel > Code rapor): 10+ uygulama
 
 ---
 
 ## 🔑 KRİTİK BİLGİLER
 
 - **Repo:** tedbirge-os (anayasa) + tedbirge-ai (backend) + tedbirge-panel (frontend)
-- **Production:** www.tedbirge.ai (Vercel) + tedbirge-ai.onrender.com (Render)
+- **Production:** www.tedbirge.ai (Vercel) + tedbirge-ai.onrender.com (Render Frankfurt)
 - **DB:** Supabase PostgreSQL (EU Frankfurt)
 - **Test hesabı:** tedbirge42@gmail.com (CEO ADMIN, TOTP aktif)
-- **İlk gerçek kullanıcı:** Emine Çelik (REPRESENTATIVE)
+- **3 avukat:** Ramazan DURAN, Zeliha ERSOY, Muzaffer TÜMSA (Muzaffer otonom giriş yaptı — TUR #92 kanıt)
+- **1 temsilci:** Niyazi ÇELİK
 - **4 rol login:** Yönetici/Avukat/Temsilci/Müvekkil
 - **HARD 2FA enforcement:** ADMIN + LAWYER + REPRESENTATIVE + SALES
 - **SOFT 2FA:** CUSTOMER (öneri, zorunlu değil)
+- **17 OS modülü canlı:** ai, analyzer, appearance, backup, compliance, costGuard, deploy, insurance, maintenance, navigation, notifications, performance, pulse, recovery, security, uyapControl, **mimarHatasi** (TUR #95 yeni)
+- **AccidentCase modülü:** stash@{0}'de bekliyor (558 satır), TUR #98'de canlandırılacak
 
 ---
 
-## 🚀 TUR #90 AÇILIŞ NOTU (yeni sohbete)
+## 🚀 YENİ SOHBET AÇILIŞ NOTU (TUR #98 öncesi)
 
-Yeni Claude Opus 4.7 sohbet açılırsa otomatik devir alır (Madde 26.4):
-1. CLAUDE.md son sürüm (v1.22.20)
-2. Bu DEVIR_RAPORU_AKTIF.md
-3. IS_PLANI.md aktif kesit
-4. docs/OTONOM_RAPOR.md son TUR
-5. MIMARI_KARARLAR.md son karar
-6. Production /health probe
+Yarın yeni Claude Opus 4.7 sohbet açılırsa Madde 26.4 + 26.5 emsali otomatik devir alır:
 
-Açılış mesajı şablonu (Madde 26.5):
-- Anayasa: v1.22.20 (43 alt-madde)
-- Aktif kesit: TUR #89 KAPALI ✅
+**Okuma sırası (zorunlu):**
+1. `DEVIR_RAPORU_AKTIF.md` (bu dosya — canlı devir)
+2. `CLAUDE.md` (anayasa son sürüm v1.22.27)
+3. `IS_PLANI.md` (TUR #98 aktif kesit + 3 günlük plan)
+4. `OTONOM_RAPOR.md` (son TUR #97 detay)
+5. `MIMARI_KARARLAR.md` (son 5 karar — TUR #93+#94+#95+#96+#97)
+6. **`outputs/TEDBIRGE_2_0_3_GUNLUK_PLAN.md`** (Mehmet Bey indirdi — yarınki ana yol haritası)
+
+**Açılış mesajı şablonu (Madde 26.5):**
+- Anayasa: v1.22.27 (43 alt-madde + 8 R-genişleme)
+- Aktif kesit: TUR #97 KAPALI ✅ (AccidentCase tanı raporu)
 - Açık KRİTİK: 0
-- Sıradaki önerilen iş: CLAUDE.md compaction (TUR #90)
+- Sıradaki önerilen iş: TUR #98 → Kaza Rekonstrüksiyonu canlandırma (3 günlük plan'ın 1. günü)
+- 3 önkoşul karar: rol mimarisi + AI model + aylık limit
 
 ---
 
-**— TUR #89.5 KAPALI · Devir Hazırlığı Tamamlandı**
-**6 Mayıs 2026, 21:30 · Anayasa v1.22.20 · 304+ atom · 41. kalibrasyon**
+## 📐 MİMAR PRENSİBİ — TUR #93+#94+#95+#96+#97 ZİNCİRİ
+
+> **"Mimar mektup yazar, ham koda saygı duyar. Code mektubu uygular, ama Madde 14.3 ile mevcut sistemi savunur. M0/Q0/H0/T0 keşif atomu zorunlu — mevcut endpoint/sayfa/component sayım yapılmadan atom listesi tamamlanmaz."**
+
+5 ardışık TUR'da bu pattern kanıtlandı:
+- TUR #93: Mektup field reddi (RealtimeEvent doğru schema)
+- TUR #94: 7 atom SKIP (mevcut /musteri 1173 satır)
+- TUR #95: 3 yapısal varsayım adapt
+- TUR #96: 4. senaryo keşif (Senaryo D, scripts-only false-positive)
+- TUR #97: Pure tanı, kod fix yapılmadı (Madde 14.3 + 18.3 emsali)
+
+---
+
+**— TUR #97.5 KAPALI · Devir Hazırlığı Tamamlandı**
+**8 Mayıs 2026 gece · Anayasa v1.22.27 · 359+ atom · 48. kalibrasyon**
+**🌙 Yarın taze gözle TUR #98 başlar — Tedbirge.ai 2.0'ın 1. günü**

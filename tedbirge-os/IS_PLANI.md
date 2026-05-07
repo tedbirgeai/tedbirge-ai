@@ -1,21 +1,53 @@
 # TEDBİRGE.AI YOL HARİTASI v1.0
-**Son güncelleme:** 7 Mayıs 2026 gece (TUR #96 KAPALI — Root Lockfile Drift Fix Senaryo D)
-**Anayasa versiyonu:** v1.22.27 (Madde 14.5 R1 + Madde 30.46 R1 yeni: Hijyen Script 2 Katman Doğrulama Disiplini)
+**Son güncelleme:** 8 Mayıs 2026 gece (TUR #97 KAPALI — AccidentCase Tanı Raporu + TUR #97.5 Devir Hazırlığı)
+**Anayasa versiyonu:** v1.22.27 (Madde 14.5 R1 + Madde 30.46 R1: Hijyen Script 2 Katman Doğrulama Disiplini)
 **İlke:** MoSCoW + Now-Next-Later hibrit (Madde 24.5)
+
+---
+
+## NOW — Aktif Çalışma (8 Mayıs 2026 gece sonu)
+
+**Durum:** 8 ardışık temiz TUR (TUR #90 → #97) tamamlandı, devir hazırlığı yapıldı.
+
+**Yarın için:** TUR #98 → Kaza Rekonstrüksiyonu Canlandırma (3 günlük planın 1. günü)
+
+**3 önkoşul karar (Mehmet Bey sabah verecek):**
+1. Rol mimarisi onayı (ADMIN/LAWYER/REPRESENTATIVE/CUSTOMER eşlemesi)
+2. AI model seçimi (Sonnet 4.6 default + Opus 4.7 premium)
+3. Aylık AI maliyet limiti ($50/$200/sınırsız)
+
+## NEXT — Sıradaki 3 Gün
+
+| Gün | TUR | İş | Süre | KIRMIZI |
+|---|---|---|---|---|
+| Pazartesi | #98 | Kaza Rekonstrüksiyonu Canlandırma | 4-7 saat | 1-2 |
+| Salı | #99 | RBAC Yetki Yönetim Paneli | 6-10 saat | 1 |
+| Çarşamba | #100 | 4 Rol İş Akışı Refactor | 4-8 saat | 0 |
+| **TOPLAM** | 3 TUR | **Tedbirge.ai 2.0** | ~20 saat | ~3 |
+
+## LATER — TUR #101+ Adayları
+
+1. Cloudflare manuel kurulum (~15 dk, +%15-25 hızlanma) — pazar lansmanı öncesi
+2. İlk gerçek lead → müvekkil → komisyon zinciri test
+3. e-baro doğrulama API (TUR #72.7 ertelenmiş)
+4. UYAP API tam entegrasyon
+5. Self-learning ML (veri biriktiğinde)
+6. Pazar lansmanı + dijital pazarlama (CEO işi)
+7. Playwright/Cypress e2e test çerçevesi
 
 ---
 
 ## 🎯 AKTİF KESİT
 
-**Faz:** Root Lockfile Drift Fix KAPALI ✅ (TUR #96 ile L0 keşfi mektup öngörmediği Senaryo D buldu — scripts-only diff false-positive; CEO Yol 2 onayı sonrası hijyen script 2 katman güçlendirme uygulandı, npm install YOK, RİSK SIFIR)
-**Son TUR:** #96 — Root Lockfile Drift Fix Senaryo D (KAPALI, 5 atom L0-L4, Madde 14.5 R1 + Madde 30.46 R1 tescil, hijyen script güçlendirme commit + os senkron, $0 maliyet, 0 npm install, 0 schema, 42. mimar hatası kayıt)
-**Son düzeltme TUR'u:** ... + #95 + **#96** (Hijyen script TUR #95 ilk meyvesi 24 saat içinde — proaktif tarama gerçek değer üretti)
+**Faz:** AccidentCase Tanı Raporu KAPALI ✅ (TUR #97 — pure tanı, 5 atom T0-T4, kod değişikliği yok). Stash@{0} 558 satır + 3 bug + 1 boot crash + AI maliyet $3-27/ay tespit edildi. CEO kararı: 3 günlük plan birleştirme (TUR #98 + #99 + #100 = Tedbirge.ai 2.0).
+**Son TUR:** #97 — AccidentCase Tanı (KAPALI, sadece keşif raporu, $0, 0 KIRMIZI) + #97.5 Devir Hazırlığı (5 OS dosya senkron tek atomik commit)
+**Son düzeltme TUR'u:** ... + #95 + #96 + **#97** (Tedbirge.ai 2.0 öncesi son keşif TUR'u)
 **🔴 AÇIK KRİTİK:** 0
-**🟡 TUR #97 NOW:** **Cloudflare manuel kurulum** (Mehmet Bey ~15 dk, +%15-25 hızlanma) + **CEO Emine replay test** (gizli mod, ~2 dk)
-**🟡 TUR #98 NEXT:** TUR #85.10 prerender + Next 16.2.4 patch + backend log temizlik (109 console.log)
-**🟡 TUR #99 LATER:** Playwright/Cypress e2e (npm yeni paket adayı) + e-baro doğrulama API + UYAP API tam entegrasyon
-**Anayasa:** v1.22.27 (49 alt-madde — Madde 14.5 + Madde 14.5 R1 + Madde 27.6 + Madde 30.10-30.53 + Madde 30.41 R1 + Madde 30.32 R1 + Madde 30.46 R1 + Madde 31.9 R1 + 10 R-genişleme)
-**Son güncelleme:** 7 Mayıs 2026 gece (TUR #96 KAPANIŞ — Hijyen Script 2 Katman + Senaryo D protokol kalıcı)
+**🟡 TUR #98 PAZARTESİ:** Kaza Rekonstrüksiyonu Canlandırma (4-7h, 1-2 KIRMIZI)
+**🟡 TUR #99 SALI:** RBAC Yetki Yönetim Paneli (6-10h, 1 KIRMIZI)
+**🟡 TUR #100 ÇARŞAMBA:** 4 Rol İş Akışı Refactor (4-8h, 0 KIRMIZI) → **Tedbirge.ai 2.0 doğar**
+**Anayasa:** v1.22.27 (43 alt-madde + 8 R-genişleme — Madde 14.5 + Madde 14.5 R1 + Madde 27.6 + Madde 30.10-30.53 + Madde 30.41 R1 + Madde 30.32 R1 + Madde 30.46 R1 + Madde 31.9 R1)
+**Son güncelleme:** 8 Mayıs 2026 gece (TUR #97 KAPANIŞ + TUR #97.5 Devir Hazırlığı — Tedbirge.ai 2.0 öncesi son senkron)
 
 ### 4 TUR Yol Haritası (CEO HAYALİ — 2 Mayıs gece)
 

@@ -1,3 +1,85 @@
+# OTONOM RAPOR — TUR #97.5 (DEVİR HAZIRLIĞI)
+
+## TUR #97 — AccidentCase 401/500 Bug Tanı (8 Mayıs 2026 gece)
+
+**Tip:** Pure tanı, kod değişikliği YOK (Madde 14.3 + 18.3 + TUR #88 emsali)
+**Süre:** ~30 dk
+**Atom:** 5 (T0-T4)
+**Commit:** Yok (sadece keşif raporu mimara döndü)
+
+### T0 — Stash İçeriği (kanıtlı)
+- Stash 3 alt-commit: `b2de224` (tracked) + `2406d0a` (index) + `09d5296` (untracked, 558 satır)
+- **5 controller fonksiyonu** (`accidentCase.controller.js`, 298 satır): createCase, uploadEvidences, getCase, analyzeCase, getReport
+- **4 endpoint route** + 1 lead.routes.js mount (`POST /api/leads/:id/accident-cases`)
+- **AI servis** (`kazaRekonstruksiyon.service.js`, 117 satır): claude-sonnet-4-6, max_tokens 3000, **Vision YOK** (sadece evidence metadata)
+- Auth pattern: `auth + role("ADMIN", "SALES", "LAWYER")` + LAWYER manuel assignment kontrolü
+
+### T1 — Bug Tanı (3 katman + 1 boot crash) — KANITLI
+1. **Bug-1 (KRİTİK 500):** `AssignmentStatus.REVOKED` enum'da YOK — controller `status: { not: "REVOKED" }` filter Prisma runtime hatası → 500. Master enum: `ACTIVE/COMPLETED/CANCELLED`.
+2. **Bug-2 (KRİTİK 500):** `src/middlewares/uploadMiddleware.js` YOK — stash route `require("../middlewares/uploadMiddleware")` boot crash → `Cannot find module`.
+3. **Bug-3 (KRİTİK 401):** 18 Nisan 2026 auth flow regresyonu (CHANGELOG kanıt: *"Panel Yeni Vaka Aç butonu 401"*). TUR #85.5+#85.6+#85.9 öncesi yazılmış. **Bugün Madde 30.45 cookie senkron canlı → büyük ihtimalle kendiliğinden düzelmiş.**
+
+### T2 — Schema + DB Durumu
+- Schema `// @deferred` (TUR #29-B Madde 33 emsali): ✅ MEVCUT (satır 11, 181)
+- `model AccidentCase` + `model Evidence` + 2 enum: ✅ MEVCUT master
+- `Lead.accidentCases AccidentCase[]` ters relation: ✅ MEVCUT (satır 276)
+- Prisma Client `prisma.accidentCase` + `prisma.evidence` export: ✅ ÇALIŞIYOR
+- Production DB tablo: ❌ YOK (TUR #28 Render Shell PSQL kanıt, TASK_QUEUE bulgusu)
+- `apply-pending-schemas.js` içinde idempotent CREATE TABLE: ❌ YOK
+- Stash schema diff (65 satır) çoğu master'a yansıdı (User.primOrani 50, Lead.hakEdis*, Lead.kdvTutari/masrafTutari) — **çakışma riski DÜŞÜK**
+
+### T3 — AI Maliyet (kanıt-bazlı)
+- Model: `claude-sonnet-4-6`
+- max_tokens: 3000 (output), Vision YOK
+- Tipik analiz: ~1300 input + ~1500 output token
+- Pricing 2026: $3/MTok input + $15/MTok output
+- **Maliyet/analiz: ~$0.027 (~3 kuruş)**
+- 100 analiz/ay = $2.70 · 500 = $13.50 · 1000 = $27
+- Mevcut bütçeye **ihmal edilebilir** (bilirkisi.service + ai.service ile aynı seviye)
+
+### T4 — Fix Süresi Tahmini
+- **Best case:** 4-6 saat zinde
+- **Worst case:** 8-11 saat
+- **KIRMIZI nokta:** 3 (schema migration + apply-pending-schemas.js güncelleme + production DB CREATE TABLE) + Madde 18.3 yazılı onay zorunlu
+- **Risk skoru:** ORTA (TUR #72.8 production drift + TUR #94 frontend regresyon)
+
+### KARAR ANI — 3 YOL ÖNERİLDİ
+- **YOL 1 (ŞİMDİ canlandır):** 4-6h best/8-11h worst, 3 KIRMIZI, AI $3-27/ay
+- **YOL 2 (Q3 2026 plana sadık kal):** 0h, 0 KIRMIZI
+- **YOL 3 (alt-kesit ~1.5h):** 0 KIRMIZI, sadece 3 bug fix + uploadMiddleware, schema dokunmaz
+
+### Mimar Prensibi (Madde 14.3 + 18.3 + TUR #88 emsali)
+> "Kanıt yok = dokunma. Sadece tanı, sonra Mehmet Bey karar verir."
+
+**CEO kararı:** YOL 1 yarın taze gözle (3 günlük plan ile birleştirildi — TUR #98 + #99 + #100 = Tedbirge.ai 2.0).
+
+---
+
+## TUR #97.5 — DEVİR HAZIRLIĞI (8 Mayıs gece sonu)
+
+**Tip:** SADECE 5 OS dosya senkron
+**Süre:** ~10 dk
+**Atom:** 1 (5 dosya tek atomik commit)
+**KIRMIZI:** YOK
+
+**Yapılan:**
+- CLAUDE.md footer güncelleme (TUR sayım 96→97 + aktif kesit + yarın planı referansı)
+- DEVIR_RAPORU_AKTIF.md yeniden yazıldı (8 ardışık TUR bilanço + TUR #98 plan)
+- IS_PLANI.md NOW/NEXT/LATER güncellendi (Pzt #98 + Sa #99 + Çar #100)
+- OTONOM_RAPOR.md TUR #97 + #97.5 detay (bu bölüm)
+- MIMARI_KARARLAR.md son 2 TUR ek (TUR #97 + #97.5)
+
+**Mektup adapt notları (Madde 14.3 + TUR #93+#94+#95+#96+#97 emsali):**
+- Mektup spec CLAUDE.md "üst metadata bloğu" varsaydı — gerçek dosya'da yok, footer güncelleme adapt edildi
+- Mektup spec OTONOM_RAPOR T1 kabataslak ("CUSTOMER çağrı eksik?") — gerçek tanı raporu (3 bug + 1 boot crash kanıtı) ile değiştirildi
+
+**Yarın sohbeti için bağlam paketi:**
+- 5 OS dosya senkron ✅
+- `outputs/TEDBIRGE_2_0_3_GUNLUK_PLAN.md` (Mehmet Bey indirdi)
+- `outputs/TUR_98_KAZA_REKONSTRUKSIYONU_PLAN.md`
+
+---
+
 ## TUR #96 — ROOT LOCKFILE DRIFT FIX SENARYO D ✅ KAPALI (CEO Yol 2 onayı + 42. mimar hatası)
 
 **Tarih:** 7 Mayıs 2026 gece (TUR #95 sonrası, hijyen script ilk meyve 24 saat içinde)
