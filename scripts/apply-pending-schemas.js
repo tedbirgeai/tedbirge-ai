@@ -76,6 +76,19 @@ const STATEMENTS = [
   `CREATE INDEX IF NOT EXISTS "ActivityLog_createdAt_idx" ON "ActivityLog"("createdAt" DESC)`,
   `CREATE INDEX IF NOT EXISTS "ActivityLog_leadId_createdAt_idx" ON "ActivityLog"("leadId", "createdAt" DESC)`,
   `CREATE INDEX IF NOT EXISTS "ActivityLog_action_createdAt_idx" ON "ActivityLog"("action", "createdAt" DESC)`,
+
+  // ─── TUR #91 P2 — Performans indexler 2. dalga (Madde 30.41 R1) ──────────
+  // RealtimeEvent: ADMIN_FEED + LAWYER_<id> + scope channel sorgulari + Healer purge
+  `CREATE INDEX IF NOT EXISTS "RealtimeEvent_channel_consumed_createdAt_idx" ON "RealtimeEvent"("channel", "consumed", "createdAt" DESC)`,
+  // Document: analyzer + finalize-upload sorgulari (status filtreli + 24h stuck)
+  `CREATE INDEX IF NOT EXISTS "Document_leadId_status_idx" ON "Document"("leadId", "status")`,
+  `CREATE INDEX IF NOT EXISTS "Document_status_createdAt_idx" ON "Document"("status", "createdAt" DESC)`,
+  // Lead: dashboard sorgu (status + createdAt sirali) + aciliyet filter
+  `CREATE INDEX IF NOT EXISTS "Lead_status_createdAt_idx" ON "Lead"("status", "createdAt" DESC)`,
+  // CommissionLog: temsilci hakedis sorgusu (Healer modülü auto-create için)
+  `CREATE INDEX IF NOT EXISTS "CommissionLog_temsilciId_createdAt_idx" ON "CommissionLog"("temsilciId", "createdAt" DESC)`,
+  // PhoneOtp: cleanup expired OTPs (PhoneOtp purge query)
+  `CREATE INDEX IF NOT EXISTS "PhoneOtp_phone_expiresAt_idx" ON "PhoneOtp"("phone", "expiresAt")`,
 ];
 
 (async () => {

@@ -6,6 +6,7 @@ const auth = require("../middlewares/authMiddleware");
 const role = require("../middlewares/roleMiddleware");
 const prisma = require("../config/db");
 const runner = require("../agents/runner");
+const memoryCache = require("../utils/memoryCache"); // TUR #91 P4 — public read-only cache
 
 // Agent durumlari
 router.get("/agents/status", auth, role("ADMIN"), (req, res) => {
@@ -18,8 +19,15 @@ router.get("/agents/status", auth, role("ADMIN"), (req, res) => {
 
 // TUR #73 — Public agent canlilik kaniti (no auth, hassas veri yok)
 // CEO browser'da direkt erisim: tedbirge-ai.onrender.com/api/os/agents-health
+// TUR #91 P4 — 30 saniye memory cache (Madde 30.41 R1) — public + sadece sayim/durum
 router.get("/agents-health", async (req, res) => {
   try {
+    const cached = memoryCache.get("agents-health");
+    if (cached) {
+      res.set("X-Cache", "HIT");
+      return res.json(cached);
+    }
+    res.set("X-Cache", "MISS");
     const agentStatus = runner.getStatus();
     const oneHourAgo = new Date(Date.now() - 60 * 60 * 1000);
     const oneDayAgo = new Date(Date.now() - 24 * 60 * 60 * 1000);
@@ -67,7 +75,7 @@ router.get("/agents-health", async (req, res) => {
       auditorHealth = "NEVER_RAN";
     }
 
-    res.json({
+    const responseBody = {
       success: true,
       generatedAt: new Date().toISOString(),
       auditorHealth, // HEALTHY | DELAYED | STOPPED | NEVER_RAN | UNKNOWN
@@ -96,7 +104,10 @@ router.get("/agents-health", async (req, res) => {
           }
         : null,
       moduleCounts,
-    });
+    };
+    // TUR #91 P4 — 30 saniye cache (public, hassas veri yok, sayim/durum/timestamp)
+    memoryCache.set("agents-health", responseBody, 30);
+    res.json(responseBody);
   } catch (e) {
     res.status(500).json({ success: false, error: e.message });
   }
