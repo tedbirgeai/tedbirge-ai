@@ -2,6 +2,8 @@
 
 const BaseAgent = require("./base.agent");
 const prisma = require("../config/db");
+// TUR #92 Q4 — Onboarding reminder cron (Madde 30.32 R1)
+const { runOnboardingBatch } = require("../services/onboardingReminder.service");
 
 class ReporterAgent extends BaseAgent {
   constructor() {
@@ -65,6 +67,17 @@ class ReporterAgent extends BaseAgent {
         },
       });
     } catch (e) {}
+
+    // TUR #92 Q4 — 2FA Onboarding hatırlatma batch (Madde 30.32 R1)
+    // 09:00 cron + 3 gün debounce + HARD rol + 7 gün+ stuck user
+    try {
+      const onboardingResult = await runOnboardingBatch();
+      if (onboardingResult.sentCount > 0) {
+        await this.log("ONBOARDING_REMINDER", "INFO", onboardingResult);
+      }
+    } catch (e) {
+      console.error("[Reporter] Onboarding batch error:", e.message);
+    }
 
     this.lastReportDate = today;
   }

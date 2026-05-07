@@ -416,8 +416,11 @@ async function runStatusCheck() {
   let twoFAEnabled = 0;
   let totalUsers = 0;
   let loginFailed24h = 0;
+  // TUR #92 Q7 — HARD rol adopsiyon ölçümü (Madde 30.32 R1)
+  let hard2faTotal = 0;
+  let hard2faEnabled = 0;
   try {
-    [twoFAEnabled, totalUsers, loginFailed24h] = await Promise.all([
+    [twoFAEnabled, totalUsers, loginFailed24h, hard2faTotal, hard2faEnabled] = await Promise.all([
       prismaClient.user.count({ where: { twoFactorEnabled: true } }).catch(() => 0),
       prismaClient.user.count({ where: { isActive: true } }).catch(() => 0),
       prismaClient.activityLog.count({
@@ -429,11 +432,51 @@ async function runStatusCheck() {
           ],
         },
       }).catch(() => 0),
+      prismaClient.user.count({
+        where: {
+          role: { in: ["ADMIN", "LAWYER", "REPRESENTATIVE", "SALES"] },
+          isActive: true,
+          deletedAt: null,
+        },
+      }).catch(() => 0),
+      prismaClient.user.count({
+        where: {
+          role: { in: ["ADMIN", "LAWYER", "REPRESENTATIVE", "SALES"] },
+          isActive: true,
+          deletedAt: null,
+          twoFactorEnabled: true,
+        },
+      }).catch(() => 0),
     ]);
   } catch (_) {}
 
   const twoFAPercent = totalUsers > 0 ? Math.round((twoFAEnabled / totalUsers) * 100) : 0;
-  const severity = loginFailed24h > 50 ? "CRITICAL" : loginFailed24h > 20 ? "WARNING" : "INFO";
+  // TUR #92 Q7 — HARD rol adopsiyon (8 user × KVKK m.12)
+  const adoptionPct = hard2faTotal > 0 ? Math.round((hard2faEnabled / hard2faTotal) * 100) : 100;
+
+  // Severity 2 boyutlu: login failed (mevcut) + adoption (yeni)
+  let severity = loginFailed24h > 50 ? "CRITICAL" : loginFailed24h > 20 ? "WARNING" : "INFO";
+  if (adoptionPct < 50 && severity !== "CRITICAL") severity = "CRITICAL";
+  else if (adoptionPct < 80 && severity === "INFO") severity = "WARNING";
+
+  // TUR #92 Q7 — Adopsiyon < 50% → ADMIN_FEED RealtimeEvent (akış paneli görünür)
+  if (adoptionPct < 50 && hard2faTotal > 0) {
+    try {
+      await prismaClient.realtimeEvent.create({
+        data: {
+          channel: "ADMIN_FEED",
+          eventType: "TWO_FA_ADOPTION_LOW",
+          payload: {
+            message: `🚨 Düşük 2FA adopsiyon: %${adoptionPct} (${hard2faEnabled}/${hard2faTotal}) — KVKK m.12 risk`,
+            adoptionPct,
+            hard2faEnabled,
+            hard2faTotal,
+            severity: "CRITICAL",
+          },
+        },
+      });
+    } catch (_) {}
+  }
 
   try {
     await prismaClient.agentEvent.create({
@@ -446,15 +489,19 @@ async function runStatusCheck() {
           totalUsers,
           twoFAPercent,
           loginFailed24h,
+          // TUR #92 Q7 — adopsiyon metric (HARD rol bazlı)
+          adoptionPct,
+          hard2faEnabled,
+          hard2faTotal,
           durationMs: Date.now() - startTs,
-          message: `Güvenlik · 2FA: ${twoFAEnabled}/${totalUsers} (%${twoFAPercent}) · 24h LOGIN_FAILED: ${loginFailed24h}`,
+          message: `Güvenlik · 2FA HARD: %${adoptionPct} (${hard2faEnabled}/${hard2faTotal}) · Tüm: ${twoFAEnabled}/${totalUsers} · 24h LOGIN_FAILED: ${loginFailed24h}`,
         },
       },
     });
   } catch (e) {
     console.error("[os/security] AgentEvent yazma hata:", e.message);
   }
-  return { ok: severity !== "CRITICAL", twoFAEnabled, totalUsers, loginFailed24h };
+  return { ok: severity !== "CRITICAL", twoFAEnabled, totalUsers, loginFailed24h, adoptionPct };
 }
 
 // ============================================================================

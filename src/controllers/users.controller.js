@@ -365,3 +365,58 @@ exports.softDeleteUser = asyncHandler(async (req, res) => {
     message: "Kullanıcı silindi (soft delete). KVKK m.6 uyarınca 5 yıl saklanır.",
   });
 });
+
+// TUR #92 Q5 — 2FA adoption widget endpoint (Madde 30.32 R1)
+// ADMIN dashboard "Personel 2FA Durumu" — KVKK m.12 izlenebilirlik
+exports.twoFactorAdoption = asyncHandler(async (_req, res) => {
+  const users = await prisma.user.findMany({
+    where: {
+      role: { in: ["ADMIN", "LAWYER", "REPRESENTATIVE", "SALES", "CUSTOMER"] },
+      deletedAt: null,
+    },
+    select: {
+      id: true,
+      email: true,
+      fullName: true,
+      role: true,
+      twoFactorEnabled: true,
+      twoFactorMethod: true,
+      sonGirisTarihi: true,
+      createdAt: true,
+    },
+    orderBy: [{ twoFactorEnabled: "asc" }, { createdAt: "asc" }], // eksik olanlar üstte
+  });
+
+  const aktif = users.filter((u) => u.twoFactorEnabled).length;
+  const eksik = users.length - aktif;
+  const adoptionPct = users.length > 0 ? Math.round((aktif / users.length) * 100) : 0;
+
+  res.json({
+    success: true,
+    users,
+    summary: { total: users.length, aktif, eksik, adoptionPct },
+  });
+});
+
+// TUR #92 Q5 — Manuel 2FA hatırlatma (ADMIN tetik)
+exports.send2faReminder = asyncHandler(async (req, res) => {
+  const { id } = req.params;
+  const user = await prisma.user.findUnique({
+    where: { id },
+    select: { id: true, email: true, fullName: true, role: true, twoFactorEnabled: true },
+  });
+  if (!user) return res.status(404).json({ success: false, message: "Kullanıcı bulunamadı" });
+  if (user.twoFactorEnabled) {
+    return res.status(400).json({ success: false, message: "Kullanıcı zaten 2FA aktif" });
+  }
+
+  const { sendOnboardingReminder } = require("../services/onboardingReminder.service");
+  const result = await sendOnboardingReminder(user);
+
+  if (!result.sent) {
+    return res.status(500).json({ success: false, message: "Email gönderilemedi", reason: result.reason });
+  }
+
+  // Madde 30.37 — ActivityLog audit (sendOnboardingReminder içinde zaten yazıyor)
+  res.json({ success: true, message: "Hatırlatma email gönderildi", userId: user.id });
+});

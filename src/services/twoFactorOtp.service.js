@@ -123,13 +123,27 @@ async function sendEmailOtp(userId) {
   });
   if (!user?.email) throw new Error("E-posta kayıtlı değil.");
 
-  // Rate limit
+  // Rate limit (mevcut: son 2 dk içinde tek istek)
   const recent = await prisma.phoneOtp.findFirst({
     where: { phone: user.email, purpose: "2fa-email", createdAt: { gte: new Date(Date.now() - EMAIL_RATE_LIMIT_MS) } },
     orderBy: { createdAt: "desc" },
   });
   if (recent) {
     throw new Error("Çok hızlı tekrar deneme. 2 dk bekleyin.");
+  }
+
+  // TUR #92 Q6 — Sertleşme: 5 dk içinde max 3 OTP isteği (Madde 30.32 R1)
+  // PhoneOtp tablosundan sayım (ActivityLog'da userId field yok, schema dokunma yasak Madde 3.1)
+  const fiveMinAgo = new Date(Date.now() - 5 * 60 * 1000);
+  const recentRequests = await prisma.phoneOtp.count({
+    where: {
+      phone: user.email,
+      purpose: "2fa-email",
+      createdAt: { gte: fiveMinAgo },
+    },
+  }).catch(() => 0);
+  if (recentRequests >= 3) {
+    throw new Error("Çok fazla deneme. Lütfen 15 dakika sonra tekrar deneyin.");
   }
 
   const code = generateOTP();
