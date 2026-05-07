@@ -1,8 +1,8 @@
 # 🛡️ TEDBIRGE.AI — DEVİR RAPORU (AKTİF)
 
-📋 **ANAYASA:** v1.22.28 (Madde 24.14 yeni: Sıfır Marjinal Maliyet + Dış Servis Bağımsızlığı çapa direktifi)
-📂 **AKTİF KESİT:** TUR #98 KAPALI — AI Bağımsızlık Hizalama (CEO Konsol + ai modülü feature flag arkasında, default off)
-📅 **SON GÜNCELLEME:** 8 Mayıs 2026 gece (9 ardışık temiz TUR — TUR #98 başlangıç)
+📋 **ANAYASA:** v1.22.29 (Madde 30.55 yeni: RBAC Yetki Yönetim Disiplini)
+📂 **AKTİF KESİT:** TUR #99 KAPALI — RBAC Yetki Matrisi (RolePermission tablo + requirePermission middleware + /dashboard/yetkiler UI)
+📅 **SON GÜNCELLEME:** 8 Mayıs 2026 gece (10 ardışık temiz TUR — TUR #99 KAPALI, TUR #100 sıradaki)
 👤 **CEO Onay:** Mehmet DİNÇ — Madde 17.5 + 18.3 + 30.25
 🤖 **Mimar:** Claude Opus 4.7 (sohbet) + Claude Code (otonom uygulama, bypass açık)
 🌟 **Tarih:** 8 Mayıs 2026 — TARİHE KAYIT (8 ardışık temiz TUR aynı gün)
@@ -21,6 +21,7 @@ TUR #95  ✅  Mimar Hatası Proaktif Tarama (Madde 14.5 + mimarHatasi modülü)
 TUR #96  ✅  Lockfile drift Senaryo D (Madde 14.5 R1 + 30.46 R1, çift R-tescil)
 TUR #97  ✅  AccidentCase Tanı Raporu (3 bug + 1 boot crash + AI maliyet $3-27/ay)
 TUR #98  ✅  AI Bağımsızlık Hizalama + Madde 24.14 Çapa Direktif (CEO Konsol + ai modülü feature flag, $0)
+TUR #99  ✅  RBAC Yetki Yönetim Paneli + Madde 30.55 (RolePermission KIRMIZI + requirePermission paralel + /yetkiler UI)
 
 ═══════════════════════════════════════════════════════════
 312 → 359+ atom (+47 atom sapma 0)

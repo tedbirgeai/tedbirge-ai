@@ -89,6 +89,21 @@ const STATEMENTS = [
   `CREATE INDEX IF NOT EXISTS "CommissionLog_temsilciId_createdAt_idx" ON "CommissionLog"("temsilciId", "createdAt" DESC)`,
   // PhoneOtp: cleanup expired OTPs (PhoneOtp purge query)
   `CREATE INDEX IF NOT EXISTS "PhoneOtp_phone_expiresAt_idx" ON "PhoneOtp"("phone", "expiresAt")`,
+
+  // ─── TUR #99 Q1 — RolePermission (Madde 30.55 RBAC Yetki Yönetim Disiplini) ──
+  `CREATE TABLE IF NOT EXISTS "RolePermission" (
+     "id" TEXT NOT NULL,
+     "role" TEXT NOT NULL,
+     "module" TEXT NOT NULL,
+     "action" TEXT NOT NULL,
+     "granted" BOOLEAN NOT NULL DEFAULT false,
+     "updatedAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+     "updatedById" TEXT,
+     CONSTRAINT "RolePermission_pkey" PRIMARY KEY ("id")
+   )`,
+  `CREATE UNIQUE INDEX IF NOT EXISTS "RolePermission_role_module_action_key" ON "RolePermission"("role", "module", "action")`,
+  `CREATE INDEX IF NOT EXISTS "RolePermission_role_idx" ON "RolePermission"("role")`,
+  `CREATE INDEX IF NOT EXISTS "RolePermission_module_idx" ON "RolePermission"("module")`,
 ];
 
 (async () => {

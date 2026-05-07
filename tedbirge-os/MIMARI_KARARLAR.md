@@ -6,6 +6,51 @@
 
 ---
 
+## 8 Mayıs 2026 gece — TUR #99 KARARI — RBAC YETKİ YÖNETİM PANELİ + MADDE 30.55
+
+**Karar:** ADMIN tek panelden 4 rol × 25 modül × 4 action = 400 hücrelik yetki matrix yönetir. `/dashboard/yetkiler` sayfası — checkbox toggle, ActivityLog kayıt, 5 dk in-memory cache. `RolePermission` tablo (KIRMIZI Madde 18.3) + `requirePermission` middleware (mevcut `role()` guard'a paralel/AND).
+
+**Sebep:** CEO 7 May direktifi: *"Tüm yetkiler yönetici panelinde olur, yönetici yetki vermezse görünmez veya pasif. Mevcut sistem bozulmadan."* TUR #100 4 rol iş akışı refactor öncesi RBAC altyapısı kurulmazsa sidebar dinamik görünürlük + buton disabled pattern çalışmaz.
+
+**Mektup adapt — TUR #93+#94+#95+#96+#97+#98 emsali:**
+- Mektup spec `useSWR` (npm install) → `useEffect + apiFetch + module cache` (Madde 24.14)
+- Mektup spec `/admin/role-permissions` → gerçek `/admin-os/role-permissions` mount
+- Mektup spec `/me/permissions` ayrı route → mevcut `/auth/me/permissions`
+- Mektup spec `src/hooks/` → gerçek `lib/use-permission.ts`
+- Mektup Q9 (buton disabled) SKIP → TUR #100+ tam migration adayı (Madde 14.3 yumuşak rollout)
+
+**Yumuşak rollout disiplini (KRİTİK):**
+- Mevcut **133 `role()` guard** SİLİNMEDİ
+- Sadece **5 ana endpoint** (lead.routes POST/GET list/detail/status) `requirePermission` PARALEL eklendi
+- AND ilişkisi: ikisi de geçmeli (geri uyumluluk %100)
+- Seed mevcut davranışı korur (LAWYER/REPRESENTATIVE/CUSTOMER/SALES için ana yetkiler default `granted: true`)
+
+**Reddedilen alternatifler:**
+- **Tam migration:** 133 role() → 133 requirePermission tek seferde — TUR #94 emsali (mevcut 1173 satır B2C dokunma yasağı) ihlali, regresyon riski
+- **Hardcoded ABAC:** attribute-based access control (per-resource owner check) — over-engineering, Madde 14.3 ihlali
+- **3rd party RBAC paketi (@casl/ability):** npm install + bundle artışı + öğrenme eğrisi (Madde 24.14 + 30.46 R1)
+- **DROP TABLE** rollback yöntemi: KVKK m.6 5 yıl saklama ihlali (KIRMIZI çizgi)
+
+**Etki:**
+- Anayasa v1.22.28 → v1.22.29 PATCH (Madde 30.55 yeni — 45. anayasa maddesi)
+- `prisma/schema.prisma` RolePermission model + 3 index
+- `scripts/apply-pending-schemas.js` idempotent CREATE TABLE + 3 index ek
+- `scripts/seed-role-permissions.js` yeni (LAWYER 11 + REPRESENTATIVE 3 + CUSTOMER 4 + SALES 4 = 22 default)
+- `src/middlewares/requirePermission.js` yeni (5 dk cache + ADMIN failsafe + drift safe)
+- `src/controllers/rolePermissions.controller.js` yeni (listMatrix + updateOne + myPermissions)
+- `src/routes/admin.os.routes.js` 2 endpoint mount + `src/routes/auth.routes.js` 1 endpoint mount
+- `src/routes/lead.routes.js` 5 endpoint paralel guard
+- `tedbirge-panel/lib/use-permission.ts` yeni (usePermission + usePermissions hook + invalidateCache)
+- `tedbirge-panel/app/(panel)/dashboard/yetkiler/page.tsx` yeni (matrix UI 400 hücre)
+- `tedbirge-panel/components/layout/AppLayout.tsx` Yetki Matrisi sidebar item
+- Production: Render postinstall otomatik (apply-pending-schemas + seed)
+
+**Pattern (50. kalibrasyon):** TUR #56+...+98+**99** = 382+ atom sapma 0. **45. anayasa maddesi tescil** (Madde 30.55 RBAC).
+
+**Mimar:** Claude Opus 4.7 (sohbet) + Claude Code (otonom uygulama, bypass açık).
+
+---
+
 ## 8 Mayıs 2026 gece — TUR #98 KARARI — MADDE 24.14 ÇAPA DİREKTİF + AI BAĞIMSIZLIK
 
 **Karar:** CEO Mehmet Bey'in *"sıfır maliyet + bağımsızlık"* prensibi anayasaya **Madde 24.14** olarak tescil edildi (anayasal çapa direktif — diğer tüm tasarım kararlarından önce gelir). Mevcut ana 2 AI bağımlılığı (CEO Konsol — Madde 30.15 + `ai` OS modülü — Madde 30.17) feature flag (`AI_FEATURES_ENABLED`) arkasına alındı. Default değer `false` — sistem ücretsiz çalışır.

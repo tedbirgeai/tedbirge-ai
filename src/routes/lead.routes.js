@@ -5,14 +5,16 @@ const caseDataCtrl  = require("../controllers/lead.caseData.controller");
 const timelineCtrl  = require("../controllers/timeline.controller");
 const auth = require("../middlewares/authMiddleware");
 const role = require("../middlewares/roleMiddleware");
+// TUR #99 Q4 — RBAC yumuşak rollout (Madde 30.55) — paralel role() guard'a EK
+const { requirePermission } = require("../middlewares/requirePermission");
 
 const router = express.Router();
 
-router.post("/", auth, controller.createLead);
-router.post("/bulk-update", auth, role("ADMIN", "SALES", "REPRESENTATIVE"), controller.bulkUpdate);
-router.get("/", auth, controller.listLeads);
-router.get("/:id", auth, controller.getLead);
-router.patch("/:id/status",       auth, role("ADMIN","SALES","REPRESENTATIVE","LAWYER"), controller.updateStatus);
+router.post("/", auth, requirePermission("leads", "write"), controller.createLead);
+router.post("/bulk-update", auth, role("ADMIN", "SALES", "REPRESENTATIVE"), requirePermission("leads", "write"), controller.bulkUpdate);
+router.get("/", auth, requirePermission("leads", "read"), controller.listLeads);
+router.get("/:id", auth, requirePermission("leads", "read"), controller.getLead);
+router.patch("/:id/status",       auth, role("ADMIN","SALES","REPRESENTATIVE","LAWYER"), requirePermission("leads", "write"), controller.updateStatus);
 router.patch("/:id/compensation", auth, role("ADMIN","SALES","REPRESENTATIVE","LAWYER"), compCtrl.updateEstimatedCompensation);
 router.patch("/:id/case-data",    auth, role("ADMIN","SALES","LAWYER","REPRESENTATIVE"), caseDataCtrl.updateCaseData);
 router.patch("/:id/owner",        auth, role("ADMIN","SALES","REPRESENTATIVE"), controller.assignOwner);

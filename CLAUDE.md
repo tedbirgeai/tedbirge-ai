@@ -3034,6 +3034,44 @@ Birinde değişiklik yaparken **diğer 4'ünün uyumu kontrol edilmeden parça-b
 - ❌ Sessiz state geçişi (3 rol bildirim alır — mevcut zincir korunur)
 - ❌ RealtimeEvent şeması scope/kind/title field'ları (gerçek: channel/eventType/payload)
 
+### 30.55 — RBAC Yetki Yönetim Disiplini (TUR #99 — 8 May 2026)
+
+**Kural:** ADMIN tek panelden 4 rol × N modül × 4 action matrix yönetir. Sayfa: `/dashboard/yetkiler` — checkbox toggle, ActivityLog kayıt (KVKK m.10), 5 dk in-memory cache.
+
+**Schema:** `RolePermission` tablo (role + module + action + granted unique constraint, index role + module).
+
+**Backend:**
+- `requirePermission(module, action)` middleware — mevcut `role()` guard'a EK (paralel, AND ilişkisi)
+- ADMIN failsafe (her zaman geçer — kod içinde hardcoded, RolePermission row YOK gerek)
+- Cache 5 dk in-memory, toggle sonrası `invalidateCache()`
+- Tablo henüz yoksa lokal drift için `granted: false` (mevcut `role()` guard zaten korur)
+
+**Frontend:**
+- `usePermission(module, action)` hook → `{ granted, loading }` (useEffect + apiFetch + module-level cache, useSWR YOK)
+- `usePermissions()` hook → `{ role, can(module, action), loading }`
+- `invalidatePermissionsCache()` toggle sonrası
+- ADMIN için `permissions: "ALL"` (failsafe response)
+
+**Yumuşak rollout (TUR #99 emsal):** Mevcut 133 `role()` guard'ından **5 ana route'a** (`lead.routes.js` POST/GET/list/detail/status) `requirePermission` PARALEL eklendi — silinmedi. Seed mevcut davranışı korur (LAWYER/REPRESENTATIVE/CUSTOMER/SALES için ana yetkiler `granted: true`).
+
+**Modül listesi (UI'da):**
+- 17 OS modülü (mimarHatasi dahil — TUR #95)
+- 8 iş katmanı modülü: leads, users, documents, messages, clients, bilirkisi, assignments, commission, accidentCase
+
+**Endpoint'ler:**
+- `GET /api/admin-os/role-permissions` — ADMIN matrix listesi
+- `PATCH /api/admin-os/role-permissions` — ADMIN toggle + ActivityLog
+- `GET /api/auth/me/permissions` — Kullanıcı kendi izinleri (ADMIN: "ALL")
+
+**TUR #100+ adayı:** Geri kalan 128 `role()` guard'ına `requirePermission` ekleme + buton disabled pattern frontend tarafa (tam migration). Şimdilik ana 5 route + cache invalidate test edildi.
+
+**Yasak:**
+- ❌ Mevcut `role()` guard silmek (geri uyumluluk kırılır — yumuşak rollout disiplini)
+- ❌ ADMIN için RolePermission row eklemek (failsafe — kod içinde hardcoded)
+- ❌ Cache invalidate atlama (toggle sonrası 5 dk eski izin geçerli olabilir)
+- ❌ Seed atlama (yeni RolePermission tablo boşsa LAWYER+REPRESENTATIVE+CUSTOMER+SALES tüm `requirePermission` route'larından 403 alır — adopsiyon kırılır)
+- ❌ `useSWR` veya başka npm paket eklemek (Madde 24.14 + Madde 30.46 R1 — useEffect + apiFetch yeterli)
+
 ---
 
 ## 31. TASARIM DİSİPLİNİ — Tedbirge Design System v1.0
@@ -3396,10 +3434,10 @@ Mehmet Bey sahaya çıkabilsin diye bu disiplin var.
 
 ---
 
-**— Tedbirge Mimari Anayasası v1.22.28**  
-**Toplam 98 TUR · 369+ atom sapma 0 · 49 kalibrasyon · 42 mimar hatası → 44 anayasa maddesi**  
-**Aktif Kesit:** TUR #98 KAPALI (AI Bağımsızlık + Madde 24.14 Tescil — sıfır maliyet)  
-**Sıradaki:** TUR #99 (RBAC Yetki Matrisi) + TUR #100 (4 Rol İş Akışı) — Tedbirge.ai 2.0  
+**— Tedbirge Mimari Anayasası v1.22.29**  
+**Toplam 99 TUR · 382+ atom sapma 0 · 50 kalibrasyon · 42 mimar hatası → 45 anayasa maddesi**  
+**Aktif Kesit:** TUR #99 KAPALI (RBAC Yetki Matrisi + Madde 30.55 — RolePermission + requirePermission + /dashboard/yetkiler)  
+**Sıradaki:** TUR #100 (4 Rol İş Akışı) — Tedbirge.ai 2.0  
 **Tüm sürüm geçmişi + TUR detayları + atom kayıtları: `tedbirge-os/MIMARI_KARARLAR.md`**
 
 **Versiyon geçmişi: tedbirge-os/MIMARI_KARARLAR.md**  

@@ -48,6 +48,9 @@ router.post("/admin-create-user",      auth, role("ADMIN"), controller.adminCrea
 router.post("/send-email-verification", auth, controller.sendEmailVerification);
 router.post("/verify-email",            controller.verifyEmail);
 
+// TUR #99 Q5 — Kendi izinleri (RBAC me/permissions)
+router.get("/me/permissions", auth, require("../controllers/rolePermissions.controller").myPermissions);
+
 // TUR #55 A13 — Kendi profili (me)
 router.get("/me", auth, async (req, res) => {
   try {

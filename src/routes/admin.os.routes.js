@@ -4,12 +4,18 @@ const auth = require("../middlewares/authMiddleware");
 const role = require("../middlewares/roleMiddleware");
 const prisma = require("../config/db");
 const asyncHandler = require("../utils/asyncHandler");
+// TUR #99 Q5 — RBAC controller (Madde 30.55)
+const rolePermissionsCtrl = require("../controllers/rolePermissions.controller");
 
 const router = express.Router();
 
 router.get("/status",        auth, role("ADMIN"), controller.getStatus);
 router.get("/boot-records",  auth, role("ADMIN"), controller.getBootRecords);
 router.get("/events",        auth, role("ADMIN"), controller.getEvents);
+
+// TUR #99 Q5 — RBAC ADMIN endpoints
+router.get("/role-permissions",   auth, role("ADMIN"), rolePermissionsCtrl.listMatrix);
+router.patch("/role-permissions", auth, role("ADMIN"), rolePermissionsCtrl.updateOne);
 
 // TUR #66 v2 A5 — Gecmis FAILED Document AI retry endpoint'leri (Madde 32.10)
 router.post(

@@ -934,3 +934,18 @@ enum TwoFactorMethod {
   SMS
   EMAIL
 }
+
+// TUR #99 Q1 — Madde 30.55 RBAC Yetki Yönetim Disiplini (KIRMIZI nokta — Madde 18.3)
+model RolePermission {
+  id          String   @id @default(cuid())
+  role        String   // ADMIN/LAWYER/REPRESENTATIVE/CUSTOMER/SALES
+  module      String   // "ai", "leads", "users", "documents", ...
+  action      String   // "read", "write", "delete", "execute"
+  granted     Boolean  @default(false)
+  updatedAt   DateTime @updatedAt
+  updatedById String?
+
+  @@unique([role, module, action])
+  @@index([role])
+  @@index([module])
+}

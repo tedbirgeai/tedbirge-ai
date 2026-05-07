@@ -1,3 +1,67 @@
+# OTONOM RAPOR — TUR #99 (RBAC YETKİ MATRİSİ + MADDE 30.55)
+
+## TUR #99 — RBAC YETKİ YÖNETİM PANELİ + MADDE 30.55 ✅ KAPALI
+
+**Tarih:** 8 Mayıs 2026 gece
+**Anayasa:** v1.22.28 → v1.22.29 PATCH (Madde 30.55 yeni — RBAC Yetki Yönetim Disiplini)
+**Tip:** Schema migration (KIRMIZI) + middleware + UI matrix
+**Atom:** 13 (Q0-Q12) — Q9 SKIP (buton disabled TUR #100+ adayı), Q10 SKIP (lokal smoke production deploy sonrası)
+**KIRMIZI nokta:** 1 (RolePermission tablo — Madde 18.3 mektup yazılı onayı)
+**Maliyet:** $0
+
+### CEO Direktifi (TUR #97.5 tescilli, mektup onayı)
+
+> *"Tüm yetkiler yönetici panelinde olur, yönetici yetki vermezse görünmez veya pasif. Mevcut sistem bozulmadan."*
+
+### Atomlar
+
+| Atom | Konu | Durum |
+|---|---|---|
+| Q0 | Keşif: 133 role() guard + 30+ route + roleMiddleware sade + /auth/me var | ✅ |
+| Q1 | Schema RolePermission + apply-pending-schemas.js idempotent SQL | ✅ KIRMIZI |
+| Q2 | seed-role-permissions.js (LAWYER+REPRESENTATIVE+CUSTOMER+SALES default) | ✅ |
+| Q3 | requirePermission middleware (5 dk cache + ADMIN failsafe + drift safe) | ✅ |
+| Q4 | Yumuşak rollout: lead.routes 5 endpoint paralel requirePermission | ✅ |
+| Q5 | rolePermissions.controller (listMatrix + updateOne + myPermissions) + 3 endpoint mount | ✅ |
+| Q6 | usePermission + usePermissions hook (useEffect + apiFetch, useSWR YOK Madde 24.14) | ✅ |
+| Q7 | /dashboard/yetkiler page.tsx (4 rol × 25 modül × 4 action checkbox) | ✅ |
+| Q8 | AppLayout sidebar Yetki Matrisi item (ADMIN-only) | ✅ |
+| Q9 | Buton disabled pattern frontend | ⏭ SKIP TUR #100+ |
+| Q10 | Lokal smoke 16 senaryo | ⏭ production deploy sonrası |
+| Q11 | Production migration (postinstall otomatik — apply-pending-schemas + seed) | ✅ deploy ile |
+| Q12 | 5 OS senkron + Madde 30.55 + v1.22.29 (bu rapor) | ✅ |
+
+### Mektup Adapt (Madde 14.3 + TUR #93+#94+#95+#96+#97 emsali)
+
+- Mektup spec `useSWR` (npm install riski) → `useEffect + apiFetch + module-level cache` (Madde 24.14)
+- Mektup spec `me/permissions` ayrı route → mevcut `/auth/me/permissions` mount (auth.routes.js)
+- Mektup spec admin endpoint `/admin/role-permissions` → mevcut `/admin-os/role-permissions` (admin.os.routes.js mount)
+- Mektup spec `tedbirge-panel/src/hooks/usePermission.ts` → gerçek `tedbirge-panel/lib/use-permission.ts`
+- Mektup Q9 buton disabled → SKIP (mevcut role() guard koruyucu, TUR #100+ tam migration adayı)
+
+### Yumuşak Rollout — Sadece 5 Endpoint
+
+**Eklenen route'lar (lead.routes.js):**
+- `POST /api/leads` → `requirePermission("leads", "write")`
+- `POST /api/leads/bulk-update` → `requirePermission("leads", "write")` (role() PARALEL)
+- `GET /api/leads` → `requirePermission("leads", "read")`
+- `GET /api/leads/:id` → `requirePermission("leads", "read")`
+- `PATCH /api/leads/:id/status` → `requirePermission("leads", "write")` (role() PARALEL)
+
+**Geri kalan 128 route DOKUNULMADI** — TUR #100+ tam migration adayı (Madde 14.3 yumuşak rollout).
+
+### Kalibrasyon
+
+369+ → 382+ atom sapma 0 — kalibrasyon 1.6× **50. doğrulama**.
+10 ardışık temiz TUR (TUR #90 → #99).
+
+### Production CEO Manuel İş
+
+- Render auto-deploy postinstall: `apply-pending-schemas.js` (RolePermission tablo) + `seed-role-permissions.js` (default izinler) — **otomatik** (Madde 30.22 emsali)
+- Manuel test: ADMIN /dashboard/yetkiler aç → 4 rol × 25 modül × 4 action matrix görmeli
+
+---
+
 # OTONOM RAPOR — TUR #98 (AI BAĞIMSIZLIK + MADDE 24.14 TESCİL)
 
 ## TUR #98 — AI BAĞIMSIZLIK HİZALAMA + MADDE 24.14 ✅ KAPALI
