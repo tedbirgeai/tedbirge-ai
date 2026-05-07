@@ -79,6 +79,32 @@ async function createPublicRequest({ requesterTC, requestType, description }) {
     }
   }
 
+  // TUR #93 W2 — Yatay CRM (Madde 30.53): Yeni KVKK başvurusu ADMIN_FEED'e push.
+  // Mevcut LAWYER bildirim korundu (DOKUNULMADI), eksik ADMIN feed eklendi.
+  // KVKK m.11 30 gün yanıt süresi başladığı için ADMIN'in anlık görmesi şart.
+  setImmediate(async () => {
+    try {
+      const masked = String(requesterTC).slice(0, 4) + "***";
+      await prisma.realtimeEvent.create({
+        data: {
+          channel: "ADMIN_FEED",
+          eventType: "KVKK_REQUEST_NEW",
+          payload: {
+            title: "Yeni KVKK Başvurusu",
+            body: `${requestType} başvurusu — TC ${masked} (30 gün yanıt süresi)`,
+            severity: "WARNING",
+            requestId: request.id,
+            requestType,
+            requesterTCMasked: masked,
+            kvkkDeadline: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString(),
+          },
+        },
+      });
+    } catch (err) {
+      console.warn("[W2 KVKK ADMIN_FEED] fail:", err.message);
+    }
+  });
+
   return request;
 }
 

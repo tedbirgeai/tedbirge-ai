@@ -13,6 +13,8 @@ router.get("/",                auth, role("ADMIN"), controller.listUsers);
 // TUR #92 Q5 — 2FA adoption widget endpoint (Madde 30.32 R1)
 router.get("/two-factor-adoption", auth, role("ADMIN"), controller.twoFactorAdoption);
 router.post("/:id/send-2fa-reminder", auth, role("ADMIN"), controller.send2faReminder);
+// TUR #93 W4 — Avukat Workload widget endpoint (Madde 30.53)
+router.get("/lawyer-workload", auth, role("ADMIN"), controller.lawyerWorkload);
 router.patch("/:id",           auth, role("ADMIN"), controller.updateUser);
 router.patch("/:id/password",  auth, role("ADMIN"), controller.resetUserPasswordByAdmin);
 router.patch("/:id/status",    auth, role("ADMIN"), controller.updateUserStatus);

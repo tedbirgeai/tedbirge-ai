@@ -73,6 +73,74 @@ async function assignLeadToLawyer({ leadId, lawyerId, note, caller = null }) {
     },
   }).catch(() => {});
 
+  // TUR #93 W1 — Yatay CRM bildirim zinciri (Madde 30.53):
+  // Mevcut SMS/Email/WhatsApp müvekkile gidiyor (DOKUNULMADI - Madde 4.4 + 14.3).
+  // Eksik: REPRESENTATIVE (lead.createdById) ve ADMIN_FEED için RealtimeEvent push feed.
+  setImmediate(async () => {
+    try {
+      // 1) ADMIN_FEED audit (KVKK m.10 — atama izlenebilirlik)
+      await prisma.realtimeEvent.create({
+        data: {
+          channel: "ADMIN_FEED",
+          eventType: "LEAD_LAWYER_ASSIGNED",
+          payload: {
+            title: "Avukat Ataması",
+            body: `Lead → ${lawyer.fullName}`,
+            severity: "INFO",
+            leadId,
+            lawyerId,
+            lawyerName: lawyer.fullName,
+            assignedBy: caller?.id || null,
+            customerName: lead.customerName,
+          },
+        },
+      }).catch((e) => console.error("[W1 ADMIN_FEED] fail:", e.message));
+
+      // 2) LAWYER_FEED — atanan avukata push (in-app feed)
+      await prisma.realtimeEvent.create({
+        data: {
+          channel: `LAWYER_${lawyerId}`,
+          eventType: "LEAD_ASSIGNED_TO_YOU",
+          userId: lawyerId,
+          payload: {
+            title: "Yeni Lead Atandı",
+            body: `${lead.customerName} dosyası size atandı`,
+            severity: "INFO",
+            leadId,
+            customerName: lead.customerName,
+          },
+        },
+      }).catch((e) => console.error("[W1 LAWYER_FEED] fail:", e.message));
+
+      // 3) REPRESENTATIVE_FEED — getiren temsilciye (lead.createdById bir REPRESENTATIVE ise)
+      if (lead.createdById) {
+        const creator = await prisma.user.findUnique({
+          where: { id: lead.createdById },
+          select: { role: true },
+        }).catch(() => null);
+        if (creator?.role === "REPRESENTATIVE") {
+          await prisma.realtimeEvent.create({
+            data: {
+              channel: `REPRESENTATIVE_${lead.createdById}`,
+              eventType: "YOUR_LEAD_ASSIGNED",
+              userId: lead.createdById,
+              payload: {
+                title: "Getirdiğiniz Lead Atandı",
+                body: `${lead.customerName} → ${lawyer.fullName}`,
+                severity: "INFO",
+                leadId,
+                lawyerId,
+                lawyerName: lawyer.fullName,
+              },
+            },
+          }).catch((e) => console.error("[W1 REPRESENTATIVE_FEED] fail:", e.message));
+        }
+      }
+    } catch (err) {
+      console.error("[W1 RT zincir] fail:", err.message);
+    }
+  });
+
   return assignment;
 }
 

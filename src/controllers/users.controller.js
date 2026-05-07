@@ -398,6 +398,74 @@ exports.twoFactorAdoption = asyncHandler(async (_req, res) => {
   });
 });
 
+// TUR #93 W4 — Avukat Workload Widget (Madde 30.53)
+// ADMIN dashboard "Avukat Workload" widget — kim kaç leade aktif, kim atıl
+exports.lawyerWorkload = asyncHandler(async (_req, res) => {
+  const lawyers = await prisma.user.findMany({
+    where: {
+      role: "LAWYER",
+      isActive: true,
+      deletedAt: null,
+    },
+    select: { id: true, fullName: true, email: true, uzmanlik: true },
+    orderBy: { fullName: "asc" },
+  });
+
+  // Her avukat için Assignment ve Lead sayım
+  const result = await Promise.all(
+    lawyers.map(async (l) => {
+      const [activeCount, totalCount, lastAssignment] = await Promise.all([
+        prisma.assignment.count({
+          where: { lawyerId: l.id, status: "ACTIVE" },
+        }).catch(() => 0),
+        prisma.assignment.count({
+          where: { lawyerId: l.id },
+        }).catch(() => 0),
+        prisma.assignment.findFirst({
+          where: { lawyerId: l.id },
+          orderBy: { createdAt: "desc" },
+          select: { createdAt: true, status: true },
+        }).catch(() => null),
+      ]);
+
+      // WON sayım — Lead.status WON ve assignment lawyer ile eşleşen
+      const wonCount = await prisma.assignment.count({
+        where: {
+          lawyerId: l.id,
+          lead: { status: "WON" },
+        },
+      }).catch(() => 0);
+
+      let load = "normal";
+      if (activeCount === 0) load = "idle";
+      else if (activeCount >= 10) load = "overloaded";
+      else if (activeCount >= 5) load = "busy";
+
+      return {
+        id: l.id,
+        fullName: l.fullName,
+        email: l.email,
+        uzmanlik: l.uzmanlik || null,
+        activeCount,
+        wonCount,
+        totalCount,
+        lastAssignedAt: lastAssignment?.createdAt || null,
+        load,
+      };
+    })
+  );
+
+  const summary = {
+    total: result.length,
+    idle: result.filter((r) => r.load === "idle").length,
+    busy: result.filter((r) => r.load === "busy").length,
+    overloaded: result.filter((r) => r.load === "overloaded").length,
+    totalActiveLeads: result.reduce((s, r) => s + r.activeCount, 0),
+  };
+
+  res.json({ success: true, lawyers: result, summary });
+});
+
 // TUR #92 Q5 — Manuel 2FA hatırlatma (ADMIN tetik)
 exports.send2faReminder = asyncHandler(async (req, res) => {
   const { id } = req.params;
