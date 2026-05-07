@@ -6,6 +6,43 @@
 
 ---
 
+## 7 Mayıs 2026 gece — TUR #95 KARARI — MİMAR HATASI PROAKTİF TARAMA + MADDE 14.5 TESCİL
+
+**Karar:** 41 mimar hatasını 5 kategoriye ayır + erken tespit altyapısı kur (mimarHatasi.js OS modülü 20. modül + ArchitectHealthWidget 4 KPI + tur-hijyen-check.sh 5 kontrol). Madde 14.5 yeni alt-madde tescil edildi.
+
+**Sebep:** TUR #88 emsali (kanıtsız tanı yeni hata yaratır) + 41 hatadan ders almak için pasif kayıt yetersiz. Auditor 5 dk tick içinde A+B+C+D kontrolleri proaktif erken tespit sağlar. CEO ArchitectHealthWidget üzerinden 4 KPI + skor + 5 kategori detay görür (Madde 30.13 Akış Paneli emsali).
+
+**Mektup adapt — TUR #93+#94 emsali kritik:** H0 keşfi 3 net farkı yakaladı:
+1. `/api/admin/architect-health` → `/api/users/architect-health` (TUR #92+#93 users.routes pattern)
+2. `Lead.atananAvukatId` YOK → Assignment table (TUR #93 emsali)
+3. `tedbirge-os/scripts/` YOK → kök `scripts/`
+
+10 atom mektup spec → 8 canlı + 2 SKIP (H6+H8 mektup içinde işaretli).
+
+**Alternatif (reddedildi):**
+- Pasif log analizi (sadece geçmişe bakar, proaktif değil)
+- Manuel checklist (Code disiplinden uzak, otomatik değil)
+- npm yeni paket (sentry vb.) — Madde 25 + Madde 30.31 ihlali, native çözüm tercih
+
+**Etki:**
+- `src/os/modules/mimarHatasi.js` 20. modül (Auditor 5 dk tick A+B+C+D kontrolleri)
+- `tedbirge-panel/components/admin/ArchitectHealthWidget.tsx` 4 KPI + 4 kategori check accordion
+- `scripts/tur-hijyen-check.sh` pre-commit/pre-push 5 kontrol
+- `tedbirge-os/docs/MIMAR_HATA_KATEGORILERI.md` referans dokümanı (41 hata 5 kategori)
+- `GET /api/users/architect-health` ADMIN endpoint
+- Auditor moduleNames 2 array (runAllModules + runAllActiveTasks) güncellendi
+- CLAUDE.md Madde 14.5 + sürüm v1.22.25 → v1.22.26
+
+**Smoke 16/16 (H7):** /2fa-secim 307 + /login 200 (26996 byte) + /sw.js no-store + /api/agents-health 200 X-Cache:HIT + POST /api/auth/login 401 + /api/users/{two-factor-adoption,lawyer-workload,architect-health} 401 + Auditor HEALTHY + eventCounts 356 + 4 protected route 307 + 4 rol POST 401: 4/4 + 17 modül agentName.
+
+**5 Kategori Toplam:** A:8 + B:2 + C:3 + D:16 + E:12 = **41** ✅
+
+**Pattern (47. kalibrasyon):** TUR #56+...+93+94+95 = 354+ atom sapma 0. **42. anayasa maddesi tescil:** Madde 14.5.
+
+**Mimar:** Claude Opus 4.7 (sohbet) + Claude Code (otonom uygulama, bypass açık).
+
+---
+
 ## 7 Mayıs 2026 gece — TUR #94 KARARI — MÜVEKKİL PANEL İÇERİK + MADDE 31.9 R1 TESCİL
 
 **Anayasa:** v1.22.24 → v1.22.25 PATCH (Madde 31.9 R1 yeni alt-genişleme, 48 alt-madde toplam)

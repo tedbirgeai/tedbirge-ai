@@ -459,6 +459,41 @@ Sen bile mimara karşı disiplin koruyabilirsin:
 ### 14.4 Bağlam dolduğunda
 Sen yorulursan (bağlam dolarsa): **DUR**, OTONOM_RAPOR.md'ye yazıp sohbete dön. Yarınki Claude Code (yeni oturum) **CLAUDE.md + OTONOM_RAPOR.md** okuyup devam edecek.
 
+### 14.5 — Mimar Hatası Proaktif Tarama (TUR #95)
+
+**Kural:** 41 mimar hatası 5 kategori altında özetlenmiştir (`tedbirge-os/docs/MIMAR_HATA_KATEGORILERI.md`):
+
+| Kategori | Pattern | Hata Sayısı |
+|---|---|---|
+| **A** — Smoke Yetersizliği | Authsız HTTP smoke OK → POST/rol-bazlı atlandı | 8 |
+| **B** — Schema/Migration Drift | Lokal apply OK → production drift | 2 |
+| **C** — UI Görsel Atlama | Backend smoke yeşil → CEO ekran kırmızı | 3 |
+| **D** — Auth Flow / Cookie Senkron | 5 dosya bug matrisi (proxy + lib/api + 2fa-secim + login + AppLayout) | 16 |
+| **E** — Mektup Yorum / Yamalı Bohça | Mektup ham kodla çatışır → Code adapt/SKIP | 12 |
+| **TOPLAM** | | **41** |
+
+**Erken tespit altyapısı (TUR #95 tescili):**
+- `src/os/modules/mimarHatasi.js` OS modülü — 5 dk Auditor tick (A+B+C+D kontrolleri)
+  - A: `LOGIN_FAILED` last 24h sayım (sıfır → smoke yetersiz uyarı)
+  - B: `_prisma_migrations` `finished_at IS NULL` count (>0 → drift)
+  - C: Auditor saatlik AgentEvent (sıfır → modül silent failure)
+  - D: RealtimeEvent saatlik (sıfır → trigger zinciri kopuk)
+- `archHealthScore` = 100 - issues × 20 · skor < 60% (issues ≥ 3) → ADMIN_FEED RealtimeEvent CRITICAL
+- `scripts/tur-hijyen-check.sh` pre-commit/pre-push hijyen (5 kontrol: working tree + lockfile sync + schema apply + smoke ipucu + 5 OS senkron)
+- `GET /api/users/architect-health` ADMIN endpoint (4 KPI: 2FA adoption + Lawyer workload + Auditor 1h + RealtimeEvent 1h + score)
+- `ArchitectHealthWidget` `/dashboard/sistem-durumu` üstünde (TUR #92 + #93 widget pattern emsali)
+
+**Mimar prensibi (TUR #93+#94+#95 zinciri):**
+> "Mimar mektup yazar, ham koda saygı duyar. Code mektubu uygular, ama Madde 14.3 ile mevcut sistemi savunur. M0/Q0/H0 keşif atomu zorunlu — mevcut endpoint/sayfa/component sayım yapılmadan atom listesi tamamlanmaz."
+
+**Yasak:**
+- ❌ M0/Q0/H0 keşif atlamak (TUR #88 emsali — kanıtsız tanı yeni hata yaratır)
+- ❌ `mimarHatasi` modülü Auditor `moduleNames` array'inden atılmak
+- ❌ Skor < 60% iken yeni TUR başlatmak (kanıtlı CRITICAL durumda yeni atom = yamalı bohça riski)
+- ❌ 41 hata 1:1 anayasa madde tescil oranını bozmak
+- ❌ Mektup spec field/path adlarını schema doğrulamadan kullanmak (TUR #93 emsali — `Lead.customerId/atananAvukatId` YOK)
+- ❌ Mektup spec atom sayısının tamamını uygulamak (SKIP atomları beklenen — TUR #94 emsali, %20-40 SKIP normal)
+
 ---
 
 ## 17. STRATEJİK KESİT DİSİPLİNİ — Yamalı Bohça Yasağının Pratik Uygulaması
@@ -3260,7 +3295,7 @@ Mehmet Bey sahaya çıkabilsin diye bu disiplin var.
 
 ---
 
-**— Tedbirge Mimari Anayasası v1.22.25**  
+**— Tedbirge Mimari Anayasası v1.22.26**  
 **Toplam 94 TUR · 344+ atom sapma 0 · 46 kalibrasyon · 41 mimar hatası → 42 anayasa maddesi**  
 **Tüm sürüm geçmişi + TUR detayları + atom kayıtları: `tedbirge-os/MIMARI_KARARLAR.md`**
 

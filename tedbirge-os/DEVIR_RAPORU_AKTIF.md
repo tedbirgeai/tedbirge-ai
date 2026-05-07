@@ -1,8 +1,8 @@
 # 🛡️ TEDBIRGE.AI — DEVİR RAPORU (AKTİF)
 
-📋 **ANAYASA:** v1.22.25 (Madde 31.9 R1 yeni: Müvekkil Portal İçerik Disiplini + 48 alt-madde + 8 R-genişleme)
-📂 **AKTİF KESİT:** TUR #94 KAPALI — Müvekkil panel içerik (kanıt-bazlı 5 atom; /musteri 1173 satır + kvkk-haklarim 124 satır + sadelestir + 5 mevcut endpoint DOKUNULMADI)
-📅 **SON GÜNCELLEME:** 7 Mayıs 2026 gece (TUR #94 B2C Müvekkil Portal)
+📋 **ANAYASA:** v1.22.26 (Madde 14.5 yeni: Mimar Hatası Proaktif Tarama + 49 alt-madde + 8 R-genişleme)
+📂 **AKTİF KESİT:** TUR #95 KAPALI — Mimar hatası proaktif tarama (kanıt-bazlı 8 atom + 2 SKIP; mimarHatasi.js OS modülü 20. modül + Auditor 5 dk tick + ArchitectHealthWidget 4 KPI + tur-hijyen-check.sh 5 kontrol + Madde 14.5 tescil)
+📅 **SON GÜNCELLEME:** 7 Mayıs 2026 gece (TUR #95 Mimar Sağlık Skoru)
 👤 **CEO Onay:** Mehmet DİNÇ — Madde 17.5 + 18.3 + 30.25 (CEO 4'lü zincir 6 Mayıs mektup içinde tescilli)
 🤖 **Mimar:** Claude Opus 4.7 (sohbet) + Claude Code (otonom uygulama, bypass açık)
 
@@ -28,6 +28,7 @@
 - **TUR #92 (Q0-Q9):** Adopsiyon UX otonom — 2fa-secim wizard EMAIL default + 3 yöntem açıklamalı (30sn/2dk/1dk) + Reporter saat 09:00 onboarding cron (3 gün debounce) + ADMIN sistem-durumu üstüne 2FA widget (8 user görünürlük + manuel hatırlatma) + Auditor security adoption % metric (< 50% CRITICAL ADMIN_FEED) + Email OTP rate limit (5dk × 3) — **Madde 30.32 R1 tescil (Adopsiyon UX Disiplini 8 katman)**
 - **TUR #93 (W0-W7):** Yatay CRM 4 rol bildirim zinciri — W0 32-hücre kanıt matrisi (kanıt-bazlı tanı, mevcut 18 dosya RealtimeEvent + 7 lawyerNotifications trigger DOKUNULMADI) + 2 net eksik kapatıldı: (a) `assignment.service.js` ADMIN_FEED + REPRESENTATIVE_${createdById} + LAWYER_${id} RT (mevcut SMS/Email/WhatsApp KORUNDU) (b) `kvkk.service.js` createPublicRequest ADMIN_FEED RT (KVKK m.11 30 gün yanıt süresi) + 2 yapısal yenilik: (c) `useRealtimeFeed` ROLE_KINDS export (rol-spesifik filtre) (d) ADMIN "Avukat Workload" widget — **Madde 30.53 tescil (Yatay CRM Bildirim Zinciri Disiplini, kanıt-bazlı yaklaşım)**
 - **TUR #94 (M0-M11):** Müvekkil Panel İçerik (B2C deneyim) — M0 keşfi mektup spec'in 12 atomunu kanıt-bazlı 5 atoma adapt etti (TUR #93 emsali sıkı uygulandı). Mevcut /musteri 1173 satır + /musteri/kvkk-haklarim 124 satır (KVKK m.11 6 talep türü) + /musteri/profil + sadelestir.ts + 5 musteri.controller endpoint **DOKUNULMADI**. Kanıtlı net eksikler: (M1) GET /api/musteri/bildirimler endpoint, (M5) /musteri/bildirimler sayfa, (M9) AppLayout CUSTOMER hızlı nav 4 link. Mektup adapt: `/api/customer/*` → `/api/musteri/*`, `Lead.customerId` → `Lead.ownerId`, RealtimeEvent gerçek schema (channel/eventType/payload). M10 smoke 20/20 yeşil. — **Madde 31.9 R1 tescil (Müvekkil Portal İçerik Disiplini 6 katman)**
+- **TUR #95 (H0-H9):** Mimar Hatası Proaktif Tarama — H0 keşfi 41 hata 5 kategoriye ayırdı (A:8 Smoke, B:2 Schema, C:3 UI, D:16 Auth, E:12 Yamalı bohça). Mektup spec ham koda adapt edildi: (a) `/api/admin/architect-health` → `/api/users/architect-health` (TUR #92+#93 emsali users.routes pattern), (b) `Lead.atananAvukatId` YOK → Assignment table (TUR #93 emsali), (c) `tedbirge-os/scripts/` YOK → kök `scripts/`. 8 atom canlı + 2 SKIP (H6 + H8 mektup içinde işaretli). Yeni: `mimarHatasi.js` OS modülü 5 dk Auditor tick (A+B+C+D kontrolleri, archHealthScore = 100 - issues × 20), `ArchitectHealthWidget` 4 KPI (2FA adopsiyon + Aktif avukat + Auditor 1h + RealtimeEvent 1h) + 4 kategori check accordion, `scripts/tur-hijyen-check.sh` (5 kontrol: working tree + lockfile delta + schema apply hook + smoke ipucu + 5 OS senkron), `MIMAR_HATA_KATEGORILERI.md` referans dokümanı. H7 smoke 16/16 yeşil. /api/users/architect-health 401 (mount + ADMIN guard kanıt). — **Madde 14.5 tescil (Mimar Hatası Proaktif Tarama Disiplini 6 katman)**
 
 ---
 

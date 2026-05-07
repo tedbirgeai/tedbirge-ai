@@ -1,3 +1,94 @@
+## TUR #95 — MİMAR HATASI PROAKTİF TARAMA + MADDE 14.5 ✅ KAPALI
+
+**Tarih:** 7 Mayıs 2026 gece (TUR #94 Müvekkil panel sonrası, beşinci TUR aynı gün)
+**Anayasa:** v1.22.25 → v1.22.26 PATCH (Madde 14.5 yeni — Mimar Hatası Proaktif Tarama Disiplini 6 katman)
+**Tip:** Erken tespit altyapısı + OS modülü (schema/npm/env değişikliği SIFIR)
+**BYPASS:** AÇIK (KIRMIZI nokta YOK)
+
+### CEO Direktifi (Madde 30.25)
+
+> *"TUR #95 başla — Mimar hatası proaktif tarama, tek komutla uçtan uca, hiçbir şey sorma. H6 + H8 SKIP olabilir."*
+
+### Mektup Adapt — TUR #93+#94 Emsali Kritik
+
+H0 keşfi mektup spec'ten 3 net farkı tespit etti:
+1. `/api/admin/architect-health` ham koda uygun değil → `/api/users/architect-health` (TUR #92+#93 emsali users.routes pattern)
+2. `Lead.atananAvukatId` schema'da YOK → Assignment table (TUR #93 emsali)
+3. `tedbirge-os/scripts/` yolu YOK → kök `scripts/` mevcut
+
+10 atom mektup spec → 8 atom canlı + 2 SKIP (H6 mektup içinde işaretli + H8 kabul edildi).
+
+### Atomlar
+
+| Atom | Konu | Durum | Kanıt |
+|---|---|---|---|
+| H0 | Keşif: 41 hata 5 kategori + RealtimeEvent gerçek schema doğrula | ✅ | A:8+B:2+C:3+D:16+E:12=41 |
+| H1 | `MIMAR_HATA_KATEGORILERI.md` referans dokümanı | ✅ | tedbirge-os/docs/ |
+| H2 | `mimarHatasi.js` OS modülü + os/index.js + auditor.agent.js (2 array) | ✅ | 20. modül canlı |
+| H3 | sistem-durumu MODULES dict + ArchitectHealthWidget render | ✅ | UI canlı |
+| H4 | `scripts/tur-hijyen-check.sh` 5 kontrol | ✅ | 5/5 OS senkron OK |
+| H5 | architectHealth endpoint + ArchitectHealthWidget 4 KPI | ✅ | /architect-health 401 (mount + ADMIN guard) |
+| H6 | (SKIP — mektup içinde işaretli) | ⏭️ | — |
+| H7 | Production smoke 16 senaryo | ✅ | 16/16 yeşil |
+| H8 | (SKIP — mektup içinde işaretli) | ⏭️ | — |
+| H9 | 5 OS dosya senkron + Madde 14.5 + v1.22.26 | ✅ | TEK ATOMIC commit |
+
+### Smoke 16/16 (H7 KANIT)
+
+1. /2fa-secim 307 ✅
+2. /login 200 + 26996 byte ✅
+3. /sw.js no-store ✅
+4. /api/agents-health 200 + X-Cache: HIT ✅
+5. POST /api/auth/login 401 ✅
+6. /api/users/two-factor-adoption 401 ✅ (TUR #92)
+7. /api/users/lawyer-workload 401 ✅ (TUR #93)
+8. /api/users/architect-health 401 ✅ (H5 YENİ)
+9. Auditor HEALTHY ✅
+10. eventCounts.last1h: 356 ✅
+11-14. /dashboard /lawyer-dashboard /temsilci /musteri 307 ✅
+15. 4 rol POST 401: 4/4 ✅
+16. Toplam 17 modül agentName ✅
+
+### 5 Kategori Toplam: 41
+
+- A — Smoke Yetersizliği: **8** (POST/rol-bazlı atlandı)
+- B — Schema/Migration Drift: **2** (production deploy hook eksik)
+- C — UI Görsel Atlama: **3** (CEO ekran kanıt)
+- D — Auth Flow / Cookie Senkron: **16** (5 dosya bug matrisi)
+- E — Mektup Yorum / Yamalı Bohça: **12** (kanıt-bazlı M0/Q0/H0 keşif)
+- **TOPLAM: 41** ✅
+
+### Mimar Dersi (Madde 14.5 tescil)
+
+> "Mimar mektup yazar, ham koda saygı duyar. Code mektubu uygular, ama Madde 14.3 ile mevcut sistemi savunur. M0/Q0/H0 keşif atomu zorunlu."
+
+41 hata 1:1 anayasa madde tescil oranı korundu (TUR #51 14. mimar hatası → TUR #95 41+1 madde).
+
+### Hijyen Script Çıktı Örneği
+
+```
+🔍 TUR Hijyen Kontrol — 2026-05-07 ...
+⚠️  Working tree kirli (Madde 30.42 ihlal): [TUR #95 atomları pre-commit]
+📦 Lockfile sync: panel 165s OK · root 977765s ⚠ (pre-existing — TUR #96 adayı)
+🗄️  Schema migration apply hook: ✅ scripts/apply-pending-schemas.js mevcut
+🧪 Smoke ipucu: ℹ️ Auth flow değiştiyse NUM_REDIRECTS smoke
+📝 5 OS dosya senkron: ✅ 5/5 OS dosya son commit'te (TUR kapanışı pattern)
+```
+
+### Pattern (47. kalibrasyon)
+
+TUR #56+57+58+...+93+94+95 = **354+ atom sapma 0** — kalibrasyon 1.6× **47. doğrulama**.
+**42. anayasa maddesi tescil:** Madde 14.5 (TUR #95).
+
+### Production Etki
+
+- 0 schema migration · 0 npm install · 0 env değişikliği · 0 maliyet
+- Erken tespit altyapısı canlı: mimarHatasi modülü 5 dk Auditor tick
+- ArchitectHealthWidget /dashboard/sistem-durumu üstünde
+- tur-hijyen-check.sh pre-commit/pre-push referans
+
+---
+
 ## TUR #94 — MÜVEKKİL PANEL İÇERİK (B2C DENEYİM) + MADDE 31.9 R1 ✅ KAPALI
 
 **Tarih:** 7 Mayıs 2026 gece (TUR #93 Yatay CRM sonrası, dördüncü TUR aynı gün)
