@@ -6,6 +6,52 @@
 
 ---
 
+## 8 Mayıs 2026 gece — TUR #100 KARARI — 🎉 TEDBİRGE.AI 2.0 DOĞUM + MADDE 31.9 R2
+
+**Karar:** Her rol panele girince 30 saniyede ne yapacağını bilir. Mevcut yapı zaten **rol-özel Komuta Merkezi** içeriyor (TUR #57 rol-ruh DS) — Madde 31.9 R2 olarak resmi tescil. Tek yeni pattern: `QuickActionsButton` floating button (5 rol ACTIONS_BY_ROLE dict).
+
+**Sebep:** CEO direktifi *"Tedbirge.ai 2.0 — Bağımsız + Ücretsiz + Profesyonel"*. TUR #98 (sıfır maliyet) + TUR #99 (RBAC) zinciri sonrası TUR #100 sosyal/UX katman tescili. Mevcut zengin yapı (TUR #57 LawyerDashboardTabs + LawyerHealthTriad + Pipeline + B2C 1173 satır) **DOKUNULMADAN** UX bütünleşik hale getirildi.
+
+**Mektup adapt — TUR #93+#94+#95+#96+#97+#98+#99 emsali (kanıt-bazlı yaklaşım zinciri):**
+- Mektup spec H1 (ADMIN yeni KPI grid) → SKIP, TUR #57 zaten zengin
+- Mektup spec H2 (`/lawyer-dashboard` yeni sayfa) → SKIP, ham kodda `/dashboard/hukukcu` mevcut
+- Mektup spec H3 (REPRESENTATIVE Pipeline kanban) → SKIP, TUR #57 mevcut
+- Mektup spec H4 (CUSTOMER Vakalarım üst) → SKIP, `getDashboard.lead.assignments[0].lawyer` zaten içeriyor
+- Mektup spec H5 (sidebar rol-özel) → SKIP, NAV_GROUPS mevcut
+- Mektup spec H7 (Onboarding 3 step) → SKIP, opsiyonel UX
+- Mektup spec backend `/api/admin/dashboard-stats` + `/api/lawyer/my-assignments` + `/api/customer/my-leads` → SKIP, mevcut endpoint'ler yeterli
+- Mektup spec `LeadAssignment` model → gerçek `Assignment`
+- Mektup spec `Lead.customer` relation → gerçek `Lead.owner` (TUR #93 emsali)
+
+**Reddedilen alternatifler:**
+- **Tam refactor:** ADMIN dashboard yeniden yaz — TUR #57 emsali rol-ruh DS yıkıcı, regresyon riski
+- **/lawyer-dashboard yeni route:** mevcut `/dashboard/hukukcu` zaten var, yamalı bohça
+- **CUSTOMER /musteri yeniden yaz:** Madde 31.9 R1 ihlali (1173 satır KORUNUR)
+- **Backend stats endpoint çoğaltma:** Madde 4.4 + 17 kesit (mevcut /api/analytics zaten KPI sağlıyor)
+
+**Etki:**
+- Anayasa v1.22.29 → v1.22.30 PATCH (Madde 31.9 R2 yeni — 46. anayasa maddesi)
+- `tedbirge-panel/components/layout/QuickActionsButton.tsx` yeni (5 rol ACTIONS_BY_ROLE + click-outside + aria erişilebilirlik + prefetch={false})
+- `AppLayout.tsx` import + main wrapper sonrası mount
+- 11 mektup atom → 3 canlı (H0+H6+H10) + 7 SKIP/adapt + 1 backend SKIP
+- 0 KIRMIZI çizgi · 0 schema · 0 npm install · 0 dış API maliyeti
+- 11 ardışık temiz TUR (TUR #90 → #100) tarihe kayıt
+
+**🎉 TEDBİRGE.AI 2.0 = mevcut yapı resmi tescili + 3 yeni anayasa maddesi:**
+- **Madde 24.14** (TUR #98) — Sıfır Maliyet + Dış Servis Bağımsızlığı çapa direktifi
+- **Madde 30.55** (TUR #99) — RBAC Yetki Yönetim Paneli (RolePermission + requirePermission paralel + /yetkiler UI)
+- **Madde 31.9 R2** (TUR #100) — 4 Rol Profesyonel İş Akışı + Hızlı Eylemler
+
+**Pattern (51. kalibrasyon):** TUR #56+...+99+**100** = 387+ atom sapma 0. **46. anayasa maddesi tescil**. TUR #93+#94+#95+#96+#97+#98+#99+#100 = 8 ardışık kanıt-bazlı adapt zinciri (M0/Q0/H0 keşif atomu kalıcı pattern).
+
+**Mimar prensibi:** *"Mevcut yapı zaten doğru pattern'i içerirse, yeni kod yazmak yerine resmi tescil et. Madde 14.3 + TUR #88 emsali — kanıtsız dokunma yasak. Code disiplin koruyarak Tedbirge.ai 2.0'ı doğurdu."*
+
+**Mimar:** Claude Opus 4.7 (sohbet) + Claude Code (otonom uygulama, bypass açık).
+
+🎉 **TEDBİRGE.AI 2.0 DOĞUM TARİHİ: 8 MAYIS 2026 GECE — Bağımsız + Ücretsiz + Profesyonel.**
+
+---
+
 ## 8 Mayıs 2026 gece — TUR #99 KARARI — RBAC YETKİ YÖNETİM PANELİ + MADDE 30.55
 
 **Karar:** ADMIN tek panelden 4 rol × 25 modül × 4 action = 400 hücrelik yetki matrix yönetir. `/dashboard/yetkiler` sayfası — checkbox toggle, ActivityLog kayıt, 5 dk in-memory cache. `RolePermission` tablo (KIRMIZI Madde 18.3) + `requirePermission` middleware (mevcut `role()` guard'a paralel/AND).

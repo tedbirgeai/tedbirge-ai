@@ -3246,6 +3246,34 @@ Tüm canlı feed SSE üstünden (`/api/realtime/notifications`). Client `EventSo
 - ❌ Eksik empati ("Sayın müşteri" → "Merhaba {isim}")
 - ❌ Mevcut /musteri zengin sayfaya kanıtsız dokunmak (Madde 4.4 + 14.3 — TUR #93 emsali)
 
+### 31.9 R2 — 4 Rol Profesyonel İş Akışı Disiplini (TUR #100 — 8 May 2026)
+
+**Kural:** Her rol panele girince **30 saniyede ne yapacağını bilir**. Karmaşık menü hiyerarşisi yerine **rol-özelinde Komuta Merkezi** + **Hızlı Eylemler floating button** + **rol-özel sidebar ana link**.
+
+**4 Rol Komuta Merkezi (mevcut yapı tescili):**
+- **ADMIN** `/dashboard` — TUR #57 emsali zaten zengin (LawyerDashboardTabs + LawyerHealthTriad + GlobalSearch + KPI types: Conversion + Revenue + Funnel + LawyerPerf + Komisyon) → **DOKUNMA** (Madde 14.3)
+- **LAWYER** `/dashboard/hukukcu` — sidebar'da mevcut, korunur (mektup spec `/lawyer-dashboard` ham koda uymadı, adapt edildi)
+- **REPRESENTATIVE** `/temsilci` — TUR #57 rol-ruh DS Pipeline mevcut (Plus + TrendingUp + Wallet + Clock lucide-react)
+- **CUSTOMER** `/musteri` — 1173 satır B2C (Madde 31.9 R1) + `getDashboard` `lead.assignments[0].lawyer` zaten gösteriyor → **DOKUNMA**
+
+**Hızlı Eylemler:** `components/layout/QuickActionsButton.tsx` — top-right floating, rol-özel 2-3 aksiyon, click-outside kapanır, prefetch={false} (Madde 31.10 emsali). 5 rol için ACTIONS_BY_ROLE dict.
+
+**Sidebar:** Rol-özel ana sayfa link'leri **mevcut** (AppLayout NAV_GROUPS) — DOKUNULMADI.
+
+**Madde 14.3 + TUR #93+#94+#95+#96+#97+#98+#99 emsali (kanıt-bazlı yaklaşım):**
+- Mektup spec'in mevcut yapıyla çelişen atomları SKIP edilir (H1 ADMIN, H2 LAWYER, H3 REPRESENTATIVE, H4 CUSTOMER, H5 sidebar, H7 onboarding)
+- Eklenen tek yeni pattern: H6 Hızlı Eylemler (regresyon riski yok, mevcut bozmaz)
+- M0/Q0/H0 keşif raporu kanıt: mevcut yapı zaten Komuta Merkezi pattern'ini içeriyor
+
+**Pattern sonucu:** Tedbirge.ai 2.0 = mevcut yapı tescili + Madde 31.9 R1 (CUSTOMER B2C) + Madde 31.9 R2 (4 rol komuta merkezi mevcut + Hızlı Eylemler) + Madde 24.14 (sıfır maliyet AI bağımsız) + Madde 30.55 (RBAC yetki yönetimi).
+
+**Yasak:**
+- ❌ /musteri 1173 satır yeniden yazma (Madde 31.9 R1 emsali)
+- ❌ ADMIN dashboard (TUR #57 zengin) kanıtsız refactor (Madde 14.3 ihlali)
+- ❌ Mevcut sidebar item'larını silme (Madde 14.3 — sadece ekleme)
+- ❌ Hızlı Eylemler menüsünü zorunlu yapma (opsiyonel UX, role-özel filter)
+- ❌ Backend'de gereksiz endpoint çoğaltma (`/api/customer/my-leads` mektup spec — gerçek `/api/musteri/dashboard` zaten içeriyor)
+
 ---
 
 ## 32. BELGE DİSİPLİNİ — Hibrit Mimari TÜM SİSTEM (TUR #63)
@@ -3434,10 +3462,10 @@ Mehmet Bey sahaya çıkabilsin diye bu disiplin var.
 
 ---
 
-**— Tedbirge Mimari Anayasası v1.22.29**  
-**Toplam 99 TUR · 382+ atom sapma 0 · 50 kalibrasyon · 42 mimar hatası → 45 anayasa maddesi**  
-**Aktif Kesit:** TUR #99 KAPALI (RBAC Yetki Matrisi + Madde 30.55 — RolePermission + requirePermission + /dashboard/yetkiler)  
-**Sıradaki:** TUR #100 (4 Rol İş Akışı) — Tedbirge.ai 2.0  
+**— Tedbirge Mimari Anayasası v1.22.30**  
+**Toplam 100 TUR · 387+ atom sapma 0 · 51 kalibrasyon · 42 mimar hatası → 46 anayasa maddesi**  
+**🎉 TEDBİRGE.AI 2.0 DOĞDU 🎉** (TUR #98 + #99 + #100 zinciri — Bağımsız + Ücretsiz + Profesyonel)  
+**Aktif Kesit:** TUR #100 KAPALI (4 Rol İş Akışı + Madde 31.9 R2 — Hızlı Eylemler + mevcut komuta merkezi tescili)  
 **Tüm sürüm geçmişi + TUR detayları + atom kayıtları: `tedbirge-os/MIMARI_KARARLAR.md`**
 
 **Versiyon geçmişi: tedbirge-os/MIMARI_KARARLAR.md**  
