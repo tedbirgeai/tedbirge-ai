@@ -16,10 +16,10 @@
 | **B — Schema/Migration Drift** | Lokal apply OK → production drift | 9, 31 | **2** |
 | **C — UI Görsel Atlama** | Backend smoke yeşil → CEO ekran kırmızı | 10, 11, 12 | **3** |
 | **D — Auth Flow / Cookie Senkron** | 5 dosya bug matrisi (proxy.ts + lib/api.ts + 2fa-secim + login + AppLayout) | 17-22, 27-30, 33-39 | **16** |
-| **E — Mektup Yorum / Yamalı Bohça** | Mektup ham kodla çatışır → Code SKIP/adapt etmeli | 25, 26, 38 + TUR #93+#94 emsali | **12** |
-| | **TOPLAM** | | **41** |
+| **E — Mektup Yorum / Yamalı Bohça** | Mektup ham kodla çatışır → Code SKIP/adapt etmeli | 25, 26, 38 + TUR #93+#94+#96 emsali | **13** |
+| | **TOPLAM** | | **42** |
 
-**Doğrulu:** A:8 + B:2 + C:3 + D:16 + E:12 = **41** ✅
+**Doğrulu:** A:8 + B:2 + C:3 + D:16 + E:13 = **42** ✅ (TUR #96 — 42. mimar hatası: Senaryo D scripts-only diff false-positive, mektup öngörmediği yeni alt-senaryo)
 
 ---
 

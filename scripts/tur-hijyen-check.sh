@@ -41,9 +41,18 @@ for repo in tedbirge-panel .; do
     REPO_LABEL="${repo}"
     [ "$repo" = "." ] && REPO_LABEL="tedbirge-ai (root)"
     if [ "$DELTA_ABS" -gt 60 ]; then
-      echo "  ❌ $REPO_LABEL: package.json ↔ package-lock.json delta ${DELTA_ABS}s > 60s (npm install eksik?)"
-      ISSUES=$((ISSUES+1))
-      LOCKFILE_OK=0
+      # 2. katman: paket listesi diff (TUR #96 Madde 30.46 R1 — Senaryo D false-positive engelleme)
+      # mtime delta yeterli değil — scripts-only diff false-positive üretir.
+      # node ile dependencies + devDependencies JSON çıkarıp diff'le.
+      PJ_DEPS=$(node -e "const p=require(require('path').resolve('$PJ'));process.stdout.write(JSON.stringify({d:p.dependencies||{},dd:p.devDependencies||{}}))" 2>/dev/null)
+      PL_DEPS=$(node -e "const p=require(require('path').resolve('$PL'));const r=(p.packages&&p.packages[''])||{};process.stdout.write(JSON.stringify({d:r.dependencies||{},dd:r.devDependencies||{}}))" 2>/dev/null)
+      if [ -n "$PJ_DEPS" ] && [ -n "$PL_DEPS" ] && [ "$PJ_DEPS" = "$PL_DEPS" ]; then
+        echo "  ℹ️  $REPO_LABEL: mtime delta ${DELTA_ABS}s ama paket listesi sync (scripts-only diff false-positive — Madde 30.46 R1)"
+      else
+        echo "  ❌ $REPO_LABEL: package.json ↔ package-lock.json paket listesi gerçek drift (npm install eksik)"
+        ISSUES=$((ISSUES+1))
+        LOCKFILE_OK=0
+      fi
     else
       echo "  ✅ $REPO_LABEL: delta ${DELTA_ABS}s OK"
     fi

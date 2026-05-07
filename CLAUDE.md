@@ -494,6 +494,27 @@ Sen yorulursan (bağlam dolarsa): **DUR**, OTONOM_RAPOR.md'ye yazıp sohbete dö
 - ❌ Mektup spec field/path adlarını schema doğrulamadan kullanmak (TUR #93 emsali — `Lead.customerId/atananAvukatId` YOK)
 - ❌ Mektup spec atom sayısının tamamını uygulamak (SKIP atomları beklenen — TUR #94 emsali, %20-40 SKIP normal)
 
+### 14.5 R1 — Hijyen Script İlk Meyve Disiplini (TUR #96)
+
+**Kural:** TUR #95 hijyen script (`scripts/tur-hijyen-check.sh`) **bulguları proaktif** TUR adayı olarak değerlendirilir. İlk gerçek-dünya bulgusu (TUR #96 root lockfile drift uyarısı) Madde 14.5 emsali kapanışı.
+
+**Bulgu yanıt protokolü:**
+1. **L0 keşif zorunlu** — bulgu ham kanıtla doğrulanır (false alarm vs gerçek)
+2. **Senaryo dallanma:** A (false alarm — script düzelt) / B (kozmetik — sync) / C (KIRMIZI — DUR + CEO yazılı onay) / **D (TUR #96 yeni — scripts-only diff false-positive — script güçlendir)**
+3. **TUR #85.7 emsali tehlike kontrolü:** Lockfile fix Vercel/Render deploy hedefi varsa atomik commit + smoke + production deploy doğrulama
+4. **AgentEvent kayıt:** `mimarHatasi` modülü bulgu kapanışını payload.fixedFinding ile yazar (gelecek TUR'larda referans)
+
+**Senaryo D tanımı (TUR #96 emsali — 42. mimar hatası):**
+- `package.json` mtime delta var (örn. scripts.postinstall değişti) ama `dependencies` + `devDependencies` listesi DEĞİŞMEDİ
+- `npm ci` paket listesi diff'i kontrol eder, scripts field'ı değil → operasyonel false-positive
+- Çözüm: hijyen script 2 katman güçlendirme (mtime + node JSON paket listesi diff)
+
+**Yasak:**
+- ❌ Hijyen bulgu görmezden gelmek (Madde 14.5 ihlali)
+- ❌ KIRMIZI nokta tetikleyen bulgu için CEO yazılı onaysız fix (Madde 18.3 ihlali)
+- ❌ Lockfile fix sonrası Vercel/Render deploy doğrulamasını atlama (TUR #85.7 emsali)
+- ❌ Senaryo D durumunda `npm install` çağırmak (gereksiz risk — scripts-only diff fiili paket drift değildir)
+
 ---
 
 ## 17. STRATEJİK KESİT DİSİPLİNİ — Yamalı Bohça Yasağının Pratik Uygulaması
@@ -2752,6 +2773,48 @@ git diff --cached --stat | grep -E "package\.json|package-lock\.json"
 - ❌ `npm install` sonrası `git add package.json` ama `package-lock.json` skip
 - ❌ Vercel/CI `npm install` (npm ci yerine) — lockfile validation atlanır, geç hata
 
+### 30.46 R1 — Hijyen Script 2 Katman Doğrulama Disiplini (TUR #96)
+
+**Kural:** Lockfile sync hijyen kontrolü (`scripts/tur-hijyen-check.sh`) **mtime delta tek başına yetersiz**. Mtime delta > 60s tetiklendiğinde **2. katman** olarak `package.json` ↔ `package-lock.json` paket listesi diff'i node ile zorunlu doğrulanır.
+
+**TUR #96 emsal — 42. mimar hatası:**
+- Hijyen script TUR #95'te oluşturuldu (Madde 14.5 erken tespit altyapısı)
+- İlk gerçek bulgu (root delta 977765s = 11 gün) Senaryo C "DUR + CEO yazılı onay" tetikledi
+- L0 keşfi diff kanıtı: TUR #72.8 H1 commit `8604c6a` (4 May) sadece `scripts.postinstall` değişti, `dependencies` + `devDependencies` SABİT
+- `npm ci` paket listesi diff'i kontrol eder (lockfile v3 `packages[""]`), `scripts` field'ı değil → **operasyonel false-positive**
+- 95+ TUR boyunca Render `npm ci --omit=dev` başarılı (canlı kanıt — `/health` 200 OK)
+- CEO Yol 2 onayı: hijyen script güçlendirilir, `npm install` çağrılmaz (RİSK SIFIR)
+
+**2 Katman Pattern (zorunlu):**
+
+```bash
+# Katman 1: mtime delta kontrolü (mevcut)
+DELTA_ABS=$(( PJ_MTIME - PL_MTIME ))
+if [ "$DELTA_ABS" -gt 60 ]; then
+  # Katman 2: paket listesi diff (TUR #96 yeni)
+  PJ_DEPS=$(node -e "const p=require(require('path').resolve('$PJ'));process.stdout.write(JSON.stringify({d:p.dependencies||{},dd:p.devDependencies||{}}))")
+  PL_DEPS=$(node -e "const p=require(require('path').resolve('$PL'));const r=(p.packages&&p.packages[''])||{};process.stdout.write(JSON.stringify({d:r.dependencies||{},dd:r.devDependencies||{}}))")
+  if [ "$PJ_DEPS" = "$PL_DEPS" ]; then
+    echo "  ℹ️  mtime delta var ama paket listesi sync (scripts-only diff false-positive)"
+    # NOT ISSUE — sadece bilgi mesajı
+  else
+    echo "  ❌ Paket listesi gerçek drift (npm install eksik)"
+    ISSUES=$((ISSUES+1))
+  fi
+fi
+```
+
+**Kanıt zinciri (TUR #96 L2 emsal):**
+- BEFORE: ❌ root delta 977765s > 60s ISSUE
+- AFTER: ℹ️ root mtime delta 977765s + paket listesi sync (false-positive doğrulandı)
+- md5 hash `c85b57ca558feafeff99aa07050ad9cd` her iki tarafta eşit (kanıt)
+
+**Yasak:**
+- ❌ Senaryo D (scripts-only diff) durumunda `npm install` çağırmak (gereksiz risk — TUR #85.7 emsali transitive dep checksum güncellemesi patlatabilir)
+- ❌ Hijyen script güçlendirme atlamak ve mtime delta tek metric kabul etmek (false-positive ile gerçek drift karışır)
+- ❌ Lockfile v3 `packages[""]` yerine yanlış path okumak (lockfile v1/v2 `dependencies` field'ı YOKTUR — paket listesi gömülü manifest'te)
+- ❌ Senaryo D mektup öngörmediyse Code'un kendi başına uygulaması (Madde 14.3 + 18.3 emsali — CEO yazılı onay gerekir)
+
 ### 30.48 — Auth State Bütünlüğü Disiplini (TUR #85.9)
 
 **Kural:** Middleware (`proxy.ts`) auth kontrolünde **"token var + role yok"** durumu **BOZUK STATE** sayılır → `/login` redirect zorunlu. `next()` geçişi YASAK çünkü frontend layout client-side redirect zinciri tetikleyebilir → **sonsuz döngü**.
@@ -3295,8 +3358,8 @@ Mehmet Bey sahaya çıkabilsin diye bu disiplin var.
 
 ---
 
-**— Tedbirge Mimari Anayasası v1.22.26**  
-**Toplam 94 TUR · 344+ atom sapma 0 · 46 kalibrasyon · 41 mimar hatası → 42 anayasa maddesi**  
+**— Tedbirge Mimari Anayasası v1.22.27**  
+**Toplam 96 TUR · 359+ atom sapma 0 · 48 kalibrasyon · 42 mimar hatası → 43 anayasa maddesi**  
 **Tüm sürüm geçmişi + TUR detayları + atom kayıtları: `tedbirge-os/MIMARI_KARARLAR.md`**
 
 **Versiyon geçmişi: tedbirge-os/MIMARI_KARARLAR.md**  

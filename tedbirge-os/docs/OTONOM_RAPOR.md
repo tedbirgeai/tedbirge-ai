@@ -1,3 +1,110 @@
+## TUR #96 — ROOT LOCKFILE DRIFT FIX SENARYO D ✅ KAPALI (CEO Yol 2 onayı + 42. mimar hatası)
+
+**Tarih:** 7 Mayıs 2026 gece (TUR #95 sonrası, hijyen script ilk meyve 24 saat içinde)
+**Anayasa:** v1.22.26 → v1.22.27 PATCH (Madde 14.5 R1 + Madde 30.46 R1 yeni — Hijyen Script 2 Katman Doğrulama Disiplini)
+**Tip:** Hijyen script güçlendirme (npm install YOK, dependencies sabit, RİSK SIFIR)
+**BYPASS:** Yol 2 yazılı CEO onayı sonrası AÇIK (Madde 18.3 KIRMIZI yazılı onay)
+
+### CEO Direktifi (Madde 30.25 + 18.3)
+
+> *"✅ MİMAR ONAYI — YOL 2 KABUL (Madde 18.3 yazılı). Senaryo D yeni protokol uygula. HİÇBİR npm install YOK."*
+
+### Mektup Adapt — Senaryo D yeni alt-senaryo
+
+L0 raporda DUR (1. iterasyon) sonrası CEO Yol 2 (Senaryo D protokol) onayı geldi:
+- Mektup spec 3 senaryo (A/B/C) öngördü
+- L0 keşfi 4. senaryo (D) buldu: scripts-only diff false-positive
+- CEO yazılı onayla bu yeni protokol uygulandı (kalıcı pattern)
+
+### Atomlar
+
+| Atom | Konu | Durum | Kanıt |
+|---|---|---|---|
+| L0 | Keşif + 3 soru kanıt + Senaryo D tanı | ✅ | rapor commit `114a70d` |
+| L1' | scripts/tur-hijyen-check.sh 2 katman güçlendirme | ✅ | mtime + node JSON paket listesi diff |
+| L2 | Hijyen script tekrar çalıştır | ✅ | ❌ ISSUE 1 → ℹ️ INFO 0 |
+| L3 | Production smoke 16 senaryo regresyon | ✅ | 16/16 yeşil |
+| L4 | 5 OS senkron + Madde 14.5 R1 + Madde 30.46 R1 + v1.22.27 | ✅ | TEK ATOMIC commit |
+
+### L1' Bash Diff (jq paket listesi kontrolü kanıtı)
+
+`node` ile dependencies + devDependencies JSON çıkarımı (jq cross-platform alternatifi — Tedbirge backend zaten Node 20+):
+
+```bash
+PJ_DEPS=$(node -e "const p=require(require('path').resolve('$PJ'));process.stdout.write(JSON.stringify({d:p.dependencies||{},dd:p.devDependencies||{}}))")
+PL_DEPS=$(node -e "const p=require(require('path').resolve('$PL'));const r=(p.packages&&p.packages[''])||{};process.stdout.write(JSON.stringify({d:r.dependencies||{},dd:r.devDependencies||{}}))")
+if [ "$PJ_DEPS" = "$PL_DEPS" ]; then
+  echo "  ℹ️  $REPO_LABEL: mtime delta var ama paket listesi sync (false-positive — Madde 30.46 R1)"
+else
+  echo "  ❌ $REPO_LABEL: paket listesi gerçek drift"
+  ISSUES=$((ISSUES+1))
+fi
+```
+
+**md5 hash kanıt:** root + panel her iki repo'da paket listesi hash `c85b57ca558feafeff99aa07050ad9cd` eşit → false-positive doğrulandı.
+
+### L2 Hijyen After Çıktı
+
+```
+🔍 TUR Hijyen Kontrol — 2026-05-07 17:46:37
+📦 Lockfile sync (Madde 30.46):
+  ℹ️  tedbirge-panel: mtime delta 165s ama paket listesi sync (scripts-only diff false-positive — Madde 30.46 R1)
+  ℹ️  tedbirge-ai (root): mtime delta 977765s ama paket listesi sync (scripts-only diff false-positive — Madde 30.46 R1)
+🗄️  Schema migration apply hook (Madde 30.22): ✅ scripts/apply-pending-schemas.js mevcut
+🧪 Smoke ipucu: ℹ️ Auth flow değiştiyse NUM_REDIRECTS smoke
+📝 5 OS dosya senkron son commit: ℹ️ 1/5 OS dosya son commit'te
+📊 ÖZET: Issues: 0 · Warnings: 1
+⚠️  1 uyarı — devam edebilirsin ama dikkat
+```
+
+**Before/After delta:** ❌ Issues 1 → ✅ Issues 0 (root false-positive sustu).
+
+### L3 Production Smoke 16/16 ✅
+
+1. /api/agents-health 200 ✅
+2. /api/users/architect-health 401 ✅ (TUR #95)
+3. /api/users/two-factor-adoption 401 ✅ (TUR #92)
+4. /api/users/lawyer-workload 401 ✅ (TUR #93)
+5. POST /api/auth/login 401 ✅ (TUR #87.5)
+6. /sw.js no-store ✅
+7. /login 200 + 26996 byte ✅
+8-12. /2fa-secim /dashboard /lawyer-dashboard /temsilci /musteri 307 ✅
+13. Auditor HEALTHY + last1h **366** ✅ (TUR #95 sonrası 356→366 mimarHatasi tick canlı)
+14. mimarHatasi modül agentName: AgentEvent yazımı aktif (last1h 10+ artış kanıt)
+15. 4 rol POST 401: 4/4 ✅
+16. /api/musteri/bildirimler 401 ✅ (TUR #94 M1)
+
+### mimarHatasi AgentEvent (canlı kanıt)
+
+- TUR #95 modül 5 dk Auditor tick devam: last1h 356 (TUR #95) → 366 (TUR #96 L3 ölçüm) — **10 olay artış**
+- Auditor moduleNames 2 array (runAllModules + runAllActiveTasks) mimarHatasi içeriyor
+- AgentEvent agentName='mimarHatasi' eventType='STATUS_CHECK' severity payload archHealthScore yazılıyor
+
+### 42. Mimar Hatası Tescil
+
+**42. mimar hatası: TUR #96 Senaryo D — Hijyen Script False-Positive (Kategori E genişleme):**
+- Kategori E (Mektup Yorum / Yamalı Bohça) 12 → 13 (TUR #96)
+- 5 kategori toplam: A:8 + B:2 + C:3 + D:16 + **E:13** = **42**
+- Pattern: Mektup spec öngörmediği Senaryo bulundu → Code disiplin Madde 14.3 + 18.3 ile DUR + CEO yazılı onay → Yol 2 protokol kalıcı
+
+### Mimar Dersi (Madde 14.5 R1 + 30.46 R1 tescil)
+
+> "Hijyen script ilk meyve verdi. Madde 14.5 proaktif tarama 24 saat içinde gerçek değer üretti. Bu pattern kalıcı. mtime delta tek başına yetersiz — paket listesi diff 2. katman zorunlu."
+
+### Pattern (48. kalibrasyon)
+
+TUR #56+...+95+**96** = **359+ atom sapma 0** — kalibrasyon 1.6× **48. doğrulama**.
+**43. anayasa maddesi tescil:** Madde 14.5 R1 + Madde 30.46 R1 (TUR #96, çift R-tescil tek TUR'da).
+
+### Production Etki
+
+- 0 schema · 0 npm install · 0 env · 0 maliyet · 0 dep değişikliği
+- Hijyen script 2 katman doğrulama canlı (false-positive engelleme)
+- Render deploy hedefi DOKUNULMADI (canlı /health 200 OK)
+- TUR #95 mimarHatasi modülü tick devam (last1h 356→366)
+
+---
+
 ## TUR #96 — ROOT LOCKFILE DRIFT FIX 🛑 DUR (Senaryo C — Madde 18.3 KIRMIZI yazılı onay bekliyor)
 
 **Tarih:** 7 Mayıs 2026 (TUR #95 sonrası, hijyen script ilk meyve)

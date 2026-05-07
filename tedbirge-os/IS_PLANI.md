@@ -1,21 +1,21 @@
 # TEDBİRGE.AI YOL HARİTASI v1.0
-**Son güncelleme:** 7 Mayıs 2026 gece (TUR #95 KAPALI — Mimar Hatası Proaktif Tarama)
-**Anayasa versiyonu:** v1.22.26 (Madde 14.5 yeni: Mimar Hatası Proaktif Tarama Disiplini 6 katman)
+**Son güncelleme:** 7 Mayıs 2026 gece (TUR #96 KAPALI — Root Lockfile Drift Fix Senaryo D)
+**Anayasa versiyonu:** v1.22.27 (Madde 14.5 R1 + Madde 30.46 R1 yeni: Hijyen Script 2 Katman Doğrulama Disiplini)
 **İlke:** MoSCoW + Now-Next-Later hibrit (Madde 24.5)
 
 ---
 
 ## 🎯 AKTİF KESİT
 
-**Faz:** Mimar Hatası Proaktif Tarama KAPALI ✅ (TUR #95 ile mektup spec 10 atom → kanıt-bazlı 8 atom + 2 SKIP adapt; mimarHatasi.js OS modülü 20. modül + Auditor moduleNames 2 array + ArchitectHealthWidget 4 KPI + tur-hijyen-check.sh 5 kontrol + MIMAR_HATA_KATEGORILERI.md referans)
-**Son TUR:** #95 — Mimar Hatası Proaktif Tarama (KAPALI, 8 atom + 2 SKIP, Madde 14.5 tescil, backend commit `9c2bb84` + panel commit `76517c1` + os senkron, $0 maliyet, 0 yeni mimar hatası)
-**Son düzeltme TUR'u:** ... + #94 + **#95** (Müvekkil B2C sonrası mimar erken tespit altyapısı — kanıt-bazlı yaklaşım sürdü, M0/Q0/H0 keşif pattern kalıcı)
+**Faz:** Root Lockfile Drift Fix KAPALI ✅ (TUR #96 ile L0 keşfi mektup öngörmediği Senaryo D buldu — scripts-only diff false-positive; CEO Yol 2 onayı sonrası hijyen script 2 katman güçlendirme uygulandı, npm install YOK, RİSK SIFIR)
+**Son TUR:** #96 — Root Lockfile Drift Fix Senaryo D (KAPALI, 5 atom L0-L4, Madde 14.5 R1 + Madde 30.46 R1 tescil, hijyen script güçlendirme commit + os senkron, $0 maliyet, 0 npm install, 0 schema, 42. mimar hatası kayıt)
+**Son düzeltme TUR'u:** ... + #95 + **#96** (Hijyen script TUR #95 ilk meyvesi 24 saat içinde — proaktif tarama gerçek değer üretti)
 **🔴 AÇIK KRİTİK:** 0
-**🟡 TUR #96 NOW:** **Cloudflare manuel kurulum** (Mehmet Bey ~15 dk, +%15-25 hızlanma) + **CEO Emine replay test** (gizli mod, ~2 dk)
-**🟡 TUR #97 NEXT:** TUR #85.10 prerender + Next 16.2.4 patch + backend log temizlik (109 console.log)
-**🟡 TUR #98 LATER:** Playwright/Cypress e2e (npm yeni paket adayı) + e-baro doğrulama API + UYAP API tam entegrasyon
-**Anayasa:** v1.22.26 (49 alt-madde — Madde 14.5 + Madde 27.6 + Madde 30.10-30.53 + Madde 30.41 R1 + Madde 30.32 R1 + Madde 31.9 R1 + 8 R-genişleme)
-**Son güncelleme:** 7 Mayıs 2026 gece (TUR #95 KAPANIŞ — Mimar Sağlık Skoru widget + 20. OS modülü + tur-hijyen-check + Madde 14.5 tescil)
+**🟡 TUR #97 NOW:** **Cloudflare manuel kurulum** (Mehmet Bey ~15 dk, +%15-25 hızlanma) + **CEO Emine replay test** (gizli mod, ~2 dk)
+**🟡 TUR #98 NEXT:** TUR #85.10 prerender + Next 16.2.4 patch + backend log temizlik (109 console.log)
+**🟡 TUR #99 LATER:** Playwright/Cypress e2e (npm yeni paket adayı) + e-baro doğrulama API + UYAP API tam entegrasyon
+**Anayasa:** v1.22.27 (49 alt-madde — Madde 14.5 + Madde 14.5 R1 + Madde 27.6 + Madde 30.10-30.53 + Madde 30.41 R1 + Madde 30.32 R1 + Madde 30.46 R1 + Madde 31.9 R1 + 10 R-genişleme)
+**Son güncelleme:** 7 Mayıs 2026 gece (TUR #96 KAPANIŞ — Hijyen Script 2 Katman + Senaryo D protokol kalıcı)
 
 ### 4 TUR Yol Haritası (CEO HAYALİ — 2 Mayıs gece)
 

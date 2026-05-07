@@ -6,6 +6,47 @@
 
 ---
 
+## 7 Mayıs 2026 gece — TUR #96 KARARI — ROOT LOCKFILE DRIFT FIX SENARYO D + MADDE 14.5 R1 + MADDE 30.46 R1 TESCİL
+
+**Karar:** TUR #95 hijyen script ilk meyve bulgusu (root delta 977765s 11 gün). L0 keşfi **mektup öngörmediği Senaryo D** buldu (scripts-only diff false-positive). CEO Yol 2 yazılı onayı (Madde 18.3) sonrası hijyen script 2 katman güçlendirildi (mtime + node JSON paket listesi diff). `npm install` çağrılmadı, dependencies sabit, Render deploy hedefine dokunulmadı.
+
+**Sebep:** Hijyen script TUR #95'te oluşturuldu (Madde 14.5 erken tespit altyapısı). 24 saat içinde ilk gerçek bulgu Senaryo C "DUR" tetikledi. L0 diff kanıtı (`git diff e117f11 HEAD -- package.json`): TUR #72.8 H1 commit `8604c6a` (4 May) sadece `scripts.postinstall` değişti, `dependencies` + `devDependencies` SABİT. `npm ci` paket listesi diff'i kontrol eder, scripts field'ı değil → operasyonel false-positive. 95+ TUR boyunca Render `npm ci --omit=dev` başarılı (canlı kanıt).
+
+**Mektup adapt — Senaryo D yeni alt-senaryo (TUR #96 emsali kalıcı):**
+- Mektup spec 3 senaryo öngördü (A: package.json YOK / B: kozmetik / C: KIRMIZI deploy)
+- L0 keşfi 4. senaryo buldu (D: scripts-only diff false-positive)
+- Code disiplini Madde 14.3 + 18.3 = DUR + CEO yazılı onay (1. iterasyon: rapor commit `114a70d`)
+- CEO Yol 2 onayı sonrası hijyen script 2 katman güçlendirme uygulandı
+
+**Alternatif (reddedildi):**
+- **Yol 1 (Senaryo B `npm install`):** Lockfile timestamp + transitive dep checksum güncellemesi → TUR #85.7 patlama riski tekrarı. Reddedildi (CEO).
+- **Yol 3 (mevcut DUR sürdür):** Hijyen script bulgu pasif kalır, Madde 14.5 erken tespit pratik değer üretmez. Reddedildi (CEO).
+- **Hijyen script tamamen kaldırma:** Madde 14.5 ihlali. Reddedildi.
+- **jq global kurulum:** Cross-platform ek bağımlılık. Node fallback tercih edildi (Tedbirge zaten Node 20+).
+
+**Etki:**
+- `scripts/tur-hijyen-check.sh` mtime delta > 60s ise 2. katman node JSON paket listesi diff (Madde 30.46 R1)
+- Hijyen script çıktı: ❌ ISSUE 1 → ℹ️ INFO 0 (root + panel false-positive sustu)
+- md5 hash `c85b57ca558feafeff99aa07050ad9cd` her iki repo paket listesi eşit kanıt
+- 0 schema · 0 npm · 0 commit kod tarafı · 0 dep değişikliği
+- Production smoke 16/16 yeşil (TUR #92+#93+#94+#95 regresyon korundu, last1h 356→366 mimarHatasi tick canlı)
+- CLAUDE.md Madde 14.5 R1 (Hijyen Script İlk Meyve Disiplini) + Madde 30.46 R1 (2 Katman Doğrulama Disiplini) çift tescil
+- Sürüm v1.22.26 → v1.22.27 PATCH
+
+**Smoke 16/16 (L3):** /api/agents-health 200 + /api/users/{architect-health, two-factor-adoption, lawyer-workload} 401 + POST /api/auth/login 401 + /sw.js no-store + /login 200 (26996 byte) + 5 protected route 307 + Auditor HEALTHY + last1h 366 + 4 rol POST 401: 4/4 + /api/musteri/bildirimler 401.
+
+**42. Mimar Hatası — Kategori E genişleme:**
+- Kategori E (Mektup Yorum / Yamalı Bohça): 12 → **13**
+- 5 kategori toplam: A:8 + B:2 + C:3 + D:16 + **E:13** = **42**
+- Pattern: Mektup spec öngörmediği Senaryo bulundu → Code Madde 14.3 + 18.3 DUR + CEO yazılı onay → Yol 2 protokol kalıcı
+
+**Pattern (48. kalibrasyon):** TUR #56+...+95+**96** = 359+ atom sapma 0. **43. anayasa maddesi tescil** (Madde 14.5 R1 + Madde 30.46 R1, çift R-tescil tek TUR'da).
+
+**Mimar:** Claude Opus 4.7 (sohbet) + Claude Code (otonom uygulama, bypass açık).
+**Mimar prensibi:** "Hijyen script ilk meyve verdi. Madde 14.5 proaktif tarama 24 saat içinde gerçek değer üretti. Bu pattern kalıcı."
+
+---
+
 ## 7 Mayıs 2026 gece — TUR #95 KARARI — MİMAR HATASI PROAKTİF TARAMA + MADDE 14.5 TESCİL
 
 **Karar:** 41 mimar hatasını 5 kategoriye ayır + erken tespit altyapısı kur (mimarHatasi.js OS modülü 20. modül + ArchitectHealthWidget 4 KPI + tur-hijyen-check.sh 5 kontrol). Madde 14.5 yeni alt-madde tescil edildi.
