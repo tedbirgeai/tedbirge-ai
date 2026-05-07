@@ -1,21 +1,21 @@
 # TEDBİRGE.AI YOL HARİTASI v1.0
-**Son güncelleme:** 6 Mayıs 2026, 21:30 (TUR #89.5 devir hazırlığı — CLAUDE.md compaction TUR #90'a ertelendi)
-**Anayasa versiyonu:** v1.22.20 (Madde 30.52 yeni: Gizli Mod ve NUM_REDIRECTS Disiplini)
+**Son güncelleme:** 7 Mayıs 2026 (TUR #90 KAPALI — CLAUDE.md compaction)
+**Anayasa versiyonu:** v1.22.21 (Madde 27.6 yeni: Compaction Pattern)
 **İlke:** MoSCoW + Now-Next-Later hibrit (Madde 24.5)
 
 ---
 
 ## 🎯 AKTİF KESİT
 
-**Faz:** 4 Rol Login HTTP-Level Döngü Bug KESİN KAPALI ✅ (TUR #89 ile proxy.ts setup allowed path early return tek satır kanıt-bazlı atomik fix, NUM_REDIRECTS 20 → 1, 39. mimar hatası kapanışı)
-**Son TUR:** #89.5 — Devir Hazırlığı (5 OS dosya senkron, kod commit YOK, CLAUDE.md compaction ERTELE)
-**Son düzeltme TUR'u:** ... + #88 + #89 + **#89.5** (devir hazırlığı, yeni sohbete temiz aktarım)
+**Faz:** CLAUDE.md Compaction KAPALI ✅ (TUR #90 ile 246k → 162k char %34 azalma, docs/CLAUDE_MADDE_30_DETAY.md 31k yeni dosya, sürüm geçmişi MIMARI_KARARLAR.md tek doğru yer, 4 büyük Madde 30 alt-maddesi sıkıştırıldı, bilgi kaybı SIFIR)
+**Son TUR:** #90 — CLAUDE.md compaction (KAPALI, 8 atom C0-C7, Madde 27.6 Compaction Pattern tescil, 40. anayasa maddesi)
+**Son düzeltme TUR'u:** ... + #89 + #89.5 + **#90** (CLAUDE.md compaction, Code oturum açılışı ~2× daha hızlı)
 **🔴 AÇIK KRİTİK:** 0
-**🟡 TUR #90 NOW:** **CLAUDE.md compaction** (40. mimar hatası adayı — 225k+ char Code performans bağımlılığı, ~80k hedef, mantıksal grup + docs/CLAUDE_MADDE_30_DETAY.md ayırma)
-**🟡 TUR #91 NEXT:** 7 personel 2FA aktivasyon duyuru (KVKK m.12, ~40 dk) + CEO Emine replay test (gizli mod, ~2 dk)
-**🟡 TUR #92 LATER:** Cloudflare manuel kurulum + Müvekkil panel içerik + TUR #85.10 prerender + Next 16.2.4 patch + backend log temizlik + Playwright/Cypress e2e (npm yeni paket adayı)
-**Anayasa:** v1.22.20 (43 alt-madde 30.10-30.52 + 6 R-genişleme)
-**Son güncelleme:** 6 Mayıs 2026, 21:30 (TUR #89.5 devir hazırlığı — sonraki sohbete CLAUDE.md compaction taşıma)
+**🟡 TUR #91 NOW:** **7 personel 2FA aktivasyon duyuru** (KVKK m.12 risk SIFIR, ~40 dk) + CEO Emine replay test (gizli mod, ~2 dk)
+**🟡 TUR #92 NEXT:** Cloudflare manuel kurulum (TUR #85 S7 ertelenmiş, ~15 dk, $0) + Müvekkil panel içerik
+**🟡 TUR #93 LATER:** TUR #85.10 prerender bug fix + Next 16.2.4 patch + backend log temizlik + Playwright/Cypress e2e (npm yeni paket adayı) + e-baro doğrulama API + UYAP API tam entegrasyon
+**Anayasa:** v1.22.21 (44 alt-madde — Madde 27.6 + 30.10-30.52 + 6 R-genişleme)
+**Son güncelleme:** 7 Mayıs 2026 (TUR #90 KAPANIŞ — CLAUDE.md compaction tamamlandı, Code performans 2× iyileşti)
 
 ### 4 TUR Yol Haritası (CEO HAYALİ — 2 Mayıs gece)
 

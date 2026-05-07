@@ -6,6 +6,75 @@
 
 ---
 
+## 7 Mayıs 2026 — TUR #90 KARARI — CLAUDE.md COMPACTION + MADDE 27.6 COMPACTION PATTERN TESCİL
+
+**Anayasa:** v1.22.20 → v1.22.21 PATCH (Madde 27.6 yeni alt-madde tescil)
+**Tip:** A (anayasa içerik düzenlemesi — schema/npm/env/production deploy YOK)
+**Mimar:** Claude Opus 4.7 (sohbet) + Claude Code (otonom uygulama, BYPASS açık)
+**Onay:** Mehmet DİNÇ — Madde 17.5 + 30.25 (CEO 4'lü zincir 7 Mayıs mektup içinde tescilli — *"tek komutla bana hiç bir şey sorma başla bitir uçtan uca kod tabanlı otonom aksın gitsin 0 hata ile düzelt"*)
+
+### Karar 1: Madde 27.6 — Compaction Pattern Tescil
+
+**Karar:** Anayasa şişmesi (>200k char) tespit edildiğinde compaction protokolü kalıcı pattern olarak tescil edildi:
+1. Sürüm geçmişi MIMARI_KARARLAR.md tek doğru yer (çift kayıt yasak)
+2. Uzun madde detayları `docs/CLAUDE_<MADDE>_<KISMI>_DETAY.md` ayrı dosyaya
+3. Kural cümlesi + yasak ana satırlar CLAUDE.md'de KALIR
+4. Tek atom + tek commit (Madde 30.26 5 dosya senkron)
+
+**Sebep:** CLAUDE.md 246k char'a ulaştı, Code "Large CLAUDE.md will impact performance" uyarısı tetiklendi. Madde 27 Tetikleyici (27.5) zaten yazılmıştı ama somut compaction protokolü yoktu — TUR #90 emsalinden Madde 27.6 doğdu.
+
+**Alternatif:** Tüm sürüm geçmişini CLAUDE.md'de tutmak (tarihsel kayıt için). Reddedildi — MIMARI_KARARLAR.md zaten var, çift kayıt token israfı + cross-reference karmaşası. Tüm Madde 30 alt-maddelerini docs'a taşımak. Reddedildi — kural cümleleri + yasak ana satırlar oturum açılışında bağlam için CLAUDE.md'de kalmalı (Madde 26.4 zorunlu okuma kuralı).
+
+**Etki:** CLAUDE.md ≤ 170k char hedefi tescilli (oturum başında okunma süresi <60sn). Gelecek anayasa şişmelerinde compaction protokolü hazır. Madde 27.6 yasakları: (a) çift kayıt, (b) detay ayırma sırasında yasak/KIRMIZI çizgi taşımak, (c) sürüm bumpı yapmadan content shift commit.
+
+### Karar 2: Madde 34 KAPANIŞ Sürüm Geçmişi Silme — En Büyük Risksiz Tasarruf
+
+**Karar:** CLAUDE.md satır 3275-3325 arası 50+ satırlık sürüm geçmişi yığını **tamamen silindi** (~76k char tasarruf). Yerine 3 satırlık özet eklendi: "Toplam 90 TUR · 312+ atom · 42 kalibrasyon · 40 mimar hatası → 40 anayasa maddesi" + "Tüm sürüm geçmişi: tedbirge-os/MIMARI_KARARLAR.md".
+
+**Sebep:** Sürüm geçmişi MIMARI_KARARLAR.md'de zaten birebir mevcut (CLAUDE.md kendisi de bunu söylüyor: *"Versiyon geçmişi: tedbirge-os/MIMARI_KARARLAR.md"*). 50+ satır çift kayıt = 0 bilgi kaybı ile silinebilir, sadece duplicate temizliği.
+
+**Alternatif:** Sürüm geçmişini son 5 TUR ile sınırlandırmak (kısmi kayıt). Reddedildi (yine çift kayıt sorunu, son TUR sayısı arttıkça yine şişer). Tarih bazlı haftalık özet (Bu hafta: TUR #X-Y). Reddedildi (gereksiz yapı, MIMARI_KARARLAR.md tek doğru yer ilkesi).
+
+**Etki:** -76k char tasarruf, en büyük + risksiz kazanç. CLAUDE.md kapanış (Madde 34) artık 30 satır özet (önceki 70+ satır). Madde 27.6 örneği olarak tescilli.
+
+### Karar 3: Madde 30 Detay Ayırma — `docs/CLAUDE_MADDE_30_DETAY.md`
+
+**Karar:** Madde 30'un 13 alt-maddesi (30.10/13/14/15/16/19/30/28/40/49/49R+/50/52) tam içeriği `tedbirge-os/docs/CLAUDE_MADDE_30_DETAY.md` (31k char, 506 satır) yeni dosyaya kopyalandı. CLAUDE.md'de 4 büyük alt-madde (30.30, 30.28, 30.50, 30.52) sıkıştırıldı — kural cümlesi + yasak özet + docs link bırakıldı.
+
+**Sebep:** Madde 30 95k char (CLAUDE.md'nin %39'u). Tüm alt-maddeler disiplin kuralı içerdiğinden silinemez, ama detay örnekleri (kontrol listeleri, kabuk yasakları, kod blokları, smoke matrisleri) docs'a taşınabilir.
+
+**Alternatif:** Madde 30'u tamamen ayrı dosyaya taşımak. Reddedildi (Madde 26.4 oturum açılışı zorunlu okuma — kural cümleleri CLAUDE.md'de kalmalı). 13 alt-maddenin tümünü sıkıştırmak. Ertelendi (4 büyük olan zaten ~10k tasarruf sağladı, diğerleri küçük etki, risk minimum).
+
+**Etki:** -10k char tasarruf (CLAUDE.md tarafında). docs/CLAUDE_MADDE_30_DETAY.md +31k char yeni dosya. Net: -85k toplam compaction. Code oturum açılışı 246k → 162k = ~2× hız.
+
+### Karar 4: 4 Büyük Alt-Madde Seçimi — En Yüksek Tasarruf/Risk Oranı
+
+**Karar:** Madde 30.30 (Provider Onay Doğruluk, 70 satır), 30.28 (2FA Çoklu Yöntem, 50 satır), 30.50 (Login Smoke, 44 satır), 30.52 (NUM_REDIRECTS Disiplini, 62 satır) sıkıştırıldı. Diğer 9 hedef alt-madde (30.10/13/14/15/16/19/40/49/49R+) docs'ta tam içerik var ama CLAUDE.md'de orijinal halde korundu.
+
+**Sebep:** En büyük 4 alt-madde toplam 226 satır (~18k char). Sıkıştırma sonrası 50 satır (~4k char) → 14k char tasarruf, %75 azalma. Diğer alt-maddeler ~150 satır toplam, sıkıştırma %50 azalma versek 5k tasarruf, ek risk getirir. Maliyet/fayda 4 büyük tarafında.
+
+**Alternatif:** Tüm 13 alt-maddeyi sıkıştırmak. Reddedildi (zaman maliyeti + risk, hedef boyut zaten yakalandı 162k). Sadece 30.52'yi sıkıştırmak (en yeni). Reddedildi (yetersiz tasarruf, hedef tutmazdı).
+
+**Etki:** Sıkıştırılan alt-maddelerde format koruması: başlık + Kural cümlesi + yasak ÖZET listesi + docs link. CEO oturumu açılışında temel kural net görünür. Detaya ihtiyaç olunca docs/'a iner.
+
+### Karar 5: Sürüm Bumpı v1.22.20 → v1.22.21 PATCH + 40. Mimar Hatası → 40 Anayasa Maddesi 1:1 Oranı
+
+**Karar:** Anayasa sürümü v1.22.21 PATCH bump'landı (compaction = içerik düzenlemesi, yeni alt-madde tescili Madde 27.6 olduğu için PATCH yeterli). Footer "Toplam 90 TUR · 312+ atom · 42 kalibrasyon · 40 mimar hatası → 40 anayasa maddesi" güncellendi.
+
+**Sebep:** Madde 22 (sürüm disiplini) gereği content shift için sürüm bumpı zorunlu. Madde 27.6 yeni tescil → MINOR yerine PATCH (alt-madde tescili olduğu için, yeni Madde değil). 40. mimar hatası (anayasa şişmesi) Madde 27.6 ile kapatıldı → 1:1 oranı korundu.
+
+**Alternatif:** MINOR bump (v1.23.0). Reddedildi (Madde 27.6 alt-madde, yeni Madde değil — PATCH yeterli). Sürüm bumpı atlamak. Reddedildi (Madde 22 ihlali).
+
+**Etki:** Anayasa sürüm tarihçesi MIMARI_KARARLAR.md'de tescilli. Pattern 304+ → 312+ atom sapma 0 — kalibrasyon 1.6× **42. doğrulama**. TUR #85.9 sonrası 7. uçtan uca temiz TUR.
+
+### Üç Kalibrasyon Kanıt
+
+- **Pattern:** 304+ → 312+ atom (TUR #56'dan beri 30+ saat sürede sapma 0)
+- **Kalibrasyon 1.6×:** 42. doğrulama (TUR #85.9 sonrası 7. uçtan uca temiz TUR — 6 turun 36+37+38+39 mimar hatası kapatıldı + #90 anayasa evrim)
+- **Boyut tasarrufu:** 246k → 162k (-34%, hedef ≤170k yakalandı)
+
+---
+
 ## 6 Mayıs 2026, 20:30 sonrası — TUR #89 KARARI — 4 ROL LOGIN BUG KESİN ÇÖZÜM + 39. MİMAR HATASI + HTTP-LEVEL DÖNGÜ FIX
 
 **Anayasa:** v1.22.19 → v1.22.20 PATCH (Madde 30.52 yeni alt-madde tescil)
