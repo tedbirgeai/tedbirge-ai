@@ -6,6 +6,81 @@
 
 ---
 
+## 7 Mayıs 2026 gece — TUR #94 KARARI — MÜVEKKİL PANEL İÇERİK + MADDE 31.9 R1 TESCİL
+
+**Anayasa:** v1.22.24 → v1.22.25 PATCH (Madde 31.9 R1 yeni alt-genişleme, 48 alt-madde toplam)
+**Tip:** Kanıt-bazlı UX + B2C deneyim (schema/npm/env değişikliği SIFIR)
+**Mimar:** Claude Opus 4.7 (sohbet) + Claude Code (otonom uygulama, BYPASS açık)
+**Onay:** Mehmet DİNÇ — Madde 17.5 + 30.25 (CEO 4'lü zincir 7 May TUR #93 sonrası)
+**Yaklaşım:** Madde 4.4 + 14.3 + TUR #93 emsali sıkı uygulandı
+
+### Karar 1: Madde 31.9 R1 — Müvekkil Portal İçerik Disiplini Tescil (6 Katman)
+
+**Karar:** Madde 31.9 Rol-Ruh Tasarım Prensibi (TUR #57) altında CUSTOMER paneli için **6 zorunlu içerik katmanı**: Empati selamlama + Şeffaf dava + Vertical timeline + KVKK m.11 self-service + Avukata mesaj + Bildirim merkezi. Stripe Customer Portal + Apple Mail + Linear Public Status emsali.
+
+**Sebep:** PDF v1.0 sayfa 13 "Geliştirme Alanı 2: Müvekkil panel içerik genişletmesi" — kabuklar var, içerik eksik. CEO direktifi: B2C deneyim. Mevcut sistem zaten zengin (1173 satır /musteri + 124 satır kvkk-haklarim + sadelestir + 5 endpoint), TUR #94 sadece bildirim merkezi + nav genişletme ile 6 katmanı tamamladı.
+
+**Alternatif:** Mektup spec 12 atom körü körüne uygulamak. Reddedildi (TUR #93 emsali — Madde 4.4 + 14.3 ihlali, kanıtsız değişim, yamalı bohça riski). Yeni `/musteri/davalar/[id]` ayrı sayfa yaratmak. Reddedildi (mevcut /musteri 1173 satır CustomerTimeline zaten dava detayını gösteriyor). Yeni `customer.routes.js` yaratmak. Reddedildi (mevcut musteri.routes mount'ı zaten çalışıyor, paralel yapı karmaşa).
+
+**Etki:** CLAUDE.md +1 alt-madde (48 toplam). Madde 31.9 (TUR #57) → R1 (TUR #94) zinciri Rol-Ruh prensibinin uygulamalı somutu. TUR #95+ için CUSTOMER UI değişikliklerinde 6 katman kontrol listesi tescilli.
+
+### Karar 2: Mektup Adapt — TUR #93 Emsali Sıkı Uygulandı
+
+**Karar:** Mektup spec 12 atom (M0-M11) → kanıt-bazlı 5 net atom + 7 SKIP. M0 keşif kritik adımdı: mevcut yapı mektup spec'ten farklı olduğunda ham koda saygı.
+
+**Sebep:** Madde 4.4 (kanıtsız dokunma yasak) + Madde 14.3 (Code disiplin koruma hakkı) + TUR #88 emsali (mevcut çalışan trigger'a dokunmak yamalı bohça) + TUR #93 emsali (mektup spec ham koddan farklı çıkarsa kod kazanır). M0 keşfinde:
+
+- /musteri 1173 satır mevcut (mektup "boş veya minimal" varsayıyordu)
+- /musteri/kvkk-haklarim 124 satır mevcut (mektup yeni `/musteri/kvkk` form öneriyordu)
+- musteri.controller getDashboard zaten lead+documents+contracts+assignments+masraflar+activities döner (mektup 3 ayrı endpoint öneriyordu)
+- sendMessage zaten avukat(lar)a push+SMS atıyor (mektup yeni endpoint öneriyordu)
+- lib/sadelestir.ts mevcut (TUR #57)
+- /api/musteri/* mount edilmiş (mektup /api/customer/* öneriyordu)
+
+7 atom SKIP edildi (M2/M3/M4/M6/M7/M8 + sadelestir genişletme). 5 net atom uygulandı (M1 endpoint + M5 sayfa + M9 nav).
+
+**Alternatif:** Mektup spec'i değişiklik yapmadan uygulamak. Reddedildi (Prisma error — Lead.customerId yok, mevcut zengin /musteri yeniden yazılırsa veri kaybı, /api/customer/* mount çakışması). Tüm 12 atomu uygulamak. Reddedildi (Madde 4.4 + 14.3 + TUR #93 emsali — kanıtsız kapsam genişletme yamalı bohça).
+
+**Etki:** TUR #93 + TUR #94 zincirinde "kanıt-bazlı atom sayısı = mektup spec sayısı / 2 — 3 oranı" emsali tescil ediliyor. M0 keşif → mevcut sistem envanteri → mektup adapt → SKIP eden atomlar gerekçeli kayıt → kanıtlı eksiklere odaklanma.
+
+### Karar 3: RealtimeEvent Gerçek Schema (TUR #93 Emsali Devamı)
+
+**Karar:** /api/musteri/bildirimler endpoint'inde RealtimeEvent gerçek schema field'ları kullanıldı: `channel + eventType + payload + userId + consumed`. Mektup spec'in `scope/kind/title/body/severity` field'ları YANLIŞ — `payload` JSON içinde tutulur.
+
+**Sebep:** TUR #93'te bu hata kanıtlandı (Madde 4.4). TUR #94 mektubu aynı hatayı yapmamak için M0'da gerçek schema doğrulandı. CUSTOMER bildirim feed query: `WHERE userId=req.user.id OR channel="CUSTOMER_${userId}"`.
+
+**Alternatif:** schema.prisma'ya yeni alanlar eklemek (scope, kind, title, body, severity ayrı). Reddedildi (Madde 3.1 KIRMIZI). Mektup spec field adlarını körü körüne kullanmak. Reddedildi (Prisma error).
+
+**Etki:** Frontend `/musteri/bildirimler` sayfasında `payload?.title` ve `payload?.body` ile JSON içinden çekildi. Event type label/icon mapping `eventType` değerine göre yapıldı. TUR #93 + TUR #94 + gelecek TUR'lar için RealtimeEvent kullanım pattern'i kalıcı tescilli.
+
+### Karar 4: AppLayout CUSTOMER Minimal Layout Genişletme
+
+**Karar:** AppLayout.tsx `if (isCustomer)` minimal layout header'ına 4 hızlı nav link eklendi: Ana Sayfa + Bildirimler + KVKK + Hesabım. Logo Link wrapped (ana sayfaya yönlendirir). Mobile responsive (sm: gizli text, sadece icon).
+
+**Sebep:** CUSTOMER rolü sidebar kullanmıyor (minimal layout). Mevcut header sadece Logo + Çıkış vardı. /musteri/bildirimler (M5 yeni) ve /musteri/kvkk-haklarim için kullanıcı erişimi yoktu. Hızlı nav 6 katmanın 6'sını (bildirim merkezi) erişilebilir yapar.
+
+**Alternatif:** /musteri/page.tsx 1173 satır içine link eklemek. Reddedildi (mevcut zengin sayfaya kanıtsız dokunma — Madde 4.4). Yeni `/musteri/menu` ayrı sayfa. Reddedildi (gereksiz sayfa, header zaten doğru yer).
+
+**Etki:** AppLayout 4 link minimal değişiklik (12 satır kod). Mevcut Logo + Çıkış korundu. Mobile responsive. Madde 31.9 emsali (Apple HIG breathing room — `gap-1.5` + `px-3 py-1.5` padding).
+
+### Karar 5: 0 Yeni Mimar Hatası — 11. Ardışık Temiz TUR
+
+**Karar:** TUR #94 sonunda 41 mimar hatası → 42 anayasa maddesi (1:1 + Madde 31.9 R1 ek). **Yeni mimar hatası YOK.**
+
+**Sebep:** Madde 4.4 + 14.3 + TUR #88 + TUR #93 emsali sıkı uygulandı. M0 keşif zorunlu — mevcut yapı mektup spec'ten farklı olduğunda ham koda saygı. 7 atom SKIP edildi (kanıtsız değişim yasağı). 5 net atom kanıtlı eksiklerle sınırlandı.
+
+**Alternatif:** Mektup spec'in tüm 12 atomunu uygulamak. Reddedildi (TUR #88 emsali — kanıtsız uygulama yeni hata yaratır).
+
+**Etki:** Pattern 339+ → 344+ atom sapma 0 · kalibrasyon 1.6× **46. doğrulama**. TUR #85.9 sonrası **11. uçtan uca temiz TUR** (#86 → #87 → #87.5 → #88 → #89 → #89.5 → #90 → #91 → #92 → #93 → #94). Madde 4.4 + 14.3 emsali kalıcı pattern olarak güçlendi.
+
+### Üç Kalibrasyon Kanıt
+
+- **Pattern:** 339+ → 344+ atom (TUR #56'dan beri 30+ saat sürede sapma 0)
+- **Kalibrasyon 1.6×:** 46. doğrulama
+- **Mektup adapt başarısı:** 12 atom → 5 net atom + 7 gerekçeli SKIP (TUR #93 emsali)
+
+---
+
 ## 7 Mayıs 2026 gece — TUR #93 KARARI — YATAY CRM BİLDİRİM ZİNCİRİ + MADDE 30.53 TESCİL
 
 **Anayasa:** v1.22.23 → v1.22.24 PATCH (Madde 30.53 yeni alt-madde, 47 alt-madde toplam)

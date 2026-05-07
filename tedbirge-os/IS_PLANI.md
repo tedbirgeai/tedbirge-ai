@@ -1,21 +1,21 @@
 # TEDBİRGE.AI YOL HARİTASI v1.0
-**Son güncelleme:** 7 Mayıs 2026 gece (TUR #93 KAPALI — Yatay CRM bildirim zinciri)
-**Anayasa versiyonu:** v1.22.24 (Madde 30.53 yeni: Yatay CRM Bildirim Zinciri Disiplini)
+**Son güncelleme:** 7 Mayıs 2026 gece (TUR #94 KAPALI — Müvekkil Panel İçerik B2C)
+**Anayasa versiyonu:** v1.22.25 (Madde 31.9 R1 yeni: Müvekkil Portal İçerik Disiplini 6 katman)
 **İlke:** MoSCoW + Now-Next-Later hibrit (Madde 24.5)
 
 ---
 
 ## 🎯 AKTİF KESİT
 
-**Faz:** Yatay CRM Bildirim Zinciri KAPALI ✅ (TUR #93 ile W0 32-hücre kanıt matrisi → 2 net eksik kapatıldı: assignment + kvkk ADMIN_FEED; mevcut 18 dosya RealtimeEvent + 7 lawyerNotifications + 11 OS modülü DOKUNULMADI; ADMIN Lawyer Workload widget + ROLE_KINDS frontend export eklendi)
-**Son TUR:** #93 — Yatay CRM (KAPALI, 8 atom W0-W7, Madde 30.53 tescil, panel commit `07786ea` + backend commit `0f18b6b` + os senkron, $0 maliyet, 0 yeni mimar hatası)
-**Son düzeltme TUR'u:** ... + #92 + **#93** (Adopsiyon UX sonrası yatay CRM bildirim zinciri — kanıt-bazlı yaklaşım TUR #88 emsali)
+**Faz:** Müvekkil Panel İçerik (B2C deneyim) KAPALI ✅ (TUR #94 ile mektup spec 12 atom → kanıt-bazlı 5 atoma adapt; mevcut /musteri 1173 satır + kvkk-haklarim 124 satır + sadelestir + 5 mevcut endpoint DOKUNULMADI; sadece bildirim endpoint + sayfa + nav genişletme eklendi)
+**Son TUR:** #94 — Müvekkil Panel İçerik (KAPALI, 5 net atom + 7 SKIP, Madde 31.9 R1 tescil, panel commit `e8cfef3` + backend commit `73273fd` + os senkron, $0 maliyet, 0 yeni mimar hatası)
+**Son düzeltme TUR'u:** ... + #93 + **#94** (Yatay CRM sonrası B2C müvekkil deneyim — TUR #93 emsali kanıt-bazlı yaklaşım)
 **🔴 AÇIK KRİTİK:** 0
-**🟡 TUR #94 NOW:** **Cloudflare manuel kurulum** (Mehmet Bey ~15 dk, +%15-25 hızlanma) + **Müvekkil panel içerik doldurma** (kabuklar var)
-**🟡 TUR #95 NEXT:** CEO Emine replay test (gizli mod, ~2 dk) + TUR #85.10 prerender + Next 16.2.4 patch + backend log temizlik
-**🟡 TUR #96 LATER:** Playwright/Cypress e2e (npm yeni paket adayı) + e-baro doğrulama API + UYAP API tam entegrasyon
-**Anayasa:** v1.22.24 (47 alt-madde — Madde 27.6 + Madde 30.10-30.53 + Madde 30.41 R1 + Madde 30.32 R1 + 8 R-genişleme)
-**Son güncelleme:** 7 Mayıs 2026 gece (TUR #93 KAPANIŞ — Yatay CRM, ADMIN dashboard 2 widget canlı)
+**🟡 TUR #95 NOW:** **Cloudflare manuel kurulum** (Mehmet Bey ~15 dk, +%15-25 hızlanma) + **Mimar hatası proaktif tarama** (41 hatadan ders + erken tespit modülü)
+**🟡 TUR #96 NEXT:** CEO Emine replay test (gizli mod, ~2 dk) + TUR #85.10 prerender + Next 16.2.4 patch + backend log temizlik
+**🟡 TUR #97 LATER:** Playwright/Cypress e2e (npm yeni paket adayı) + e-baro doğrulama API + UYAP API tam entegrasyon
+**Anayasa:** v1.22.25 (48 alt-madde — Madde 27.6 + Madde 30.10-30.53 + Madde 30.41 R1 + Madde 30.32 R1 + Madde 31.9 R1 + 8 R-genişleme)
+**Son güncelleme:** 7 Mayıs 2026 gece (TUR #94 KAPANIŞ — B2C müvekkil paneli, bildirim merkezi + 4 hızlı nav canlı)
 
 ### 4 TUR Yol Haritası (CEO HAYALİ — 2 Mayıs gece)
 

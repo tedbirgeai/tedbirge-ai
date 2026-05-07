@@ -1,8 +1,8 @@
 # 🛡️ TEDBIRGE.AI — DEVİR RAPORU (AKTİF)
 
-📋 **ANAYASA:** v1.22.24 (Madde 30.53 yeni: Yatay CRM Bildirim Zinciri Disiplini + 47 alt-madde + 8 R-genişleme)
-📂 **AKTİF KESİT:** TUR #93 KAPALI — Yatay CRM 4 rol bildirim zinciri (kanıt-bazlı 2 net eksik kapatıldı, mevcut 18 dosya + 7 trigger DOKUNULMADI)
-📅 **SON GÜNCELLEME:** 7 Mayıs 2026 gece (TUR #93 Yatay CRM)
+📋 **ANAYASA:** v1.22.25 (Madde 31.9 R1 yeni: Müvekkil Portal İçerik Disiplini + 48 alt-madde + 8 R-genişleme)
+📂 **AKTİF KESİT:** TUR #94 KAPALI — Müvekkil panel içerik (kanıt-bazlı 5 atom; /musteri 1173 satır + kvkk-haklarim 124 satır + sadelestir + 5 mevcut endpoint DOKUNULMADI)
+📅 **SON GÜNCELLEME:** 7 Mayıs 2026 gece (TUR #94 B2C Müvekkil Portal)
 👤 **CEO Onay:** Mehmet DİNÇ — Madde 17.5 + 18.3 + 30.25 (CEO 4'lü zincir 6 Mayıs mektup içinde tescilli)
 🤖 **Mimar:** Claude Opus 4.7 (sohbet) + Claude Code (otonom uygulama, bypass açık)
 
@@ -27,6 +27,7 @@
 - **TUR #91 (P0-P8):** Performans uçak hızı FAZ 2 — anasayfa 1.2s → 0.55s (-56%), agents-health 2.6s → 0.96s (-64% X-Cache:HIT), 6 yeni DB index + 4 ISR sayfa + memory cache + AVIF + preconnect — **Madde 30.41 R1 tescil (Performans FAZ 2 Disiplini)**
 - **TUR #92 (Q0-Q9):** Adopsiyon UX otonom — 2fa-secim wizard EMAIL default + 3 yöntem açıklamalı (30sn/2dk/1dk) + Reporter saat 09:00 onboarding cron (3 gün debounce) + ADMIN sistem-durumu üstüne 2FA widget (8 user görünürlük + manuel hatırlatma) + Auditor security adoption % metric (< 50% CRITICAL ADMIN_FEED) + Email OTP rate limit (5dk × 3) — **Madde 30.32 R1 tescil (Adopsiyon UX Disiplini 8 katman)**
 - **TUR #93 (W0-W7):** Yatay CRM 4 rol bildirim zinciri — W0 32-hücre kanıt matrisi (kanıt-bazlı tanı, mevcut 18 dosya RealtimeEvent + 7 lawyerNotifications trigger DOKUNULMADI) + 2 net eksik kapatıldı: (a) `assignment.service.js` ADMIN_FEED + REPRESENTATIVE_${createdById} + LAWYER_${id} RT (mevcut SMS/Email/WhatsApp KORUNDU) (b) `kvkk.service.js` createPublicRequest ADMIN_FEED RT (KVKK m.11 30 gün yanıt süresi) + 2 yapısal yenilik: (c) `useRealtimeFeed` ROLE_KINDS export (rol-spesifik filtre) (d) ADMIN "Avukat Workload" widget — **Madde 30.53 tescil (Yatay CRM Bildirim Zinciri Disiplini, kanıt-bazlı yaklaşım)**
+- **TUR #94 (M0-M11):** Müvekkil Panel İçerik (B2C deneyim) — M0 keşfi mektup spec'in 12 atomunu kanıt-bazlı 5 atoma adapt etti (TUR #93 emsali sıkı uygulandı). Mevcut /musteri 1173 satır + /musteri/kvkk-haklarim 124 satır (KVKK m.11 6 talep türü) + /musteri/profil + sadelestir.ts + 5 musteri.controller endpoint **DOKUNULMADI**. Kanıtlı net eksikler: (M1) GET /api/musteri/bildirimler endpoint, (M5) /musteri/bildirimler sayfa, (M9) AppLayout CUSTOMER hızlı nav 4 link. Mektup adapt: `/api/customer/*` → `/api/musteri/*`, `Lead.customerId` → `Lead.ownerId`, RealtimeEvent gerçek schema (channel/eventType/payload). M10 smoke 20/20 yeşil. — **Madde 31.9 R1 tescil (Müvekkil Portal İçerik Disiplini 6 katman)**
 
 ---
 
@@ -83,18 +84,18 @@ Production stable. /temsilci redirect döngü **KESİN ÇÖZÜLDÜ** (NUM_REDIRE
 
 ## 🎯 SIRADAKİ ÖNERİLEN İŞ
 
-**TUR #94 → Cloudflare manuel kurulum** (Mehmet Bey ~15 dk, +%15-25 hızlanma) + **Müvekkil panel içerik doldurma** (kabuklar var, müvekkil görünüm boş)
+**TUR #95 → Cloudflare manuel kurulum** (Mehmet Bey ~15 dk, +%15-25 hızlanma) + **Mimar hatası proaktif tarama** (41 hatadan ders + erken tespit modülü)
 
-TUR #93 Yatay CRM **TAMAMLANDI** ✅ — Madde 30.53 tescil. Detay: `tedbirge-os/docs/TUR93_TRIGGER_MATRISI_RAPORU.md`. ADMIN dashboard 2 widget (2FA Adoption + Lawyer Workload) sistem-durumu üstünde canlı.
+TUR #94 Müvekkil Panel **TAMAMLANDI** ✅ — Madde 31.9 R1 tescil. Mevcut zengin /musteri (1173 satır) + kvkk-haklarim (KVKK m.11 6 talep) + sadelestir DOKUNULMADI; sadece kanıtlı eksikler kapatıldı (bildirim endpoint + sayfa + nav). M10 smoke 20/20 yeşil.
 
 ---
 
-## 📈 PATTERN İSTATİSTİKLERİ (TUR #56 → #93)
+## 📈 PATTERN İSTATİSTİKLERİ (TUR #56 → #94)
 
-- **Atom:** 339+ (sapma 0)
-- **Kalibrasyon:** 1.6× (45. doğrulama)
-- **Anayasa:** v1.22.0 → v1.22.24 (24 PATCH)
-- **Alt-madde:** 47 (Madde 27.6 + Madde 30.10-30.53 + Madde 30.41 R1 + Madde 30.32 R1)
+- **Atom:** 344+ (sapma 0)
+- **Kalibrasyon:** 1.6× (46. doğrulama)
+- **Anayasa:** v1.22.0 → v1.22.25 (25 PATCH)
+- **Alt-madde:** 48 (Madde 27.6 + Madde 30.10-30.53 + Madde 30.41 R1 + Madde 30.32 R1 + Madde 31.9 R1)
 - **Mimar hatası:** 41 → 41 anayasa maddesi (1:1 dönüşüm — TUR #93'te 0 yeni hata, 10. uçtan uca temiz TUR)
 - **Maliyet:** $0 (Faz 1+2+3 baştan sona)
 - **14 hotfix sabırla aşıldı**
@@ -103,6 +104,7 @@ TUR #93 Yatay CRM **TAMAMLANDI** ✅ — Madde 30.53 tescil. Detay: `tedbirge-os
 - **Performans FAZ 2:** anasayfa 1.2s → 0.55s (-56%), agents-health 2.6s → 0.96s (-64%, TUR #91)
 - **Adopsiyon UX (TUR #92):** sistem otonom — cron + widget + metric + rate limit, CEO manuel iş YOK
 - **Yatay CRM (TUR #93):** kanıt-bazlı 2 net eksik kapatıldı (assignment + kvkk ADMIN_FEED), mevcut 18 dosya RealtimeEvent + 7 lawyerNotifications + 11 OS modülü DOKUNULMADI
+- **Müvekkil Portal (TUR #94):** mektup spec 12 atom → kanıt-bazlı 5 atom adapt (TUR #93 emsali sıkı uygulandı). /musteri 1173 satır + kvkk-haklarim 124 satır + sadelestir + 5 mevcut endpoint DOKUNULMADI; sadece bildirim merkezi + nav genişlet eklendi
 
 ---
 

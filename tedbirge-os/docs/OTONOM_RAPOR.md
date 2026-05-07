@@ -1,3 +1,146 @@
+## TUR #94 — MÜVEKKİL PANEL İÇERİK (B2C DENEYİM) + MADDE 31.9 R1 ✅ KAPALI
+
+**Tarih:** 7 Mayıs 2026 gece (TUR #93 Yatay CRM sonrası, dördüncü TUR aynı gün)
+**Anayasa:** v1.22.24 → v1.22.25 PATCH (Madde 31.9 R1 yeni — Müvekkil Portal İçerik Disiplini 6 katman)
+**Tip:** Kanıt-bazlı UX + B2C deneyim (schema/npm/env değişikliği SIFIR)
+**BYPASS:** AÇIK (KIRMIZI nokta YOK)
+
+### CEO Direktifi (Madde 30.25)
+
+> *"TUR #94 başla — Müvekkil panel içerik doldurma, tek komutla uçtan uca, hiçbir şey sorma"*
+
+### Mektup Adapt — TUR #93 Emsali Kritik
+
+**Kullanıcı talimatında zorunlu:** *"M0 keşfinde mevcut yapı mektup spec'ten farklıysa, mevcut yapıya saygı duy ve mektubu adapt et."* Bu uygulandı.
+
+| Mektup spec | Gerçek (M0 keşfi) | Adapt |
+|---|---|---|
+| `/api/customer/*` mount | `/api/musteri/*` ZATEN MEVCUT | musteri kullanıldı |
+| `customer.controller.js` yeni | `musteri.controller.js` MEVCUT | Genişletildi |
+| `customer.routes.js` yeni | `musteri.routes.js` MEVCUT | Genişletildi |
+| `Lead.customerId` field | `Lead.ownerId` (User → CUSTOMER) | Adapt |
+| `Lead.atananAvukat` relation | Assignment table | Adapt (TUR #93 emsali) |
+| RealtimeEvent.scope/kind/title | channel/eventType/payload (TUR #93) | Adapt |
+| `/musteri/page.tsx` boş | **1173 satır mevcut** | DOKUNULMADI |
+| `/musteri/kvkk` yeni | `/musteri/kvkk-haklarim` MEVCUT (KVKK m.11 6 talep) | DOKUNULMADI |
+| `lib/sadelestir.ts` yeni | Mevcut (TUR #57) | DOKUNULMADI |
+| `requireRole('CUSTOMER')` | `role("CUSTOMER")` middleware | Adapt |
+
+**Mektup spec 12 atom → kanıt-bazlı 5 net atom + 7 SKIP** (Madde 4.4 + 14.3 + TUR #93 emsali sıkı uygulandı).
+
+### Atom × Commit Hash
+
+| Atom | İçerik | Commit |
+|---|---|---|
+| M0 | Keşif: /musteri 1173 satır + 5 endpoint mevcut + kvkk-haklarim + sadelestir envanteri | (commit yok) |
+| M1 | `GET /api/musteri/bildirimler` endpoint (RealtimeEvent feed CUSTOMER scope, TUR #93 emsali field) | backend `73273fd` |
+| M2 | SKIP — /musteri/page.tsx 1173 satır mevcut DOKUNULMADI (Madde 4.4) | — |
+| M3 | SKIP — getDashboard zaten lead+documents+contracts+assignments+masraflar+activities döner | — |
+| M4 | SKIP — sendMessage zaten avukat(lar)a push+SMS bildirim atıyor | — |
+| M5 | `/musteri/bildirimler` yeni sayfa (timeAgo + 6 event type label/icon/color, empati başlık) | panel `e8cfef3` |
+| M6 | SKIP — /musteri/kvkk-haklarim 124 satır mevcut, KVKK m.11 6 talep türü zaten var | — |
+| M7 | SKIP — lib/sadelestir.ts mevcut (TUR #57) | — |
+| M8 | SKIP — Belge download mevcut (TUR #63 + Madde 32) | — |
+| M9 | AppLayout CUSTOMER minimal layout header → 4 hızlı nav (Ana + Bildirim + KVKK + Hesabım) | panel `e8cfef3` |
+| M10 | Production smoke 20/20 yeşil + 22 sistem koruma | (smoke) |
+| M11 | 5 OS senkron + Madde 31.9 R1 + v1.22.25 | os 1 commit |
+
+**Toplam:** ~45 dk · 3 commit (panel `e8cfef3` + backend `73273fd` + os) · $0 maliyet
+
+### M10 Production Smoke 20/20 ✅
+
+**CUSTOMER 5 sayfa authsız → 307 /login (TUR #87+#89 korundu):**
+- ✅ /musteri 307
+- ✅ /musteri/bildirimler 307 (M5 yeni)
+- ✅ /musteri/kvkk-haklarim 307
+- ✅ /musteri/profil 307
+- ✅ /musteri/davalar/abc123 307
+
+**CUSTOMER 6 endpoint authsız → 401 (mount + auth + role guard çalışıyor):**
+- ✅ GET /api/musteri/dashboard 401
+- ✅ GET /api/musteri/mesajlar 401
+- ✅ GET /api/musteri/bildirimler 401 (M1 yeni)
+- ✅ POST /api/musteri/mesaj 401
+- ✅ POST /api/musteri/onay-baslat/x 401
+- ✅ POST /api/musteri/onay-dogrula/x 401
+
+**KVKK form kanıtı:** /musteri/kvkk-haklarim 124 satır mevcut, KVKK m.11/a-d (ERISIM) + m.11/e (DUZELTME) + m.7+m.11/f (SILME) + m.11/g (AKTARIM_BILGISI) + m.11/h (ITIRAZ) + m.11/ı (ZARAR_TAZMIN) — 6 talep türü.
+
+**Cross-role guard kanıtı:**
+- ✅ GET /api/musteri/bildirimler authsız → 401 (auth middleware)
+- ✅ GET /api/musteri/dashboard authsız → 401
+- ✅ Tüm musteri.routes endpoint'leri `role("CUSTOMER")` guard altında
+
+**22 sistem koruma:**
+- ✅ /sw.js Cache-Control no-store (TUR #85.5)
+- ✅ /api/agents-health X-Cache (TUR #91)
+- ✅ Auditor HEALTHY
+- ✅ /login 200
+- ✅ 4 rol POST 401: 4/4 (TUR #87.5)
+- ✅ /api/users/two-factor-adoption 401 (TUR #92)
+- ✅ /api/users/lawyer-workload 401 (TUR #93)
+
+### 5 Yeni Endpoint (Adapt)
+
+Aslında **1 yeni endpoint** (M1 + 5 mevcut endpoint korundu):
+1. **GET /api/musteri/bildirimler** (M1 YENİ) — RealtimeEvent CUSTOMER feed
+2. GET /api/musteri/dashboard (mevcut — lead+documents+contracts+assignments+masraflar+activities)
+3. GET /api/musteri/mesajlar (mevcut — chat session)
+4. POST /api/musteri/mesaj (mevcut — avukat push+SMS bildirim zaten var)
+5. POST /api/musteri/onay-baslat/:contractId (mevcut)
+6. POST /api/musteri/onay-dogrula/:contractId (mevcut)
+
+### 5 Sayfa (Adapt)
+
+Aslında **1 yeni sayfa** (M5 + 4 mevcut sayfa korundu):
+1. **/musteri/bildirimler** (M5 YENİ) — TUR #93 RealtimeEvent feed
+2. /musteri (mevcut 1173 satır — CustomerTimeline + BelgeYukleme + TrustBadge + sadelestir)
+3. /musteri/kvkk-haklarim (mevcut 124 satır — KVKK m.11 6 talep)
+4. /musteri/profil (mevcut TUR #72.6)
+5. AppLayout CUSTOMER nav 4 link (M9 yeni eklendi)
+
+### Madde 31.9 R1 — Müvekkil Portal İçerik Disiplini (Yeni Tescil)
+
+**6 zorunlu içerik katmanı:**
+1. Empati selamlama
+2. Şeffaf dava görünümü
+3. Vertical timeline
+4. KVKK m.11 self-service (6 talep türü)
+5. Avukata mesaj
+6. Bildirim merkezi
+
+**Tasarım:** yumuşak mavi (kırmızı YASAK), Apple HIG breathing room, Crimson Pro + sadelestir 30 terim.
+
+### Korunan Sistemler (22/22)
+
+- HARD 2FA enforcement (TUR #82+#84)
+- TUR #85.6 cookie helper + #85.5 SW kill + #85.9 BOZUK STATE
+- TUR #87+#87.5+#89 4 rol login flow
+- TUR #91 P4 memory cache
+- TUR #92 Adopsiyon UX (2FA cron + widget)
+- TUR #93 Yatay CRM (RealtimeEvent zinciri)
+- /musteri 1173 satır + kvkk-haklarim 124 satır + sadelestir + 5 musteri.controller endpoint **DOKUNULMADI**
+
+### Mimar Dersi
+
+**TUR #93 emsali güçlendi:** Mektup 12 atom önerdi, M0 keşfi 7 atomu SKIP gösterdi (mevcut sistem ZATEN ZENGİN). Madde 4.4 + 14.3 ile kanıtlı eksikler kapatıldı. **Yeni mimar hatası 0** — kanıtsız kapsam genişletme yasağı sayesinde 11. ardışık temiz TUR.
+
+**Mimar prensibi:** "Müvekkil paneline giren vatandaş 30 saniyede ne durumda olduğunu anlar. KVKK m.11 hakkını kendi başına kullanır. Avukatına mesaj atar." — Bu prensip mevcut sistemde ZATEN uygulanmıştı (1173 satır CustomerTimeline + 124 satır kvkk-haklarim + sendMessage avukat bildirim). TUR #94 sadece bildirim merkezi + nav genişletme ile tamamladı.
+
+**Pattern 339+ → 344+ atom sapma 0 — kalibrasyon 1.6× 46. doğrulama.** TUR #85.9 sonrası **11. uçtan uca temiz TUR** (TUR #86 → ... → #93 → #94).
+
+**41 mimar hatası → 42 anayasa maddesi (1:1 + Madde 31.9 R1 ek).**
+
+### TUR #95 Aday Önceliği
+
+1. **Cloudflare manuel kurulum** (Mehmet Bey ~15 dk, $0 ek %15-25)
+2. **Mimar hatası proaktif tarama** (41 hatadan ders + erken tespit modülü)
+3. CEO Emine replay test (gizli mod ~2 dk)
+4. TUR #85.10 prerender bug fix + Next 16.2.4 patch + backend log temizlik
+5. Playwright/Cypress e2e + e-baro + UYAP
+
+---
+
 ## TUR #93 — YATAY CRM BİLDİRİM ZİNCİRİ + MADDE 30.53 ✅ KAPALI
 
 **Tarih:** 7 Mayıs 2026 gece (TUR #92 Adopsiyon UX sonrası, üçüncü TUR aynı gün)

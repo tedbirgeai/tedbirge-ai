@@ -3022,6 +3022,56 @@ Tüm canlı feed SSE üstünden (`/api/realtime/notifications`). Client `EventSo
 - ❌ SSE hook return değerinin her render'da yeni object referansı olması
 - ❌ EventSource event handler'larının inline (kararsız) tanımı
 
+### 31.9 R1 — Müvekkil Portal İçerik Disiplini (TUR #94)
+
+**Kural:** CUSTOMER paneli (Madde 31.9 Rol-Ruh — Stripe Customer Portal + Apple Mail + Linear Public Status emsali) **5 zorunlu içerik katmanı** taşımalı:
+
+1. **Empati selamlama** ("Merhaba {isim}, davalarınızı buradan takip edebilirsiniz")
+2. **Şeffaf dava görünümü** (status + avukat + son güncelleme + AI özet)
+3. **Vertical timeline** (Linear Public Status emsali — kim, ne zaman, ne yaptı)
+4. **KVKK m.11 self-service** (6 talep türü — m.11/a-d ERISIM + m.11/e DUZELTME + m.7+m.11/f SILME + m.11/g AKTARIM_BILGISI + m.11/h ITIRAZ + m.11/ı ZARAR_TAZMIN)
+5. **Avukata mesaj** (TUR #93 LAWYER_NOTE'un ters yönü — CUSTOMER → LAWYER)
+6. **Bildirim merkezi** (TUR #93 RealtimeEvent feed CUSTOMER kindleri — `LEAD_LAWYER_ASSIGNED + LEAD_STATUS_CHANGED + LAWYER_NOTE`)
+
+**TUR #94 emsali (kanıt-bazlı, TUR #93 emsali korundu):**
+- /musteri/page.tsx 1173 satır mevcut DOKUNULMADI (zaten zengin: CustomerTimeline + BelgeYukleme + TrustBadge + sadelestir)
+- /musteri/kvkk-haklarim 124 satır mevcut DOKUNULMADI (KVKK m.11 6 talep türü zaten var)
+- /musteri/profil mevcut DOKUNULMADI (TUR #72.6)
+- musteri.controller getDashboard zaten lead+documents+contracts+assignments+masraflar+activities döner
+- sendMessage zaten avukat(lar)a push+SMS bildirim atıyor
+- lib/sadelestir.ts mevcut (TUR #57) DOKUNULMADI
+
+**Sadece kanıtlı net eksikler eklendi:**
+- M1: GET `/api/musteri/bildirimler` endpoint (RealtimeEvent feed CUSTOMER scope)
+- M5: `/musteri/bildirimler` sayfa (timeAgo + 6 event type label/icon/color)
+- M9: AppLayout CUSTOMER minimal layout header → 4 hızlı nav (Ana Sayfa + Bildirimler + KVKK + Hesabım)
+
+**Adapt zorunluluğu (TUR #93 emsali):**
+- Mektup `/api/customer/*` → gerçek `/api/musteri/*` (mevcut mount korundu)
+- Mektup `Lead.customerId` → gerçek `Lead.ownerId`
+- Mektup `RealtimeEvent.scope/kind/title` → gerçek `channel/eventType/payload` (TUR #93 emsali)
+- Mektup `customer.controller.js` yeni → mevcut `musteri.controller.js` genişletildi
+
+**Tasarım kuralları (Madde 31.9 emsali):**
+- Birincil renk: yumuşak mavi (kırmızı/turuncu YASAK — endişe tetikler)
+- Padding kabarık (Apple HIG breathing room)
+- Typography: Crimson Pro başlıklar + sadelestir 30 terim
+- Status rozetleri: yeşil (kazanıldı) / mavi (süreç) / amber (bekleme) / gri (olumsuz)
+
+**KVKK + güvenlik:**
+- `role("CUSTOMER")` guard zorunlu tüm /musteri/* endpoint'lerde
+- Lead.ownerId ile assertCustomerLeadAccess pattern (Madde 9.5 emsali)
+- DataSubjectRequest reuse — yeni schema YOK
+- ActivityLog her self-service eylem için (KVKK m.10 audit)
+
+**Yasak:**
+- ❌ Hukuki jargon ("dava süreci" yerine "davanızın ilerleyişi")
+- ❌ Olumsuz çağrışımlı renk (kırmızı, koyu turuncu)
+- ❌ Sessiz state geçişi (TUR #93 Madde 30.53 ihlali)
+- ❌ Cross-role veri sızıntısı (her endpoint role("CUSTOMER") + Lead.ownerId kontrolü)
+- ❌ Eksik empati ("Sayın müşteri" → "Merhaba {isim}")
+- ❌ Mevcut /musteri zengin sayfaya kanıtsız dokunmak (Madde 4.4 + 14.3 — TUR #93 emsali)
+
 ---
 
 ## 32. BELGE DİSİPLİNİ — Hibrit Mimari TÜM SİSTEM (TUR #63)
@@ -3210,8 +3260,8 @@ Mehmet Bey sahaya çıkabilsin diye bu disiplin var.
 
 ---
 
-**— Tedbirge Mimari Anayasası v1.22.24**  
-**Toplam 93 TUR · 339+ atom sapma 0 · 45 kalibrasyon · 41 mimar hatası → 41 anayasa maddesi**  
+**— Tedbirge Mimari Anayasası v1.22.25**  
+**Toplam 94 TUR · 344+ atom sapma 0 · 46 kalibrasyon · 41 mimar hatası → 42 anayasa maddesi**  
 **Tüm sürüm geçmişi + TUR detayları + atom kayıtları: `tedbirge-os/MIMARI_KARARLAR.md`**
 
 **Versiyon geçmişi: tedbirge-os/MIMARI_KARARLAR.md**  
