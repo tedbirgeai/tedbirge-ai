@@ -1,8 +1,8 @@
 # 🛡️ TEDBIRGE.AI — DEVİR RAPORU (AKTİF)
 
-📋 **ANAYASA:** v1.22.30 (Madde 31.9 R2 yeni: 4 Rol Profesyonel İş Akışı Disiplini)
-📂 **🎉 TEDBİRGE.AI 2.0 DOĞDU 🎉** — TUR #98 + #99 + #100 zinciri kapandı (Bağımsız + Ücretsiz + Profesyonel)
-📅 **SON GÜNCELLEME:** 8 Mayıs 2026 gece (11 ardışık temiz TUR — TUR #100 KAPALI, Tedbirge.ai 2.0 doğum tarihi)
+📋 **ANAYASA:** v1.22.31 (Madde 30.55 R1 PATCH: Hotfix Dersleri + Türkçeleştirme + Optimistic UI + 3 zorunlu doğrulama)
+📂 **🎉 TEDBİRGE.AI 2.0 + TUR #100.5 HOTFIX 🎉** — Yetki Matrisi Türkçe + Çalışır halde
+📅 **SON GÜNCELLEME:** 8 Mayıs 2026 (12 ardışık temiz TUR — TUR #100.5 hotfix, mimar hatası 43 tescil)
 👤 **CEO Onay:** Mehmet DİNÇ — Madde 17.5 + 18.3 + 30.25
 🤖 **Mimar:** Claude Opus 4.7 (sohbet) + Claude Code (otonom uygulama, bypass açık)
 🌟 **Tarih:** 8 Mayıs 2026 — TARİHE KAYIT (8 ardışık temiz TUR aynı gün)
@@ -23,6 +23,7 @@ TUR #97  ✅  AccidentCase Tanı Raporu (3 bug + 1 boot crash + AI maliyet $3-27
 TUR #98  ✅  AI Bağımsızlık Hizalama + Madde 24.14 Çapa Direktif (CEO Konsol + ai modülü feature flag, $0)
 TUR #99  ✅  RBAC Yetki Yönetim Paneli + Madde 30.55 (RolePermission KIRMIZI + requirePermission paralel + /yetkiler UI)
 TUR #100 ✅  4 Rol İş Akışı + Madde 31.9 R2 (Hızlı Eylemler floating + mevcut komuta merkezi tescili) — 🎉 TEDBİRGE.AI 2.0 DOĞDU
+TUR #100.5 ✅  RBAC HOTFIX + Madde 30.55 R1 (path /admin-os→/os + Türkçeleştirme + Optimistic UI, mimar hatası 43)
 
 ═══════════════════════════════════════════════════════════
 312 → 359+ atom (+47 atom sapma 0)

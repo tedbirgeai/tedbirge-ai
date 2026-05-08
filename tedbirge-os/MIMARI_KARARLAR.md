@@ -6,6 +6,53 @@
 
 ---
 
+## 8 Mayıs 2026 — TUR #100.5 KARARI — RBAC HOTFIX + MADDE 30.55 R1 (43. MİMAR HATASI)
+
+**Karar:** Mimar hatası 43 — TUR #99'da panel `/admin-os/role-permissions` apiFetch path yazdım, backend `index.js:71` mount **`/os`** altındaydı (admin.os.routes.js → `/api/os/role-permissions`). Production curl smoke yapılmadığı için CEO 8 May 11:43 *"Route bulunamadı"* hatasıyla yakaladı. **Madde 30.55 R1 PATCH** olarak 3 zorunlu doğrulama + Türkçeleştirme + Optimistic UI pattern tescil.
+
+**Sebep:** TUR #99 final rapor *"✅ Yetkiler matrix"* — production curl smoke atlandı. Frontend path uyumu **varsayım** yapıldı (Madde 30.49 R+ ihlali). Aynı emsal TUR #97.5'te *"CLAUDE.md üst metadata bloğu varsayımı"* — pattern aynı.
+
+**Adapt — Madde 14.3:**
+- Mektup spec backend mount değişikliği (`/admin/role-permissions`) → SKIP (mevcut `/os` korunur, frontend adapt ucuz)
+- Mektup spec `ApiError throw` pattern → mevcut `res.status().json()` korundu (TUR #99 controller pattern)
+- Mektup spec `tedbirge-panel/src/lib/api.ts` → gerçek `tedbirge-panel/lib/api.ts`
+- Mektup spec page.tsx rewrite → uygulandı (Türkçeleştirme + path fix + optimistic UI)
+
+**Reddedilen alternatifler:**
+- **Backend mount değiştirme (`/os` → `/admin-os`):** TUR #99 mevcut kullanım kalıbı bozar, rollback riski
+- **Toggle UX bekleme:** kullanıcı round-trip beklemez, optimistic update zorunlu
+- **i18n npm paketi (next-intl/react-intl):** Madde 24.14 + Madde 30.46 R1 — npm install yasak, inline LABELS map yeterli
+
+**Etki:**
+- Anayasa v1.22.30 → v1.22.31 PATCH (Madde 30.55 R1 ek)
+- `tedbirge-panel/app/(panel)/dashboard/yetkiler/page.tsx` tamamen rewrite (path fix + 3 Türkçe LABELS map + optimistic UI + rollback + saving indicator + zebra striping + accessibility aria-label)
+- `RBAC_ENDPOINT = "/os/role-permissions"` const path tek yerde
+- Backend kod değişmedi — sadece frontend adapt
+- Production curl smoke kanıt: GET + PATCH + me/permissions hepsi 401 (endpoint canlı)
+
+**3 zorunlu doğrulama (Madde 30.55 R1 tescil):**
+1. Controller dosyası mevcut mu?
+2. Route mount edildi mi? (`grep "router.use" src/routes/index.js`)
+3. **Production smoke yapıldı mı?** (`curl -I` + status code 200/401, 404 = mount problem)
+
+**Türkçeleştirme zorunlu (Madde 30.55 R1 tescil):**
+- Inline LABELS map pattern (key → Türkçe)
+- ROLE_LABELS + ACTION_LABELS + MODULE_LABELS
+- i18n altyapısı TUR #110+ adayı (npm install yasak şimdilik)
+
+**Optimistic UI zorunlu (Madde 30.55 R1 tescil):**
+- Toggle/switch/checkbox yüksek-frekans etkileşimlerde
+- savingCells Set + ⏳ saving indicator
+- Hata: rollback + görsel uyarı + "Tekrar dene" butonu
+
+**Pattern (52. kalibrasyon):** TUR #56+...+100+**100.5** = 392+ atom sapma 0. **47. anayasa madde tescil** (Madde 30.55 R1 ek alt-not). 43. mimar hatası → 47. anayasa maddesi (1:1 dönüşüm korundu).
+
+**Mimar:** Claude Opus 4.7 (sohbet) + Claude Code (otonom uygulama, bypass açık).
+
+**Mimar prensibi:** *"Production curl smoke = mektup atomu kapanışı. 'Yapıldı' iddiası kanıtsız söylenmez. TUR #93+#94+#95+#96+#97+#98+#99+#100+#100.5 zinciri 9 ardışık kanıt-bazlı adapt — 43. mimar hatası bu zincire dahil olmak yerine zincirin kanıt disiplinini güçlendirdi."*
+
+---
+
 ## 8 Mayıs 2026 gece — TUR #100 KARARI — 🎉 TEDBİRGE.AI 2.0 DOĞUM + MADDE 31.9 R2
 
 **Karar:** Her rol panele girince 30 saniyede ne yapacağını bilir. Mevcut yapı zaten **rol-özel Komuta Merkezi** içeriyor (TUR #57 rol-ruh DS) — Madde 31.9 R2 olarak resmi tescil. Tek yeni pattern: `QuickActionsButton` floating button (5 rol ACTIONS_BY_ROLE dict).

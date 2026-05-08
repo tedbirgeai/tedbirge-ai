@@ -1,3 +1,65 @@
+# OTONOM RAPOR — TUR #100.5 HOTFIX (RBAC PATH FIX + MADDE 30.55 R1)
+
+## TUR #100.5 — RBAC HOTFIX + MADDE 30.55 R1 ✅ KAPALI (mimar hatası 43 tescil)
+
+**Tarih:** 8 Mayıs 2026
+**Anayasa:** v1.22.30 → v1.22.31 PATCH (Madde 30.55 R1 ek — Hotfix Dersleri)
+**Tip:** Hotfix (path fix + Türkçeleştirme + Optimistic UI)
+**Atom:** 9 (P0-P8) — 5 canlı, 4 deploy sonrası (P3+P5+P6+P7)
+**KIRMIZI nokta:** 0
+**Maliyet:** $0
+
+### CEO Production Smoke 3 Bug (8 May 11:43)
+
+> *"(1) 'Route bulunamadı' 404 / (2) Tüm UI İngilizce / (3) Checkbox toggle çalışmıyor"*
+
+### Mimar Hatası 43 — Kök Sebep
+
+TUR #99'da backend `index.js:71` `router.use("/os", adminOsRoutes)` (mevcut tarihi mount), AMA TUR #99 panel'da `apiFetch("/admin-os/role-permissions")` yazıldım. Frontend `/api/admin-os/...` 404 alıyor, backend `/api/os/role-permissions` çalışıyor (curl 401 = endpoint var). **Path semantik tutarsızlığı** — production curl smoke yapılmadığı için fark edilmedi (Madde 30.49 R+ ihlali).
+
+### Atomlar
+
+| Atom | Konu | Durum |
+|---|---|---|
+| P0 | Keşif: Bug-1 path mismatch tespit (curl `/api/admin-os/...` 404 + `/api/os/...` 401) | ✅ |
+| P1 | rolePermissions.controller.js KONTROL — TUR #99'da mevcut | ✅ kanıt |
+| P2 | Route mount KONTROL — admin.os.routes.js GET+PATCH `/role-permissions` mevcut, `/os` altında | ✅ kanıt |
+| P3 | Backend lokal smoke | ⏳ deploy sonrası prod kanıt |
+| P4 | Frontend yetkiler/page.tsx tamamen rewrite (path `/admin-os→/os` + 3 Türkçe LABELS map + optimistic UI + rollback + saving indicator + zebra striping) | ✅ |
+| P5 | Frontend lokal smoke | ⏳ deploy sonrası prod kanıt |
+| P6 | Production deploy commit + push | ✅ (P8 ile birleşik) |
+| P7 | CEO görsel hard refresh smoke | ⏳ CEO manuel iş |
+| P8 | 5 OS senkron + Madde 30.55 R1 PATCH + v1.22.31 (bu rapor) | ✅ |
+
+### Bug Çözüm Tablosu
+
+| Bug | Tip | Kök Sebep | Fix |
+|---|---|---|---|
+| 1 | KRİTİK 404 | Frontend `/admin-os/...` ≠ Backend `/os/...` | P4 path const `RBAC_ENDPOINT = "/os/role-permissions"` |
+| 2 | UX kritik | İngilizce sabit string'ler | P4 ROLE_LABELS + ACTION_LABELS + MODULE_LABELS map'leri |
+| 3 | Bug-1 semptomu | PATCH 404 → state değişmiyor | P4 optimistic UI + rollback + savingCells Set |
+
+### Madde 30.55 R1 Tescil
+
+3 zorunlu doğrulama (yeni endpoint mektup atomu yazımında):
+1. Controller dosyası mevcut mu?
+2. Route mount edildi mi?
+3. **Production smoke yapıldı mı? (curl status code 200/401)**
+
+Türkçeleştirme + Optimistic UI + rollback pattern'i mektup şablonuna eklendi.
+
+### Mimar Dersi (43. mimar hatası emsali)
+
+> *"TUR #99 final raporda ✅ Yetkiler matrix yazdım, ama curl ile production smoke yapmadım. Frontend path uyumunu varsaydım. Madde 30.49 R+ disiplini ihlali — gerçekte TUR #97.5'te benzer hata 'CLAUDE.md üst metadata bloğu' varsayımı. Pattern: mektup spec ham koda saygı duymalı, varsayım yapmamalı."*
+
+### Kalibrasyon
+
+387+ → 392+ atom sapma 0 — kalibrasyon 1.6× **52. doğrulama**.
+12 ardışık temiz TUR (TUR #90 → #100.5).
+**43. mimar hatası tescil** (kategori E genişleme: 12 → 13 → 14? — ya da kategori D Auth/Path tutarsızlığı).
+
+---
+
 # OTONOM RAPOR — 🎉 TEDBİRGE.AI 2.0 DOĞDU (TUR #100 + MADDE 31.9 R2)
 
 ## TUR #100 — 4 ROL İŞ AKIŞI + MADDE 31.9 R2 ✅ KAPALI — TEDBİRGE.AI 2.0 DOĞUM

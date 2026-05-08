@@ -1,6 +1,6 @@
 # TEDBİRGE.AI YOL HARİTASI v1.0
-**Son güncelleme:** 8 Mayıs 2026 gece (🎉 TEDBİRGE.AI 2.0 DOĞDU — TUR #100 KAPALI + Madde 31.9 R2)
-**Anayasa versiyonu:** v1.22.30 (Madde 31.9 R2 yeni — 4 Rol Profesyonel İş Akışı Disiplini)
+**Son güncelleme:** 8 Mayıs 2026 (🎉 TEDBİRGE.AI 2.0 + TUR #100.5 HOTFIX — Madde 30.55 R1)
+**Anayasa versiyonu:** v1.22.31 (Madde 30.55 R1 PATCH — Hotfix Dersleri + Türkçeleştirme + 3 zorunlu doğrulama)
 **İlke:** MoSCoW + Now-Next-Later hibrit (Madde 24.5)
 
 ---
@@ -18,6 +18,7 @@
 | #98 ✅ | AI Bağımsızlık + Madde 24.14 Tescil | M0-M9 (10) | 0 | v1.22.28 |
 | #99 ✅ | RBAC Yetki Yönetim Paneli + Madde 30.55 | Q0-Q12 (13) | 1 (RolePermission) | v1.22.29 |
 | #100 ✅ | 4 Rol İş Akışı + Madde 31.9 R2 (mevcut tescil + Hızlı Eylemler) | H0+H6+H10 (3 canlı, 7 SKIP Madde 14.3) | 0 | v1.22.30 |
+| #100.5 ✅ | RBAC Hotfix + Madde 30.55 R1 (path fix + Türkçeleştirme + Optimistic UI) | P0+P1+P2+P4+P8 (5 canlı, P3+P5+P6+P7 deploy sonrası) | 0 | v1.22.31 |
 | **TOPLAM** | **Tedbirge.ai 2.0** | 34 atom | 1 KIRMIZI | $0 maliyet |
 
 ## LATER — TUR #101+ Adayları

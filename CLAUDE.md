@@ -3072,6 +3072,48 @@ Birinde değişiklik yaparken **diğer 4'ünün uyumu kontrol edilmeden parça-b
 - ❌ Seed atlama (yeni RolePermission tablo boşsa LAWYER+REPRESENTATIVE+CUSTOMER+SALES tüm `requirePermission` route'larından 403 alır — adopsiyon kırılır)
 - ❌ `useSWR` veya başka npm paket eklemek (Madde 24.14 + Madde 30.46 R1 — useEffect + apiFetch yeterli)
 
+### 30.55 R1 — Hotfix Dersleri (TUR #100.5 — 8 May 2026, mimar hatası 43 emsali)
+
+**CEO production smoke 3 bug yakaladı:** (1) "Route bulunamadı" 404, (2) Tüm UI İngilizce, (3) Checkbox toggle çalışmıyor. Mimar hatası 43 — final raporda *"✅ Yetkiler matrix"* yazıldı ama production curl smoke yapılmadığı için path mismatch fark edilmedi (Madde 30.49 R+ ihlali).
+
+**Mimar hatası 43 kök sebep:** TUR #99'da backend `index.js:71` `router.use("/os", adminOsRoutes)` (mevcut tarihi mount), AMA frontend `apiFetch("/admin-os/role-permissions")` yazıldı. Backend `/api/os/role-permissions` çalışıyor (401 auth gerek), frontend `/api/admin-os/...` 404 alıyor. Yumuşak rollout disiplini ihlal edilmedi ama path semantik tutarsızlığı kaldı.
+
+**3 zorunlu doğrulama (yeni endpoint mektup atomu yazımında):**
+1. **Controller dosyası mevcut mu?** `ls src/controllers/X.controller.js`
+2. **Route mount edildi mi?** `grep "router.use\|app.use" src/routes/index.js`
+3. **Production smoke yapıldı mı?** `curl -I` + status code 200/401 (404 = mount problem)
+
+Bu 3 doğrulama yapılmadan TUR kapatılamaz. **TUR #99 emsali:** ben 401 doğrulamasını atladım, frontend path uyumunu varsaydım.
+
+**Frontend Türkçeleştirme zorunlu (Madde 30.55 R1 ek):**
+
+Tedbirge.ai panel **Türk hukuk sistemi** için yazılmıştır. Kullanıcıya gösterilen tüm rol/action/modül adları Türkçe olmalı. İngilizce sabit string'ler (LAWYER/Read/leads) UI'da YASAK. **Inline LABELS map pattern'i** (key → Türkçe) kullanılır:
+
+```tsx
+const ROLE_LABELS: Record<string, string> = {
+  LAWYER: "Avukat", REPRESENTATIVE: "Temsilci", CUSTOMER: "Müvekkil", SALES: "Satış",
+};
+const ACTION_LABELS: Record<string, string> = {
+  read: "Okuma", write: "Yazma", delete: "Silme", execute: "Çalıştırma",
+};
+const MODULE_LABELS: Record<string, string> = {
+  ai: "Yapay Zeka", leads: "Lead'ler", users: "Kullanıcılar", ...
+};
+```
+
+i18n altyapısı (next-intl, react-intl, vb.) **TUR #110+ adayı** — şimdilik inline map yeterli (Madde 24.14 npm install yasağı).
+
+**Optimistic UI + rollback pattern (Madde 30.55 R1 ek):**
+
+Checkbox toggle, slider, switch gibi yüksek-frekans etkileşimlerde **optimistic update zorunlu** — kullanıcı network round-trip beklemez. Backend hata olursa rollback + görsel uyarı. `Set<string>` ile `savingCells` izlenir, hücre bazlı disabled state + ⏳ saving indicator.
+
+**Yasak (R1 ek):**
+- ❌ Yeni endpoint eklendiğinde production curl smoke atlamak (mimar hatası 43 emsali)
+- ❌ Frontend path varsayımı (backend mount ile **birebir** doğrulanmalı)
+- ❌ İngilizce sabit string UI'da (rol/action/modül adları)
+- ❌ Toggle/switch'te beklemeli UX (optimistic update zorunlu)
+- ❌ Hata durumunda rollback atlamak (kullanıcı state'i bozar)
+
 ---
 
 ## 31. TASARIM DİSİPLİNİ — Tedbirge Design System v1.0
@@ -3462,10 +3504,10 @@ Mehmet Bey sahaya çıkabilsin diye bu disiplin var.
 
 ---
 
-**— Tedbirge Mimari Anayasası v1.22.30**  
-**Toplam 100 TUR · 387+ atom sapma 0 · 51 kalibrasyon · 42 mimar hatası → 46 anayasa maddesi**  
-**🎉 TEDBİRGE.AI 2.0 DOĞDU 🎉** (TUR #98 + #99 + #100 zinciri — Bağımsız + Ücretsiz + Profesyonel)  
-**Aktif Kesit:** TUR #100 KAPALI (4 Rol İş Akışı + Madde 31.9 R2 — Hızlı Eylemler + mevcut komuta merkezi tescili)  
+**— Tedbirge Mimari Anayasası v1.22.31**  
+**Toplam 101 TUR · 392+ atom sapma 0 · 52 kalibrasyon · 43 mimar hatası → 47 anayasa maddesi**  
+**🎉 TEDBİRGE.AI 2.0 DOĞDU + TUR #100.5 HOTFIX 🎉**  
+**Aktif Kesit:** TUR #100.5 KAPALI (RBAC Path Fix `/admin-os→/os` + Türkçeleştirme + Optimistic UI — Madde 30.55 R1)  
 **Tüm sürüm geçmişi + TUR detayları + atom kayıtları: `tedbirge-os/MIMARI_KARARLAR.md`**
 
 **Versiyon geçmişi: tedbirge-os/MIMARI_KARARLAR.md**  
