@@ -1,8 +1,8 @@
 # 🛡️ TEDBIRGE.AI — DEVİR RAPORU (AKTİF)
 
-📋 **ANAYASA:** v1.23.0 MINOR (Madde 35 yeni: Kurumsal Kimlik + Üretim + Madde 25.3 R1 TBB Reklam Yasağı backend)
-📂 **🎉 KURUMSAL ÜRETİM STÜDYOSU + BRAND TEK-KAYNAK + WEB SHARE 🎉** — 43 modül × 4 rol = 688 satır + brand.json DRY + 4 materyal SVG + 7 kanal Web Share
-📅 **SON GÜNCELLEME:** 8 Mayıs 2026 (15 ardışık temiz TUR — TUR #100.9, mimar hatası 44 tescil: TUR #100.8 Türkçeleştirme atlama)
+📋 **ANAYASA:** v1.23.1 PATCH (Madde 13.2 R1 yeni: Auth-Protected Binary Endpoint Disiplini — useAuthenticatedBlob)
+📂 **🎉 KURUMSAL ÜRETİM TAM ÇALIŞIR + AUTH BLOB PATTERN 🎉** — RBAC korunur, Madde 25.3 R1 intact
+📅 **SON GÜNCELLEME:** 8 Mayıs 2026 (16 ardışık temiz TUR — TUR #100.10 hotfix, mimar hatası 45 tescil: img/a auth bypass)
 👤 **CEO Onay:** Mehmet DİNÇ — Madde 17.5 + 18.3 + 30.25
 🤖 **Mimar:** Claude Opus 4.7 (sohbet) + Claude Code (otonom uygulama, bypass açık)
 🌟 **Tarih:** 8 Mayıs 2026 — TARİHE KAYIT (8 ardışık temiz TUR aynı gün)
@@ -27,6 +27,7 @@ TUR #100.5 ✅  RBAC HOTFIX + Madde 30.55 R1 (path /admin-os→/os + Türkçele�
 TUR #100.7 ✅  RBAC TAM ENTEGRASYON + Madde 30.55 R2 (registry + auto-register + manifest + AppLayout/QuickActions usePermission)
 TUR #100.8 ✅  YETKI ENTERPRISE (38 modül 17+9+12) + SÜRÜM TEK-KAYNAK (version.json + useVersion + dinamik footer'lar) — Madde 22.9 + 30.55 R2 PATCH
 TUR #100.9 ✅  KURUMSAL ÜRETİM STÜDYOSU (43 modül +5 corporate) + BRAND TEK-KAYNAK (brand.json + useBrand) + 4 SVG materyal + 7 kanal Web Share — Madde 35 yeni + Madde 25.3 R1
+TUR #100.10 ✅ AUTH BLOB HOTFIX (useAuthenticatedBlob hook + downloadAuthenticatedBlob — img/a auth bypass fix) — Madde 13.2 R1 yeni, mimar hatası 45 tescil
 
 ═══════════════════════════════════════════════════════════
 312 → 359+ atom (+47 atom sapma 0)

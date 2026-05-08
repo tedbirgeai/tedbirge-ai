@@ -6,6 +6,49 @@
 
 ---
 
+## 8 Mayıs 2026 — TUR #100.10 KARARI — AUTH BLOB HOTFIX + MADDE 13.2 R1 (45. MİMAR HATASI)
+
+**Anayasa:** v1.23.0 → v1.23.1 PATCH (Madde 13.2 R1 yeni — 52. anayasa maddesi)
+
+**Karar:** TUR #100.9 P11'de yapılan mimar hatası 45 (`<img src="${apiBase}/api/...">` + `<a href="${apiBase}/api/...">` direkt API çağrısı) `useAuthenticatedBlob` hook + `downloadAuthenticatedBlob` helper ile fetch + Blob URL pattern'a dönüştürüldü. Backend RBAC + Madde 25.3 R1 enforcement **DOKUNULMADI** — frontend-only fix.
+
+**Sebep:** CEO 8 May 18:08 production smoke: kurumsal sayfada reklam önizleme **boş** + SVG butonu → `{"success":false,"message":"Yetkisiz erisim"}`. ADMIN bile alıyor — kök sebep `<img>` ve `<a>` tag'lerinin **Authorization Bearer header gönderememesi** (sadece cookie auth çalışır, Tedbirge.ai localStorage Bearer kullanır → Madde 13.2). 11 konumda mimar hatası 45 kanıtı.
+
+**3 alternatif değerlendirildi:**
+- **A: fetch + Blob URL pattern** ✅ SEÇİLDİ (auth + RBAC + sıfır maliyet, düşük karmaşıklık)
+- **B: Endpoint'leri auth-free** ❌ REDDEDİLDİ (RBAC kaybı, Madde 25.3 R1 enforcement YOK — KIRMIZI)
+- **C: İmzalı kısa-ömürlü URL token** ❌ REDDEDİLDİ (yüksek karmaşıklık, değer eklemiyor)
+
+**Mektup adapt (14. ardışık kanıt-bazlı):**
+- Mektup `tedbirge-panel/src/hooks/useAuthenticatedBlob.ts` → gerçek `lib/use-authenticated-blob.ts` (lib/use-permission, lib/use-version, lib/use-brand emsali)
+- Mektup `apiBase = NEXT_PUBLIC_API_URL` → gerçek `NEXT_PUBLIC_API_BASE_URL` (lib/api.ts emsali)
+
+**Etki:**
+- Anayasa v1.23.0 → v1.23.1 PATCH (Madde 13.2 R1 yeni)
+- `tedbirge-panel/lib/use-authenticated-blob.ts` (YENİ — useAuthenticatedBlob hook + downloadAuthenticatedBlob helper)
+- `tedbirge-panel/app/(panel)/dashboard/kurumsal/page.tsx` 3 tab refactor (KartvizitTab + BrosurTab + ReklamTab — 11 hardcoded apiBase href/src kaldırıldı, useAuthenticatedBlob entegrasyonu)
+- Backend `corporate.routes.js` (7 endpoint auth + requirePermission) **DOKUNULMADI** — RBAC korundu
+- Backend `share.routes.js` (LAWYER reklam/brosur 403 TBB_REKLAM_YASAGI) **DOKUNULMADI**
+- version.json: anayasa 1.23.0 → 1.23.1, backend 1.5.0 → 1.5.1, panel 1.6.0 → 1.6.1
+- 0 schema · 0 npm install · 0 KIRMIZI · $0 maliyet
+
+**Yeni anayasa kuralı (Madde 13.2 R1):** Auth-protected binary endpoint için 3 zorunlu doğrulama:
+1. Backend route auth + requirePermission ile korunuyor mu?
+2. Frontend `useAuthenticatedBlob` veya `downloadAuthenticatedBlob` kullanıyor mu?
+3. Memory leak önlemi var mı (cleanup `URL.revokeObjectURL`)?
+
+**Pattern (56. kalibrasyon):** TUR #56+...+100.9+**100.10** = 430+ atom sapma 0. **52 anayasa maddesi tescil** (Madde 13.2 R1). 45 mimar hatası → 52 madde (oran 1:1.16 — Madde 13.2 R1 önleyici tescil).
+
+**Mimar hatası 45 emsali (Madde 13.2 + 35 birleşik):** Yeni binary endpoint eklenirken HTML tag'lerin Bearer header sınırlaması unutulmamalı. TUR #100.9'da kurumsal materyal SVG/PNG endpoint'leri yazıldı, frontend dönüştürmek için `<img src>` kullanıldı — **HTML tag'in yapısal sınırlaması atlandı**. R1 pattern bu boşluğu doldurdu (lib/use-authenticated-blob.ts kalıcı).
+
+**Mimar:** Claude Opus 4.7 (TUR #100.10 hotfix mimar — 8 Mayıs 2026 18:08 sonrası).
+
+**Onay:** Mehmet DİNÇ — Madde 17.5 + 13.2 R1 + 24.14 + 25.3 R1 + 30.25 sessiz onay (uçtan uca otonom + RBAC korunur + sıfır soru).
+
+**Mimar prensibi:** *"`<img src>` ve `<a href>` Authorization Bearer header gönderemez (HTML tag yapısal sınırlaması). Auth-protected binary endpoint için fetch + Blob URL pattern zorunlu. Madde 13.2 disiplini R1 ile genişletildi — atlama değil, yeni pattern. RBAC + Madde 25.3 R1 enforcement intact (backend dokunulmadı), frontend-only fix."*
+
+---
+
 ## 8 Mayıs 2026 — TUR #100.9 KARARI — KURUMSAL ÜRETİM STÜDYOSU + BRAND TEK-KAYNAK + WEB SHARE
 
 **Anayasa:** v1.22.33 → v1.23.0 **MINOR** (Madde 35 yeni — 50. anayasa maddesi + Madde 25.3 R1 — 51. madde)

@@ -1,3 +1,96 @@
+# OTONOM RAPOR — TUR #100.10 AUTH BLOB HOTFIX (MADDE 13.2 R1) — MİMAR HATASI 45
+
+## TUR #100.10 — KURUMSAL ÖNİZLEME AUTH FIX ✅ KAPALI (mimar hatası 45 tescil)
+
+**Tarih:** 8 Mayıs 2026
+**Anayasa:** v1.23.0 → v1.23.1 PATCH (Madde 13.2 R1 yeni — Auth-Protected Binary Endpoint Disiplini)
+**Tip:** Hotfix (frontend-only, backend RBAC korundu)
+**Atom:** 4 (P0-P4) — hepsi canlı
+**KIRMIZI nokta:** 0
+**Maliyet:** $0
+**Mimar hatası:** 44 → **45** (TUR #100.9 P11 `<img src>` + `<a href>` direkt API çağrısı, auth bypass)
+
+### CEO Production Smoke (8 May 18:08)
+
+> *"Kurumsal Materyaller sayfasında: (1) Reklam önizleme alanı boş. (2) SVG butonu → 'Yetkisiz erişim'. (3) ADMIN bile alıyor."*
+
+### Mimar Hatası 45 — Kök Sebep
+
+TUR #100.9 P11 `kurumsal/page.tsx` 11 konumda `<img src="${apiBase}/api/corporate/...">` ve `<a href="${apiBase}/api/corporate/...">` kullandım. AMA:
+- Backend route `auth + requirePermission` ile korunuyor (Madde 25.3 R1 enforcement zorunlu)
+- HTML `<img>`/`<a>` tag'leri **Authorization Bearer header GÖNDEREMEZ** (sadece cookie auth çalışır)
+- Tedbirge.ai `apiFetch` localStorage Bearer token kullanır (Madde 13.2)
+- Sonuç: **401 "Yetkisiz erişim"** — ADMIN dahil
+
+### 3 Seçenek Değerlendirmesi
+
+| Çözüm | Auth | RBAC | Sıfır Maliyet |
+|---|---|---|---|
+| **A) `<img>` → fetch + Blob URL** | ✅ | ✅ | ✅ |
+| B) Endpoint'leri auth-free | ❌ | ❌ KAYIP | ✅ |
+| C) İmzalı kısa-ömürlü URL token | ✅ | ✅ | ✅ (kompleks) |
+
+**Seçim: A** — RBAC korunur, Madde 25.3 R1 enforcement intact, Madde 13.2 disiplin korunur.
+
+### Atomlar
+
+| Atom | Konu | Durum |
+|---|---|---|
+| P0 | Keşif (apiFetch + tedbirge_token + 11 hardcoded apiBase href/src) | ✅ |
+| P1 | `tedbirge-panel/lib/use-authenticated-blob.ts` (useAuthenticatedBlob hook + downloadAuthenticatedBlob helper) | ✅ |
+| P2 | `kurumsal/page.tsx` 3 tab dönüşüm (KartvizitTab + BrosurTab + ReklamTab) — img src + a href + queryParams | ✅ |
+| P3 | Smoke (lokal: 0 hardcoded apiBase, 8+ useAuthenticatedBlob, 7 endpoint auth+RBAC korundu) | ✅ |
+| P4 | 5 OS senkron + Madde 13.2 R1 + v1.23.1 (bu rapor) | ✅ |
+
+### Pattern (Madde 13.2 R1)
+
+```ts
+// Önizleme:
+const { url, loading, error, refresh } = useAuthenticatedBlob("/corporate/kartvizit/svg");
+<img src={url ?? ""} />
+
+// İndirme:
+<button onClick={() => downloadAuthenticatedBlob("/corporate/kartvizit/svg", "kartvizit.svg")}>
+  📥 İndir
+</button>
+```
+
+**Hook iç:** localStorage `tedbirge_token` → fetch + `Authorization: Bearer <token>` → response Blob → `URL.createObjectURL` → cleanup `revokeObjectURL` (memory leak önleme) → endpoint değişimi auto-refetch (örn. format/text param).
+
+### Mektup Adapt (TUR #93→#100.9 emsali — 14. ardışık adapt)
+
+- Mektup `tedbirge-panel/src/hooks/useAuthenticatedBlob.ts` → gerçek `lib/use-authenticated-blob.ts` (mevcut konvansiyon: lib/use-permission, lib/use-version, lib/use-brand)
+- Mektup `apiBase = NEXT_PUBLIC_API_URL` → gerçek `NEXT_PUBLIC_API_BASE_URL` (lib/api.ts emsali)
+
+### RBAC + Madde 25.3 R1 Enforcement INTACT
+
+✅ Backend `corporate.routes.js` 7 endpoint auth + requirePermission **DOKUNULMADI**
+✅ `share.routes.js` LAWYER reklam/brosur 403 TBB_REKLAM_YASAGI **DOKUNULMADI**
+✅ Frontend Madde 13.2 disiplin **R1 ile genişletildi** (atlama değil, tag yetersizliği için yeni pattern)
+
+### Kalibrasyon
+
+426+ → **430+ atom** sapma 0 — kalibrasyon 1.6× **56. doğrulama**.
+**16 ardışık temiz TUR** (TUR #90 → #100.10).
+**52. anayasa maddesi tescil** (Madde 13.2 R1).
+**14. ardışık kanıt-bazlı adapt zinciri** (TUR #93 → #100.10).
+
+### CEO MANUEL İŞ
+
+**Render auto-deploy ~90sn + Vercel ~30sn** sonra hard refresh:
+
+1. `/dashboard/kurumsal?tab=reklam` → "Reklam önizleme" **görünüyor** (boş YOK, "Yetkisiz erişim" YOK)
+2. `/dashboard/kurumsal?tab=kartvizit` → kartvizit önizleme + TBB footer ✅
+3. SVG/PNG/vCard butonları → dosya iniyor (auth header ile)
+4. Reklam → boyut değiştir → önizleme refresh
+5. LAWYER login → sadece Kartvizit + Email İmzası sekmeleri görünür (Madde 25.3 R1 korundu)
+
+### Mimar Prensibi
+
+> *"`<img src>` ve `<a href>` Authorization Bearer header gönderemez. Auth-protected binary endpoint için fetch + Blob URL pattern zorunlu. Madde 13.2 disiplini bu yeni keşifle R1 ile genişletildi — atlama değil, HTML tag'lerin yapısal sınırlaması için yeni pattern. RBAC + Madde 25.3 R1 enforcement intact, frontend-only fix."*
+
+---
+
 # OTONOM RAPOR — TUR #100.9 KURUMSAL ÜRETİM STÜDYOSU + BRAND TEK-KAYNAK (MADDE 35 + 25.3 R1)
 
 ## TUR #100.9 — 43 MODÜL + brand.json + 4 MATERYAL + 7 KANAL WEB SHARE ✅ KAPALI

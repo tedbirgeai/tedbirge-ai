@@ -416,6 +416,54 @@ Backend'e giden hiçbir HTTP çağrısı `apiFetch` wrapper'ını atlamaz. Doğr
 
 **Yasak:** apiFetch atlama · inline fetch (`useEffect(() => fetch(...))`) · credentials:include ile auth bekleme.
 
+### 13.2 R1 — Auth-Protected Binary Endpoint Disiplini (TUR #100.10 — 8 May 2026)
+
+**Kural:** Auth + RBAC ile korunan **binary endpoint'leri** (SVG, PNG, PDF, vCard, vb.) `<img src="">` veya `<a href="">` ile **DOĞRUDAN ÇAĞRILAMAZ**. HTML tag'leri Authorization Bearer header gönderemez (sadece cookie auth'da çalışır, Bearer token YOK). Tedbirge.ai localStorage Bearer token kullanır → `<img>`/`<a>` = **401 Yetkisiz erişim**.
+
+**Pattern (Madde 13.2 ile birlikte):**
+
+`tedbirge-panel/lib/use-authenticated-blob.ts`:
+- `useAuthenticatedBlob(endpoint)` hook → fetch + Blob + `URL.createObjectURL` + cleanup (`revokeObjectURL`)
+- `downloadAuthenticatedBlob(endpoint, filename)` helper → fetch + Blob + `<a download>` programmatic click
+
+**Kullanım:**
+```ts
+// Önizleme:
+const { url, loading, error, refresh } = useAuthenticatedBlob("/corporate/kartvizit/svg");
+<img src={url ?? ""} />  // url = blob: URL
+
+// İndirme:
+<button onClick={() => downloadAuthenticatedBlob("/corporate/kartvizit/svg", "kartvizit.svg")}>
+  📥 İndir
+</button>
+```
+
+**Hook iç yapısı:**
+1. `localStorage.getItem("tedbirge_token")`
+2. `fetch(API_BASE + endpoint, { headers: { Authorization: 'Bearer <token>' } })`
+3. Response Blob → `URL.createObjectURL(blob)`
+4. `<img>` veya `<a download>` blob URL kullanır
+5. `useEffect` cleanup → `URL.revokeObjectURL()` (memory leak önleme)
+6. `endpoint` değişirse otomatik refetch (örn. format/text query param değişimi)
+
+**Yasak:**
+- ❌ `<img src="/api/corporate/kartvizit/svg">` (auth header yok = 401)
+- ❌ `<a href="/api/corporate/kartvizit/png" target="_blank">` (auth header yok = 401)
+- ❌ Binary endpoint'i auth-free yapma (RBAC kaybedilir, Madde 25.3 R1 enforcement yok)
+- ❌ apiFetch bypass (Madde 13.2 ihlal — Bearer token gönderilmiyor)
+- ❌ `URL.revokeObjectURL` cleanup atlamak (memory leak)
+
+**TUR #100.10 emsal — mimar hatası 45 tescil:**
+
+TUR #100.9 P11 `app/(panel)/dashboard/kurumsal/page.tsx` 11 konumda `<img src="${apiBase}/api/corporate/...">` ve `<a href="${apiBase}/api/corporate/...">` kullandı. CEO 8 May 18:08 görsel kanıt: önizleme **boş** + `{"success":false,"message":"Yetkisiz erisim"}`. ADMIN bile alıyordu (cookie/token gönderilmiyor). `useAuthenticatedBlob` hook + `downloadAuthenticatedBlob` helper ile çözüldü. **RBAC korunur, Madde 25.3 R1 enforcement intact** (backend route auth + requirePermission değişmedi).
+
+**3 zorunlu doğrulama (yeni binary endpoint mektup atomu yazımında):**
+1. Backend route `auth + requirePermission` ile korunuyor mu?
+2. Frontend `useAuthenticatedBlob` veya `downloadAuthenticatedBlob` kullanıyor mu?
+3. Memory leak önlemi var mı (cleanup `URL.revokeObjectURL`)?
+
+Bu 3 doğrulama yapılmadan TUR kapatılamaz. Pattern Madde 13.2 + Madde 25.3 R1 birleşik koruma.
+
 ### 13.3 Ortam İzolasyonu
 
 Lokal `.env` ve production `DATABASE_URL` **farklı** Supabase projeleridir.
@@ -3755,10 +3803,10 @@ Mehmet Bey sahaya çıkabilsin diye bu disiplin var.
 
 ---
 
-**— Tedbirge Mimari Anayasası v1.23.0**  
-**Toplam 104 TUR · 426+ atom sapma 0 · 55 kalibrasyon · 44 mimar hatası → 51 anayasa maddesi**  
-**🎉 KURUMSAL ÜRETİM STÜDYOSU + BRAND TEK-KAYNAK + WEB SHARE 🎉**  
-**Aktif Kesit:** TUR #100.9 KAPALI (43 modül + brand.json + 4 materyal SVG + 7 kanal Web Share — Madde 35 yeni + Madde 25.3 R1)  
+**— Tedbirge Mimari Anayasası v1.23.1**  
+**Toplam 105 TUR · 430+ atom sapma 0 · 56 kalibrasyon · 45 mimar hatası → 52 anayasa maddesi**  
+**🎉 KURUMSAL ÜRETİM TAM ÇALIŞIR + AUTH BLOB PATTERN 🎉**  
+**Aktif Kesit:** TUR #100.10 HOTFIX KAPALI (useAuthenticatedBlob hook — img/a auth fix, Madde 13.2 R1 yeni)  
 **Tüm sürüm geçmişi + TUR detayları + atom kayıtları: `tedbirge-os/MIMARI_KARARLAR.md`**
 
 **Versiyon geçmişi: tedbirge-os/MIMARI_KARARLAR.md**  
