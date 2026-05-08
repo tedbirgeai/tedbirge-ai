@@ -141,4 +141,44 @@ module.exports = {
 
   // 16 iş modülü (admin.os.controller bunu kullanır)
   modules,
+
+  // TUR #100.7 P3 + P4 — RBAC auto-register (Madde 30.55 R2)
+  registry: require('./registry'),
+  ensureRbacRegistration,
 };
+
+// ─── TUR #100.7 P4 — RBAC Auto-Register Boot Hook (Madde 30.55 R2) ──────────
+// Yeni modül `src/os/registry.js`'e eklendiğinde RolePermission tablosuna
+// otomatik 4 rol × 4 action = 16 satır kayıt edilir (mevcut izinler KORUNUR).
+
+let lastRbacRegistration = 0;
+const RBAC_REGISTRATION_INTERVAL = 5 * 60 * 1000; // 5 dk lock
+
+async function ensureRbacRegistration() {
+  try {
+    const { autoRegisterAllModules } = require('../../scripts/seed-role-permissions');
+    const result = await autoRegisterAllModules();
+    console.log(`[os] RBAC auto-register OK · ${result.modules} modül × 4×4 = ${result.rows} satır upsert`);
+    return result;
+  } catch (err) {
+    // Tablonun olmaması (drift) graceful skip — postinstall yedek
+    console.warn('[os] RBAC auto-register skip:', err.message);
+    return null;
+  }
+}
+
+async function maybeEnsureRbac() {
+  const now = Date.now();
+  if (now - lastRbacRegistration < RBAC_REGISTRATION_INTERVAL) return;
+  lastRbacRegistration = now;
+  await ensureRbacRegistration();
+}
+
+// Boot tetiği — OS_ENABLED=true ise setImmediate ile event loop sonrası
+if (process.env.OS_ENABLED === 'true') {
+  setImmediate(() => {
+    maybeEnsureRbac().catch((err) => {
+      console.warn('[os] Initial RBAC ensure başarısız:', err.message);
+    });
+  });
+}

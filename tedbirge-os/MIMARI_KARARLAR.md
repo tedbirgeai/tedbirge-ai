@@ -6,6 +6,47 @@
 
 ---
 
+## 8 Mayıs 2026 — TUR #100.7 KARARI — RBAC TAM ENTEGRASYON + MADDE 30.55 R2
+
+**Karar:** RBAC tam entegrasyon — `src/os/registry.js` tek kaynak modül listesi (17 OS + 9 iş = 26 modül), `autoRegisterAllModules()` boot hook (5 dk lock + setImmediate), manifest endpoint (`GET /api/os/role-permissions/manifest`), `NavItem.permission` + `QuickAction.permission` field tipinde RBAC bağı, `usePermissions` hook ile filter zinciri (`roleOk && flagOk && permOk`). Yeni modül eklendiğinde RolePermission tablosuna otomatik 4 rol × 4 action = 16 satır kayıt (mevcut izinler `update: {}` ile DOKUNULMAZ).
+
+**Sebep:** CEO 8 May 12:18 direktifi: *"Rol envanteri çıkar, modülleri RBAC matrisine bağla, yeni modül eklendiğinde otomatik kayıt edilsin, AppLayout sidebar/buton yetkiye bağlı olsun."* TUR #100.5'te yapılan hotfix yarımdı — AppLayout/QuickActions usePermission bağsızdı (mektup tanısı doğru, görsel kanıt: yetki kapatılınca menü hâlâ görünüyor).
+
+**Mektup adapt — TUR #93 → #100.7 emsali (10 ardışık kanıt-bazlı adapt zinciri):**
+- Mektup `LEGAL_REP rolü` → SKIP (Role enum'da YOK, A maddesi)
+- Mektup `useAuth` → mevcut `getStoredUser()` konvansiyon
+- Mektup `tedbirge-panel/src/...` → gerçek `tedbirge-panel/...`
+- Mektup `usePermissions` named export → mevcut `lib/use-permission.ts` (TUR #99 Q6 yapımı)
+- Mektup `ApiError throw` → mevcut `res.status().json()` direkt (TUR #99/#100.5 controller pattern)
+- Mektup `tedbirge-panel/src/components/QuickActionsButton.tsx` → gerçek `tedbirge-panel/components/layout/QuickActionsButton.tsx`
+
+**Reddedilen alternatifler:**
+- **Schema'ya LEGAL_REP enum ekleme:** TUR #100.7 kapsamı dışı (KIRMIZI Madde 3.1, ayrı mektup gerek)
+- **i18n npm paketi (next-intl):** Madde 24.14 yasak, inline LABELS yeterli
+- **Hardcoded sidebar permission map:** NavItem field zorunlu (her sidebar item kendi izniyle bağlı)
+- **Backend dinamik modül discovery:** registry.js statik liste — her TUR'da explicit (Madde 14.3 önce oku)
+
+**Etki:**
+- Anayasa v1.22.31 → v1.22.32 PATCH (Madde 30.55 R2 yeni — 48. anayasa maddesi)
+- `src/os/registry.js` yeni (OS_MODULES 17 + BUSINESS_MODULES 9 + helpers)
+- `scripts/seed-role-permissions.js` refactor (autoRegisterModule + autoRegisterAllModules + ROLE_DEFAULTS structured)
+- `src/controllers/rolePermissions.controller.js` getManifest endpoint + RBAC_ROLES/ACTIONS validasyon
+- `src/routes/admin.os.routes.js` `/role-permissions/manifest` mount
+- `src/os/index.js` ensureRbacRegistration boot hook + setImmediate + 5 dk lock + OS_ENABLED guard
+- `tedbirge-panel/app/(panel)/dashboard/yetkiler/page.tsx` manifest dinamik (sabit ROLES/MODULES/ACTIONS kaldırıldı)
+- `tedbirge-panel/components/layout/AppLayout.tsx` NavItem.permission + usePermissions + filter zinciri (3 koşul: role + flag + perm)
+- `tedbirge-panel/components/layout/QuickActionsButton.tsx` QuickAction.permission + filter
+- 0 schema · 0 npm install · 0 KIRMIZI · $0 maliyet
+- Production smoke: manifest endpoint deploy sonrası 401 bekleniyor
+
+**Pattern (53. kalibrasyon):** TUR #56+...+100.5+**100.7** = 401+ atom sapma 0. **48. anayasa maddesi tescil**. 43. mimar hatası → **48. madde**, oran korundu (1:1).
+
+**Mimar:** Claude Opus 4.7 (sohbet) + Claude Code (otonom uygulama, bypass açık).
+
+**Mimar prensibi:** *"TUR #100.5 hotfix sadece görüneni düzeltti. TUR #100.7 önleyici — bağ kurulmadan RBAC sözü tutmaz. CEO direktifi 'kuru söz değil tam entegrasyon' = registry + boot hook + manifest + frontend bağı. 10 ardışık kanıt-bazlı adapt zinciri (TUR #93→#100.7) korundu."*
+
+---
+
 ## 8 Mayıs 2026 — TUR #100.5 KARARI — RBAC HOTFIX + MADDE 30.55 R1 (43. MİMAR HATASI)
 
 **Karar:** Mimar hatası 43 — TUR #99'da panel `/admin-os/role-permissions` apiFetch path yazdım, backend `index.js:71` mount **`/os`** altındaydı (admin.os.routes.js → `/api/os/role-permissions`). Production curl smoke yapılmadığı için CEO 8 May 11:43 *"Route bulunamadı"* hatasıyla yakaladı. **Madde 30.55 R1 PATCH** olarak 3 zorunlu doğrulama + Türkçeleştirme + Optimistic UI pattern tescil.

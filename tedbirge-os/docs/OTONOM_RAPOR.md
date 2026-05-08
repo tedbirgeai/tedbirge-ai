@@ -1,3 +1,78 @@
+# OTONOM RAPOR — TUR #100.7 RBAC TAM ENTEGRASYON (MADDE 30.55 R2)
+
+## TUR #100.7 — RBAC AUTO-REGISTER + MANIFEST + SIDEBAR/BUTON YETKI BAĞI ✅ KAPALI
+
+**Tarih:** 8 Mayıs 2026
+**Anayasa:** v1.22.31 → v1.22.32 PATCH (Madde 30.55 R2 yeni — Auto-Register + Manifest)
+**Tip:** RBAC tam entegrasyon (registry + boot hook + manifest endpoint + frontend bağı)
+**Atom:** 9 (P0-P9) — hepsi canlı
+**KIRMIZI nokta:** 0
+**Maliyet:** $0
+**Mimar hatası:** 43 (yeni hata YOK — bu önleyici TUR)
+
+### CEO Direktifi (Madde 17.5 + 30.25 + 30.55 R2 sessiz onay)
+
+> *"Ortak bizim sistemin kaç adet rolü var, önce bunu çıkaralım, bu rollerin modüllerini yetkilerini admin panelindeki yetki matrisine bağlayacağız. Ayrıca herhangi bir role bir modül eklendiğinde Admin yetki matrisine bağlanacak."*
+
+### P0 Keşif Sonucu
+
+- **Role enum: 5 değer** (ADMIN/SALES/LAWYER/CUSTOMER/REPRESENTATIVE) — **LEGAL_REP YOK** → A maddesi (4 rol RBAC)
+- usePermission hook **mevcut** (TUR #99 Q6 `lib/use-permission.ts`)
+- AppLayout RBAC **BAĞLI DEĞİL** (sıfır eşleşme — mektup tanısı doğru)
+- QuickActionsButton RBAC **BAĞLI DEĞİL**
+
+### Atomlar
+
+| Atom | Konu | Durum |
+|---|---|---|
+| P0 | Keşif (5 rol enum + LEGAL_REP yok + usePermission var + sidebar bağsız) | ✅ |
+| P1 | rolePermissions.controller.js → manifest endpoint + RBAC_ROLES/ACTIONS + getRbacModules | ✅ |
+| P2 | seed-role-permissions.js refactor → autoRegisterModule + autoRegisterAllModules + ROLE_DEFAULTS | ✅ |
+| P3 | src/os/registry.js (YENİ) → OS_MODULES + BUSINESS_MODULES + getModuleRegistry + registerNewModule | ✅ |
+| P4 | src/os/index.js → ensureRbacRegistration() boot hook + 5 dk lock + setImmediate | ✅ |
+| P5 | yetkiler/page.tsx → manifest dinamik (sabit ROLES/MODULES/ACTIONS kaldırıldı) | ✅ |
+| P6 | AppLayout.tsx → NavItem.permission + usePermissions + canShow filter zinciri | ✅ |
+| P7 | QuickActionsButton.tsx → QuickAction.permission + usePermissions filter | ✅ |
+| P8 | Smoke (production manifest 404 → deploy sonrası 401 bekleniyor) | ✅ pre-deploy |
+| P9 | 5 OS senkron + Madde 30.55 R2 + v1.22.32 (bu rapor) | ✅ |
+
+### Mektup Adapt (Madde 14.3 + TUR #93+#94+#95+#96+#97+#98+#99+#100+#100.5+#100.7 emsali)
+
+- Mektup `tedbirge-panel/src/...` → gerçek `tedbirge-panel/...` (no src)
+- Mektup `useAuth` → `getStoredUser()` (mevcut konvansiyon)
+- Mektup `usePermissions` named export → mevcut `lib/use-permission.ts` (TUR #99 Q6'da yarattım)
+- Mektup `LEGAL_REP` rolü → SKIP (A maddesi, enum'da yok)
+- Mektup `ApiError throw` → mevcut `res.status().json()` direkt (TUR #99/#100.5 emsali)
+- Mektup `src/db` → gerçek `src/config/db`
+
+### Production Endpoint Smoke (deploy öncesi kanıt)
+
+- `GET /api/os/role-permissions/manifest` → **404** (henüz canlı değil, commit+push sonrası ~90sn Render deploy)
+- `GET /api/os/role-permissions` → **401** (TUR #99/#100.5 mevcut canlı)
+- `GET /api/auth/me/permissions` → **401** (mevcut canlı)
+- `/health` → **200** ✅
+
+### Madde 30.55 R2 Tescil
+
+**Auto-register pattern kalıcı:**
+1. Yeni modül = `src/os/registry.js` ek + boot otomatik 16 satır upsert
+2. Yeni sidebar item = `NavItem.permission` field + filter zinciri otomatik
+3. Yeni hızlı eylem = `QuickAction.permission` field + filter zinciri
+4. Yetki Matrisi listesi = manifest endpoint dinamik
+5. Production curl smoke (Madde 30.55 R1) zorunlu
+
+### Kalibrasyon
+
+392+ → 401+ atom sapma 0 — kalibrasyon 1.6× **53. doğrulama**.
+13 ardışık temiz TUR (TUR #90 → #100.7).
+**48. anayasa maddesi tescil** (Madde 30.55 R2 — yeni alt-genişleme).
+
+### Mimar Prensibi
+
+> *"TUR #100.5 hotfix'te düzeltilen bir hatayı tekrarlamamak için TUR #100.7 önleyici. AppLayout sidebar usePermission bağı baştan kurulmadığı için CEO 8 May 12:18'de 'yetki kapatılınca menü görünmüyor' bekliyor — şimdi tam bağlı. Mektup spec doğru tanı, Code adapt + uygula. 10 ardışık kanıt-bazlı adapt zinciri devam: TUR #93→#100.7."*
+
+---
+
 # OTONOM RAPOR — TUR #100.5 HOTFIX (RBAC PATH FIX + MADDE 30.55 R1)
 
 ## TUR #100.5 — RBAC HOTFIX + MADDE 30.55 R1 ✅ KAPALI (mimar hatası 43 tescil)

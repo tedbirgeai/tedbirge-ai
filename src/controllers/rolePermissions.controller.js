@@ -1,24 +1,57 @@
-// TUR #99 Q5 — RBAC RolePermissions controller (Madde 30.55)
+// TUR #99 Q5 + TUR #100.7 P1 — RBAC RolePermissions controller (Madde 30.55 + 30.55 R2)
+// Manifest endpoint + kanonik RBAC_ROLES/RBAC_ACTIONS + module registry entegrasyon
 
 "use strict";
 
 const prisma = require("../config/db");
 const asyncHandler = require("../utils/asyncHandler");
 const { invalidateCache } = require("../middlewares/requirePermission");
+const { getModuleRegistry } = require("../os/registry");
+const {
+  RBAC_ROLES,
+  RBAC_ACTIONS,
+} = require("../../scripts/seed-role-permissions");
 
-// GET /api/admin/role-permissions — ADMIN tüm matrix
+function getRbacModules() {
+  return getModuleRegistry();
+}
+
+// GET /api/os/role-permissions — ADMIN tüm matrix
 exports.listMatrix = asyncHandler(async (req, res) => {
   if (req.user.role !== "ADMIN") {
-    return res.status(403).json({ success: false, message: "Sadece ADMIN" });
+    return res.status(403).json({ success: false, message: "Sadece yöneticiler erişebilir" });
   }
   const all = await prisma.rolePermission.findMany();
-  res.json({ success: true, data: all });
+  res.json({
+    success: true,
+    data: all,
+    meta: {
+      roles: RBAC_ROLES,
+      modules: getRbacModules(),
+      actions: RBAC_ACTIONS,
+    },
+  });
 });
 
-// PATCH /api/admin/role-permissions — ADMIN toggle
+// GET /api/os/role-permissions/manifest — frontend dinamik liste için
+exports.getManifest = asyncHandler(async (req, res) => {
+  if (req.user.role !== "ADMIN") {
+    return res.status(403).json({ success: false, message: "Sadece yöneticiler erişebilir" });
+  }
+  res.json({
+    success: true,
+    data: {
+      roles: RBAC_ROLES,
+      modules: getRbacModules(),
+      actions: RBAC_ACTIONS,
+    },
+  });
+});
+
+// PATCH /api/os/role-permissions — ADMIN toggle
 exports.updateOne = asyncHandler(async (req, res) => {
   if (req.user.role !== "ADMIN") {
-    return res.status(403).json({ success: false, message: "Sadece ADMIN" });
+    return res.status(403).json({ success: false, message: "Sadece yöneticiler erişebilir" });
   }
   const { role, module, action, granted } = req.body;
   if (!role || !module || !action || typeof granted !== "boolean") {
@@ -27,13 +60,25 @@ exports.updateOne = asyncHandler(async (req, res) => {
       message: "role + module + action + granted (boolean) zorunlu",
     });
   }
+  if (!RBAC_ROLES.includes(role)) {
+    return res.status(400).json({ success: false, message: `Geçersiz rol: ${role}` });
+  }
+  const validModules = getRbacModules();
+  if (!validModules.includes(module)) {
+    return res.status(400).json({ success: false, message: `Geçersiz modül: ${module}` });
+  }
+  if (!RBAC_ACTIONS.includes(action)) {
+    return res.status(400).json({ success: false, message: `Geçersiz eylem: ${action}` });
+  }
+
   const updated = await prisma.rolePermission.upsert({
     where: { role_module_action: { role, module, action } },
     update: { granted, updatedById: req.user.id },
     create: { role, module, action, granted, updatedById: req.user.id },
   });
+
   invalidateCache();
-  // ActivityLog (KVKK m.10 izlenebilirlik)
+
   try {
     await prisma.activityLog.create({
       data: {
@@ -42,8 +87,9 @@ exports.updateOne = asyncHandler(async (req, res) => {
       },
     });
   } catch (_) {
-    // ActivityLog yazımı kritik değil, ana akış bozulmasın
+    // ActivityLog kritik değil, ana akış bozulmasın
   }
+
   res.json({ success: true, data: updated });
 });
 

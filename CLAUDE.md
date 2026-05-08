@@ -3072,6 +3072,66 @@ Birinde değişiklik yaparken **diğer 4'ünün uyumu kontrol edilmeden parça-b
 - ❌ Seed atlama (yeni RolePermission tablo boşsa LAWYER+REPRESENTATIVE+CUSTOMER+SALES tüm `requirePermission` route'larından 403 alır — adopsiyon kırılır)
 - ❌ `useSWR` veya başka npm paket eklemek (Madde 24.14 + Madde 30.46 R1 — useEffect + apiFetch yeterli)
 
+### 30.55 R2 — RBAC Auto-Register + Manifest Disiplini (TUR #100.7 — 8 May 2026)
+
+**Kural:** Yeni modül `src/os/registry.js`'e eklendiğinde RolePermission tablosuna otomatik **4 rol × 4 action = 16 satır** kayıt edilir. ADMIN tek panelden manifest endpoint'inden dinamik görür. Sidebar + QuickActionsButton **`usePermission` hook ile RBAC bağlı** — yetki kapatılan menü/buton görünmez.
+
+**Tek Kaynak (`src/os/registry.js`):**
+- `OS_MODULES` (17 — TUR #95 mimarHatasi dahil)
+- `BUSINESS_MODULES` (9 — leads, users, documents, messages, clients, bilirkisi, assignments, commission, accidentCase)
+- `ALL_MODULES` (birleşik)
+- `getModuleRegistry()` API (manifest endpoint çağırır)
+- `registerNewModule(name, type)` runtime auto-register
+
+**Auto-Register Pattern:**
+1. Backend boot: `src/os/index.js` setImmediate → `ensureRbacRegistration()` 5 dk lock ile çalışır
+2. `autoRegisterModule(name)` 4 rol × 4 action = 16 RolePermission satırı upsert (mevcut izinler `update: {}` ile DOKUNULMAZ)
+3. Frontend `/dashboard/yetkiler` manifest endpoint'inden modülleri çeker (sabit liste YASAK)
+4. Yeni modül anında manifest'e yansır (frontend reload yeter)
+
+**Manifest Endpoint:**
+- `GET /api/os/role-permissions/manifest` — `{ roles, modules, actions }` (ADMIN guard)
+- Frontend `useEffect` ile bir kere çeker
+- Yeni modül backend'e ekleninde frontend reload'da otomatik görünür
+
+**Rol Envanteri (5 rol — Madde 30.21 + 30.29 referans):**
+- `ADMIN` (Yönetici) — failsafe, RBAC matrisinde GİZLİ
+- `LAWYER` (Avukat) — RBAC matrix'te
+- `REPRESENTATIVE` (Temsilci) — RBAC matrix'te
+- `CUSTOMER` (Müvekkil) — RBAC matrix'te (SOFT 2FA)
+- `SALES` (Satış) — RBAC matrix'te
+- `LEGAL_REP` enum'da YOK (Madde 30.21 mektup spec öneri, schema'ya eklenmemiş — A maddesi)
+
+**AppLayout RBAC Bağı (Madde 14.3 — mevcut yapı KORUNUR):**
+- `NavItem` tipine `permission?: { module, action }` eklenir
+- Filter zinciri: `roleOk && flagOk && permOk` (üçü de geçmeli)
+- `permOk = isAdmin || !it.permission || canPerm(module, action)` (ADMIN failsafe)
+- Mevcut role-only item'lar dokunulmadı (HUKUK, HESAP grupları)
+
+**QuickActionsButton RBAC Bağı:**
+- `QuickAction` tipine `permission?: { module, action }` eklenir
+- Aksiyon listesi rol filtresi sonrası RBAC permission filter
+- Yetki kapatılırsa aksiyon hiç gösterilmez (UI yalanı YOK)
+
+**Yasak:**
+- ❌ Yeni modül yazıp `src/os/registry.js`'e eklememek (frontend'te görünmez, RBAC kayıt edilmez)
+- ❌ Yetki Matrisi'nde sabit MODULES/ROLES/ACTIONS listesi (manifest endpoint zorunlu — TUR #100.5'teki sabit listeler kaldırıldı)
+- ❌ Sidebar item RBAC kontrolü olmadan render (yetki kapalıyken menü görünür ihlali)
+- ❌ AppLayout'ta `usePermissions` çağırmadan sidebar item gösterimi
+- ❌ Auto-register'da `update: { granted }` kullanmak (mevcut admin müdahalelerini siler — sadece `update: {}` upsert)
+- ❌ `LEGAL_REP` rolünü RBAC matrisine eklemek (enum'da YOK — A maddesi, gelecek schema değişikliği gerek)
+
+**TUR #100.7 emsal — yeni mimar hatası YOK:** TUR #100.5'te `usePermission` hook kabaca yazılmıştı (`lib/use-permission.ts`), AppLayout'a bağlı değildi. CEO 8 May 12:18 görsel kanıt: 4 rol Yetki Matrisi'nde görünüyor ama sidebar/buton yetki kapatılınca davranış değişmiyor. TUR #100.7 P6+P7 ile bağlandı (önleyici, düzeltici değil).
+
+**Kalıcı pattern (Madde 30.55 R1 + R2 birleşik):**
+1. Yeni modül = `src/os/registry.js` ek + boot auto-register
+2. Yeni sidebar item = `NavItem.permission` field + filter zinciri otomatik
+3. Yeni hızlı eylem buton = `QuickAction.permission` field + filter zinciri
+4. Yetki Matrisi listesi = manifest endpoint dinamik
+5. Production curl smoke (Madde 30.55 R1) zorunlu
+
+---
+
 ### 30.55 R1 — Hotfix Dersleri (TUR #100.5 — 8 May 2026, mimar hatası 43 emsali)
 
 **CEO production smoke 3 bug yakaladı:** (1) "Route bulunamadı" 404, (2) Tüm UI İngilizce, (3) Checkbox toggle çalışmıyor. Mimar hatası 43 — final raporda *"✅ Yetkiler matrix"* yazıldı ama production curl smoke yapılmadığı için path mismatch fark edilmedi (Madde 30.49 R+ ihlali).
@@ -3504,10 +3564,10 @@ Mehmet Bey sahaya çıkabilsin diye bu disiplin var.
 
 ---
 
-**— Tedbirge Mimari Anayasası v1.22.31**  
-**Toplam 101 TUR · 392+ atom sapma 0 · 52 kalibrasyon · 43 mimar hatası → 47 anayasa maddesi**  
-**🎉 TEDBİRGE.AI 2.0 DOĞDU + TUR #100.5 HOTFIX 🎉**  
-**Aktif Kesit:** TUR #100.5 KAPALI (RBAC Path Fix `/admin-os→/os` + Türkçeleştirme + Optimistic UI — Madde 30.55 R1)  
+**— Tedbirge Mimari Anayasası v1.22.32**  
+**Toplam 102 TUR · 401+ atom sapma 0 · 53 kalibrasyon · 43 mimar hatası → 48 anayasa maddesi**  
+**🎉 TEDBİRGE.AI 2.0 + RBAC TAM ENTEGRASYON 🎉**  
+**Aktif Kesit:** TUR #100.7 KAPALI (RBAC Auto-Register + Manifest + AppLayout/QuickActions usePermission bağı — Madde 30.55 R2)  
 **Tüm sürüm geçmişi + TUR detayları + atom kayıtları: `tedbirge-os/MIMARI_KARARLAR.md`**
 
 **Versiyon geçmişi: tedbirge-os/MIMARI_KARARLAR.md**  
