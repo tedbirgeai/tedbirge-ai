@@ -3622,6 +3622,124 @@ Public içerik **AI Overview, ChatGPT, Perplexity, Gemini** gibi araçlarda
 
 ---
 
+## 35. KURUMSAL KİMLİK + ÜRETİM DİSİPLİNİ (TUR #100.9 — 8 May 2026)
+
+### 35.1 Tek Kaynak (DRY — Madde 22.9 emsal)
+
+Tüm marka kimlik bilgileri `tedbirge-os/brand.json` dosyasından okunur. Hardcoded marka string'i (logo, renk, telefon, adres, sosyal medya, ...) UI'da YASAK.
+
+**brand.json yapısı:** displayName · legalName · tagline · brand (renkler+font+logo) · contact (callCenter/directLine/whatsapp/emails) · address (full) · social (instagram/facebook/linkedin/x/whatsapp) · marketing (valueProps + ctaPrimary) · compliance (kvkk + iso27001 + tbbReklamYasagi) · website (primary + shortLink)
+
+### 35.2 Yansıma Pattern
+
+1. `tedbirge-os/brand.json` (TEK KAYNAK)
+2. → Backend `GET /api/brand` (auth-free, 5dk cache)
+3. → Frontend `lib/brand.ts` → `useBrand()` hook (5dk cache + fallback)
+4. → Tüm UI dinamik: public Footer + login + email base + kurumsal materyaller
+
+### 35.3 Üretim Disiplini (Sıfır Maliyet — Madde 24.14)
+
+**Üretim:** Server-side SVG template (vanilla, sıfır paket bağımlılığı temel). SVG → PNG: `sharp` (opsiyonel, yoksa 503). vCard: vanilla string. QR kod: `qrcode` paketi mevcut (P0 kanıt).
+
+**4 Materyal:**
+1. **Kartvizit** (1050×600 SVG/PNG + vCard `.vcf`) — kişisel
+2. **Broşür** (A5 1240×1748 SVG/PNG) — Tedbirge marka
+3. **Reklam Görseli** (3 boyut: 1080×1080 / 1080×1350 / 1200×628 SVG/PNG)
+4. **E-posta HTML İmzası** (inline CSS, Gmail/Outlook uyumlu)
+
+**KIRMIZI ÇİZGİ:** Üretim için harici API (Canva, Bannerbear, vb.) çağrısı YASAK (Madde 24.14).
+
+### 35.4 Paylaşım Disiplini — Web Share URL (Sıfır API Maliyeti)
+
+**Pattern:** Kullanıcı kendi tarayıcısı/uygulaması açılır, sıfır maliyet.
+
+```
+WhatsApp: wa.me/?text=
+Twitter:  twitter.com/intent/tweet?
+LinkedIn: linkedin.com/sharing/share-offsite/?url=
+Facebook: facebook.com/sharer/sharer.php?u=
+Telegram: t.me/share/url?
+Email:    mailto:?subject=&body=
+SMS:      sms:?body=
+Native:   navigator.share(...) — mobil
+Copy:     navigator.clipboard.writeText(...)
+```
+
+**KIRMIZI ÇİZGİ:** Meta Cloud API ($0.005/mesaj), X API v2 ($200/ay), LinkedIn Marketing API — KULLANILMAZ.
+
+### 35.5 RBAC Bağı (Madde 30.55 R2 emsal — 5 yeni modül)
+
+`src/os/registry.js` `CORPORATE_MODULES`:
+- `kartvizit` — Kişisel kartvizit üretim/paylaşım
+- `brosur` — Tedbirge marka broşürü
+- `reklamGorseli` — Sosyal medya reklam görseli
+- `emailImzasi` — E-posta HTML imzası
+- `paylasim` — Web Share aksiyonu (paylaşım butonu erişimi)
+
+**Toplam:** 17 OS + 9 iş + 12 sayfa + 5 kurumsal = **43 modül × 4 rol × 4 action = 688 RolePermission satır**.
+
+### 35.6 ROLE_DEFAULTS (TUR #100.9 — Madde 25.3 R1 disiplinli)
+
+| Rol | kartvizit | brosur | reklamGorseli | emailImzasi | paylasim |
+|---|---|---|---|---|---|
+| ADMIN | failsafe | failsafe | failsafe | failsafe | failsafe |
+| SALES | r+e | r+w+e | r+w+e | r+e | r+e |
+| REPRESENTATIVE | r+e | r+e | r+e | r+e | r+e |
+| **LAWYER** | **r+e** | **❌ YASAK** | **❌ YASAK** | **r+e** | **r+e (sınırlı)** |
+| CUSTOMER | — | r | — | — | r+e |
+
+### 35.7 Yasak
+
+- ❌ Hardcoded marka string UI'da
+- ❌ brand.json'u atlayarak doğrudan logo/renk yazma
+- ❌ Üretim için ücretli API kullanımı (Madde 24.14)
+- ❌ Paylaşım için ücretli social API (Madde 24.14)
+- ❌ LAWYER için reklam/broşür paylaşımı (Madde 25.3 R1 — backend 403 TBB_REKLAM_YASAGI)
+- ❌ Avukat kartvizitinde uzmanlık alanı, başarı oranı, müvekkil sayısı (Madde 25.3 R1)
+
+### 35.8 Yeni Kurumsal Modül Ekleme Rehberi (Madde 30.55 R2 emsal)
+
+7 adımlık checklist:
+1. `src/os/registry.js` → `CORPORATE_MODULES`'a ekle
+2. `scripts/seed-role-permissions.js` → ROLE_DEFAULTS güncelle
+3. `app/(panel)/dashboard/yetkiler/page.tsx` → `MODULE_LABELS` Türkçe ekle
+4. `src/services/corporate.service.js` → `generateXSvg()` yaz
+5. `src/routes/corporate.routes.js` → endpoint mount + `requirePermission`
+6. Backend git push → boot otomatik 4 rol × 4 action = 16 satır upsert
+7. Frontend `ShareButton` component'i kullan (zaten yazılı)
+
+---
+
+### 25.3 R1 — TBB Reklam Yasağı + Kurumsal Üretim Sınırları (TUR #100.9 — 8 May 2026)
+
+**Madde 25.3 (mevcut)** Avukatlık K. m.55 + TBB Reklam Yasağı yönetmeliği: Avukat reklam yapamaz, kendi adını/bürosunu reklam amaçlı paylaşamaz.
+
+**TUR #100.9 R1 — Kurumsal Üretim'de uygulama:**
+
+**LAWYER rolü için RBAC backend zorunluluğu:**
+- ❌ `brosur` modülü erişimi YOK (granted: false default)
+- ❌ `reklamGorseli` modülü erişimi YOK (granted: false default)
+- ❌ Web Share URL'lerden LinkedIn / Facebook / Twitter ELENİR (`share.routes.js` backend filter)
+- ✅ `kartvizit` SADECE iletişim kartı (uzmanlık alanı, başarı oranı, müvekkil sayısı YASAK)
+- ✅ Kartvizit SVG'sinde footer otomatik: *"Avukatlık K. m.55 ve TBB Reklam Yasağı'na uygundur"*
+- ✅ vCard'da TITLE: *"Tedbirge.ai Üye Avukatı"* (uzmanlık alanı YASAK)
+
+**LAWYER paylaşım kanalları (Madde 24.14 + 25.3 R1 birleşik):**
+- ✅ WhatsApp · ✅ E-posta · ✅ SMS · ✅ Telegram · ✅ Native Share · ✅ Copy
+- ❌ LinkedIn · ❌ Facebook · ❌ X/Twitter (kişisel reklam riski)
+
+**Backend enforcement:** `share.routes.js` POST `/api/share/urls` → `role === "LAWYER" && (type === "reklam" || type === "brosur")` → **403 TBB_REKLAM_YASAGI**.
+
+**Frontend görsel uyarı:** ShareButton menüsünde LAWYER için kapatılan kanallar **görünmez** (gri değil, hiç render edilmez — backend response'undan elenmiş).
+
+**Tedbirge.ai Marka Reklamı (LAWYER hariç tüm roller):**
+- Tedbirge.ai tüzel kişiliği reklam yapabilir
+- Avukat **alt referans** (kartvizitte "Tedbirge.ai Üye Avukatı")
+- Marka reklam görselinde avukat ismi/fotoğrafı YASAK (Madde 25.3 KIRMIZI listesi)
+- Müvekkil onayı + KVKK m.5 açık rıza ile vaka örneği (anonim, kimlik bilgisi olmadan) — TUR #110+ adayı
+
+---
+
 ## 34. KAPANIŞ — NİYE BU ANAYASA VAR
 
 Tedbirge.ai 20 bin satır iş kalitesi backend kodu olan, **Türkiye'de rakipsiz mimariye** sahip bir LegalTech projesi.  
@@ -3637,10 +3755,10 @@ Mehmet Bey sahaya çıkabilsin diye bu disiplin var.
 
 ---
 
-**— Tedbirge Mimari Anayasası v1.22.33**  
-**Toplam 103 TUR · 412+ atom sapma 0 · 54 kalibrasyon · 43 mimar hatası → 49 anayasa maddesi**  
-**🎉 TEDBİRGE.AI 2.0 + YETKI ENTERPRISE + SÜRÜM TEK-KAYNAK 🎉**  
-**Aktif Kesit:** TUR #100.8 KAPALI (38 modül × 4 rol matrix + version.json + useVersion + dinamik footer'lar — Madde 22.9 + 30.55 R2 PATCH)  
+**— Tedbirge Mimari Anayasası v1.23.0**  
+**Toplam 104 TUR · 426+ atom sapma 0 · 55 kalibrasyon · 44 mimar hatası → 51 anayasa maddesi**  
+**🎉 KURUMSAL ÜRETİM STÜDYOSU + BRAND TEK-KAYNAK + WEB SHARE 🎉**  
+**Aktif Kesit:** TUR #100.9 KAPALI (43 modül + brand.json + 4 materyal SVG + 7 kanal Web Share — Madde 35 yeni + Madde 25.3 R1)  
 **Tüm sürüm geçmişi + TUR detayları + atom kayıtları: `tedbirge-os/MIMARI_KARARLAR.md`**
 
 **Versiyon geçmişi: tedbirge-os/MIMARI_KARARLAR.md**  

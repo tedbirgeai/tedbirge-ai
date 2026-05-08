@@ -23,6 +23,11 @@ const ROLE_DEFAULTS = {
     // TUR #100.8 yeni — sayfa modülleri
     calendar: ["read", "write"],     // takvim — duruşma + randevu
     analytics: ["read"],             // raporlar (sadece kendi performansı)
+    // TUR #100.9 yeni — kurumsal modüller (Madde 25.3 TBB Reklam Yasağı SINIRLI)
+    kartvizit: ["read", "execute"],  // ✅ Kendi iletişim kartı
+    emailImzasi: ["read", "execute"], // ✅ Kendi email imzası
+    paylasim: ["read", "execute"],   // ✅ Sınırlı paylaşım (LinkedIn/X/FB hariç)
+    // brosur: [], reklamGorseli: [] → Madde 25.3 yasağı (granted=false default)
   },
   REPRESENTATIVE: {
     // Mevcut
@@ -34,6 +39,12 @@ const ROLE_DEFAULTS = {
     pipeline: ["read", "write"],     // kendi pipeline'ı
     hakedis: ["read"],               // kendi komisyonu
     calendar: ["read"],              // randevu görüntüleme
+    // TUR #100.9 yeni — REPRESENTATIVE pazarlama yapabilir (Madde 25.3 dışı, avukat değil)
+    kartvizit: ["read", "execute"],
+    brosur: ["read", "execute"],
+    reklamGorseli: ["read", "execute"],
+    emailImzasi: ["read", "execute"],
+    paylasim: ["read", "execute"],
   },
   CUSTOMER: {
     // Mevcut
@@ -43,6 +54,9 @@ const ROLE_DEFAULTS = {
     accidentCase: ["read"], // sadece kendi vakası — controller içinde Lead.ownerId kontrolü
     // TUR #100.8 yeni
     kvkkRights: ["read", "write"],   // KVKK m.11 başvuru
+    // TUR #100.9 yeni — CUSTOMER deneyim paylaşımı (sınırlı)
+    brosur: ["read"],                // ✅ Tedbirge broşürünü görebilir + paylaşabilir
+    paylasim: ["read", "execute"],   // ✅ "Tedbirge'i deneyimledim" paylaşımı
   },
   SALES: {
     // Mevcut
@@ -54,6 +68,12 @@ const ROLE_DEFAULTS = {
     analytics: ["read"],             // satış raporu
     marketing: ["read", "write"],    // pazarlama yönetimi
     calendar: ["read"],              // randevu
+    // TUR #100.9 yeni — SALES tam pazarlama yetkisi
+    kartvizit: ["read", "execute"],
+    brosur: ["read", "write", "execute"],
+    reklamGorseli: ["read", "write", "execute"],
+    emailImzasi: ["read", "execute"],
+    paylasim: ["read", "execute"],
   },
 };
 

@@ -56,6 +56,16 @@ app.use("/uploads-static", express.static("uploads"));
 const versionRoutes = require("./routes/version.routes");
 app.use("/api/version", versionRoutes);
 
+// TUR #100.9 P3 — Brand Tek-Kaynak (Madde 34) — auth-free brand endpoint
+const brandRoutes = require("./routes/brand.routes");
+app.use("/api/brand", brandRoutes);
+
+// TUR #100.9 P8 — Kurumsal üretim + paylaşım (auth + RBAC)
+const corporateRoutes = require("./routes/corporate.routes");
+app.use("/api/corporate", corporateRoutes);
+const shareRoutes = require("./routes/share.routes");
+app.use("/api/share", shareRoutes);
+
 app.get("/health", (req, res) => {
   let version = null;
   try {

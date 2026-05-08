@@ -6,6 +6,66 @@
 
 ---
 
+## 8 Mayıs 2026 — TUR #100.9 KARARI — KURUMSAL ÜRETİM STÜDYOSU + BRAND TEK-KAYNAK + WEB SHARE
+
+**Anayasa:** v1.22.33 → v1.23.0 **MINOR** (Madde 35 yeni — 50. anayasa maddesi + Madde 25.3 R1 — 51. madde)
+
+**Karar:** CEO 4 birleşik sorgu (8 May 16:11) tek atomik mektupta uygulandı:
+- **A: Türkçeleştirme** — TUR #100.8'de atlanmış 12 sayfa modülü + 5 yeni kurumsal modül `MODULE_LABELS` haritasına eklendi (Mimar hatası 44 tescili)
+- **B: Brand Tek-Kaynak** — `tedbirge-os/brand.json` (DRY zinciri Madde 22.9 emsal) + `GET /api/brand` (auth-free, 5dk) + `useBrand` hook + Public Footer dinamik telefon/email
+- **C: Kurumsal Üretim Stüdyosu** — Server-side SVG template (vanilla + qrcode + opsiyonel sharp) — Kartvizit (1050×600 + vCard) + Broşür (A5) + Reklam (3 boyut) + E-posta İmzası (HTML)
+- **D: Web Share Paylaşım** — `share.routes.js` POST `/api/share/urls` 7 kanal (WhatsApp/X/LinkedIn/Facebook/Telegram/Email/SMS) + Native + Copy. Sıfır API maliyeti (Madde 24.14)
+- **E: Madde 25.3 R1 TBB Reklam Yasağı backend enforcement** — LAWYER için `brosur`/`reklamGorseli` 403 + LinkedIn/X/Facebook kanalları backend'de elenir
+
+**Sebep:** CEO çapa direktifi: *"Ücretsiz olacak anayasa belli, uçtan uca otonom aksın gitsin."* 4 sorgu da DRY + RBAC + Sıfır Maliyet + TBB Uyumlu birleşik prensip — birleşik mektup tercih edildi.
+
+**Mektup adapt — TUR #93→#100.8 emsali (13. ardışık kanıt-bazlı adapt):**
+- Mektup `Madde 34` → **Madde 35** (gerçek Madde 34 mevcut: "KAPANIŞ — NİYE BU ANAYASA VAR" — çakışma yasak, TUR #100.8 Madde 22.8 → 22.9 emsali)
+- Mektup `tedbirge-panel/src/hooks/useBrand` → gerçek `lib/use-brand.ts` (mevcut konvansiyon)
+- Mektup `src/components/share/ShareButton.tsx` → gerçek `components/share/ShareButton.tsx`
+- Mektup `auth = require('../middlewares/auth')` → gerçek `authMiddleware`
+- Mektup `prisma = require('../db')` → gerçek `config/db`
+- **sharp YOK** (P0 keşif kanıt) → SVG-only mode + PNG endpoint 503 fallback (mektup spec destekliyor)
+
+**Reddedilen alternatifler:**
+- **Meta Cloud API ($0.005/mesaj):** Madde 24.14 ihlali — Web Share URL pattern tercih
+- **Canva/Bannerbear API:** Madde 24.14 ihlali — server-side SVG template tercih
+- **`sharp` npm install eklemek:** Madde 14.5 R1 + 30.46 R1 lockfile drift yasağı — opsiyonel + 503 fallback
+- **LAWYER için tüm sosyal kanallar:** Madde 25.3 R1 ihlali — kişisel reklam riski (LinkedIn/X/FB elenir)
+- **Frontend-only TBB enforcement:** Backend bypass riski — share.routes.js 403 zorunlu
+
+**Etki:**
+- Anayasa v1.22.33 → v1.23.0 MINOR (Madde 35 yeni + Madde 25.3 R1)
+- `tedbirge-os/brand.json` (YENİ TEK KAYNAK)
+- `src/routes/brand.routes.js` (YENİ — auth-free, 5dk cache)
+- `src/services/corporate.service.js` (YENİ — 4 SVG generator + vCard + escapeXml/Html)
+- `src/routes/corporate.routes.js` (YENİ — 7 endpoint, RBAC bağlı)
+- `src/routes/share.routes.js` (YENİ — Web Share + LAWYER kanal eleme + 403 TBB)
+- `src/os/registry.js` → 5 CORPORATE_MODULES + getCorporateModules + getModuleCategory
+- `src/app.js` → /api/brand + /api/corporate + /api/share mount
+- `scripts/seed-role-permissions.js` ROLE_DEFAULTS — Madde 25.3 R1 disiplinli (LAWYER kısıtlı)
+- `tedbirge-panel/lib/brand.ts` + `lib/use-brand.ts` (YENİ)
+- `tedbirge-panel/components/share/ShareButton.tsx` (YENİ — 7 kanal + Native + Copy)
+- `tedbirge-panel/app/(panel)/dashboard/kurumsal/page.tsx` (YENİ — 4 sekme RBAC bağlı)
+- `tedbirge-panel/components/layout/Footer.tsx` — telefon/email brand.json'dan dinamik
+- `tedbirge-panel/components/layout/AppLayout.tsx` → KURUMSAL grup (4 sidebar item permission bağlı)
+- `tedbirge-panel/app/(panel)/dashboard/yetkiler/page.tsx` MODULE_LABELS — 12 sayfa + 5 corporate Türkçe ekleme
+- version.json: anayasa 1.22.33 → 1.23.0, backend 1.4.0 → 1.5.0, panel 1.5.0 → 1.6.0
+- 0 schema migration · 0 npm install · 0 KIRMIZI · $0 maliyet
+- Toplam **43 modül × 4 rol × 4 action = 688 RolePermission satır** (boot otomatik upsert, mevcut izinler korundu)
+
+**Mimar hatası 44 tescil:** TUR #100.8 P5 yetkiler/page.tsx 12 sayfa modülü için MODULE_LABELS Türkçeleştirme atladı (CEO 16:11 kanıt). TUR #100.9 P1 ile düzeltildi + 5 corporate modül Türkçe eklendi. Pattern: yeni modül eklendiğinde MODULE_LABELS güncelleme zorunlu (Madde 35.8 7-step checklist).
+
+**Pattern (55. kalibrasyon):** TUR #56+...+100.8+**100.9** = 426+ atom sapma 0. **51 anayasa maddesi tescil** (Madde 35 + Madde 25.3 R1 = +2). 44 mimar hatası → 51 madde (oran korundu).
+
+**Mimar:** Claude Opus 4.7 (TUR #100.9 mimar — 8 Mayıs 2026 16:11 sonrası).
+
+**Onay:** Mehmet DİNÇ — Madde 17.5 + 24.14 + 25.3 R1 + 30.25 + 35 sessiz onay (uçtan uca otonom + sıfır maliyet kesin + TBB uyumlu).
+
+**Mimar prensibi:** *"4 sorgu birleşik DRY + RBAC + Sıfır Maliyet + TBB Uyumlu. brand TEK KAYNAK = brand.json (Madde 22.9 emsal). Paylaşım sıfır maliyet = Web Share URL (Madde 24.14). LAWYER reklam yasağı = backend enforcement (frontend tek başına yetersiz). Madde 34 çakışması Madde 35'e adapte (TUR #100.8 Madde 22.8 → 22.9 emsali)."*
+
+---
+
 ## 8 Mayıs 2026 — TUR #100.8 KARARI — YETKİ MATRİSİ ENTERPRISE + SÜRÜM TEK-KAYNAK
 
 **Anayasa:** v1.22.32 → v1.22.33 PATCH (Madde 22.9 yeni — 49. anayasa maddesi)

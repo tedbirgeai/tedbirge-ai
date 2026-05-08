@@ -1,0 +1,74 @@
+{
+  "displayName": "Tedbirge.ai",
+  "legalName": "Tedbirge Bilgi Teknolojileri",
+  "tagline": "Türkiye'nin AI Destekli Hukuk Asistanı",
+  "shortTagline": "Hakkınızı Almak İçin Beklemeyin",
+
+  "brand": {
+    "primaryColor": "#1E1E8E",
+    "primaryColorHover": "#18187a",
+    "accentColor": "#22C55E",
+    "darkColor": "#0A1628",
+    "lightColor": "#F8FAFC",
+    "logoLight": "/logo.png",
+    "logoDark": "/logo-dark.png",
+    "favicon": "/favicon.ico",
+    "fontFamily": "Inter, system-ui, sans-serif"
+  },
+
+  "contact": {
+    "callCenter": "0850 303 3 724",
+    "directLine": "0541 203 16 09",
+    "whatsapp": "+905412031609",
+    "emails": {
+      "general": "bilgi@tedbirge.ai",
+      "support": "destek@tedbirge.ai",
+      "kvkk": "kvkk@tedbirge.ai",
+      "privacy": "gizlilik@tedbirge.ai",
+      "career": "kariyer@tedbirge.ai",
+      "info": "tedbirge@tedbirge.ai"
+    }
+  },
+
+  "address": {
+    "street": "Yunus Emre Mahallesi Gülşah Sokak",
+    "buildingNo": "20/A",
+    "district": "Meram",
+    "city": "Konya",
+    "country": "Türkiye",
+    "fullAddress": "Yunus Emre Mahallesi Gülşah Sokak No:20/A Meram/Konya"
+  },
+
+  "social": {
+    "instagram": "https://instagram.com/tedbirge.ai",
+    "facebook": "https://facebook.com/tedbirge",
+    "linkedin": "https://linkedin.com/company/tedbirge",
+    "x": "https://x.com/tedbirge_ai",
+    "youtube": "https://youtube.com/@tedbirge",
+    "whatsapp": "https://wa.me/905412031609"
+  },
+
+  "marketing": {
+    "shortDescription": "Trafik ve iş kazası tazminat davalarınızda AI destekli hukuk asistanı.",
+    "longDescription": "Türkiye'nin AI destekli hukuk asistanı. Trafik ve iş kazası tazminat davalarında ön değerlendirmeden uzman avukatla buluşmaya kadar tam hizmet.",
+    "valueProps": [
+      "AI destekli ön değerlendirme",
+      "Türkiye'nin her yerinde deneyimli avukat",
+      "Sıfır maliyet, sıfır risk",
+      "KVKK Uyumlu, ISO 27001 Hazırlığında"
+    ],
+    "ctaPrimary": "Ücretsiz Başvur",
+    "ctaSecondary": "Dava Takibi"
+  },
+
+  "compliance": {
+    "kvkk": "KVKK Uyumlu",
+    "iso27001": "ISO 27001 Hazırlığında",
+    "tbbReklamYasagi": "Avukatlık K. m.55 ve TBB Reklam Yasağı'na uygundur"
+  },
+
+  "website": {
+    "primary": "https://www.tedbirge.ai",
+    "shortLink": "tedbirge.ai"
+  }
+}

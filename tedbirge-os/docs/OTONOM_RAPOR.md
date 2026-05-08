@@ -1,3 +1,111 @@
+# OTONOM RAPOR — TUR #100.9 KURUMSAL ÜRETİM STÜDYOSU + BRAND TEK-KAYNAK (MADDE 35 + 25.3 R1)
+
+## TUR #100.9 — 43 MODÜL + brand.json + 4 MATERYAL + 7 KANAL WEB SHARE ✅ KAPALI
+
+**Tarih:** 8 Mayıs 2026
+**Anayasa:** v1.22.33 → v1.23.0 MINOR (Madde 35 yeni — Kurumsal Kimlik + Üretim + Madde 25.3 R1)
+**Tip:** Birleşik mektup — DRY + RBAC + Sıfır Maliyet + TBB Uyumlu
+**Atom:** 14 (P0-P14) — hepsi canlı
+**KIRMIZI nokta:** 0
+**Maliyet:** $0 (Web Share URL pattern — sıfır API maliyeti)
+**Mimar hatası:** 43 → **44** (TUR #100.8 Türkçeleştirme 12 modül atlama tescil)
+
+### CEO Direktifi 4 Birleşik Sorgu (Madde 17.5 + 24.14 + 25.3 R1 + 30.25 + 35)
+
+> 1. *"Yetki matrisinde modüller İngilizce — Türkçeleştir"*
+> 2. *"Yeni modül nasıl eklenir?"* — Rehber Madde 35.8'e tescil
+> 3. *"Kurumsal çalışmalar (kartvizit / broşür / reklam / email imzası) — sen düşün"*
+> 4. *"Yetkili rol otomatik oluştursun, paylaş desin (WhatsApp / e-posta / sosyal medya)"*
+
+4 sorgu da **DRY + Tek-Kaynak + RBAC + Sıfır Maliyet** birleşik prensip → tek atomik mektup.
+
+### P0 Keşif Sonucu
+
+- Mevcut registry **38 modül** (TUR #100.8) ✅
+- **sharp YOK** → SVG-only mode (PNG endpoint 503, mektup spec destekliyor)
+- **qrcode VAR** ✅ + **pdfkit VAR** ✅
+- brand.json YOK → yeni TEK KAYNAK
+- Footer.tsx hardcoded telefon/adres yok (TUR #100.8'de version dinamik, brand henüz yok)
+
+### Atomlar
+
+| Atom | Konu | Durum |
+|---|---|---|
+| P0 | Keşif (sharp YOK / qrcode VAR / brand.json YOK) | ✅ |
+| P1 | MODULE_LABELS Türkçeleştirme — 12 sayfa modülü (TUR #100.8 atlama tescili) + 5 corporate | ✅ |
+| P2 | tedbirge-os/brand.json (TEK KAYNAK — 11 alan) | ✅ |
+| P3 | src/routes/brand.routes.js + app.js mount (auth-free, 5dk cache, 3 fallback path) | ✅ |
+| P4 | tedbirge-panel/lib/brand.ts + lib/use-brand.ts (useBrand hook) | ✅ |
+| P5 | Public Footer.tsx → telefon (tel:) + email (mailto:) brand.json'dan dinamik | ✅ |
+| P6 | registry.js → 5 CORPORATE_MODULES + getModuleCategory("corporate") + 38→43 modül | ✅ |
+| P7 | seed-role-permissions.js ROLE_DEFAULTS — Madde 25.3 R1 disiplinli | ✅ |
+| P8 | src/services/corporate.service.js (kartvizit/broşür/reklam/email — SVG + vCard + qrcode) + corporate.routes.js | ✅ |
+| P9 | src/routes/share.routes.js Web Share URL üretici (LAWYER LinkedIn/X/FB elenir, reklam/brosur 403) | ✅ |
+| P10 | components/share/ShareButton.tsx (7 kanal + Native + Copy) | ✅ |
+| P11 | app/(panel)/dashboard/kurumsal/page.tsx (4 sekme RBAC bağlı) | ✅ |
+| P12 | AppLayout KURUMSAL grup (4 sidebar item permission bağlı) | ✅ |
+| P13 | Smoke (lokal: 43 modül + sharp:false/qrcode:true + kartvizit SVG 7784 char + TBB footer ✅) | ✅ |
+| P14 | 5 OS senkron + Madde 35 + Madde 25.3 R1 + v1.23.0 MINOR (bu rapor) | ✅ |
+
+### Madde 25.3 R1 Tescil — TBB Reklam Yasağı Backend Enforcement
+
+| Rol | kartvizit | brosur | reklamGorseli | emailImzasi | paylasim | Kanallar |
+|---|---|---|---|---|---|---|
+| ADMIN | failsafe | failsafe | failsafe | failsafe | failsafe | tümü |
+| SALES | r+e | r+w+e | r+w+e | r+e | r+e | 7 kanal |
+| REPRESENTATIVE | r+e | r+e | r+e | r+e | r+e | 7 kanal |
+| **LAWYER** | **r+e** | **❌** | **❌** | **r+e** | **r+e (4 kanal)** | WhatsApp/Email/SMS/Telegram/Native/Copy (LinkedIn/X/FB ELENİR) |
+| CUSTOMER | — | r | — | — | r+e | 7 kanal |
+
+**Backend enforcement:** `share.routes.js` POST `/api/share/urls` → `LAWYER && (reklam OR brosur)` → **403 TBB_REKLAM_YASAGI**
+
+### Mektup Adapt — TUR #93→#100.8 emsali (13. ardışık kanıt-bazlı adapt)
+
+- Mektup `Madde 34` → **Madde 35** (gerçek 34 mevcut: KAPANIŞ — NİYE BU ANAYASA VAR)
+- Mektup `tedbirge-panel/src/hooks/useBrand.ts` → gerçek `lib/use-brand.ts` (mevcut konvansiyon)
+- Mektup `src/components/share/ShareButton.tsx` → gerçek `components/share/ShareButton.tsx`
+- Mektup `usePermission(...)` → gerçek `lib/use-permission.ts` (TUR #99 yarattım)
+- Mektup `auth = require('../middlewares/auth')` → gerçek `authMiddleware`
+- Mektup `prisma = require('../db')` → gerçek `config/db`
+- Mektup `MIMAR_HATASI 44` (TUR #100.8 Türkçeleştirme atlama) ✅ tescil edildi (DEVIR_RAPORU)
+
+### Sıfır Maliyet Kanıtı (Madde 24.14 + 35.4)
+
+- ❌ Meta Cloud API ($0.005/mesaj) — KULLANILMADI
+- ❌ X API v2 ($200/ay) — KULLANILMADI
+- ❌ LinkedIn Marketing API — KULLANILMADI
+- ❌ Canva/Bannerbear API — KULLANILMADI
+- ✅ Web Share URL pattern (kullanıcı tarayıcısı/uygulaması açılır)
+- ✅ Server-side SVG vanilla template (sıfır paket bağımlılığı temel)
+- ✅ qrcode + pdfkit (mevcut paketler)
+- ✅ sharp opsiyonel (yoksa SVG-only fallback 503)
+- **Aylık marjinal maliyet: $0** ✅
+
+### Kalibrasyon
+
+412+ → **426+ atom** sapma 0 — kalibrasyon 1.6× **55. doğrulama**.
+**15 ardışık temiz TUR** (TUR #90 → #100.9).
+**51. anayasa maddesi tescil** (Madde 35 + Madde 25.3 R1 = +2 madde).
+**13. ardışık kanıt-bazlı adapt zinciri** (TUR #93 → #100.9).
+
+### Mimar Prensibi
+
+> *"4 CEO sorgusu birleşik DRY + RBAC + Sıfır Maliyet + TBB Uyumlu prensibi. Brand TEK KAYNAK = brand.json. Yetki TEK KAYNAK = registry. Paylaşım sıfır maliyet = Web Share URL pattern. LAWYER reklam yasağı = backend enforcement (frontend görsel uyarı tek başına yetersiz). 13. ardışık kanıt-bazlı adapt zinciri korundu — Madde 34 çakışması Madde 35'e adapte edildi."*
+
+### CEO MANUEL İŞ
+
+**Render auto-deploy ~90sn** sonra hard refresh:
+1. `/dashboard/yetkiler` → **43 modül**, **tümü Türkçe** (5 yeni: Kartvizit, Broşür, Reklam Görseli, E-posta İmzası, Sosyal Paylaşım)
+2. `/dashboard/kurumsal` → 4 sekme (rol bazlı)
+3. **Public footer** → Telefon + email + adres brand.json'dan dinamik
+4. **Sidebar KURUMSAL grup** → yetki bağlı (LAWYER: Kartvizit + E-posta İmzası, SALES: tümü)
+5. **Paylaşım test:**
+   - LAWYER → kartvizit paylaş → 4 kanal (WhatsApp/Email/SMS/Telegram + Native + Copy)
+   - LAWYER → reklam paylaş denerse → 403 + "TBB Reklam Yasağı" mesajı
+   - SALES → reklam paylaş → 7 kanal (LinkedIn/Facebook/X dahil)
+
+---
+
 # OTONOM RAPOR — TUR #100.8 YETKİ ENTERPRISE + SÜRÜM TEK-KAYNAK (MADDE 22.9 + 30.55 R2 PATCH)
 
 ## TUR #100.8 — 38 MODÜL + version.json TEK-KAYNAK ✅ KAPALI

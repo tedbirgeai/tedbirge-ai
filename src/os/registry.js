@@ -32,7 +32,16 @@ const PAGE_MODULES = [
   "hakedis",         // /temsilci/hakedis
 ];
 
-const ALL_MODULES = [...OS_MODULES, ...BUSINESS_MODULES, ...PAGE_MODULES];
+// 5 kurumsal modül — TUR #100.9 yeni (Madde 34 — Kurumsal Üretim Stüdyosu)
+const CORPORATE_MODULES = [
+  "kartvizit",       // Kişisel iletişim kartı (LAWYER + REPRESENTATIVE + SALES)
+  "brosur",          // Tedbirge.ai tanıtım broşürü (SALES + REPRESENTATIVE + ADMIN)
+  "reklamGorseli",   // Sosyal medya reklam görseli (SALES + REPRESENTATIVE + ADMIN)
+  "emailImzasi",     // HTML email imzası (her rol kendi)
+  "paylasim",        // Web Share aksiyonu (paylaşım butonu erişimi)
+];
+
+const ALL_MODULES = [...OS_MODULES, ...BUSINESS_MODULES, ...PAGE_MODULES, ...CORPORATE_MODULES];
 
 function getModuleRegistry() {
   return [...ALL_MODULES];
@@ -50,11 +59,16 @@ function getPageModules() {
   return [...PAGE_MODULES];
 }
 
+function getCorporateModules() {
+  return [...CORPORATE_MODULES];
+}
+
 // Modül kategorisi (UI gruplandırma — opsiyonel)
 function getModuleCategory(moduleName) {
   if (OS_MODULES.includes(moduleName)) return "os";
   if (BUSINESS_MODULES.includes(moduleName)) return "business";
   if (PAGE_MODULES.includes(moduleName)) return "page";
+  if (CORPORATE_MODULES.includes(moduleName)) return "corporate";
   return "unknown";
 }
 
@@ -66,6 +80,8 @@ async function registerNewModule(moduleName, type = "business") {
     OS_MODULES.push(moduleName);
   } else if (type === "page") {
     PAGE_MODULES.push(moduleName);
+  } else if (type === "corporate") {
+    CORPORATE_MODULES.push(moduleName);
   } else {
     BUSINESS_MODULES.push(moduleName);
   }
@@ -86,11 +102,13 @@ module.exports = {
   OS_MODULES,
   BUSINESS_MODULES,
   PAGE_MODULES,
+  CORPORATE_MODULES,
   ALL_MODULES,
   getModuleRegistry,
   getOSModules,
   getBusinessModules,
   getPageModules,
+  getCorporateModules,
   getModuleCategory,
   registerNewModule,
 };

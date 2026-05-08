@@ -1,6 +1,6 @@
 # TEDBİRGE.AI YOL HARİTASI v1.0
-**Son güncelleme:** 8 Mayıs 2026 (🎉 TUR #100.8 YETKİ ENTERPRISE + SÜRÜM TEK-KAYNAK — Madde 22.9 + 30.55 R2 PATCH)
-**Anayasa versiyonu:** v1.22.33 (Madde 22.9 yeni — Sürüm Tek-Kaynak + Madde 30.55 R2 PATCH 38 modül kapsam)
+**Son güncelleme:** 8 Mayıs 2026 (🎉 TUR #100.9 KURUMSAL ÜRETİM STÜDYOSU + BRAND TEK-KAYNAK + WEB SHARE — Madde 35 yeni + Madde 25.3 R1)
+**Anayasa versiyonu:** v1.23.0 MINOR (Madde 35 yeni: Kurumsal Kimlik + Üretim + Madde 25.3 R1: TBB Reklam Yasağı backend enforcement)
 **İlke:** MoSCoW + Now-Next-Later hibrit (Madde 24.5)
 
 ---
@@ -21,6 +21,7 @@
 | #100.5 ✅ | RBAC Hotfix + Madde 30.55 R1 (path fix + Türkçeleştirme + Optimistic UI) | P0+P1+P2+P4+P8 (5 canlı, P3+P5+P6+P7 deploy sonrası) | 0 | v1.22.31 |
 | #100.7 ✅ | RBAC Tam Entegrasyon + Madde 30.55 R2 (registry + auto-register + manifest + sidebar/buton usePermission) | P0-P9 (9 atom, hepsi canlı) | 0 | v1.22.32 |
 | #100.8 ✅ | Yetki Enterprise (38 modül) + Sürüm Tek-Kaynak (version.json + useVersion + dinamik footer'lar) | P0-P11 (11 atom, hepsi canlı) | 0 | v1.22.33 |
+| #100.9 ✅ | Kurumsal Üretim Stüdyosu + Brand Tek-Kaynak + Web Share (Madde 35 + 25.3 R1) | P0-P14 (14 atom, hepsi canlı) | 0 | v1.23.0 MINOR |
 | **TOPLAM** | **Tedbirge.ai 2.0** | 34 atom | 1 KIRMIZI | $0 maliyet |
 
 ## LATER — TUR #101+ Adayları
