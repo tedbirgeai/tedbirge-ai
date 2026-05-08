@@ -16,7 +16,23 @@ const BUSINESS_MODULES = [
   "assignments", "commission", "accidentCase",
 ];
 
-const ALL_MODULES = [...OS_MODULES, ...BUSINESS_MODULES];
+// 12 web sayfa modülü — TUR #100.8 yeni (Madde 30.55 R2 PATCH)
+const PAGE_MODULES = [
+  "calendar",        // /dashboard/takvim
+  "analytics",       // /dashboard/analytics
+  "marketing",       // /dashboard/pazarlama
+  "auditLog",        // /dashboard/audit-log
+  "kvkkRequests",    // /dashboard/kvkk-talepler (ADMIN tarafı)
+  "kvkkRights",      // /musteri/kvkk-haklarim (CUSTOMER tarafı)
+  "settings",        // /dashboard/ayarlar
+  "lawyerApproval",  // /dashboard/hukukcu-onay
+  "repApproval",     // /dashboard/temsilci-onay
+  "commissionLog",   // /dashboard/komisyon-log
+  "pipeline",        // /temsilci/pipeline
+  "hakedis",         // /temsilci/hakedis
+];
+
+const ALL_MODULES = [...OS_MODULES, ...BUSINESS_MODULES, ...PAGE_MODULES];
 
 function getModuleRegistry() {
   return [...ALL_MODULES];
@@ -30,12 +46,26 @@ function getBusinessModules() {
   return [...BUSINESS_MODULES];
 }
 
+function getPageModules() {
+  return [...PAGE_MODULES];
+}
+
+// Modül kategorisi (UI gruplandırma — opsiyonel)
+function getModuleCategory(moduleName) {
+  if (OS_MODULES.includes(moduleName)) return "os";
+  if (BUSINESS_MODULES.includes(moduleName)) return "business";
+  if (PAGE_MODULES.includes(moduleName)) return "page";
+  return "unknown";
+}
+
 // Runtime'da yeni modül kaydı (rare — programmatik)
 async function registerNewModule(moduleName, type = "business") {
   if (!moduleName || ALL_MODULES.includes(moduleName)) return false;
 
   if (type === "os") {
     OS_MODULES.push(moduleName);
+  } else if (type === "page") {
+    PAGE_MODULES.push(moduleName);
   } else {
     BUSINESS_MODULES.push(moduleName);
   }
@@ -55,9 +85,12 @@ async function registerNewModule(moduleName, type = "business") {
 module.exports = {
   OS_MODULES,
   BUSINESS_MODULES,
+  PAGE_MODULES,
   ALL_MODULES,
   getModuleRegistry,
   getOSModules,
   getBusinessModules,
+  getPageModules,
+  getModuleCategory,
   registerNewModule,
 };

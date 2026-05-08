@@ -11,6 +11,7 @@ const prisma = new PrismaClient();
 // Her [role] içinde { module: [actions] } formatı
 const ROLE_DEFAULTS = {
   LAWYER: {
+    // Mevcut iş katmanı (TUR #99/#100.7)
     leads: ["read", "write"],
     documents: ["read", "write"],
     messages: ["read", "write"],
@@ -19,24 +20,40 @@ const ROLE_DEFAULTS = {
     assignments: ["read"],
     commission: ["read"],
     accidentCase: ["read", "execute"], // analiz tetikleme yetkisi
+    // TUR #100.8 yeni — sayfa modülleri
+    calendar: ["read", "write"],     // takvim — duruşma + randevu
+    analytics: ["read"],             // raporlar (sadece kendi performansı)
   },
   REPRESENTATIVE: {
+    // Mevcut
     leads: ["read", "write"],
     clients: ["read"],
     commission: ["read"],
     assignments: ["read"],
+    // TUR #100.8 yeni
+    pipeline: ["read", "write"],     // kendi pipeline'ı
+    hakedis: ["read"],               // kendi komisyonu
+    calendar: ["read"],              // randevu görüntüleme
   },
   CUSTOMER: {
+    // Mevcut
     documents: ["read"],
     messages: ["read", "write"],
     leads: ["read"],
     accidentCase: ["read"], // sadece kendi vakası — controller içinde Lead.ownerId kontrolü
+    // TUR #100.8 yeni
+    kvkkRights: ["read", "write"],   // KVKK m.11 başvuru
   },
   SALES: {
+    // Mevcut
     leads: ["read", "write"],
     documents: ["read"],
     users: ["read"],
     clients: ["read"],
+    // TUR #100.8 yeni
+    analytics: ["read"],             // satış raporu
+    marketing: ["read", "write"],    // pazarlama yönetimi
+    calendar: ["read"],              // randevu
   },
 };
 

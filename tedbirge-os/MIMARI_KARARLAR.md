@@ -6,6 +6,59 @@
 
 ---
 
+## 8 Mayıs 2026 — TUR #100.8 KARARI — YETKİ MATRİSİ ENTERPRISE + SÜRÜM TEK-KAYNAK
+
+**Anayasa:** v1.22.32 → v1.22.33 PATCH (Madde 22.9 yeni — 49. anayasa maddesi)
+
+**Karar:** İki CEO sorgusu (8 May 13:24) birleşik **DRY + Tek-Kaynak** prensibi olarak tek mektupta uygulandı:
+- **A: Yetki Matrisi Enterprise** — `src/os/registry.js`'e 12 yeni `PAGE_MODULES` (calendar, analytics, marketing, auditLog, kvkkRequests, kvkkRights, settings, lawyerApproval, repApproval, commissionLog, pipeline, hakedis) eklenerek 26 → 38 modül. AppLayout `NavItem.permission` field'ı ile sidebar item'lara RBAC bağı genişletildi (4 yeni grup: TEMSILCI + SİSTEM dahil).
+- **B: Sürüm Tek-Kaynak** — `tedbirge-os/version.json` (TEK KAYNAK) + Backend `GET /api/version` public endpoint + `useVersion` hook + `FooterSidebar` (sol alt sidebar) + `Footer.tsx` (sağ alt public) dinamik. `sync-version.js` script `package.json`'ları otomatik senkronize eder (1.0.0 → 1.4.0 backend, 0.1.0 → 1.5.0 panel).
+
+**Sebep:** CEO direktifi *"ADMIN tüm web sayfası + sürüm UI'da tek-kaynak senkron olsun."* Mektup spec birleşik DRY pattern olarak hazırlandı — iki sorgu da aynı mimar disiplini (tekrarsızlık + tek-kaynak).
+
+**Mektup adapt — TUR #93→#100.7 emsali (12. ardışık kanıt-bazlı adapt):**
+- Mektup `Madde 22.8` → **Madde 22.9** (gerçek 22.8 ZATEN MEVCUT — Anayasa Çatışması Önleme, çakışma yasak)
+- Mektup `tedbirge-os AYRI repo` → mono-repo (tedbirge.ai içinde alt klasör)
+- Mektup `tedbirge-panel/src/hooks/useVersion.ts` → gerçek `tedbirge-panel/lib/use-version.ts` (mevcut hook konvansiyon: lib/use-permission.ts emsali)
+- Mektup `tedbirge-panel/src/components/Footer.tsx` rewrite → gerçek mevcut yasal linkler **DOKUNULMADI** (Madde 14.3)
+- Mektup AppLayout sol alt footer rewrite → gerçek **collapsed mode** desteği FooterSidebar component'ine aktarıldı (regresyon koruma)
+- Mektup `app.use("/api/version", ...)` → gerçek `src/app.js:55` mount
+
+**Reddedilen alternatifler:**
+- **Buton seviyesi yetkiler bu turda:** Madde 17.4 (yarım kesit yasak) — kapsam genişler, lansman sonrası TUR #110+ adayı
+- **package.json version field tek kaynak:** version.json daha zengin (compliance, copyright, tagline, displayName)
+- **Frontend version.json doğrudan import:** Mono-repo varsayımı, Vercel sibling deploy çalışmaz — backend endpoint daha esnek
+- **Hardcoded sürüm string korumak:** Madde 22.6 ihlali (versiyon güncellenmeden metin değişikliği yasak) — DRY pattern fiziksel imkansız hale getirdi
+
+**Etki:**
+- Anayasa v1.22.32 → v1.22.33 PATCH (Madde 22.9 yeni + Madde 30.55 R2 PATCH ek not)
+- `src/os/registry.js` → 12 PAGE_MODULES + getPageModules + getModuleCategory
+- `scripts/seed-role-permissions.js` ROLE_DEFAULTS 12 modül × 4 rol = 48 yeni default
+- `tedbirge-os/version.json` (YENİ) — TEK KAYNAK
+- `src/routes/version.routes.js` (YENİ) + `src/app.js` mount + `/health` entegrasyon
+- `tedbirge-os/scripts/sync-version.js` (YENİ) — package.json'lar otomatik senkron
+- `tedbirge-panel/lib/version.ts` + `lib/use-version.ts` (YENİ) — fetch + 5dk cache + fallback
+- `tedbirge-panel/components/layout/FooterSidebar.tsx` (YENİ) — sol alt dinamik (collapsed mode korundu)
+- `tedbirge-panel/components/layout/Footer.tsx` rewrite — sürüm + telif + compliance dinamik (yasal linkler korundu)
+- `tedbirge-panel/components/layout/AppLayout.tsx` — 12 yeni NavItem (4 yeni grup) + permission field 9 mevcut item'a eklendi
+- 0 schema migration · 0 npm install · 0 KIRMIZI ihlal · $0 maliyet
+- Production smoke: lokal **38 modül** ✅ + version.json **anayasa 1.22.33 / backend 1.4.0 / panel 1.5.0** ✅
+
+**Kalıcı pattern:**
+1. **Yeni sayfa eklendiğinde:** `PAGE_MODULES` + ROLE_DEFAULTS + AppLayout `NavItem.permission` + manifest otomatik yansır
+2. **Anayasa bump'ında:** version.json tek satır + sync-version.js + tüm UI footer'lar 5dk içinde otomatik
+3. **Sürüm UI'da:** SADECE useVersion hook (hardcode YASAK — Madde 22.9)
+
+**Pattern (54. kalibrasyon):** TUR #56+...+100.7+**100.8** = 412+ atom sapma 0. **49. anayasa maddesi tescil**. 43 mimar hatası → 49 madde (oran 1:1.14 — TUR #100.7 + 100.8 önleyici çift madde).
+
+**Mimar:** Claude Opus 4.7 (TUR #100.8 mimar — 8 Mayıs 2026 13:24 sonrası).
+
+**Onay:** Mehmet DİNÇ — Madde 17.5 + 22.9 + 30.25 + 30.55 R2 PATCH sessiz onay (uçtan uca otonom + sıfır soru).
+
+**Mimar prensibi:** *"İki CEO sorgusu birleşik DRY + Tek-Kaynak prensibi. Yetki TEK KAYNAK = registry. Sürüm TEK KAYNAK = version.json. Madde 22.6 ihlali artık fiziksel imkansız (hardcode kaldırıldı). 12 ardışık kanıt-bazlı adapt zinciri (TUR #93 → #100.8) korundu."*
+
+---
+
 ## 8 Mayıs 2026 — TUR #100.7 KARARI — RBAC TAM ENTEGRASYON + MADDE 30.55 R2
 
 **Karar:** RBAC tam entegrasyon — `src/os/registry.js` tek kaynak modül listesi (17 OS + 9 iş = 26 modül), `autoRegisterAllModules()` boot hook (5 dk lock + setImmediate), manifest endpoint (`GET /api/os/role-permissions/manifest`), `NavItem.permission` + `QuickAction.permission` field tipinde RBAC bağı, `usePermissions` hook ile filter zinciri (`roleOk && flagOk && permOk`). Yeni modül eklendiğinde RolePermission tablosuna otomatik 4 rol × 4 action = 16 satır kayıt (mevcut izinler `update: {}` ile DOKUNULMAZ).

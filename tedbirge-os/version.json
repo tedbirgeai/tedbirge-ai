@@ -1,0 +1,23 @@
+{
+  "anayasa": "1.22.33",
+  "backend": "1.4.0",
+  "panel": "1.5.0",
+  "schema": "1.2.0",
+  "buildDate": "2026-05-08",
+  "compliance": [
+    {
+      "label": "KVKK Uyumlu",
+      "url": "/kvkk-aydinlatma",
+      "status": "active"
+    },
+    {
+      "label": "ISO 27001 Hazırlığında",
+      "url": null,
+      "status": "in-progress"
+    }
+  ],
+  "displayName": "Tedbirge OS",
+  "company": "Tedbirge.ai",
+  "copyright": "© 2026 Tedbirge.ai · Tüm hakları saklıdır",
+  "tagline": "Bağımsız + Ücretsiz + Profesyonel"
+}

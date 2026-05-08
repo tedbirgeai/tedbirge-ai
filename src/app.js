@@ -52,8 +52,23 @@ app.use(express.urlencoded({ extended: true }));
 app.use(cookieParser());
 app.use("/uploads-static", express.static("uploads"));
 
+// TUR #100.8 P4 — Sürüm Tek-Kaynak (Madde 22.8) — auth-free version endpoint + /health entegrasyon
+const versionRoutes = require("./routes/version.routes");
+app.use("/api/version", versionRoutes);
+
 app.get("/health", (req, res) => {
-  res.json({ success: true, message: "Tedbirge AI API calisiyor" });
+  let version = null;
+  try {
+    version = versionRoutes.loadVersion();
+  } catch (_) {
+    // version okunmazsa health bozulmasın
+  }
+  res.json({
+    success: true,
+    message: "Tedbirge AI API calisiyor",
+    timestamp: new Date().toISOString(),
+    version,
+  });
 });
 
 app.use("/api/auth/login", loginLimiter);

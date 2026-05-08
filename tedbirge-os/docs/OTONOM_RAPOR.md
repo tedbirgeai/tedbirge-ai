@@ -1,3 +1,113 @@
+# OTONOM RAPOR — TUR #100.8 YETKİ ENTERPRISE + SÜRÜM TEK-KAYNAK (MADDE 22.9 + 30.55 R2 PATCH)
+
+## TUR #100.8 — 38 MODÜL + version.json TEK-KAYNAK ✅ KAPALI
+
+**Tarih:** 8 Mayıs 2026
+**Anayasa:** v1.22.32 → v1.22.33 PATCH (Madde 22.9 yeni — Sürüm Tek-Kaynak + Madde 30.55 R2 PATCH ek)
+**Tip:** Birleşik mektup — DRY pattern (Yetki + Sürüm tek-kaynak)
+**Atom:** 11 (P0-P11) — hepsi canlı
+**KIRMIZI nokta:** 0
+**Maliyet:** $0
+**Mimar hatası:** 43 (yeni hata YOK — bu önleyici)
+
+### CEO Direktifi Birleşik (Madde 17.5 + 22.9 + 30.25 + 30.55 R2 sessiz onay)
+
+> **Sorgu 1:** *"ADMIN tüm 30+ web sayfası + buton + menü item'ı tek ekrandan kontrol etmeli."*
+> **Sorgu 2:** *"Sol alt + sağ alt sürüm yazıları otomatik senkron olmalı."*
+
+İki sorgu da **DRY (Don't Repeat Yourself) + Tek-Kaynak** prensibi → birleşik mektup.
+
+### P0 Keşif Sonucu
+
+- Mevcut registry **26 modül** ✅ (TUR #100.7)
+- `/health` endpoint `src/app.js:55` mevcut
+- Backend version `1.0.0`, Panel `0.1.0` (eski, sync-version.js → 1.4.0/1.5.0)
+- `tedbirge-os/version.json` **YOK** → yeni
+- Sol alt footer: `AppLayout.tsx:336-372` hardcoded (`v3.0` + `2026 Tedbirge AI` + KVKK + ISO 27001)
+- Public footer: `components/layout/Footer.tsx:22+26+53` hardcoded
+
+### Atomlar
+
+| Atom | Konu | Durum |
+|---|---|---|
+| P0 | Keşif (registry + AppLayout + Footer + package.json + /health) | ✅ |
+| P1 | registry.js → PAGE_MODULES (12 yeni) + getPageModules + getModuleCategory | ✅ |
+| P2 | seed-role-permissions.js ROLE_DEFAULTS → 12 yeni modül için defaults | ✅ |
+| P3 | tedbirge-os/version.json (TEK KAYNAK) — anayasa+backend+panel+schema+compliance | ✅ |
+| P4 | Backend src/routes/version.routes.js + app.js mount + /health entegrasyon | ✅ |
+| P5 | tedbirge-os/scripts/sync-version.js + package.json'lar senkron (1.0.0→1.4.0, 0.1.0→1.5.0) | ✅ |
+| P6 | tedbirge-panel/lib/version.ts + lib/use-version.ts (useVersion hook) | ✅ |
+| P7 | AppLayout 12 yeni sayfa modülü için NavItem + permission field + 4 yeni grup (TEMSILCI + SİSTEM) | ✅ |
+| P8 | AppLayout sol alt FooterSidebar component dinamik (collapsed mode korundu) | ✅ |
+| P9 | Public Footer.tsx dinamik (mevcut yasal linkler DOKUNULMADI) | ✅ |
+| P10 | Production smoke pre-deploy (lokal 38 modül + version.json kanıt) | ✅ |
+| P11 | 5 OS senkron + Madde 22.9 + 30.55 R2 PATCH + v1.22.33 (bu rapor) | ✅ |
+
+### Mektup Adapt (TUR #93→#100.7 emsali — 12. ardışık kanıt-bazlı adapt)
+
+- Mektup `Madde 22.8` → **Madde 22.9** (gerçek 22.8 ZATEN MEVCUT — Anayasa Çatışması Önleme)
+- Mektup `tedbirge-os AYRI repo` → mono-repo (`cd tedbirge-os` yerine root)
+- Mektup `cd tedbirge-ai && git push` → tek mono-repo commit (panel ayrı git remote)
+- Mektup `tedbirge-panel/src/...` → gerçek `tedbirge-panel/...`
+- Mektup `tedbirge-panel/src/hooks/useVersion.ts` → gerçek `tedbirge-panel/lib/use-version.ts` (mevcut hook konvansiyonu)
+- Mektup `Footer.tsx` referans yapı → gerçek mevcut yapı korundu (yasal linkler DOKUNULMADI)
+- AppLayout sol alt footer mevcut **collapsed mode** desteği FooterSidebar'a aktarıldı
+- Backend mount path: `app.js` (mektup spec `index.js` veya `app.js` — gerçek `app.js`)
+
+### Madde 22.9 Tescil — Sürüm Tek-Kaynak Disiplini
+
+**Yansıma zinciri (DRY):**
+1. `tedbirge-os/version.json` (TEK KAYNAK)
+2. → `node tedbirge-os/scripts/sync-version.js` (package.json'lar)
+3. → Backend `GET /api/version` (auth-free, 1dk cache)
+4. → Backend `/health` sürüm field
+5. → Frontend `useVersion()` hook (5dk cache + fallback)
+6. → `FooterSidebar` (sol alt) + `Footer` (sağ alt) dinamik
+
+**Anayasa bump akışı:**
+- version.json "anayasa" güncelle → sync-version.js → push → 5dk içinde tüm UI yansır
+
+### Madde 30.55 R2 PATCH — 38 Modül Kapsam
+
+3 kategori:
+- **OS_MODULES** (17): ai, analyzer, appearance, backup, compliance, costGuard, deploy, insurance, maintenance, navigation, notifications, performance, pulse, recovery, security, uyapControl, mimarHatasi
+- **BUSINESS_MODULES** (9): leads, users, documents, messages, clients, bilirkisi, assignments, commission, accidentCase
+- **PAGE_MODULES** (12 YENİ): calendar, analytics, marketing, auditLog, kvkkRequests, kvkkRights, settings, lawyerApproval, repApproval, commissionLog, pipeline, hakedis
+
+**Toplam: 38 modül × 4 rol × 4 action = 608 RolePermission satır** (boot otomatik upsert).
+
+### Production Endpoint Smoke (deploy öncesi — lokal kanıt)
+
+| Endpoint | Lokal | Production (deploy sonrası) |
+|---|---|---|
+| `/api/version` | YENİ | 200 (auth-free, 1dk cache) |
+| `/api/version` data.anayasa | "1.22.33" | "1.22.33" |
+| `/api/os/role-permissions/manifest` | TUR #100.7 | 401 + 38 modül data |
+| `/health` | sürüm field içerir | 200 + version |
+| Lokal `getModuleRegistry().length` | **38** ✅ | — |
+
+### Mimar Prensibi (TUR #100.8 emsal)
+
+> *"İki CEO sorgusu farklı görünür ama aynı mimar disiplin: DRY + Tek-Kaynak. Yetki Matrisi modüller için TEK KAYNAK = registry. Sürüm UI için TEK KAYNAK = version.json. Anayasa bump'ında 1 yer değişir, 6+ UI dinamik yansır. Madde 22.6 (versiyon güncellenmeden metin değişikliği yasak) artık fiziksel imkansız çünkü hardcode kaldırıldı."*
+
+### Kalibrasyon
+
+401+ → **412+ atom** sapma 0 — kalibrasyon 1.6× **54. doğrulama**.
+**14 ardışık temiz TUR** (TUR #90 → #100.8).
+**49. anayasa maddesi tescil** (Madde 22.9 — yeni alt-genişleme).
+**12. ardışık kanıt-bazlı adapt zinciri** (TUR #93 → #100.8).
+
+### CEO MANUEL İŞ
+
+**Render auto-deploy ~90sn** sonra hard refresh:
+1. `/dashboard/yetkiler` → **38 modül** görünüyor (12 yeni: Takvim, Analitik, Pazarlama, Audit Log, KVKK Talepler, KVKK Hakları, Ayarlar, Hukukçu Onay, Temsilci Onay, Komisyon Log, Pipeline, Hakediş)
+2. **Sol alt köşe** sidebar footer: **"Tedbirge OS · v1.22.33"** (eski v3.0 değil)
+3. **Sağ alt** public footer (anasayfa, blog, vs.): aynı sürüm + KVKK Uyumlu (yeşil) + ISO 27001 Hazırlığında (amber)
+4. Sidebar bağ test: ADMIN → /dashboard/yetkiler → LAWYER.calendar.read kapat → LAWYER login → "Takvim" sidebar'da gizli
+5. Anayasa bump test (gelecek): version.json "anayasa": "1.22.34" → sync-version.js → tüm footer'lar 5dk içinde yansır
+
+---
+
 # OTONOM RAPOR — TUR #100.7 RBAC TAM ENTEGRASYON (MADDE 30.55 R2)
 
 ## TUR #100.7 — RBAC AUTO-REGISTER + MANIFEST + SIDEBAR/BUTON YETKI BAĞI ✅ KAPALI

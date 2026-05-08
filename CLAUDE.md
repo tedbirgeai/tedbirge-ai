@@ -956,6 +956,56 @@ Anayasa versiyonu MIMARI_KARARLAR.md'ye yazılırken **tarih + commit hash + aç
 
 Versiyon kuralları **Madde 20.6 ile uyumlu** olmalı. Çelişki olursa Madde 20.8 (anayasa çatışması) süreci uygulanır.
 
+### 22.9 — Sürüm Tek-Kaynak Disiplini (TUR #100.8 — 8 May 2026)
+
+**Kural:** Tüm sürüm bilgileri `tedbirge-os/version.json` dosyasından okunur. Hardcoded sürüm string'i UI'da YASAK. UI'da sürüm gösteren her komponent `useVersion` hook'unu kullanır.
+
+**Tek Kaynak (`tedbirge-os/version.json`):**
+```json
+{
+  "anayasa": "1.22.33",
+  "backend": "1.4.0",
+  "panel": "1.5.0",
+  "schema": "1.2.0",
+  "buildDate": "2026-05-08",
+  "compliance": [
+    { "label": "KVKK Uyumlu", "url": "/kvkk-aydinlatma", "status": "active" },
+    { "label": "ISO 27001 Hazırlığında", "url": null, "status": "in-progress" }
+  ],
+  "displayName": "Tedbirge OS",
+  "company": "Tedbirge.ai",
+  "copyright": "© 2026 Tedbirge.ai · Tüm hakları saklıdır",
+  "tagline": "Bağımsız + Ücretsiz + Profesyonel"
+}
+```
+
+**Yansıma Pattern (DRY zinciri):**
+1. `tedbirge-os/version.json` (TEK KAYNAK)
+2. → `node tedbirge-os/scripts/sync-version.js` (`package.json`'lar otomatik senkron — backend + panel)
+3. → Backend `GET /api/version` (public, auth-free, 1dk cache)
+4. → Backend `/health` endpoint sürüm field içerir
+5. → Frontend `lib/version.ts` → `lib/use-version.ts` `useVersion()` hook (5dk cache + fallback)
+6. → Tüm UI footer'lar dinamik (sol alt sidebar `FooterSidebar` + sağ alt public `Footer.tsx`)
+
+**Anayasa bump akışı:**
+```
+1. CLAUDE.md sürüm güncelle (örn. v1.22.33 → v1.22.34)
+2. tedbirge-os/version.json "anayasa" field güncelle
+3. node tedbirge-os/scripts/sync-version.js (package.json'lar senkron)
+4. git commit → push → Render auto-deploy
+5. Frontend cache 5dk içinde otomatik refresh (manuel hard refresh hızlandırır)
+```
+
+**Yasak:**
+- ❌ Hardcoded sürüm string ("v3.0", "1.22.32") UI'da
+- ❌ Sürüm bilgisini birden fazla yerden manuel güncelleme
+- ❌ Public footer'da yıl hardcode (`new Date().getFullYear()` veya version.json kullan)
+- ❌ KVKK/ISO 27001 uyumluluk metinlerini hardcode (compliance array'i kullan)
+- ❌ Backend `/api/version` endpoint'ini auth gerektirir hale getirmek (public footer her sayfada gösterilir)
+- ❌ `package.json` version field'ını manuel düzenlemek (sync-version.js script kullan)
+
+**TUR #100.8 emsal (mimar hatası önleyici):** TUR #100.7 sonu CEO görsel kanıt — sol alt *"Tedbirge OS · v3.0"* + anayasa v1.22.32. **3 farklı sürüm 3 farklı yerde** manuel yazılmıştı (Madde 22.6 ihlali — versiyon güncellenmeden metin değişikliği). Tek-kaynak version.json + useVersion hook ile DRY pattern kuruldu. Madde 22.3 (Versiyon Bilgisi Nerede Tutulur) bu R1 ile genişletildi.
+
 ---
 
 ## 24. İŞ PLANI DİSİPLİNİ — Tedbirge'nin Konumu, Paydaşlar, Gelir Modeli, Yol Haritası
@@ -3130,6 +3180,29 @@ Birinde değişiklik yaparken **diğer 4'ünün uyumu kontrol edilmeden parça-b
 4. Yetki Matrisi listesi = manifest endpoint dinamik
 5. Production curl smoke (Madde 30.55 R1) zorunlu
 
+**TUR #100.8 PATCH — 38 modül kapsam genişlemesi:**
+
+`src/os/registry.js` artık **3 kategori modül**:
+- `OS_MODULES` (17 — sistem işletim modülleri)
+- `BUSINESS_MODULES` (9 — iş katmanı: leads, users, documents, ...)
+- `PAGE_MODULES` (12 — TUR #100.8 yeni: calendar, analytics, marketing, auditLog, kvkkRequests, kvkkRights, settings, lawyerApproval, repApproval, commissionLog, pipeline, hakedis)
+
+**Toplam 38 modül × 4 rol × 4 action = 608 RolePermission satır** (otomatik upsert, mevcut izinler `update: {}` ile DOKUNULMAZ).
+
+**Yeni sayfa ekleme pattern (TUR #110+ için):**
+- Yeni sayfa eklendiğinde `PAGE_MODULES` listesine modül adı (camelCase)
+- AppLayout `NavItem.permission` field — `{ module: "moduleName", action: "read" }`
+- ROLE_DEFAULTS güncelle (hangi rol default erişir?)
+- Boot otomatik 4 rol × 4 action = 16 satır upsert
+- Frontend manifest endpoint'inden anında görünür
+
+**Buton seviyesi yetkiler (TUR #110+ adayı):** Bu turda kapsam dışı (Madde 17.4 yarım kesit yasak). Lansman sonrası gerçek kullanım pattern'ı görünce eklenir.
+
+**Yasak (R2 PATCH ek):**
+- ❌ Yeni sayfa açıp `PAGE_MODULES` listesine eklememek (Yetki Matrisi'nde görünmez, RBAC bypass)
+- ❌ AppLayout sidebar item `permission` field'sız bırakmak (RBAC bypass)
+- ❌ ROLE_DEFAULTS güncellemeden modül ekleme (granted=false default — kimse erişemez, adopsiyon kırılır)
+
 ---
 
 ### 30.55 R1 — Hotfix Dersleri (TUR #100.5 — 8 May 2026, mimar hatası 43 emsali)
@@ -3564,10 +3637,10 @@ Mehmet Bey sahaya çıkabilsin diye bu disiplin var.
 
 ---
 
-**— Tedbirge Mimari Anayasası v1.22.32**  
-**Toplam 102 TUR · 401+ atom sapma 0 · 53 kalibrasyon · 43 mimar hatası → 48 anayasa maddesi**  
-**🎉 TEDBİRGE.AI 2.0 + RBAC TAM ENTEGRASYON 🎉**  
-**Aktif Kesit:** TUR #100.7 KAPALI (RBAC Auto-Register + Manifest + AppLayout/QuickActions usePermission bağı — Madde 30.55 R2)  
+**— Tedbirge Mimari Anayasası v1.22.33**  
+**Toplam 103 TUR · 412+ atom sapma 0 · 54 kalibrasyon · 43 mimar hatası → 49 anayasa maddesi**  
+**🎉 TEDBİRGE.AI 2.0 + YETKI ENTERPRISE + SÜRÜM TEK-KAYNAK 🎉**  
+**Aktif Kesit:** TUR #100.8 KAPALI (38 modül × 4 rol matrix + version.json + useVersion + dinamik footer'lar — Madde 22.9 + 30.55 R2 PATCH)  
 **Tüm sürüm geçmişi + TUR detayları + atom kayıtları: `tedbirge-os/MIMARI_KARARLAR.md`**
 
 **Versiyon geçmişi: tedbirge-os/MIMARI_KARARLAR.md**  

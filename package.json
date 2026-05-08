@@ -1,6 +1,6 @@
 {
   "name": "tedbirge-ai",
-  "version": "1.0.0",
+  "version": "1.4.0",
   "description": "Tedbirge AI local sqlite backend",
   "main": "src/server.js",
   "type": "commonjs",
