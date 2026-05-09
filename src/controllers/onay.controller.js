@@ -11,6 +11,8 @@ exports.listHukukcuOnay = asyncHandler(async (_req, res) => {
       id: true, fullName: true, email: true, phone: true,
       baroSicilNo: true, uzmanlik: true, hukukcuKomisyon: true,
       baroOnayDurumu: true, createdAt: true,
+      // TUR #103 — e-baro doğrulama (Madde 38)
+      ebaroVerifiedAt: true, ebaroVerifyMethod: true,
     },
     orderBy: { createdAt: "desc" },
   });

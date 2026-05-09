@@ -104,6 +104,18 @@ const STATEMENTS = [
   `CREATE UNIQUE INDEX IF NOT EXISTS "RolePermission_role_module_action_key" ON "RolePermission"("role", "module", "action")`,
   `CREATE INDEX IF NOT EXISTS "RolePermission_role_idx" ON "RolePermission"("role")`,
   `CREATE INDEX IF NOT EXISTS "RolePermission_module_idx" ON "RolePermission"("module")`,
+
+  // ─── TUR #103 — e-baro Manuel Doğrulama (Madde 38) ──────────────────────
+  `ALTER TABLE "User" ADD COLUMN IF NOT EXISTS "ebaroVerifiedAt" TIMESTAMP(3)`,
+  `ALTER TABLE "User" ADD COLUMN IF NOT EXISTS "ebaroVerifiedBy" TEXT`,
+  `ALTER TABLE "User" ADD COLUMN IF NOT EXISTS "ebaroVerifyMethod" TEXT`,
+  `ALTER TABLE "User" ADD COLUMN IF NOT EXISTS "ebaroVerifyNotes" TEXT`,
+
+  // ─── TUR #104 — UYAP Manuel Veri Altyapısı (Madde 39) ───────────────────
+  // Lead UYAP ek alanlar (uyapDosyaNo + uyapDurum + uyapMahkeme + uyapSonGuncelleme zaten var).
+  // Duruşma takibi mevcut "Durusma" modeli ile yapılır (Madde 14.3 — duplikat yasak).
+  `ALTER TABLE "Lead" ADD COLUMN IF NOT EXISTS "uyapDosyaTuru" TEXT`,
+  `ALTER TABLE "Lead" ADD COLUMN IF NOT EXISTS "uyapNotlar" TEXT`,
 ];
 
 (async () => {

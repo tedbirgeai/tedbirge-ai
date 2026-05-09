@@ -37,6 +37,8 @@ const agentRoutes = require("./agent.routes");
 // TUR #57 A2
 const adminAnomalyRoutes = require("./admin.anomaly.routes");
 const representativeRoutes = require("./representative.routes");
+// TUR #104 — UYAP manuel veri (Madde 39 — TCK m.243 koruma)
+const uyapRoutes = require("./uyap.routes");
 
 const router = express.Router();
 
@@ -83,6 +85,8 @@ router.use('/', agentRoutes);
 // TUR #57 A2 — anomaly + representative pipeline
 router.use('/', adminAnomalyRoutes);
 router.use('/', representativeRoutes);
+// TUR #104 — UYAP manuel veri (Madde 39)
+router.use('/', uyapRoutes);
 
 module.exports = router;
 

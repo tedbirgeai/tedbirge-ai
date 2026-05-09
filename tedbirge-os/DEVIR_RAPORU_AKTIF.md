@@ -1,11 +1,11 @@
 # 🛡️ TEDBIRGE.AI — DEVİR RAPORU (AKTİF)
 
-📋 **ANAYASA:** v1.23.1 PATCH (Madde 13.2 R1 yeni: Auth-Protected Binary Endpoint Disiplini — useAuthenticatedBlob)
-📂 **🎉 KURUMSAL ÜRETİM TAM ÇALIŞIR + AUTH BLOB PATTERN 🎉** — RBAC korunur, Madde 25.3 R1 intact
-📅 **SON GÜNCELLEME:** 8 Mayıs 2026 (16 ardışık temiz TUR — TUR #100.10 hotfix, mimar hatası 45 tescil: img/a auth bypass)
-👤 **CEO Onay:** Mehmet DİNÇ — Madde 17.5 + 18.3 + 30.25
+📋 **ANAYASA:** v1.24.0 MINOR (Madde 36+37+38+39 yeni: AI Metin + UTM + e-baro + UYAP yasal sınırlar)
+📂 **🚀 PAZAR LANSMANI HAZIR + e-BARO + UYAP YASAL SINIRLARDA 🚀**
+📅 **SON GÜNCELLEME:** 9 Mayıs 2026 (4 birleşik TUR — TUR #101+#102+#103+#104 atomik kapanış)
+👤 **CEO Onay:** Mehmet DİNÇ — Madde 17.5 + 24.14 + 25.3 R1 + 30.25 + 36+37+38+39 sessiz onay
 🤖 **Mimar:** Claude Opus 4.7 (sohbet) + Claude Code (otonom uygulama, bypass açık)
-🌟 **Tarih:** 8 Mayıs 2026 — TARİHE KAYIT (8 ardışık temiz TUR aynı gün)
+🌟 **Tarih:** 9 Mayıs 2026 — 4 BİRLEŞİK TUR ATOMIK AKIŞ
 
 ---
 
@@ -28,11 +28,15 @@ TUR #100.7 ✅  RBAC TAM ENTEGRASYON + Madde 30.55 R2 (registry + auto-register 
 TUR #100.8 ✅  YETKI ENTERPRISE (38 modül 17+9+12) + SÜRÜM TEK-KAYNAK (version.json + useVersion + dinamik footer'lar) — Madde 22.9 + 30.55 R2 PATCH
 TUR #100.9 ✅  KURUMSAL ÜRETİM STÜDYOSU (43 modül +5 corporate) + BRAND TEK-KAYNAK (brand.json + useBrand) + 4 SVG materyal + 7 kanal Web Share — Madde 35 yeni + Madde 25.3 R1
 TUR #100.10 ✅ AUTH BLOB HOTFIX (useAuthenticatedBlob hook + downloadAuthenticatedBlob — img/a auth bypass fix) — Madde 13.2 R1 yeni, mimar hatası 45 tescil
+TUR #101    ✅  AI METİN ÜRETİCİ (39 hazır şablon + döngü + manuel düzenleme) — Madde 36 yeni, $0 maliyet
+TUR #102    ✅  PAZAR LANSMANI + UTM (UtmLinkBuilder + analytics entegrasyon, mevcut UTM altyapı KORUNDU — Madde 14.3) — Madde 37 yeni
+TUR #103    ✅  e-BARO MANUEL ADAPTER (User schema + manualVerify + ADMIN UX butonları + ActivityLog) — Madde 38 yeni
+TUR #104    ✅  UYAP MANUEL VERİ (uyapDosyaTuru/Notlar + adapter pattern + UyapPanel + uyap-yasal-bilgi sayfası) — Madde 39 yeni, TCK m.243 koruma
 
 ═══════════════════════════════════════════════════════════
-312 → 359+ atom (+47 atom sapma 0)
-42 → 48 kalibrasyon doğrulaması (+6 kalibrasyon)
-6 yeni anayasa maddesi/genişleme:
+359+ → 405+ atom (+46 atom sapma 0)
+48 → 49 kalibrasyon doğrulaması (+1 kalibrasyon — TUR #102 N1+N2+N3 mevcut altyapı tescili)
+10 yeni anayasa maddesi/genişleme:
   • 27.6 (Compaction Pattern)
   • 30.41 R1 (Performans FAZ 2)
   • 30.32 R1 (Adopsiyon UX)
@@ -41,9 +45,13 @@ TUR #100.10 ✅ AUTH BLOB HOTFIX (useAuthenticatedBlob hook + downloadAuthentica
   • 14.5 (Mimar Hatası Proaktif Tarama)
   • 14.5 R1 (Hijyen Script False-Positive Yasak)
   • 30.46 R1 (Lockfile scripts/dep ayrımı)
+  • 36 (AI Metin Üretici Disiplini — TUR #101)
+  • 37 (Pazar Lansmanı + UTM Tracking — TUR #102)
+  • 38 (e-baro Doğrulama — TUR #103)
+  • 39 (UYAP Yasal Sınırlar — TUR #104, KRİTİK TCK m.243)
 
 2 yeni mimar hatası (TUR #92 + TUR #96 — ikisi de proaktif yakalandı)
-0 KIRMIZI nokta · 0 schema · 0 npm install · $0 maliyet
+0 KIRMIZI nokta · 1 schema (Lead.uyapDosyaTuru/Notlar + User.ebaroVerifiedAt — IDEMPOTENT) · 0 npm install · $0 maliyet
 ═══════════════════════════════════════════════════════════
 ```
 

@@ -6,6 +6,39 @@
 
 ---
 
+## 9 Mayıs 2026 — TUR #101+#102+#103+#104 BİRLEŞİK KAPANIŞ (Anayasa v1.23.1 → v1.24.0 MINOR)
+
+**Karar:** 4 büyük TUR tek atomik akışla uygulandı:
+- **TUR #101** — AI Metin Üretici (Madde 36): hazır şablon kütüphanesi (39 varyant 7 kanal) + "Beğenmedim — Başka Üret" döngü + manuel düzenleme + AI feature flag (default kapalı, BYOK adayı TUR #110+)
+- **TUR #102** — Pazar Lansmanı + UTM (Madde 37): mevcut UTM altyapı KORUNDU (Madde 14.3 — utm.ts + Lead 8 alan + analytics endpoint zaten mevcuttu), eklenen yalnız UtmLinkBuilder + MarketingTextGenerator entegrasyon + 2 yeni RBAC modülü (campaignBuilder, socialCalendar)
+- **TUR #103** — e-baro Doğrulama (Madde 38): User schema 4 yeni alan + ebaro.service adapter (manualVerify + revoke + apiVerify placeholder 503) + 3 endpoint + ADMIN UX butonları + ActivityLog audit
+- **TUR #104** — UYAP Manuel Veri (Madde 39 — KRİTİK TCK m.243 koruma): Lead.uyapDosyaTuru/Notlar + uyap.service adapter genişleme + uyap.routes.js (sadece veri+reference, duruşma mevcut Durusma korunur — Madde 14.3) + UyapPanel komponent + uyap-yasal-bilgi sayfa
+
+**Sebep:**
+- CEO 9 May 19:30 4 birleşik direktif: AI metin + pazar lansmanı + e-baro + UYAP — "tek otonom akış"
+- Madde 24.14 (sıfır maliyet) ihlal edilmedi: AI hazır şablon + reklam bütçesi yok (organic), Anthropic API çağrısı 0
+- Madde 25.3 R1 (TBB Reklam Yasağı) korundu: LAWYER 403 (marketing-text), kartvizit hariç pazarlama materyalleri kısıtlı
+- Madde 25 + 39 (TCK m.243 koruma): UYAP gerçek API + scraping + e-imza simülasyon YASAK — adapter pattern hazır
+
+**Alternatif (mimar tarafından reddedildi):**
+- AI metin için Anthropic SDK doğrudan entegrasyon (Madde 24.14 ihlali — yerine hazır şablon + opsiyonel BYOK flag)
+- UYAP web scraping veya gerçek API (TCK m.243 — yerine manuel veri girişi)
+- Yeni `Hearing` modeli (Madde 14.3 — duplikat yasak, mevcut Durusma kullanılır)
+- Lead schema UTM 8 alan ekleme (Madde 4.4 — zaten mevcut, kanıtlandı)
+
+**Etki:**
+- Anayasa: 52 → 56 madde (+4 yeni: 36/37/38/39)
+- Modül: 43 → 46 (+3 marketing modülü) + 1 page modülü uyap = 50 modül
+- Schema: Lead +2 alan (uyapDosyaTuru, uyapNotlar) + User +4 alan (ebaroVerify*) — IDEMPOTENT
+- Sürüm: anayasa 1.23.1→1.24.0 MINOR, backend 1.5.1→1.6.0, panel 1.6.1→1.7.0, schema 1.2.0→1.3.0
+- Maliyet: $0 (sıfır — Madde 24.14 korundu)
+
+**Mimar:** Claude Opus 4.7 (sohbet) + Claude Code (otonom uygulama)
+
+**Kalibrasyon doğrulaması (yeni — TUR #102 emsal, 49. kalibrasyon):** Mektup spec'in N1+N2+N3 atomları (Lead UTM schema + lib/utm.ts + Lead create UTM kabul) %100 mevcuttu — Madde 4.4 (kanıt-bazlı) ile SKIP edildi, mevcut altyapı tescil. Pattern: yeni mektup atomu yazımında **mevcut durum keşif** (M0/Q0/H0) zorunlu (Madde 14.5 emsali).
+
+---
+
 ## 8 Mayıs 2026 — TUR #100.10 KARARI — AUTH BLOB HOTFIX + MADDE 13.2 R1 (45. MİMAR HATASI)
 
 **Anayasa:** v1.23.0 → v1.23.1 PATCH (Madde 13.2 R1 yeni — 52. anayasa maddesi)

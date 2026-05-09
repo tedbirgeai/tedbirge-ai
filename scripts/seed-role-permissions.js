@@ -28,6 +28,10 @@ const ROLE_DEFAULTS = {
     emailImzasi: ["read", "execute"], // ✅ Kendi email imzası
     paylasim: ["read", "execute"],   // ✅ Sınırlı paylaşım (LinkedIn/X/FB hariç)
     // brosur: [], reklamGorseli: [] → Madde 25.3 yasağı (granted=false default)
+    // TUR #103/#104 — yasal modüller (avukat kendi davasını yönetir)
+    ebaroVerify: ["read"],           // Kendi sicil bilgisini görme (TUR #103)
+    uyap: ["read", "write"],         // ✅ UYAP veri girişi (kendi atanan dava — Madde 39)
+    // duruşma: mevcut Durusma altyapısı (Madde 14.3 — duplikat yasak)
   },
   REPRESENTATIVE: {
     // Mevcut
@@ -45,6 +49,8 @@ const ROLE_DEFAULTS = {
     reklamGorseli: ["read", "execute"],
     emailImzasi: ["read", "execute"],
     paylasim: ["read", "execute"],
+    // TUR #102 yeni — temsilci kendi UTM linkini üretebilir (kampanya takibi)
+    campaignBuilder: ["read", "execute"],
   },
   CUSTOMER: {
     // Mevcut
@@ -74,6 +80,11 @@ const ROLE_DEFAULTS = {
     reklamGorseli: ["read", "write", "execute"],
     emailImzasi: ["read", "execute"],
     paylasim: ["read", "execute"],
+    // TUR #101/#102 — SALES tam pazarlama yetkisi
+    campaignBuilder: ["read", "write", "execute"], // UTM Link Üretici
+    socialCalendar: ["read", "write", "execute"],  // Yayın takvimi
+    // TUR #103 — SALES e-baro doğrulama görüntüleme (sadece okuma)
+    ebaroVerify: ["read"],
   },
 };
 

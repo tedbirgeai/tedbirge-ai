@@ -8,6 +8,7 @@ const { requirePermission } = require("../middlewares/requirePermission");
 const asyncHandler = require("../utils/asyncHandler");
 const prisma = require("../config/db");
 const corporateService = require("../services/corporate.service");
+const marketingTemplates = require("../services/marketingTemplates.service");
 const { loadBrand } = require("./brand.routes");
 
 const router = express.Router();
@@ -115,6 +116,64 @@ router.get(
     const png = await corporateService.svgToPng(svg);
     res.setHeader("Content-Type", "image/png");
     res.send(png);
+  })
+);
+
+// ─── Reklam Metni (TUR #101 — hazir sablon kutuphanesi) ──────────────
+// Madde 24.14 sifir maliyet + Madde 25.3 R1 LAWYER kisitli
+
+router.get(
+  "/marketing-text/random",
+  auth,
+  requirePermission("reklamGorseli", "read"),
+  asyncHandler(async (req, res) => {
+    if (req.user.role === "LAWYER") {
+      return res.status(403).json({
+        success: false,
+        error: "TBB_REKLAM_YASAGI",
+        message: "Avukatlar pazarlama metni uretemez (Avukatlik K. m.55 + TBB Reklam Yasagi).",
+      });
+    }
+
+    const channel = (req.query.channel || "whatsapp").toString();
+    const excludeIds = (req.query.excludeIds || "").toString();
+    const excludeArr = excludeIds ? excludeIds.split(",").filter(Boolean) : [];
+
+    const template = marketingTemplates.getRandomTemplate(channel, excludeArr);
+    if (!template) {
+      return res.status(404).json({
+        success: false,
+        error: "NO_TEMPLATE",
+        message: `'${channel}' kanali icin sablon bulunamadi.`,
+      });
+    }
+
+    const filled = marketingTemplates.fillTemplate(template, {
+      "Ad Soyad": req.user.fullName || req.user.adSoyad || req.user.name || "",
+      "Sender Name": req.user.fullName || req.user.adSoyad || req.user.name || "",
+    });
+
+    res.json({
+      success: true,
+      data: filled,
+      meta: {
+        channel,
+        totalAvailable: marketingTemplates.getTemplatesByChannel(channel).length,
+        seenCount: excludeArr.length,
+      },
+    });
+  })
+);
+
+router.get(
+  "/marketing-text/channels",
+  auth,
+  requirePermission("reklamGorseli", "read"),
+  asyncHandler(async (req, res) => {
+    res.json({
+      success: true,
+      data: marketingTemplates.getChannels(),
+    });
   })
 );
 

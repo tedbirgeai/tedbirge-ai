@@ -3788,6 +3788,98 @@ Copy:     navigator.clipboard.writeText(...)
 
 ---
 
+## 36. AI METİN ÜRETİCİ DİSİPLİNİ (TUR #101 — 9 May 2026)
+
+**Kural:** Tüm reklam/pazarlama metni üretimi **hazır şablon kütüphanesi tabanlıdır** (Madde 24.14 — sıfır maliyet). AI feature flag opsiyonel (default kapalı), açılırsa **BYOK pattern** (kullanıcı kendi API key'ini girer — TUR #110+ adayı).
+
+**Tek kaynak:** `src/data/marketingTemplates.json` — 7 kanal × en az 5 varyant (whatsapp, instagram, facebook, linkedin, x, email, sms).
+
+**Endpoint:** `GET /api/corporate/marketing-text/random?channel=whatsapp&excludeIds=...` — auth + `requirePermission("reklamGorseli","read")`. LAWYER 403 (Madde 25.3 R1 — TBB Reklam Yasağı).
+
+**Frontend:** `<MarketingTextGenerator />` — kanal sekmeleri + "Beğenmedim — Başka Üret" döngü + manuel düzenleme + kopyala. Kurumsal sayfa "Reklam Metni" sekmesi + Pazarlama dashboard'a entegre.
+
+**Yasak:**
+- ❌ Anthropic API doğrudan default kullanım (Madde 24.14 ihlal — sıfır maliyet kural)
+- ❌ Şablon kütüphanesini AI üretimle değiştirme (her zaman fallback şablon)
+- ❌ LAWYER için pazarlama metni üretimi (TBB Reklam Yasağı — Madde 25.3 R1)
+
+---
+
+## 37. PAZAR LANSMANI + UTM TRACKING DİSİPLİNİ (TUR #102 — 9 May 2026)
+
+**Kural:** Tüm lead'ler **UTM kaynak takibi** ile kaydedilir. Pazarlama bütçesi **YOK** (Madde 24.14 — organic + içerik). Reklam bütçesi açılırsa Madde 24.14 + 25.3 R1 birlikte değerlendirilir (TUR #110+ kararı).
+
+**UTM zinciri (mevcut altyapı korundu):**
+1. Public URL `?utm_source=...&utm_medium=...&utm_campaign=...` → `lib/utm.ts captureUtmFromUrl()` sessionStorage 30 gün (KVKK güvenli)
+2. Lead form submit → `appendUtmToFormData()` ile FormData'ya UTM eklenir
+3. Backend Lead.utmSource/utmMedium/utmCampaign/utmTerm/utmContent/referrer/landingPage/gclid kaydı (zaten mevcut)
+4. `/dashboard/pazarlama` → `/api/analytics/marketing` → groupBy(utmSource/utmCampaign) raporu
+
+**Yeni eklenenler (TUR #102):**
+- `<UtmLinkBuilder />` — pazarlama ekibi link üretici (7 kanal + 6 hedef sayfa)
+- `<MarketingTextGenerator />` pazarlama dashboard'a entegre
+- 2 yeni RBAC modülü: `campaignBuilder` + `socialCalendar` (SALES + REPRESENTATIVE)
+
+**Yasak:**
+- ❌ UTM yokken Lead create reddetmek (organic/direct lead default davranış)
+- ❌ Google Ads / Meta Ads API entegrasyonu (per-API maliyet — Madde 24.14)
+- ❌ Reklam bütçesi tahsisi mimarın tek başına (CEO yazılı onay — Madde 17.5)
+
+---
+
+## 38. e-BARO DOĞRULAMA DİSİPLİNİ (TUR #103 — 9 May 2026)
+
+**Kural:** Avukat baro doğrulaması **manuel altyapı + adapter pattern**. TBB resmi API onayı yok — gelecek API kolayca eklenir (TUR #110+ adayı).
+
+**Pattern:**
+- `src/services/ebaro.service.js` — `validateSicilFormat`, `buildLookupUrl`, `manualVerify`, `revokeVerification`, `apiVerify` (placeholder, 503)
+- `POST /api/onay/ebaro/verify` — ADMIN manuel doğrulama + ActivityLog (KVKK m.10)
+- `POST /api/onay/ebaro/revoke` — doğrulama iptali
+- `GET /api/onay/ebaro/lookup-url` — sicil format validation + URL üretici
+- User schema: `ebaroVerifiedAt`, `ebaroVerifiedBy`, `ebaroVerifyMethod`, `ebaroVerifyNotes`
+- ADMIN UI (`/dashboard/hukukcu-onay`): "🔗 e-baro.org.tr'de Aç" link + "✓ e-baro Doğruladım" buton
+
+**Yasak:**
+- ❌ Otomatik onay (e-baro doğrulaması olmadan ONAYLANDI)
+- ❌ Web scraping (TBB sayfasını otomatik parse etme — TCK m.243 risk)
+- ❌ Manuel doğrulama logsuz (KVKK m.10 ihlali)
+
+---
+
+## 39. UYAP YASAL SINIRLAR DİSİPLİNİ (TUR #104 — 9 May 2026 — KRİTİK)
+
+**Kural:** UYAP entegrasyonu **MANUEL veri girişi** ile sınırlıdır. Gerçek API entegrasyonu Adalet Bakanlığı kurumsal sözleşmesi + avukat e-imza altyapısı + KVKK denetim sonrası eklenir (TUR #110+).
+
+**TCK m.243 (Bilişim Suçu) Koruma — KIRMIZI ÇİZGİLER:**
+- ❌ UYAP'a yetkisiz API isteği YASAK
+- ❌ UYAP web sayfası scraping YASAK
+- ❌ Avukat e-imza yapay simülasyon YASAK
+- ❌ Vatandaş portalı otomatik scraping YASAK
+
+**İzinli:**
+- ✅ Manuel veri girişi (avukat doldurur)
+- ✅ UYAP web link açma (yeni sekmede, kullanıcı tıklar)
+- ✅ Manuel duruşma takibi (mevcut `Durusma` modeli + `/leads/:id/durusmalar` endpoint — Madde 14.3 duplikat yasak)
+- ✅ Adapter pattern (`uyap.service.js` `validateEsasNo`, `getDosyaTurleri`, `fetchDosyaFromAPI` placeholder)
+- ✅ Yasal süreç sonrası API entegrasyonu (TUR #110+)
+
+**Schema:** Lead.uyapDosyaTuru, Lead.uyapNotlar (yeni). uyapDosyaNo/Mahkeme/Durum mevcut. **Hearing modeli EKLENMEDİ** — Durusma korunur (Madde 14.3).
+
+**Endpoint'ler:**
+- `GET /api/uyap/reference` — dropdown listeleri
+- `PATCH /api/leads/:leadId/uyap` — manuel veri güncelle (`requirePermission("uyap","write")` + LAWYER assignments)
+
+**UI:**
+- `<UyapPanel leadId initial />` — bağımsız komponent
+- `/dashboard/uyap-yasal-bilgi` — KIRMIZI çizgi açıklaması
+
+**Yasak:**
+- ❌ UYAP API'sine canlı bağlantı denemesi (TCK m.243)
+- ❌ E-imza simülasyonu (sahte kimlik suçu)
+- ❌ Hearing modeli (mevcut Durusma korunur — Madde 14.3)
+
+---
+
 ## 34. KAPANIŞ — NİYE BU ANAYASA VAR
 
 Tedbirge.ai 20 bin satır iş kalitesi backend kodu olan, **Türkiye'de rakipsiz mimariye** sahip bir LegalTech projesi.  
@@ -3803,10 +3895,10 @@ Mehmet Bey sahaya çıkabilsin diye bu disiplin var.
 
 ---
 
-**— Tedbirge Mimari Anayasası v1.23.1**  
-**Toplam 105 TUR · 430+ atom sapma 0 · 56 kalibrasyon · 45 mimar hatası → 52 anayasa maddesi**  
-**🎉 KURUMSAL ÜRETİM TAM ÇALIŞIR + AUTH BLOB PATTERN 🎉**  
-**Aktif Kesit:** TUR #100.10 HOTFIX KAPALI (useAuthenticatedBlob hook — img/a auth fix, Madde 13.2 R1 yeni)  
+**— Tedbirge Mimari Anayasası v1.24.0**  
+**Toplam 109 TUR · 476+ atom sapma 0 · 56 kalibrasyon · 45 mimar hatası → 56 anayasa maddesi**  
+**🚀 PAZAR LANSMANI HAZIR + e-BARO + UYAP YASAL SINIRLARDA 🚀**  
+**Aktif Kesit:** TUR #101+#102+#103+#104 BİRLEŞİK KAPALI (AI metin + UTM + e-baro + UYAP manuel — Madde 36+37+38+39 yeni)  
 **Tüm sürüm geçmişi + TUR detayları + atom kayıtları: `tedbirge-os/MIMARI_KARARLAR.md`**
 
 **Versiyon geçmişi: tedbirge-os/MIMARI_KARARLAR.md**  

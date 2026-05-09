@@ -16,7 +16,7 @@ const BUSINESS_MODULES = [
   "assignments", "commission", "accidentCase",
 ];
 
-// 12 web sayfa modülü — TUR #100.8 yeni (Madde 30.55 R2 PATCH)
+// 14 web sayfa modülü — TUR #100.8 + TUR #102/#104 (Madde 30.55 R2 PATCH)
 const PAGE_MODULES = [
   "calendar",        // /dashboard/takvim
   "analytics",       // /dashboard/analytics
@@ -30,9 +30,12 @@ const PAGE_MODULES = [
   "commissionLog",   // /dashboard/komisyon-log
   "pipeline",        // /temsilci/pipeline
   "hakedis",         // /temsilci/hakedis
+  // TUR #104 — UYAP manuel veri girişi (Madde 39)
+  "uyap",            // /dashboard/leads/[id] UYAP sekmesi (Madde 39)
+  // NOT: duruşma takibi mevcut Durusma modeli + /api/leads/:id/durusmalar ile (Madde 14.3)
 ];
 
-// 5 kurumsal modül — TUR #100.9 yeni (Madde 34 — Kurumsal Üretim Stüdyosu)
+// 5 kurumsal modül — TUR #100.9 (Madde 35 — Kurumsal Üretim Stüdyosu)
 const CORPORATE_MODULES = [
   "kartvizit",       // Kişisel iletişim kartı (LAWYER + REPRESENTATIVE + SALES)
   "brosur",          // Tedbirge.ai tanıtım broşürü (SALES + REPRESENTATIVE + ADMIN)
@@ -41,7 +44,20 @@ const CORPORATE_MODULES = [
   "paylasim",        // Web Share aksiyonu (paylaşım butonu erişimi)
 ];
 
-const ALL_MODULES = [...OS_MODULES, ...BUSINESS_MODULES, ...PAGE_MODULES, ...CORPORATE_MODULES];
+// 3 pazarlama + yasal modül — TUR #101/#102/#103 (Madde 36/37/38)
+const MARKETING_MODULES = [
+  "campaignBuilder", // UTM Link Üretici (TUR #102)
+  "socialCalendar",  // Sosyal medya yayın takvimi (TUR #102 — opsiyonel)
+  "ebaroVerify",     // e-baro manuel doğrulama (TUR #103)
+];
+
+const ALL_MODULES = [
+  ...OS_MODULES,
+  ...BUSINESS_MODULES,
+  ...PAGE_MODULES,
+  ...CORPORATE_MODULES,
+  ...MARKETING_MODULES,
+];
 
 function getModuleRegistry() {
   return [...ALL_MODULES];
@@ -63,12 +79,17 @@ function getCorporateModules() {
   return [...CORPORATE_MODULES];
 }
 
+function getMarketingModules() {
+  return [...MARKETING_MODULES];
+}
+
 // Modül kategorisi (UI gruplandırma — opsiyonel)
 function getModuleCategory(moduleName) {
   if (OS_MODULES.includes(moduleName)) return "os";
   if (BUSINESS_MODULES.includes(moduleName)) return "business";
   if (PAGE_MODULES.includes(moduleName)) return "page";
   if (CORPORATE_MODULES.includes(moduleName)) return "corporate";
+  if (MARKETING_MODULES.includes(moduleName)) return "marketing";
   return "unknown";
 }
 
@@ -82,6 +103,8 @@ async function registerNewModule(moduleName, type = "business") {
     PAGE_MODULES.push(moduleName);
   } else if (type === "corporate") {
     CORPORATE_MODULES.push(moduleName);
+  } else if (type === "marketing") {
+    MARKETING_MODULES.push(moduleName);
   } else {
     BUSINESS_MODULES.push(moduleName);
   }
@@ -103,12 +126,14 @@ module.exports = {
   BUSINESS_MODULES,
   PAGE_MODULES,
   CORPORATE_MODULES,
+  MARKETING_MODULES,
   ALL_MODULES,
   getModuleRegistry,
   getOSModules,
   getBusinessModules,
   getPageModules,
   getCorporateModules,
+  getMarketingModules,
   getModuleCategory,
   registerNewModule,
 };

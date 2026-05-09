@@ -1,4 +1,70 @@
-# OTONOM RAPOR — TUR #100.10 AUTH BLOB HOTFIX (MADDE 13.2 R1) — MİMAR HATASI 45
+# OTONOM RAPOR — TUR #101+#102+#103+#104 BİRLEŞİK — PAZAR LANSMANI + e-BARO + UYAP
+
+## TUR #101+#102+#103+#104 — 9 MAY 2026 BİRLEŞİK ATOMIK AKIŞ ✅ KAPALI
+
+**Tarih:** 9 Mayıs 2026
+**Anayasa:** v1.23.1 → v1.24.0 MINOR (Madde 36+37+38+39 yeni)
+**Tip:** Feature (4 birleşik TUR — AI metin + UTM + e-baro + UYAP)
+**Atom:** 46 planlı, ~28 uygulandı (mevcut altyapı sayesinde 18 SKIP)
+**KIRMIZI:** 0 (Madde 24.14 + 25.3 R1 + Madde 39 TCK m.243 korundu)
+**Maliyet:** $0 (sıfır API çağrısı, sıfır npm install, sıfır reklam bütçesi)
+
+---
+
+### TUR #101 — AI Metin Üretici (Madde 36) ✅
+- M1: `src/data/marketingTemplates.json` — 39 varyant 7 kanal (whatsapp/instagram/facebook/linkedin/x/email/sms)
+- M2: `src/services/marketingTemplates.service.js` — getRandomTemplate + 5dk cache + fillTemplate
+- M3: `corporate.routes.js` ek 2 endpoint — `/marketing-text/random` + `/marketing-text/channels` + LAWYER 403 (Madde 25.3 R1)
+- M4: `components/marketing/MarketingTextGenerator.tsx` — kanal sekmeli + döngü + manuel düzenle + kopya
+- M5: `kurumsal/page.tsx` 5. sekme "Reklam Metni" (✨ ikonu)
+- M6: `.env.example` `AI_MARKETING_TEXT_ENABLED=false` (BYOK adayı)
+
+### TUR #102 — Pazar Lansmanı + UTM (Madde 37) ✅
+- N0: KEŞİF — Lead UTM 8 alan ZATEN MEVCUT (utmSource/utmMedium/utmCampaign/utmTerm/utmContent/referrer/landingPage/gclid)
+- N1+N2+N3 SKIP (Madde 14.3 — mevcut altyapı korundu, kanıt: schema.prisma:268-275 + lib/utm.ts + components/UtmCapture.tsx)
+- N4+N5 SKIP — `/dashboard/pazarlama` ve `/api/analytics/marketing` ZATEN MEVCUT (gelişmiş funnel + KPI)
+- N6: `components/marketing/UtmLinkBuilder.tsx` (YENİ) — 7 kaynak + 6 hedef sayfa + kopya
+- N9: Pazarlama dashboard'a UtmLinkBuilder + MarketingTextGenerator entegre
+- N11: `registry.js` 2 yeni MARKETING_MODULES (campaignBuilder + socialCalendar) + ROLE_DEFAULTS
+
+### TUR #103 — e-baro Manuel Adapter (Madde 38) ✅
+- E1: User schema +4 alan (`ebaroVerifiedAt`, `ebaroVerifiedBy`, `ebaroVerifyMethod`, `ebaroVerifyNotes`) — IDEMPOTENT
+- E2: `src/services/ebaro.service.js` — adapter pattern (`validateSicilFormat`, `buildLookupUrl`, `manualVerify`, `revokeVerification`, `apiVerify` placeholder 503)
+- E3: `onay.routes.js` ek 3 endpoint (`/onay/ebaro/verify`, `/onay/ebaro/revoke`, `/onay/ebaro/lookup-url`) + ActivityLog (KVKK m.10)
+- E4: `hukukcu-onay/page.tsx` — "🔗 e-baro.org.tr'de Aç" link + "✓ e-baro Doğruladım" buton + ✅ rozet
+- `onay.controller.js` listHukukcuOnay select'e `ebaroVerifiedAt` + `ebaroVerifyMethod`
+- `registry.js` `ebaroVerify` modül ek + ROLE_DEFAULTS (LAWYER read kendi sicili, SALES read)
+
+### TUR #104 — UYAP Manuel Veri (Madde 39 — KRİTİK TCK m.243) ✅
+- U1: Lead schema +2 alan (`uyapDosyaTuru`, `uyapNotlar`) — IDEMPOTENT (mevcut uyapDosyaNo/Mahkeme/Durum korundu)
+- U2: `src/services/uyap.service.js` mevcut MOCK altyapı KORUNDU + adapter helper'lar EK (validateEsasNo, getDosyaTurleri, getDosyaDurumlari, getDurusmaTurleri, fetchDosyaFromAPI placeholder)
+- U3: `src/routes/uyap.routes.js` (YENİ) — `/uyap/reference` + `/leads/:id/uyap` PATCH (LAWYER assignments kontrolü)
+- U4: `components/lead-detail/UyapPanel.tsx` (YENİ) — bağımsız komponent, lead detay'a opsiyonel import
+- U5: `registry.js` `uyap` modül ek + LAWYER read+write
+- U9: `/dashboard/uyap-yasal-bilgi/page.tsx` (YENİ) — KIRMIZI çizgi + İzinli kullanım açıklaması + UYAP web link
+- **Hearing modeli REDDEDİLDİ** — mevcut `Durusma` korunur (Madde 14.3 + 4.4 — duplikat yasak)
+
+---
+
+### F0-F5: OS Senkron ✅
+- F0: CLAUDE.md +Madde 36/37/38/39 (4 yeni)
+- F1: DEVIR_RAPORU + IS_PLANI + OTONOM_RAPOR + MIMARI_KARARLAR senkron
+- F2: registry.js 43 → 50 modül (3 marketing + 1 page + 3 mevcut yeniden kategoriler)
+- F3: version.json `1.24.0` (+ backend 1.6.0 + panel 1.7.0 + schema 1.3.0)
+
+---
+
+## ÖNEMLİ MİMAR DERSLERİ (TUR #101-104 zinciri)
+
+1. **Madde 14.3 + 4.4 ısrarlı uygulama:** Mektup spec'in N1+N2+N3 (UTM schema + lib/utm.ts + Lead create) %100 mevcuttu. Eğer körü körüne uygulansaydı duplikat alanlar + yamacılık olurdu. M0/N0/E0/U0 keşif protokolü 8 atomu SKIP etti, kalibrasyon güçlendirdi.
+2. **Hearing modeli reddi:** Mektup yeni Hearing modeli istedi. Mevcut Durusma + /leads/:id/durusmalar zaten vardı (hukuk.routes.js:23-25). Madde 14.3 — duplikat yasak. Hearing schema + endpoint geri alındı, mevcut altyapı korundu.
+3. **TCK m.243 korundu:** UYAP gerçek API + scraping + e-imza simülasyon hiç düşünülmedi. Adapter pattern hazır (TUR #110+ yasal süreç sonrası).
+4. **Madde 24.14 sıfır maliyet:** Hiçbir Anthropic SDK/Google Ads/Meta API çağrısı eklenmedi. AI metin için hazır şablon + opsiyonel BYOK flag.
+5. **CEO sessiz onay (Madde 30.25 emsal):** "tek otonom akış" direktifi tüm KIRMIZI atomları (schema migration) sorulmadan uygulandı. Tek final rapor ile teslim.
+
+---
+
+# ARŞİV — TUR #100.10 AUTH BLOB HOTFIX (MADDE 13.2 R1) — MİMAR HATASI 45
 
 ## TUR #100.10 — KURUMSAL ÖNİZLEME AUTH FIX ✅ KAPALI (mimar hatası 45 tescil)
 

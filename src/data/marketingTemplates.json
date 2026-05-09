@@ -1,0 +1,323 @@
+{
+  "version": "1.0.0",
+  "lastUpdated": "2026-05-09",
+  "_disclaimer": "TUR #101 — Madde 24.14 (sifir maliyet) + Madde 25.3 R1 (TBB Reklam Yasagi). Hazir sablon kutuphanesi. Manuel duzenleme korunur.",
+  "templates": [
+    {
+      "id": "whatsapp-1",
+      "channel": "whatsapp",
+      "category": "tanitim",
+      "tone": "samimi",
+      "text": "Merhaba 👋 Trafik veya iş kazası geçirdiniz mi? Tedbirge.ai ile **ücretsiz** ön değerlendirme alabilir, hakkınız varsa avukatla buluşturuluyorsunuz. 👉 https://tedbirge.ai",
+      "tags": ["trafik", "is-kazasi", "ucretsiz"]
+    },
+    {
+      "id": "whatsapp-2",
+      "channel": "whatsapp",
+      "category": "tanitim",
+      "tone": "profesyonel",
+      "text": "Tedbirge.ai — Türkiye'nin AI Destekli Hukuk Asistanı. ✅ Ücretsiz ön değerlendirme ✅ Deneyimli avukat ortağımızla buluşma ✅ KVKK uyumlu. 🔗 tedbirge.ai",
+      "tags": ["marka", "guven"]
+    },
+    {
+      "id": "whatsapp-3",
+      "channel": "whatsapp",
+      "category": "soru",
+      "tone": "samimi",
+      "text": "Trafik kazasında 2 yıl, iş kazasında 10 yıl zamanaşımı var biliyor muydunuz? ⏰ Hakkınızı kaybetmeden başvurun. Ücretsiz: tedbirge.ai",
+      "tags": ["zamanasimi", "uyari"]
+    },
+    {
+      "id": "whatsapp-4",
+      "channel": "whatsapp",
+      "category": "egitim",
+      "tone": "bilgilendirici",
+      "text": "Trafik kazasında üç tür tazminat var:\n1️⃣ Sigorta tazminatı\n2️⃣ Maddi-manevi tazminat\n3️⃣ İş gücü kaybı\n\nÜcretsiz AI ön değerlendirme: tedbirge.ai",
+      "tags": ["egitim", "trafik"]
+    },
+    {
+      "id": "whatsapp-5",
+      "channel": "whatsapp",
+      "category": "soru",
+      "tone": "etkileyici",
+      "text": "🚨 Hakkınızı bilmiyor olabilirsiniz!\n\nTrafik veya iş kazasında zarar mı gördünüz?\n\nTedbirge.ai — ücretsiz AI ön değerlendirme.\n\n👉 tedbirge.ai",
+      "tags": ["uyari", "haklar"]
+    },
+    {
+      "id": "whatsapp-6",
+      "channel": "whatsapp",
+      "category": "tanitim",
+      "tone": "kisa",
+      "text": "Tedbirge.ai 🛡️\nTürkiye'nin AI destekli hukuk asistanı.\nÜcretsiz ön değerlendirme.\n👉 tedbirge.ai",
+      "tags": ["kisa", "marka"]
+    },
+    {
+      "id": "whatsapp-7",
+      "channel": "whatsapp",
+      "category": "egitim",
+      "tone": "bilgilendirici",
+      "text": "İş kazasında üç ana tazminat:\n1️⃣ SGK geçici/sürekli iş göremezlik\n2️⃣ İşveren tazminatı\n3️⃣ Maddi-manevi tazminat\n\nÜcretsiz AI ön değerlendirme: tedbirge.ai",
+      "tags": ["egitim", "is-kazasi"]
+    },
+    {
+      "id": "whatsapp-8",
+      "channel": "whatsapp",
+      "category": "tanitim",
+      "tone": "samimi",
+      "text": "Sevgili komşum/dostum 🤝\nTrafik veya iş kazası geçirdiyseniz Tedbirge.ai ile başvurabilirsiniz. AI ön değerlendirme + uzman avukat. Ücretsiz.\n👉 tedbirge.ai",
+      "tags": ["samimi", "kisisel"]
+    },
+    {
+      "id": "whatsapp-9",
+      "channel": "whatsapp",
+      "category": "takip",
+      "tone": "samimi",
+      "text": "Geçen gün Tedbirge.ai'yi söylemiştim. ⏰ Tazminat zamanaşımı var. Ücretsiz ön değerlendirme: tedbirge.ai",
+      "tags": ["takip"]
+    },
+    {
+      "id": "whatsapp-10",
+      "channel": "whatsapp",
+      "category": "soru",
+      "tone": "etkileyici",
+      "text": "Trafik kazasında ölüm/yaralanma yaşadınız mı?\nİş kazasında zarar gördünüz mü?\n\nHakkınızı almak ücretsiz başlar. 🛡️\nTedbirge.ai",
+      "tags": ["acil", "haklar"]
+    },
+    {
+      "id": "instagram-1",
+      "channel": "instagram",
+      "category": "tanitim",
+      "tone": "modern",
+      "text": "Hakkınızı almak için beklemeyin. ⚖️\n\nTedbirge.ai — AI destekli hukuk asistanı.\n\n#trafikkazası #işkazası #tazminat #hukuk",
+      "tags": ["sosyal", "hashtag"]
+    },
+    {
+      "id": "instagram-2",
+      "channel": "instagram",
+      "category": "egitim",
+      "tone": "bilgilendirici",
+      "text": "🚗 Trafik kazası geçirdiniz?\n\n✅ Sigorta tazminatı\n✅ Maddi-manevi tazminat\n✅ İş gücü kaybı\n\nÜcretsiz AI ön değerlendirme ➡️ tedbirge.ai\n\n#trafikkazası #tazminat #hukuk",
+      "tags": ["egitim", "trafik"]
+    },
+    {
+      "id": "instagram-3",
+      "channel": "instagram",
+      "category": "egitim",
+      "tone": "bilgilendirici",
+      "text": "🏗️ İş kazası geçirdiniz?\n\n✅ SGK tazminatı\n✅ İşveren tazminatı\n✅ Sürekli iş göremezlik\n\n📞 0850 303 3 724\n🔗 tedbirge.ai\n\n#işkazası #SGK #tazminat",
+      "tags": ["egitim", "is-kazasi"]
+    },
+    {
+      "id": "instagram-4",
+      "channel": "instagram",
+      "category": "uyari",
+      "tone": "etkileyici",
+      "text": "⏰ ZAMANAŞIMI UYARISI ⏰\n\n🚗 Trafik kazası: 2 yıl\n🏗️ İş kazası: 10 yıl\n\nHakkınızı kaybetmeyin.\nÜcretsiz: tedbirge.ai\n\n#zamanaşımı #tazminat",
+      "tags": ["uyari", "zamanasimi"]
+    },
+    {
+      "id": "instagram-5",
+      "channel": "instagram",
+      "category": "marka",
+      "tone": "modern",
+      "text": "Türkiye'nin AI Destekli Hukuk Asistanı 🛡️\n\n✓ Bağımsız\n✓ Ücretsiz Ön Değerlendirme\n✓ Profesyonel\n\ntedbirge.ai\n\n#legaltech #hukuk #ai",
+      "tags": ["marka", "kurumsal"]
+    },
+    {
+      "id": "instagram-6",
+      "channel": "instagram",
+      "category": "soru",
+      "tone": "samimi",
+      "text": "Bir kazanın ardından nereden başlayacağınızı bilmiyor musunuz?\n\nTedbirge.ai size yol gösterir. AI ön değerlendirme + uzman avukat.\n\n👉 tedbirge.ai\n\n#kaza #tazminat #yardım",
+      "tags": ["soru", "yardim"]
+    },
+    {
+      "id": "instagram-7",
+      "channel": "instagram",
+      "category": "egitim",
+      "tone": "bilgilendirici",
+      "text": "📋 Kaza sonrası 5 önemli adım:\n\n1. Sağlık raporu alın\n2. Tutanak tutun\n3. Tanık bilgilerini alın\n4. Sigorta bildiriminizi yapın\n5. Hukuki destek için Tedbirge.ai\n\n👉 tedbirge.ai\n\n#kaza #ipuçları",
+      "tags": ["egitim", "rehber"]
+    },
+    {
+      "id": "instagram-8",
+      "channel": "instagram",
+      "category": "tanitim",
+      "tone": "modern",
+      "text": "AI ön değerlendirme. Uzman avukat ortağımız. KVKK uyumlu altyapı.\n\nTedbirge.ai 🛡️\n\n#legaltech #yapayzeka #hukuk #tazminat",
+      "tags": ["tanitim", "kurumsal"]
+    },
+    {
+      "id": "facebook-1",
+      "channel": "facebook",
+      "category": "tanitim",
+      "tone": "uzun",
+      "text": "Türkiye'nin AI Destekli Hukuk Asistanı: Tedbirge.ai\n\n🚗 Trafik kazası mı? 🏗️ İş kazası mı?\n\n✅ Ücretsiz AI ön değerlendirme\n✅ Deneyimli avukat ortağımızla buluşma\n✅ KVKK uyumlu\n✅ ISO 27001 hazırlığında\n\nHakkınızı almak için beklemeyin. Hemen başvurun:\nhttps://tedbirge.ai",
+      "tags": ["uzun", "kapsamli"]
+    },
+    {
+      "id": "facebook-2",
+      "channel": "facebook",
+      "category": "egitim",
+      "tone": "uzun",
+      "text": "Trafik kazasında hakkınız nelerdir?\n\nTürkiye'de trafik kazası mağdurları için 3 ana tazminat türü vardır:\n\n1️⃣ Sigorta Tazminatı (ZMSS, KASKO)\n2️⃣ Maddi Tazminat (tedavi, kazanç kaybı)\n3️⃣ Manevi Tazminat (acı, ızdırap)\n\nZamanaşımı 2 yıl. Geç kalmayın.\n\nÜcretsiz AI ön değerlendirme:\nhttps://tedbirge.ai",
+      "tags": ["egitim", "trafik"]
+    },
+    {
+      "id": "facebook-3",
+      "channel": "facebook",
+      "category": "soru",
+      "tone": "samimi",
+      "text": "Bir trafik veya iş kazasının ardından ne yapacağınızı bilmiyor musunuz?\n\nTedbirge.ai size yol gösterir:\n\n• AI ön değerlendirme\n• Uzman avukat eşleşmesi\n• Süreç şeffaf takibi\n• KVKK uyumlu\n\nHepsi ücretsiz başlar.\n\nhttps://tedbirge.ai",
+      "tags": ["soru", "yardim"]
+    },
+    {
+      "id": "facebook-4",
+      "channel": "facebook",
+      "category": "uyari",
+      "tone": "etkileyici",
+      "text": "⏰ TAZMİNAT HAKKINIZI KAYBETMEYİN! ⏰\n\nTrafik kazasında 2 yıl, iş kazasında 10 yıl zamanaşımı bulunmaktadır.\n\nGeç kalmadan ücretsiz AI ön değerlendirme:\nhttps://tedbirge.ai",
+      "tags": ["uyari", "zamanasimi"]
+    },
+    {
+      "id": "linkedin-1",
+      "channel": "linkedin",
+      "category": "kurumsal",
+      "tone": "profesyonel",
+      "text": "Tedbirge.ai — Türkiye'de hukuk teknolojisinde yeni bir dönem.\n\nAI destekli ön değerlendirme + uzman avukat ağı + KVKK uyumlu altyapı ile, trafik ve iş kazası mağdurlarının hakkına ulaşmasını kolaylaştırıyoruz.\n\n🛡️ Bağımsız + Ücretsiz + Profesyonel\n\nhttps://tedbirge.ai",
+      "tags": ["kurumsal", "b2b"]
+    },
+    {
+      "id": "linkedin-2",
+      "channel": "linkedin",
+      "category": "egitim",
+      "tone": "profesyonel",
+      "text": "Türkiye'de trafik kazası tazminatlarında zamanaşımı genellikle 2 yıl, iş kazasında ise 10 yıl olarak uygulanmaktadır.\n\nTedbirge.ai ile mağdurlar:\n• AI destekli ön değerlendirme alır\n• Deneyimli avukat ortağımızla eşleşir\n• Süreçlerini şeffaf takip eder\n\n🔗 https://tedbirge.ai",
+      "tags": ["bilgi", "uzman"]
+    },
+    {
+      "id": "linkedin-3",
+      "channel": "linkedin",
+      "category": "tanitim",
+      "tone": "profesyonel",
+      "text": "LegalTech sektörü Türkiye'de hızla büyüyor. Tedbirge.ai bu büyümede AI destekli ön değerlendirme + KVKK uyumlu altyapı + güçlü avukat ağı ile fark yaratıyor.\n\nGirişimciler, hukuk profesyonelleri ve yatırımcıların dikkatine.\n\n🔗 https://tedbirge.ai",
+      "tags": ["b2b", "girisim"]
+    },
+    {
+      "id": "linkedin-4",
+      "channel": "linkedin",
+      "category": "kurumsal",
+      "tone": "profesyonel",
+      "text": "Tedbirge.ai ekibi olarak hukuk teknolojisinde 3 ilkeye bağlıyız:\n\n1. Bağımsızlık — vendor lock-in yok\n2. Erişilebilirlik — ücretsiz ön değerlendirme\n3. Şeffaflık — KVKK uyumlu, açık süreç\n\n🛡️ tedbirge.ai",
+      "tags": ["degerler", "kurumsal"]
+    },
+    {
+      "id": "x-1",
+      "channel": "x",
+      "category": "kisa",
+      "tone": "etkileyici",
+      "text": "Trafik kazası → 2 yıl zamanaşımı ⏰\nİş kazası → 10 yıl zamanaşımı ⏰\n\nHakkınızı almak için beklemeyin.\n👉 tedbirge.ai\n\n#tazminat #trafikkazası #işkazası",
+      "tags": ["kisa", "uyari"]
+    },
+    {
+      "id": "x-2",
+      "channel": "x",
+      "category": "kisa",
+      "tone": "samimi",
+      "text": "Türkiye'nin AI destekli hukuk asistanı — Tedbirge.ai 🛡️\n\nÜcretsiz ön değerlendirme. Deneyimli avukat ortağımızla buluşma.\n\n👉 tedbirge.ai",
+      "tags": ["marka"]
+    },
+    {
+      "id": "x-3",
+      "channel": "x",
+      "category": "egitim",
+      "tone": "bilgilendirici",
+      "text": "Trafik kazasında 3 tür tazminat:\n• Sigorta\n• Maddi\n• Manevi\n\nÜcretsiz AI ön değerlendirme: tedbirge.ai\n\n#tazminat",
+      "tags": ["egitim"]
+    },
+    {
+      "id": "x-4",
+      "channel": "x",
+      "category": "marka",
+      "tone": "etkileyici",
+      "text": "🛡️ Bağımsız\n🛡️ Ücretsiz Ön Değerlendirme\n🛡️ Profesyonel\n\ntedbirge.ai — Türkiye'nin AI destekli hukuk asistanı.\n\n#legaltech",
+      "tags": ["marka"]
+    },
+    {
+      "id": "x-5",
+      "channel": "x",
+      "category": "kisa",
+      "tone": "etkileyici",
+      "text": "Bir kazanın ardından nereden başlayacağınızı bilmiyor musunuz?\n\ntedbirge.ai size yol gösterir.\n\n#kaza #tazminat",
+      "tags": ["soru"]
+    },
+    {
+      "id": "email-1",
+      "channel": "email",
+      "category": "ilk-iletisim",
+      "tone": "profesyonel",
+      "subject": "Tedbirge.ai — Trafik / İş Kazası Tazminatınız İçin Ücretsiz Ön Değerlendirme",
+      "text": "Sayın {Ad Soyad},\n\nTedbirge.ai, Türkiye'nin AI destekli hukuk asistanı olarak trafik ve iş kazası mağdurlarının haklarını almak için profesyonel destek sunuyor.\n\nSize özel:\n✓ Ücretsiz AI ön değerlendirme\n✓ Deneyimli avukat ortağımızla eşleşme\n✓ Süreç şeffaf takibi\n✓ KVKK uyumlu altyapı\n\nİlgilenirseniz aşağıdaki bağlantıdan hemen başvuru yapabilirsiniz:\nhttps://tedbirge.ai\n\nSorularınız için: bilgi@tedbirge.ai\n\nSaygılarımla,\n{Sender Name}\nTedbirge.ai Ekibi",
+      "tags": ["resmi", "ilk-temas"]
+    },
+    {
+      "id": "email-2",
+      "channel": "email",
+      "category": "takip",
+      "tone": "samimi",
+      "subject": "Tedbirge.ai — Hatırlatma: Hakkınızı Almak İçin Beklemeyin",
+      "text": "Merhaba,\n\nGeçen gün size Tedbirge.ai'yi tanıttım. Ücretsiz AI ön değerlendirme fırsatımız hala geçerli.\n\nTrafik kazasında 2 yıl, iş kazasında 10 yıl zamanaşımı var. Hakkınızı kaybetmeyin.\n\n👉 https://tedbirge.ai\n\nKolay gelsin,\n{Sender Name}",
+      "tags": ["takip", "samimi"]
+    },
+    {
+      "id": "email-3",
+      "channel": "email",
+      "category": "tanitim",
+      "tone": "uzun",
+      "subject": "Türkiye'nin AI Destekli Hukuk Asistanı: Tedbirge.ai",
+      "text": "Merhaba,\n\nTedbirge.ai olarak hukuk teknolojisinde Türkiye'nin önde gelen platformlarından biriyiz. AI destekli ön değerlendirme + uzman avukat ortakları + KVKK uyumlu altyapı ile mağdurların hakkına ulaşmasını kolaylaştırıyoruz.\n\nNeler sunuyoruz:\n\n🚗 Trafik Kazası Tazminatı\n• Sigorta tazminatı (ZMSS, KASKO)\n• Maddi-manevi tazminat\n• İş gücü kaybı\n\n🏗️ İş Kazası Tazminatı\n• SGK tazminatı\n• İşveren tazminatı\n• Sürekli iş göremezlik\n\nİlgilenirseniz: https://tedbirge.ai\n\nSaygılarımla,\nTedbirge.ai Ekibi",
+      "tags": ["uzun", "kapsamli"]
+    },
+    {
+      "id": "email-4",
+      "channel": "email",
+      "category": "egitim",
+      "tone": "bilgilendirici",
+      "subject": "Tazminat Hakkınız Hakkında Bilmeniz Gerekenler",
+      "text": "Sayın {Ad Soyad},\n\nTrafik veya iş kazası geçirdiyseniz, hakkınız konusunda bilgilenmeniz önemli.\n\n📌 Önemli Bilgiler:\n\n• Trafik kazası zamanaşımı: 2 yıl (BK m.72)\n• İş kazası zamanaşımı: 10 yıl\n• Sigorta talepleri: Kaza tarihinden itibaren 2 yıl\n• Tazminat hesaplama: kusur oranı + maluliyet oranı + yaş + meslek\n\nDetaylı bilgi ve ücretsiz AI ön değerlendirme için:\nhttps://tedbirge.ai\n\nSaygılarımla,\nTedbirge.ai Ekibi",
+      "tags": ["egitim", "bilgi"]
+    },
+    {
+      "id": "sms-1",
+      "channel": "sms",
+      "category": "kisa",
+      "tone": "kisa",
+      "text": "Tedbirge.ai - Ucretsiz AI on degerlendirme. Trafik veya is kazasinda hakkinizi alin. tedbirge.ai",
+      "tags": ["kisa", "tanitim"]
+    },
+    {
+      "id": "sms-2",
+      "channel": "sms",
+      "category": "uyari",
+      "tone": "etkileyici",
+      "text": "ZAMANASIMI: Trafik 2 yil, Is kazasi 10 yil. Hakkinizi kaybetmeyin. Ucretsiz: tedbirge.ai",
+      "tags": ["uyari", "zamanasimi"]
+    },
+    {
+      "id": "sms-3",
+      "channel": "sms",
+      "category": "takip",
+      "tone": "samimi",
+      "text": "Merhaba, Tedbirge.ai size tazminat surecinizde yardimci olabilir. Ucretsiz on degerlendirme: tedbirge.ai",
+      "tags": ["takip"]
+    },
+    {
+      "id": "sms-4",
+      "channel": "sms",
+      "category": "tanitim",
+      "tone": "kisa",
+      "text": "Tedbirge.ai - Turkiye'nin AI destekli hukuk asistani. Ucretsiz basvuru: tedbirge.ai",
+      "tags": ["marka"]
+    }
+  ]
+}

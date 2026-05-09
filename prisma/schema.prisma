@@ -243,6 +243,9 @@ model Lead {
   uyapDurum             String?
   uyapMahkeme           String?
   uyapSonGuncelleme     DateTime?
+  // TUR #104 — UYAP manuel veri ek (Madde 39 — TCK m.243 koruma)
+  uyapDosyaTuru         String?
+  uyapNotlar            String?
   komisyonOrani         Float?           @default(20)
   gercekTazminat        Float?
   kusurOrani            Float?
@@ -389,6 +392,11 @@ model User {
   sozlesmeKabulIp             String?
   sozlesmeMetniHash           String?
   sozlesmeVersiyonu           String?              @default("v1.0-temsilci")
+  // TUR #103 — e-baro Manuel Doğrulama (Madde 38)
+  ebaroVerifiedAt             DateTime?
+  ebaroVerifiedBy             String?
+  ebaroVerifyMethod           String? // "MANUAL", "API" (gelecek)
+  ebaroVerifyNotes            String?
   assignments                 Assignment[]
   ChatSession                 ChatSession[]
   Contract                    Contract[]
