@@ -6,6 +6,51 @@
 
 ---
 
+## 10 Mayıs 2026 sabaha karşı — TUR #107 KARARI — TAM DONANIM (Anayasa v1.25.0 → v1.26.0 MINOR, 49. mimar hatası tescil — parçalı iş)
+
+**Karar:** Major refactor + 1 yeni modül + UX standartlaştırma:
+1. **Mağduriyet türü ayrımı** — Trafik+İş için Yaralanma/Vefat alt seçim, "Destekten Yoksun Kalma" buton kaldırıldı (alt kategori)
+2. **PMF tek-kaynak** — `lib/pmf.ts` yeni (TRH-2010), vefat+yaralanma ortak import (Madde 22.9 + 31.13 emsal)
+3. **Yaralanma lib ayrıştırma** — `lib/yaralanmaHesap.ts` yeni, page.tsx inline formül DRY refactor
+4. **Bekar mantık düzeltme** — çocuk alanı sadece evli için (TMK m.495), bekar geçişinde state cleanup
+5. **Aralık standardı** — ±%8 vefat / ±%15 yaralanma / ±%10 araç (Madde 31.14)
+6. **Step2Arac yeni** — Araç Değer Kaybı için bilgilendirici kart + /basvuru CTA (Madde 17.2 R1 tam senaryo)
+7. **URL backward compat** — `?turu=destekten` → Trafik+Vefat (Madde 14.3, eski linkler)
+
+**Sebep:**
+- CEO 10 May 00:30-00:45 production smoke 4 bulgu (yaralanma yok, bekar+çocuk çelişki, aralık uçurum, parçalı iş)
+- CEO direktifi (lafzen): *"Sen burada parçalı iş yapma yasağı var, tam donanımlı yap, yaralanma için bir seçenek yok, her şeyi düzgün tek seferde tamamla."*
+- Madde 24.14 sıfır maliyet korundu (lib refactor + form düzenleme, 0 API çağrısı)
+
+**Alternatif (mimar tarafından reddedildi):**
+- "Yaralanma" sonraki TUR'a bırakma — Madde 17.2 R1 ihlali (parçalı iş)
+- Tek aralık (±%15) tüm senaryolara — CEO uçurum bulgusu
+- Bekar+çocuk alanı koşulsuz — TMK m.495 + Madde 31.15 ihlali
+- Eski basit PMF tablosu yaralanma için koruma — Madde 22.9 tek-kaynak ihlali (TRH-2010 standardı tutarlılık)
+- Step2Arac eklemeden Araç Değer Kaybı için form — Madde 17.2 R1 (UI'da görünen seçenek için akış zorunlu)
+
+**Etki:**
+- Anayasa: v1.25.0 → v1.26.0 MINOR (Madde 17.2 R1 + 31.14 + 31.15 yeni)
+- Sürüm: panel 1.8.0 → 1.9.0 (sync-version.js otomatik — Madde 22.9 R2)
+- Mimar hatası: 48 → 49 (parçalı iş yasağı tescili)
+- Dosya: lib/pmf.ts YENİ + lib/yaralanmaHesap.ts YENİ + lib/vefatHesap.ts (PMF refactor) + page.tsx +208/-113
+- Maliyet: $0
+- **20 ardışık temiz TUR (#90 → #107) — REKOR**
+
+**Smoke kanıt (7 senaryo node hesap):**
+- Yaralanma 1+2: ±%15 standart, TRH-2010 PMF (yeni) ile değer
+- Vefat 3+4: ±%8 standart, CEO senaryosu uçurum kapandı (₺810k → ₺301k)
+- Bekar UI 5+6: render kontrol + bekar_yok AMBER kart
+- Araç 7: Step2Arac info kart + CTA
+
+**Mimar:** Claude Opus 4.7 (mektup yazımı) + Claude Code (otonom uygulama)
+
+**49. mimar hatası tescili — Parçalı İş Yasağı:** Public hesaplama sayfaları için **mektup öncesi tam senaryo matrisi** zorunlu (Madde 17.2 R1). Senaryo eksik bırakmak veya "sonraki TUR'a bırakmak" yasak. CEO smoke yakaladıkça 4 bulgu birikti (TUR #105 + #106 zinciri), tek mektupta TUR #107 düzeltti.
+
+**CEO doğrulama notu:** Yeni TRH-2010 PMF (yaş 45 → 24.85) ile yaralanma değerleri eski basit PMF (yaş 45 → 16) ile karşılaştırılınca %55 yüksek çıkar. Bu **Yargıtay standardı düzeltmesi** — 23 yıllık tecrübe ile CEO doğrulamalı.
+
+---
+
 ## 10 Mayıs 2026 — TUR #106 KARARI — ŞEHİR KALDIR + VEFAT TAZMİNATI MODÜLÜ (Anayasa v1.24.1 → v1.25.0 MINOR, 48. mimar hatası tescil)
 
 **Karar:** İki büyük iş tek mektupta:

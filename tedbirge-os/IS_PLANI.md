@@ -1,11 +1,19 @@
 # TEDBİRGE.AI YOL HARİTASI v1.0
-**Son güncelleme:** 10 Mayıs 2026 (⚖️ TUR #106 — Vefat tazminatı modülü canlı)
-**Anayasa versiyonu:** v1.25.0 MINOR (Madde 31.12 + 31.13 yeni)
+**Son güncelleme:** 10 Mayıs 2026 sabaha karşı (🛡️ TUR #107 — TAM DONANIM)
+**Anayasa versiyonu:** v1.26.0 MINOR (Madde 17.2 R1 + 31.14 + 31.15 yeni)
 **İlke:** MoSCoW + Now-Next-Later hibrit (Madde 24.5)
 
 ---
 
-## NOW — TUR #106 KAPALI ✅ (10 May 2026, feature+cleanup)
+## NOW — TUR #107 KAPALI ✅ (10 May 2026 sabaha karşı, major refactor)
+
+**Durum:** ✅ Tam donanım mektubu — CEO 4 bulgu (yaralanma seçeneği yok + bekar+çocuk çelişki + aralık uçurum + parçalı iş yasağı) tek mektupta düzeltildi. **20 ardışık temiz TUR (#90 → #107) — REKOR.** lib/pmf.ts tek-kaynak (TRH-2010) + lib/yaralanmaHesap.ts ayrıştırıldı + Step1 mağduriyet türü (Trafik+İş için) + Step2Arac + bekar state cleanup + aralık standardı (±%8 vefat / ±%15 yaralanma / ±%10 araç). Madde 17.2 R1 (parçalı iş yasağı) emsal kalıcı.
+
+**Sıradaki adaylar:** TUR #108 → CLAUDE.md modülerleştirme (200k+ char teknik borç KRİTİK) + 3 prerender bug fix + Niyazi sahaya çıkış desteği.
+
+---
+
+## ARŞİV — TUR #106 KAPALI ✅ (10 May 2026, feature+cleanup)
 
 **Durum:** ✅ Şehir alanı kaldırıldı (UX sade — hesapta kullanılmıyordu) + Vefat (Destekten Yoksun Kalma) hesaplama modülü canlı. `lib/vefatHesap.ts` TRH-2010 + 11 Yargıtay kombinasyonu + 5 senaryo smoke geçti. Step2Vefat formu (vefat eden bilgileri + mirasçılar dinamik) + Step3Vefat sonuç tablosu (mirasçı bazlı pay). Madde 31.12 + 31.13 yeni. CEO smoke ekranında destek payı tablosunu doğrulayabilir, mikro fix mümkün.
 
@@ -58,6 +66,7 @@
 | #105 ✅ | Tazminat Hesapla UX Fix (form etiketi/formül çelişkisi — label + default 0 + UX guard + dinamik renk, formül dokunulmadı Madde 14.3) | T0-T3 keşif + 3 atom fix (Step2 label/Step2 default/Step3 guard) | 0 | v1.24.1 PATCH |
 | #105.5 ✅ | Version Senkron Mikro Fix (sync-version.js çalıştırıldı: backend+panel package.json drift kapatıldı) | V0-V4 (5 atom, Madde 22.9 R2 yeni) | 0 | v1.24.1 PATCH (anayasa korundu) |
 | #106 ✅ | Şehir Kaldır + Vefat (Destekten Yoksun Kalma) Tazminat Modülü (lib/vefatHesap.ts TRH-2010 + Yargıtay 11 kombinasyon + Step2Vefat + Step3Vefat) | T0-T2 keşif + D0-D14 (15 atom, sehir kaldır + 462 satır vefat akışı) | 0 | v1.25.0 MINOR |
+| #107 ✅ | TAM DONANIM (Mağduriyet türü Trafik+İş için yaralanma/vefat alt seçim + lib/pmf.ts tek-kaynak + lib/yaralanmaHesap.ts + Step2Arac + bekar mantık state cleanup + aralık standardı ±%8/±%15/±%10) | T0-T3 keşif + D0-D17 (18 atom, panel +208/-113 satır, 3 lib + 1 yeni komponent) | 0 | v1.26.0 MINOR |
 | **TOPLAM** | **Tedbirge.ai 2.0** | 34 atom | 1 KIRMIZI | $0 maliyet |
 
 ## LATER — TUR #101+ Adayları

@@ -3818,6 +3818,68 @@ Copy:     navigator.clipboard.writeText(...)
 
 ---
 
+## 17.2 R1 — Public Hesaplama Tam Senaryo Haritası (TUR #107 — 10 May 2026, mimar hatası 49 tescil)
+
+**Kural:** Public hesaplama sayfası (tazminat, sigorta, harç hesaplama vb.) yapılırken mektup yazımından önce **tam senaryo matrisi** çıkarılır. Eksik senaryo bırakmak Madde 17.2 (Parçalı İş Yasağı) ihlalidir.
+
+**Senaryo matrisi formatı (örnek tazminat-hesapla):**
+| Kaza Türü | Mağduriyet | Form | Formül | Aralık |
+|-----------|-----------|------|--------|--------|
+| Trafik    | Yaralanma | Step2 (yaş+maaş+mal+kusur) | hesaplaYaralanmaTazminati | ±%15 |
+| Trafik    | Vefat     | Step2Vefat | hesaplaVefatTazminati | ±%8 |
+| İş        | Yaralanma | Step2 | hesaplaYaralanmaTazminati | ±%15 |
+| İş        | Vefat     | Step2Vefat | hesaplaVefatTazminati | ±%8 |
+| Araç      | -         | Step2Arac | (eksper raporu — başvuru CTA) | ±%10 |
+
+**Yasak:**
+- ❌ Bir senaryoyu tamamlayıp diğerini "TUR #X+'ya bırakma"
+- ❌ "Eksik senaryo varsa kullanıcı avukata yönlensin" pasif yaklaşımı (her senaryo için açık karar verilir: aktif form, info kart, veya gizleme)
+- ❌ UI'da görünen seçeneğin form/sonuç akışının bulunmaması
+
+**TUR #107 emsal (49. mimar hatası tescili):** TUR #106'da vefat hesaplaması eklendi ama yaralanma için ayrı lib çıkarılmadı + bekar+çocuk mantık çelişkisi açıkta kaldı + aralık tek standartı (±%15) tüm senaryolara uygulandı. CEO 10 May 00:30-00:45 production smoke ile 4 bulgu yakaladı → tek mektupta TUR #107 düzeltti.
+
+---
+
+## 31.14 — Tazminat Aralık Standardı (TUR #107 — 10 May 2026)
+
+**Kural:** Public hesaplama sonuçlarında belirtilen aralık (min-max), gerçekçi mahkeme sapmasını yansıtır. Tek standart (±%15 herkese) **YASAK** — kullanıcı güvenini sarsar (CEO senaryosu: vefat aralığı uçurum ₺810k fark).
+
+**Standart oranlar:**
+- **Vefat tazminatı:** **±%8** (mahkeme bilirkişi sapması düşük, faiz hariç)
+- **Yaralanma tazminatı:** **±%15** (sürekli iş göremezlik raporu sapması yüksek)
+- **Araç değer kaybı:** **±%10** (eksper sapması orta)
+- **Manevi tazminat:** ±%30 (hâkim takdiri yüksek — gelecek modülde)
+
+**UI zorunluluk:** Aralık altında *"Mahkeme bilirkişi raporuna göre ±%X sapma normaldir."* yorumu yazılır. Kullanıcı uçurum hissetmez.
+
+**Yasak:**
+- ❌ Tek aralık (±%15) tüm senaryolara (vefat/yaralanma/araç farklı sapma)
+- ❌ Aralık altında bilgilendirici yorum eksik (kullanıcı paniği)
+- ❌ Aralık değişikliği commit'inde Madde 31.14 referansı eksik
+
+---
+
+## 31.15 — Mirasçı Mantık Tutarlılığı (TUR #107 — 10 May 2026)
+
+**Kural:** Vefat tazminatı formlarında medeni hal seçimi ile mirasçı seçenekleri **hukuk gerçekliğine uymak** zorundadır.
+
+**Hukuki dayanak:**
+- TMK m.495 — Yasal mirasçılar zinciri (eş, altsoy, üstsoy)
+- Yargıtay 17. HD destekten yoksunluk içtihatları
+
+**Form kuralları:**
+- **Evli** seçilirse: Eş + çocuk + anne/baba alanları görünür
+- **Bekar** seçilirse: Sadece anne/baba alanları görünür (**çocuk GİZLENİR**)
+- **Bekar + evlilik dışı çocuk** vakası: Bilgilendirici uyarı + Avukat CTA (form karmaşıklaştırılmaz)
+- Bekar seçildiğinde state cleanup zorunlu: `esVarMi=false`, `cocukSayisi=0`, `cocukYaslari=[]`
+
+**Yasak:**
+- ❌ Bekar seçildiğinde çocuk alanı görünmesi (TUR #106 emsali — hukuk kullanıcısının zihninde çelişki)
+- ❌ State cleanup atlanması (kullanıcı evli→bekar geçişinde eski çocuk verisi hesapta kalır → yanlış kombinasyon)
+- ❌ Hukuki dayanak referansı (TMK m.495) yorum olarak eksik
+
+---
+
 ## 31.12 — Vefat (Destekten Yoksun Kalma) Hesaplama Disiplini (TUR #106 — 10 May 2026)
 
 **Kural:** Public hesaplama sayfasında vefat tazminatı, **Yargıtay 17. HD ve 4. HD destekten yoksunluk içtihatları** + **TRH-2010 Türkiye Hayat Tablosu** standardına dayalı hesaplanır. Her mirasçı için ayrı pay × yıllık gelir × PMF × kusur çarpanı uygulanır.
@@ -4010,10 +4072,11 @@ Mehmet Bey sahaya çıkabilsin diye bu disiplin var.
 
 ---
 
-**— Tedbirge Mimari Anayasası v1.25.0**  
-**Toplam 112 TUR · 501+ atom sapma 0 · 59 kalibrasyon · 48 mimar hatası → 58 anayasa maddesi**  
-**⚖️ VEFAT TAZMİNATI MODÜLÜ — Yargıtay 17. HD + 4. HD + TRH-2010 ⚖️**  
-**Aktif Kesit:** TUR #106 KAPALI (Şehir kaldır + Vefat hesaplama — Madde 31.12 + 31.13 yeni, 48. mimar hatası tescil — gereksiz UX yükü)  
+**— Tedbirge Mimari Anayasası v1.26.0**  
+**Toplam 113 TUR · 519+ atom sapma 0 · 60 kalibrasyon · 49 mimar hatası → 61 anayasa maddesi**  
+**🛡️ TAM DONANIM — Yaralanma + Vefat + Aralık Standardı + Bekar Mantık 🛡️**  
+**Aktif Kesit:** TUR #107 KAPALI (Mağduriyet türü + Yaralanma lib + PMF tek-kaynak + Bekar mantık + Aralık standardı — Madde 17.2 R1 + 31.14 + 31.15 yeni, 49. mimar hatası tescil — parçalı iş)  
+**20 ardışık temiz TUR (#90 → #107) — REKOR**  
 **Tüm sürüm geçmişi + TUR detayları + atom kayıtları: `tedbirge-os/MIMARI_KARARLAR.md`**
 
 **Versiyon geçmişi: tedbirge-os/MIMARI_KARARLAR.md**  

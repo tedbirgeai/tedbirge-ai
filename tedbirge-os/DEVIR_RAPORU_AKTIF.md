@@ -1,8 +1,8 @@
 # 🛡️ TEDBIRGE.AI — DEVİR RAPORU (AKTİF)
 
-📋 **ANAYASA:** v1.25.0 MINOR (Madde 31.12 + 31.13 yeni — Vefat hesaplama + Hukuki sabit disiplini)
-📂 **⚖️ VEFAT TAZMİNAT MODÜLÜ CANLI — Yargıtay 17. HD + 4. HD + TRH-2010 ⚖️**
-📅 **SON GÜNCELLEME:** 10 Mayıs 2026 (TUR #106 — şehir kaldır + vefat hesaplama, 19 ardışık temiz TUR #90→#106)
+📋 **ANAYASA:** v1.26.0 MINOR (Madde 17.2 R1 + 31.14 + 31.15 yeni — tam senaryo + aralık standardı + mirasçı mantık)
+📂 **🛡️ TAM DONANIM — yaralanma+vefat+aralık+bekar mantık tek mektup 🛡️**
+📅 **SON GÜNCELLEME:** 10 Mayıs 2026 sabaha karşı (TUR #107 — 20 ardışık temiz TUR #90→#107 REKOR)
 👤 **CEO Onay:** Mehmet DİNÇ — Madde 17.5 + 24.14 + 25.3 R1 + 30.25 + 36+37+38+39 sessiz onay
 🤖 **Mimar:** Claude Opus 4.7 (sohbet) + Claude Code (otonom uygulama, bypass açık)
 🌟 **Tarih:** 9 Mayıs 2026 — 4 BİRLEŞİK TUR ATOMIK AKIŞ
@@ -35,6 +35,7 @@ TUR #104    ✅  UYAP MANUEL VERİ (uyapDosyaTuru/Notlar + adapter pattern + Uya
 TUR #105    ✅  TAZMİNAT HESAPLA UX FIX (form etiketi/formül çelişkisi — label "Kendi Kusur" + default 0 + UX guard kusur=100 + dinamik renk) — Madde 31.11 yeni, mimar hatası 46 tescil
 TUR #105.5  ✅  VERSION SENKRON MİKRO FIX (sync-version.js çalıştırıldı: backend 1.5.1→1.6.0 + panel 1.6.1→1.7.1, package.json drift kapatıldı) — Madde 22.9 R2 yeni, mimar hatası 47 tescil
 TUR #106    ✅  ŞEHİR KALDIR + VEFAT TAZMİNATI MODÜLÜ (lib/vefatHesap.ts + Step2Vefat + Step3Vefat — 5 senaryo smoke ✅, sehir alanı kaldırıldı) — Madde 31.12 + 31.13 yeni, mimar hatası 48 tescil
+TUR #107    ✅  TAM DONANIM (Mağduriyet türü Trafik+İş için yaralanma/vefat alt seçim + lib/pmf.ts + lib/yaralanmaHesap.ts + Step2Arac + bekar mantık + ±%8 vefat / ±%15 yaralanma / ±%10 araç) — Madde 17.2 R1 + 31.14 + 31.15 yeni, mimar hatası 49 tescil — 20 ARDIŞIK TEMİZ TUR REKOR
 
 ═══════════════════════════════════════════════════════════
 359+ → 405+ atom (+46 atom sapma 0)
@@ -53,7 +54,7 @@ TUR #106    ✅  ŞEHİR KALDIR + VEFAT TAZMİNATI MODÜLÜ (lib/vefatHesap.ts +
   • 38 (e-baro Doğrulama — TUR #103)
   • 39 (UYAP Yasal Sınırlar — TUR #104, KRİTİK TCK m.243)
 
-5 yeni mimar hatası (TUR #92 + TUR #96 + TUR #105 + TUR #105.5 + TUR #106 — hepsi proaktif/CEO smoke ile yakalandı)
+6 yeni mimar hatası (TUR #92 + TUR #96 + TUR #105 + TUR #105.5 + TUR #106 + TUR #107 — hepsi proaktif/CEO smoke ile yakalandı)
 0 KIRMIZI nokta · 1 schema (TUR #103/#104 — IDEMPOTENT) · 0 npm install · $0 maliyet
 ═══════════════════════════════════════════════════════════
 ```

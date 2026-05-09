@@ -1,4 +1,91 @@
-# OTONOM RAPOR — TUR #106 — ŞEHİR KALDIR + VEFAT TAZMİNATI MODÜLÜ (MİMAR HATASI 48)
+# OTONOM RAPOR — TUR #107 — TAM DONANIM (MİMAR HATASI 49 — PARÇALI İŞ YASAĞI)
+
+## TUR #107 — 10 MAY 2026 SABAHA KARŞI ✅ KAPALI (20. ARDIŞIK TEMİZ TUR — REKOR)
+
+**Tarih:** 10 Mayıs 2026 sabaha karşı (TUR #106 sonrası, CEO 4 bulgu mektubu 10 May 01:00)
+**Anayasa:** v1.25.0 → v1.26.0 MINOR (Madde 17.2 R1 + 31.14 + 31.15 yeni)
+**Tip:** Major refactor + 1 yeni modül + UX standartlaştırma
+**Atom:** T0-T3 keşif + D0-D17 (18 atom)
+**KIRMIZI:** 0 · $0 maliyet · 0 schema · 0 npm install
+**Dosya:** lib/pmf.ts YENİ + lib/yaralanmaHesap.ts YENİ + lib/vefatHesap.ts (PMF refactor) + page.tsx +208/-113
+
+---
+
+### CEO 4 BULGU (10 May 00:30-00:45 production smoke)
+1. **Bekar + Çocuk Çelişkisi:** Bekar seçildiğinde çocuk alanı görünüyor (TMK m.495 ihlali, mantık çelişkisi)
+2. **Aralık Uçurumu:** Vefat senaryosunda ±%15 = ₺810k fark, kullanıcı paniği
+3. **Yaralanma Seçeneği YOK:** "Yaralandım, sürekli iş göremezlik" senaryosu için kullanıcı ne tıklayacak belirsiz
+4. **Madde 17.2 İhlali:** TUR #106 vefat eklendi ama yaralanma kaldı, parçalı iş
+
+### KEŞİF (T0-T3)
+- T0: Mevcut sayfa 800+ satır, 4 KAZA_TYPES içinde "Destekten Yoksun Kalma" buton var
+- T1: PMF tablosu vefatHesap.ts içinde gömülü, basit PMF_TABLE page.tsx içinde inline (yaralanma için)
+- T2: Step3 inline formül `(maluliyet/100)*maas*12*pmf*(1-kusur/100)`, ±%80-%130 aralık (TUR #105 öncesi)
+- T3: Step2Vefat çocuk alanı koşulsuz render, useEffect cleanup yok
+
+### FAZ A — Mağduriyet Türü Ekle (D0-D4)
+- KAZA_TYPES: 4 → 3 (Trafik / İş / Araç Değer Kaybı; "Destekten Yoksun Kalma" buton **kaldırıldı**, alt kategori oldu)
+- Step1Data: `magduriyet: "yaralanma" | "vefat" | null` field eklendi
+- Step1: Trafik+İş seçilirse Mağduriyet Türü alt seçim gösterilir (Yaralanma 🩹 / Vefat 🕊️)
+- Validation: Trafik+İş için magduriyet zorunlu
+- URL backward compat: `?turu=destekten` → `Trafik Kazası` + `magduriyet=vefat` (eski linkler kırılmaz, Madde 14.3)
+- STEPS label dinamik: "Vefat Bilgisi" / "Kişisel Bilgi" / "Araç Bilgisi"
+
+### FAZ B — Yaralanma Lib Ayrıştır (D5-D7)
+- `lib/yaralanmaHesap.ts` YENİ — `hesaplaYaralanmaTazminati()` + interface + ±%15 aralık standardı
+- `Step3` inline formül `hesaplaYaralanmaTazminati()` çağrısına dönüştürüldü (DRY)
+- TUR #105 davranış korundu (formül matematiksel doğru, sadece DRY refactor)
+
+### FAZ C — PMF Tek-Kaynak (D8)
+- `lib/pmf.ts` YENİ — TRH-2010 + interpolasyon (vefat + yaralanma ortak kaynak)
+- `lib/vefatHesap.ts` PMF re-export pattern (eski kod kırılmaz, lib/pmf.ts source-of-truth)
+- Page'de eski basit PMF_TABLE kaldırıldı, `getPMF` import (TRH-2010 standardı)
+- **NOT:** Eski PMF (yaş 45 → 16) yeni PMF (yaş 45 → 24.85) — Yargıtay TRH-2010 standardı (Madde 31.13)
+
+### FAZ D — Bekar Mantık Düzeltme (D9-D11)
+- Step2Vefat çocuk alanı **`{data.medeniHal === "evli" && (...)}`** koşullu (Madde 31.15)
+- `useEffect([data.medeniHal])` — bekar geçişi: esVarMi=false, cocukSayisi=0, cocukYaslari=[]
+- Bekar + bilgilendirici uyarı: "Resmi nikahsız birliktelik veya evlilik dışı çocuk durumunuz varsa avukat değerlendirmesi alın"
+
+### FAZ E — Aralık Standardı (D12-D13, Madde 31.14)
+- vefatHesap.ts: ±%15 → **±%8** (mahkeme bilirkişi sapması düşük)
+- yaralanmaHesap.ts: **±%15** (sürekli iş göremezlik raporu sapması yüksek)
+- Step2Arac (yeni): bilgilendirici kart + ±%10 referansı
+
+### FAZ F — UX Görsel Tutarlık (D14-D15)
+- Step3 yaralanma sonuç kartında: "Yaralanmada mahkeme bilirkişi raporuna göre ±%15 sapma normaldir"
+- Step3Vefat sonuç kartında: "Mahkeme bilirkişi raporuna göre ±%8 sapma normaldir"
+- formatTL `Intl.NumberFormat('tr-TR')` mevcut, dokunulmadı
+
+### FAZ G — Test (D16-D17)
+
+**7 SENARYO SMOKE (node hesap doğrulama):**
+| # | Senaryo | base | aralık |
+|---|---------|------|--------|
+| 1 | Trafik+Yaralanma 45y/28k/Mal10/Kusur0 | ₺834.960 (yeni TRH-2010 PMF) | ±%15: ₺709.716-₺960.204 |
+| 2 | Trafik+Yaralanma 30y/35k/Mal25/Kusur20 | ₺3.214.680 | ±%15: ₺2.732.478-₺3.696.882 |
+| 3 | Trafik+Vefat 45y/30k/evli+2 çocuk(10,8) | ₺3.979.800 | ±%8: ₺3.661.416-₺4.298.184 |
+| 4 | Trafik+Vefat 30y/25k/bekar+anne+baba (CEO senaryosu) | ₺1.884.900 | ±%8: ₺1.734.108-₺2.035.692 ✅ ARALIK DARALDI (₺810k → ₺301k) |
+| 5 | Trafik+Vefat + Bekar + çocuk alanı GÖRÜNMÜYOR | UI render kontrol | ✅ medeniHal===evli koşulu |
+| 6 | Trafik+Vefat + Bekar + mirasçı YOK | bekar_yok | AMBER UYARI KARTI |
+| 7 | Araç Değer Kaybı | Step2Arac info kart | /basvuru CTA |
+
+### BUILD
+- TypeScript noEmit: **EXIT=0** ✅
+- `npm run build` Compile başarılı, 3 prerender Next.js 16 SSG bug TUR #107 dışı
+- tazminat-hesapla `"use client"` CSR — etkilenmez
+
+### MİMAR DERSLERİ (3)
+1. **Madde 17.2 R1 yeni — Parçalı İş Yasağı emsali:** TUR #106'da vefat eklendi, yaralanma+bekar+aralık atlandı = 4 bulgu CEO smoke. Pattern: public hesaplama mektup öncesi tam senaryo matrisi çıkarılır.
+2. **Hukuki tutarlılık (Madde 31.15):** Form mantığı hukuk gerçekliğine uymak zorunda. TMK m.495 mirasçılık zinciri → bekar+çocuk yasak. State cleanup zorunlu (medeniHal değişiminde eski veriler temizlenir).
+3. **Aralık standardı (Madde 31.14):** Tek standart (±%15) tüm senaryolara → kullanıcı uçurum hisseder. Vefat ±%8 / Yaralanma ±%15 / Araç ±%10 / Manevi ±%30 — gerçekçi mahkeme sapması.
+
+### 49. MİMAR HATASI TESCİLİ
+"Parçalı iş yapma yasağı" CEO direktifi → Madde 17.2 R1 anayasaya yazıldı. Gelecek public hesaplama TUR'larında tam senaryo matrisi mektup öncesi zorunlu.
+
+---
+
+# ARŞİV — TUR #106 — ŞEHİR KALDIR + VEFAT TAZMİNATI MODÜLÜ (MİMAR HATASI 48)
 
 ## TUR #106 — 10 MAY 2026 ✅ KAPALI (19. ARDIŞIK TEMİZ TUR)
 
