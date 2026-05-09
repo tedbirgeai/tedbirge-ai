@@ -1,8 +1,8 @@
 # 🛡️ TEDBIRGE.AI — DEVİR RAPORU (AKTİF)
 
-📋 **ANAYASA:** v1.24.1 PATCH (Madde 22.9 R2 yeni — sync-version.js zorunlu, mimar hatası 47 tescil)
-📂 **🔄 SÜRÜM SENKRON DİSİPLİNİ TESCİL — package.json drift kapatıldı 🔄**
-📅 **SON GÜNCELLEME:** 9 Mayıs 2026 gece (TUR #105.5 mikro fix — version.json/package.json senkron + Madde 22.9 R2)
+📋 **ANAYASA:** v1.25.0 MINOR (Madde 31.12 + 31.13 yeni — Vefat hesaplama + Hukuki sabit disiplini)
+📂 **⚖️ VEFAT TAZMİNAT MODÜLÜ CANLI — Yargıtay 17. HD + 4. HD + TRH-2010 ⚖️**
+📅 **SON GÜNCELLEME:** 10 Mayıs 2026 (TUR #106 — şehir kaldır + vefat hesaplama, 19 ardışık temiz TUR #90→#106)
 👤 **CEO Onay:** Mehmet DİNÇ — Madde 17.5 + 24.14 + 25.3 R1 + 30.25 + 36+37+38+39 sessiz onay
 🤖 **Mimar:** Claude Opus 4.7 (sohbet) + Claude Code (otonom uygulama, bypass açık)
 🌟 **Tarih:** 9 Mayıs 2026 — 4 BİRLEŞİK TUR ATOMIK AKIŞ
@@ -34,6 +34,7 @@ TUR #103    ✅  e-BARO MANUEL ADAPTER (User schema + manualVerify + ADMIN UX bu
 TUR #104    ✅  UYAP MANUEL VERİ (uyapDosyaTuru/Notlar + adapter pattern + UyapPanel + uyap-yasal-bilgi sayfası) — Madde 39 yeni, TCK m.243 koruma
 TUR #105    ✅  TAZMİNAT HESAPLA UX FIX (form etiketi/formül çelişkisi — label "Kendi Kusur" + default 0 + UX guard kusur=100 + dinamik renk) — Madde 31.11 yeni, mimar hatası 46 tescil
 TUR #105.5  ✅  VERSION SENKRON MİKRO FIX (sync-version.js çalıştırıldı: backend 1.5.1→1.6.0 + panel 1.6.1→1.7.1, package.json drift kapatıldı) — Madde 22.9 R2 yeni, mimar hatası 47 tescil
+TUR #106    ✅  ŞEHİR KALDIR + VEFAT TAZMİNATI MODÜLÜ (lib/vefatHesap.ts + Step2Vefat + Step3Vefat — 5 senaryo smoke ✅, sehir alanı kaldırıldı) — Madde 31.12 + 31.13 yeni, mimar hatası 48 tescil
 
 ═══════════════════════════════════════════════════════════
 359+ → 405+ atom (+46 atom sapma 0)
@@ -52,7 +53,7 @@ TUR #105.5  ✅  VERSION SENKRON MİKRO FIX (sync-version.js çalıştırıldı:
   • 38 (e-baro Doğrulama — TUR #103)
   • 39 (UYAP Yasal Sınırlar — TUR #104, KRİTİK TCK m.243)
 
-4 yeni mimar hatası (TUR #92 + TUR #96 + TUR #105 + TUR #105.5 — hepsi proaktif/CEO smoke ile yakalandı)
+5 yeni mimar hatası (TUR #92 + TUR #96 + TUR #105 + TUR #105.5 + TUR #106 — hepsi proaktif/CEO smoke ile yakalandı)
 0 KIRMIZI nokta · 1 schema (TUR #103/#104 — IDEMPOTENT) · 0 npm install · $0 maliyet
 ═══════════════════════════════════════════════════════════
 ```

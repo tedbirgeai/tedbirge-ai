@@ -3818,6 +3818,60 @@ Copy:     navigator.clipboard.writeText(...)
 
 ---
 
+## 31.12 — Vefat (Destekten Yoksun Kalma) Hesaplama Disiplini (TUR #106 — 10 May 2026)
+
+**Kural:** Public hesaplama sayfasında vefat tazminatı, **Yargıtay 17. HD ve 4. HD destekten yoksunluk içtihatları** + **TRH-2010 Türkiye Hayat Tablosu** standardına dayalı hesaplanır. Her mirasçı için ayrı pay × yıllık gelir × PMF × kusur çarpanı uygulanır.
+
+**Mirasçı kombinasyonları (Yargıtay pratiği):**
+- `evli_cocuksuz`: eş %50
+- `evli_1cocuk`: eş %35 + çocuk %30
+- `evli_2cocuk`: eş %30 + her çocuk %20
+- `evli_3cocuk`: eş %25 + her çocuk %15
+- `evli_4plus_cocuk`: eş %20 + her çocuk %10
+- `evli_anne_baba_cocuksuz`: eş %40 + anne %15 + baba %15
+- `evli_cocuk_anne_baba`: eş %30 + her çocuk %15 + anne %10 + baba %10
+- `bekar_anne_baba`: anne %25 + baba %25
+- `bekar_anne` / `bekar_baba`: hayatta olan %30
+- `bekar_yok`: TAZMİNAT YOK + UX guard kart
+
+**Tek-kaynak:** `tedbirge-panel/lib/vefatHesap.ts` — `PMF_2010` + `DESTEK_PAYLARI` + `hesaplaVefatTazminati()`. UI doğrudan bu lib'i import eder, hardcoded sabit YASAK (Madde 22.9 emsal).
+
+**UX:**
+- Step 1 "Destekten Yoksun Kalma" tıklanırsa Step 2'de Vefat formu açılır (mevcut buton silinmedi, içeriği zenginleştirildi — Madde 14.3)
+- Vefat edenin yaşı + aylık gelir + medeni hal + kusur + mirasçılar (eş, çocuklar, anne, baba)
+- 18 yaş üstü çocuk destek hesabına dahil edilmez (Yargıtay 17. HD pratiği)
+- Eş PMF: vefat eden ile eşin PMF'lerinin küçüğü (her ikisi hayattaysa daha kısa süre destek alır)
+- Step 3 Mirasçı bazlı tablo + toplam aralık ±%15 + yasal uyarı
+
+**Yasak:**
+- ❌ Hardcoded PMF veya destek payı sayısal değeri component dosyasında (lib/vefatHesap.ts tek-kaynak)
+- ❌ Mirasçı yokken sıfır gösterilmesi (UX guard kart + avukat CTA — Madde 31.11 emsal)
+- ❌ Vefat edenin %100 kendi kusurunda sıfır gösterilmesi (UX guard — Madde 31.11 emsal)
+- ❌ Yargıtay kaynak referansı olmadan destek payı eklemek (Madde 31.13)
+
+---
+
+## 31.13 — Hukuki Sabit Disiplini (TUR #106 — 10 May 2026)
+
+**Kural:** Hukuki hesaplamalarda kullanılan tüm sabit tablolar (PMF, destek payları, yasal limit, faiz oranı, zamanaşımı süresi vb.) **dosya içinde yorum olarak kaynak referansı** taşımalı. Yargıtay daire/yıl/karar no, kanun + madde, resmi tablo adı zorunlu.
+
+**Format örneği:**
+```ts
+// TRH-2010 (Hazine Müsteşarlığı 2010 Türkiye Hayat Tablosu)
+// Yargıtay 17. HD standart kabul ettiği değerler
+export const PMF_2010 = { ... };
+
+// Yargıtay 4. HD 2018/8765 + Yargıtay 17. HD 2020/1234 + Borçlar Kanunu m.53
+export const DESTEK_PAYLARI = { ... };
+```
+
+**Yasak:**
+- ❌ Sayısal hukuki sabit kaynak referansı olmadan (CEO 23 yıllık tecrübe ile doğrulamalı, kaynak yoksa doğrulanamaz)
+- ❌ Kaynak yorumu commit message'a yazıp dosyaya yazmamak (gelecek mimar/avukat dosyada görmeli)
+- ❌ Kaynak güncellendiğinde (Yargıtay yeni içtihat) tabloyu değiştirip yorumu güncellememek
+
+---
+
 ## 31.11 — Sıfır Sonuç UX Guard Disiplini (TUR #105 — 9 May 2026, mimar hatası 46 tescil)
 
 **Kural:** Public hesaplama/değerlendirme formlarında matematiksel `0` veya `NaN` sonucu kullanıcıya **çıplak** gösterilemez. Her zaman:
@@ -3956,10 +4010,10 @@ Mehmet Bey sahaya çıkabilsin diye bu disiplin var.
 
 ---
 
-**— Tedbirge Mimari Anayasası v1.24.1**  
-**Toplam 111 TUR · 486+ atom sapma 0 · 58 kalibrasyon · 47 mimar hatası → 56 anayasa maddesi**  
-**🔄 SÜRÜM SENKRON DİSİPLİNİ TESCİL — sync-version.js ZORUNLU 🔄**  
-**Aktif Kesit:** TUR #105.5 KAPALI (version.json + package.json drift — sync-version.js çalıştırılmadı, Madde 22.9 R2 yeni, 47. mimar hatası tescil)  
+**— Tedbirge Mimari Anayasası v1.25.0**  
+**Toplam 112 TUR · 501+ atom sapma 0 · 59 kalibrasyon · 48 mimar hatası → 58 anayasa maddesi**  
+**⚖️ VEFAT TAZMİNATI MODÜLÜ — Yargıtay 17. HD + 4. HD + TRH-2010 ⚖️**  
+**Aktif Kesit:** TUR #106 KAPALI (Şehir kaldır + Vefat hesaplama — Madde 31.12 + 31.13 yeni, 48. mimar hatası tescil — gereksiz UX yükü)  
 **Tüm sürüm geçmişi + TUR detayları + atom kayıtları: `tedbirge-os/MIMARI_KARARLAR.md`**
 
 **Versiyon geçmişi: tedbirge-os/MIMARI_KARARLAR.md**  

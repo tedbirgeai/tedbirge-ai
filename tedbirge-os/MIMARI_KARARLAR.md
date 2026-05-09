@@ -6,6 +6,46 @@
 
 ---
 
+## 10 Mayıs 2026 — TUR #106 KARARI — ŞEHİR KALDIR + VEFAT TAZMİNATI MODÜLÜ (Anayasa v1.24.1 → v1.25.0 MINOR, 48. mimar hatası tescil)
+
+**Karar:** İki büyük iş tek mektupta:
+1. **Şehir alanı kaldırıldı** — formda vardı, hesapta kullanılmıyordu (gereksiz UX yükü, 48. mimar hatası tescil)
+2. **Vefat (Destekten Yoksun Kalma) hesaplama modülü** — yeni `lib/vefatHesap.ts` (TRH-2010 + 11 Yargıtay kombinasyonu) + Step2Vefat dinamik mirasçı formu + Step3Vefat mirasçı bazlı sonuç tablosu
+
+**Sebep:**
+- CEO 9 May 23:45 mektubu: Niyazi Pazartesi sahaya çıkacak, vefat hesaplaması da yapabilmeli (23 yıllık hukuk tecrübesi tabandaki Yargıtay metodolojisini bağlayıcı kıldı)
+- Madde 24.14 (sıfır maliyet): hiçbir AI çağrısı, sadece JavaScript hesaplama
+- Madde 14.3: mevcut "Destekten Yoksun Kalma" butonu silinmedi, içeriği zenginleştirildi (5. buton eklenmedi, koşullu render)
+- Madde 31.13 yeni (Hukuki Sabit Disiplini): PMF tablosu + destek payları kaynak referansı zorunlu
+
+**Alternatif (mimar tarafından reddedildi):**
+- Yeni 5. kaza türü butonu ("Vefat Tazminatı") — Madde 14.3 ihlali (mevcut "Destekten Yoksun Kalma" zaten Yargıtay terminolojisi)
+- Hardcoded PMF/destek payları page.tsx içinde — Madde 22.9 emsali (lib tek-kaynak)
+- Vefat formu ayrı `_components/VefatForm.tsx` — TUR #100.10 emsali (tek dosya minimal değişiklik, oluşturulmadı)
+- Backend tazminat servisi ekleme — Madde 14.3 (sadece public hesaplama, backend dokunulmadı)
+
+**Etki:**
+- Anayasa: v1.24.1 → v1.25.0 MINOR (Madde 31.12 + 31.13 yeni)
+- Sürüm: panel 1.7.1 → 1.8.0 (sync-version.js çalıştırıldı — Madde 22.9 R2 uyum)
+- Mimar hatası: 47 → 48 (şehir alanı gereksiz UX yükü)
+- Dosya: lib/vefatHesap.ts YENİ (290 satır) + page.tsx +462/-31 = 752 satır toplam
+- Maliyet: $0
+
+**5 senaryo smoke kanıt (node hesap doğrulama):**
+- Trafik mevcut akış korundu: ₺537.600 ✅
+- Vefat evli+2 çocuk: ₺3.98M aralık
+- Vefat bekar+anne+baba: ₺1.88M aralık
+- Vefat evli+anne+baba (cocuksuz): ₺4.24M aralık
+- Vefat mirasçı YOK: AMBER UYARI KARTI (bekar_yok)
+
+**Mimar:** Claude Opus 4.7 (mektup yazımı) + Claude Code (otonom uygulama)
+
+**48. mimar hatası tescili:** Şehir alanı `Step1Data` içinde 4+ TUR boyunca duruyordu (TUR #45.2 brand refactor sırasında dokunulmadı, TUR #105'te yine atlandı). Hiçbir hesaplama formülünde kullanılmıyordu. Pattern: form alanı eklerken "bu alan hesabı/backend/lead'i etkiliyor mu?" sorusu zorunlu — etkilemiyorsa form yükünü kaldır.
+
+**CEO doğrulama notu:** Destek payları Yargıtay 17. HD + 4. HD içtihatlarına dayalı tahmini değerler (±%5 dalgalanma normal). CEO smoke ekranında değerleri doğrulayabilir, mikro fix mümkün — `lib/vefatHesap.ts DESTEK_PAYLARI` tek-kaynak.
+
+---
+
 ## 9 Mayıs 2026 gece (TUR #105 hemen sonrası) — TUR #105.5 KARARI — VERSION SENKRON MİKRO FIX (47. mimar hatası tescil)
 
 **Karar:** `sync-version.js` çalıştırıldı (backend 1.5.1→1.6.0, panel 1.6.1→1.7.1). Madde 22.9 R2 yeni: PATCH/MINOR bump'ında sync-version.js commit-öncesi zorunlu.

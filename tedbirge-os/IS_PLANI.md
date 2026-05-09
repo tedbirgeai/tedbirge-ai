@@ -1,11 +1,19 @@
 # TEDBİRGE.AI YOL HARİTASI v1.0
-**Son güncelleme:** 9 Mayıs 2026 gece (🛠️ TUR #105 hotfix — Tazminat Hesapla UX fix)
-**Anayasa versiyonu:** v1.24.1 PATCH (Madde 31.11 yeni — Sıfır Sonuç UX Guard)
+**Son güncelleme:** 10 Mayıs 2026 (⚖️ TUR #106 — Vefat tazminatı modülü canlı)
+**Anayasa versiyonu:** v1.25.0 MINOR (Madde 31.12 + 31.13 yeni)
 **İlke:** MoSCoW + Now-Next-Later hibrit (Madde 24.5)
 
 ---
 
-## NOW — TUR #105.5 KAPALI ✅ (9 May 2026 gece, mikro fix — TUR #105 hemen sonrası)
+## NOW — TUR #106 KAPALI ✅ (10 May 2026, feature+cleanup)
+
+**Durum:** ✅ Şehir alanı kaldırıldı (UX sade — hesapta kullanılmıyordu) + Vefat (Destekten Yoksun Kalma) hesaplama modülü canlı. `lib/vefatHesap.ts` TRH-2010 + 11 Yargıtay kombinasyonu + 5 senaryo smoke geçti. Step2Vefat formu (vefat eden bilgileri + mirasçılar dinamik) + Step3Vefat sonuç tablosu (mirasçı bazlı pay). Madde 31.12 + 31.13 yeni. CEO smoke ekranında destek payı tablosunu doğrulayabilir, mikro fix mümkün.
+
+**Sıradaki adaylar:** TUR #107 → Niyazi Pazartesi sahaya çıkış desteği + CLAUDE.md modülerleştirme (öncelik korundu) + sync-version.js husky pre-commit hook (TUR #110+ adayı).
+
+---
+
+## ARŞİV — TUR #105.5 KAPALI ✅ (9 May 2026 gece, mikro fix — TUR #105 hemen sonrası)
 
 **Durum:** ✅ Sürüm tek-kaynak senkron disiplini tescil. TUR #105 OS commit version.json'ı 1.24.1'e güncellemiş ama `sync-version.js` çalıştırılmamış → package.json'lar drift (backend 1.5.1, panel 1.6.1). CEO 23:19 production footer `v1.24.0` görünce yakaladı. Atom: sync script çalıştırıldı (backend 1.5.1→1.6.0 + panel 1.6.1→1.7.1). Madde 22.9 R2 yeni: PATCH/MINOR bump'ında sync-version.js zorunlu.
 
@@ -49,6 +57,7 @@
 | #104 ✅ | UYAP Manuel Veri (Lead+2 alan + uyap.routes + UyapPanel + yasal-bilgi sayfa, Hearing reddedildi Madde 14.3) | U0-U5+U9 (7 canlı, U6+U7+U8 mevcut altyapı korundu) | 0 (TCK m.243 koruma) | v1.24.0 MINOR |
 | #105 ✅ | Tazminat Hesapla UX Fix (form etiketi/formül çelişkisi — label + default 0 + UX guard + dinamik renk, formül dokunulmadı Madde 14.3) | T0-T3 keşif + 3 atom fix (Step2 label/Step2 default/Step3 guard) | 0 | v1.24.1 PATCH |
 | #105.5 ✅ | Version Senkron Mikro Fix (sync-version.js çalıştırıldı: backend+panel package.json drift kapatıldı) | V0-V4 (5 atom, Madde 22.9 R2 yeni) | 0 | v1.24.1 PATCH (anayasa korundu) |
+| #106 ✅ | Şehir Kaldır + Vefat (Destekten Yoksun Kalma) Tazminat Modülü (lib/vefatHesap.ts TRH-2010 + Yargıtay 11 kombinasyon + Step2Vefat + Step3Vefat) | T0-T2 keşif + D0-D14 (15 atom, sehir kaldır + 462 satır vefat akışı) | 0 | v1.25.0 MINOR |
 | **TOPLAM** | **Tedbirge.ai 2.0** | 34 atom | 1 KIRMIZI | $0 maliyet |
 
 ## LATER — TUR #101+ Adayları

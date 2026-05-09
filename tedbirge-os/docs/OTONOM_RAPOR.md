@@ -1,4 +1,68 @@
-# OTONOM RAPOR — TUR #105.5 — VERSION SENKRON MİKRO FIX (MİMAR HATASI 47)
+# OTONOM RAPOR — TUR #106 — ŞEHİR KALDIR + VEFAT TAZMİNATI MODÜLÜ (MİMAR HATASI 48)
+
+## TUR #106 — 10 MAY 2026 ✅ KAPALI (19. ARDIŞIK TEMİZ TUR)
+
+**Tarih:** 10 Mayıs 2026 (TUR #105.5 sonrası, CEO mektup 9 May 23:45)
+**Anayasa:** v1.24.1 → v1.25.0 MINOR (Madde 31.12 + 31.13 yeni)
+**Tip:** Feature + cleanup (public hesaplama sayfası genişleme)
+**Atom:** T0-T2 keşif + D0-D14 (15 atom)
+**KIRMIZI:** 0 · $0 maliyet · 0 schema · 0 npm install
+**Dosya:** `lib/vefatHesap.ts` YENİ (290 satır) + `app/(public)/tazminat-hesapla/page.tsx` (+462/-31)
+
+---
+
+### KEŞİF (T0-T2)
+- Mevcut sayfa: 428 satır, tek dosya. KAZA_TYPES 4 türü içeriyor ("Trafik Kazası", "İş Kazası", "Destekten Yoksun Kalma", "Araç Değer Kaybı") — sadece etiket düzeyi, hesaplama formülü tek (1 - kusur/100 çarpanı)
+- Şehir state kullanımı: 5 yerde (type, validation, dropdown JSX, Hesap Detayı, default state) — formülde KULLANILMIYOR
+- Vefat lib: YOK — yeni dosya yazıldı
+
+### FAZ A — Şehir Alanı Kaldırıldı (D0-D2)
+- Step1Data type: `sehir` field silindi
+- Step1 isValid: sehir kontrolü kaldırıldı
+- Step1 dropdown JSX bloğu silindi
+- Step3 Hesap Detayı: "Şehir" satırı silindi
+- Page default state: `sehir: ""` silindi
+- SEHIRLER constant: kullanılmıyor (gelecek temizlik adayı, dokunulmadı — Madde 14.3)
+
+### FAZ B — Vefat Modülü (D3-D11)
+**Yeni lib `tedbirge-panel/lib/vefatHesap.ts`:**
+- `PMF_2010` — TRH-2010 standardı (5 yaşlık, 0-95)
+- `getPMF(yas)` — doğrusal interpolasyon
+- `DESTEK_PAYLARI` — 11 Yargıtay kombinasyonu (evli_cocuksuz, evli_1-4cocuk, evli+anne_baba, evli_cocuk_anne_baba, bekar_anne_baba, bekar_anne, bekar_baba, bekar_yok, evli_anne_baba_cocuksuz)
+- `belirleKombinasyon()` — input'tan kombinasyon eşleştirme
+- `hesaplaVefatTazminati()` — her mirasçı için ayrı pay × yıllık gelir × PMF × kusur
+- bekar_yok kombinasyonu UYARI döner (mirasçı yok = tazminat yok)
+
+**Page.tsx eklenenler:**
+- `Step2VefatData` type (vefatYas, vefatGelir, medeniHal, kusur, esVarMi+yas, cocukSayisi+yaşlar, anne+baba)
+- `Step2Vefat` component — vefat eden bilgileri + dinamik mirasçı formu (eş checkbox+yaş, çocuk sayısı+yaşlar, anne/baba checkbox+yaş)
+- `Step3Vefat` component — mirasçı bazlı tablo + toplam aralık + UX guard (kusur=100 / mirasçı yok → AMBER UYARI KARTI + avukat CTA, Madde 31.11 emsal)
+- Yasal uyarı genişletildi (Yargıtay 17. HD + 4. HD + TRH-2010 + ek tazminat türleri referansı)
+- Page state: `step1.kazaTuru === "Destekten Yoksun Kalma"` ise Step2Vefat/Step3Vefat aktif, aksi halde mevcut Step2/Step3
+- Mevcut "Destekten Yoksun Kalma" buton silinmedi, içeriği zenginleştirildi (Madde 14.3)
+
+### SMOKE KANITLARI (5 senaryo node hesap)
+| # | Senaryo | Hesap | Aralık |
+|---|---------|-------|--------|
+| 1 | Trafik 45y/28k/Mal10/Kusur0 | base ₺537.600 ✅ TUR #105 davranış korundu | ₺430.080-₺698.880 |
+| 2 | Vefat 45y/30k/evli+2 çocuk(10,8) | toplam ₺3.979.800 | ₺3.382.830-₺4.576.770 |
+| 3 | Vefat 30y/25k/bekar+anne(60)+baba(62) | toplam ₺1.884.900 | ₺1.602.165-₺2.167.635 |
+| 4 | Vefat 45y/30k/evli(40)+anne(70)+baba(75) cocuksuz | toplam ₺4.235.580 | ₺3.600.243-₺4.870.917 |
+| 5 | Vefat 45y/30k/bekar/mirasçı YOK | UYARI: bekar_yok kombinasyonu, ₺0 + AMBER kart | — |
+
+### BUILD
+- TypeScript noEmit: **EXIT=0** ✅
+- `npm run build` Compile başarılı (Compiled successfully ✓), 3 prerender hatası (`/blog/[slug]`, `/dashboard/ajanda`, `/temsilci/sozlesme`) — TUR #106 dışı, mevcut Next.js 16 SSG bug
+- tazminat-hesapla `"use client"` CSR — etkilenmez
+
+### MİMAR DERSLERİ (3)
+1. **Hukuki sabit dosya yorumu kaynak referansı zorunlu** — Madde 31.13 yeni: PMF tablosu TRH-2010 + Yargıtay 17. HD + 4. HD + Borçlar Kanunu m.53 + Karayolları Trafik Kanunu m.90 referansları lib içinde yorum olarak yazıldı. Gelecek mimar/avukat tabloyu doğrulayabilir.
+2. **Mevcut buton silinmedi, zenginleştirildi (Madde 14.3 emsali)** — "Destekten Yoksun Kalma" mevcut KAZA_TYPES içinde, vefat akışı aynı butona koşullu render ile bağlandı. Yeni 5. buton eklenmedi.
+3. **48. mimar hatası tescili:** Şehir alanı 4+ TUR boyunca formdaydı ama hesapta kullanılmıyordu — gereksiz UX yükü. CEO bunu fark etti (TUR #106 mektubunda direkt belirtti). Pattern: form alanı eklerken "bu alan hesabı veya backend'i etkiliyor mu?" sorusu zorunlu.
+
+---
+
+# ARŞİV — TUR #105.5 — VERSION SENKRON MİKRO FIX (MİMAR HATASI 47)
 
 ## TUR #105.5 — 9 MAY 2026 GECE MİKRO FIX ✅ KAPALI
 
