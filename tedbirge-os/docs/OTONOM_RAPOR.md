@@ -1,4 +1,67 @@
-# OTONOM RAPOR — TUR #101+#102+#103+#104 BİRLEŞİK — PAZAR LANSMANI + e-BARO + UYAP
+# OTONOM RAPOR — TUR #105 — TAZMİNAT HESAPLA UX FIX (MİMAR HATASI 46)
+
+## TUR #105 — 9 MAY 2026 GECE HOTFIX ✅ KAPALI
+
+**Tarih:** 9 Mayıs 2026 gece (CEO production smoke 22:50 → fix 23:30)
+**Anayasa:** v1.24.0 → v1.24.1 PATCH (Madde 31.11 yeni — Sıfır Sonuç UX Guard)
+**Tip:** Hotfix (production canlı bug — müvekkil adayı yanıltıyor)
+**Atom:** T0-T3 keşif + 3 atom fix (tek dosya, 72 satır değişti)
+**KIRMIZI:** 0
+**Maliyet:** $0
+
+---
+
+### CEO BULGU
+- URL: `https://tedbirge.ai/tazminat-hesapla`
+- Test: Trafik · Konya · Yaş 45 · Maaş 28k · Maluliyet 10 · **Kusur 100** · PMF 16
+- Sonuç UI: **₺0 — ₺0**
+- Beklenen: ~₺537.600 aralık
+
+### KEŞİF (T0-T3) — Madde 4.4 + 4.5
+- T0: `app/(public)/tazminat-hesapla/page.tsx` (428 satır, `"use client"` CSR)
+- T1: Formül satır 274 — `(maluliyet/100) × maaş × 12 × PMF × (1 − kusur/100)` matematiksel olarak DOĞRU
+- T2: Git log son 14 gün → tazminat-hesapla'ya doğrudan dokunan commit YOK (sadece brand color refactor `c396b38` `71dbb3d`)
+- T3: State binding TEMİZ (`parseInt + setStep2`)
+
+### KÖK SEBEP — KESİN BUG (Madde 4.4 emsal)
+**Form etiketi formülle çelişiyor:**
+- Etiket (satır 218-238): `"Kusur Yüzdesi (%) — karşı taraf kusuru"` + tooltip `"Karşı tarafın sizin hasarınızdaki kusur oranı (örn. %75)"`
+- Formül: `(1 - kusur/100)` — **kullanıcının kendi kusur oranı** için doğru çarpan
+- Default kusur: `75` (form etiketiyle uyumlu görünüyor — ama formül bunu "kendim %75 kusurluyum" sayıp tazminatı %25'e indiriyor)
+
+CEO senaryosu: "karşı taraf %100 kusurlu" demek istiyor, 100 giriyor → formül "kendi kusurum %100" yorumluyor → çarpan 0 → ₺0.
+
+### SENARYO KARARI: B (UX guard) — A reddedildi (Madde 4.4)
+Mektup Senaryo A (regresyon commit) hipotezini önerdi. Git log doğrulanmadı → Madde 4.3 (şüphede DUR) + Madde 4.4 (kanıt-bazlı) → Senaryo B uygulandı (form etiketi/değer mismatch + UX guard).
+
+### FIX ATOMLARI (Madde 14.3 — formül DOKUNULMADI)
+1. **Step2 label** (satır 218-238): `"Kusur Yüzdesi — karşı taraf"` → `"Kendi Kusur Oranınız (%) *"` + doğru tooltip + dinamik renk (≤30 yeşil, 30-70 sarı, >70 kırmızı)
+2. **Default kusur** (satır 346): `kusur: 75` → `kusur: 0` (en yaygın senaryo: müvekkil hasarlı, karşı taraf kusurlu — sayfa açılır açılmaz ₺537.600 aralık görür)
+3. **Step3 UX guard** (satır 280): `kusur >= 100` → AMBER UYARI KARTI (₺0 yerine açıklama + "Avukat Değerlendirmesi Alın" CTA)
+
+### SMOKE (Madde 4.8 — node manuel hesap)
+| # | Yaş | Maaş | Mal | Kusur | Hesap | UI Davranışı |
+|---|-----|------|-----|-------|-------|--------------|
+| 1 | 45 | 28000 | 10 | 0 | base ₺537.600 ✅ | Aralık ₺430.080 — ₺698.880 |
+| 2 | 45 | 28000 | 10 | 50 | base ₺268.800 ✅ | Aralık ₺215.040 — ₺349.440 |
+| 3 | 45 | 28000 | 10 | 100 | base ₺0 | **AMBER UYARI KARTI** + avukat CTA |
+| 4 | 35 | 50000 | 25 | 20 | base ₺2.640.000 | Aralık ₺2.112.000 — ₺3.432.000 |
+
+CEO test (yaş 45 + 28k + 10 + 100 + PMF 16): artık **AMBER UYARI** görür (₺0 değil). Eğer kusurunu 0'a çekerse **₺430.080 — ₺698.880** görür.
+
+### BUILD KONTROLÜ
+- TypeScript noEmit: **EXIT=0** (0 hata) ✅
+- `npm run build`: Compile başarılı (18.6s ✓), 3 prerender hata mevcut Next.js 16 SSG bug (`/blog/[slug]`, `/dashboard/ajanda`, `/temsilci/sozlesme` — TUR #105 dışı)
+- tazminat-hesapla `"use client"` CSR → SSG bug'larından etkilenmez
+
+### MİMAR DERSLERİ (3)
+1. **Form etiketi/formül semantik tutarlılık zorunlu** — kullanıcı yanlış yöne yönlendirilemez (Madde 4.4 + Madde 31.11 yeni). Hesaplama formlarında "kendi" vs "karşı taraf" netliği kritik.
+2. **Sıfır sonuç çıplak gösterilmemeli** — UX guard kart + avukat CTA zorunlu. CEO ekran kanıtı `₺0 — ₺0` müvekkil adayını "sistem bozuk" sanmasına yol açar.
+3. **Mektup hipotezi (Senaryo A) körü körüne uygulanmaz** — Madde 4.4 kanıt-bazlı: git log son 14 gün regresyon commit yok → Senaryo B tercih edildi. Spekülatif "formül yeniden yaz" reddedildi (formül matematiksel doğru — kanıtlandı 4 senaryo node hesabıyla).
+
+---
+
+# ARŞİV — TUR #101+#102+#103+#104 BİRLEŞİK — PAZAR LANSMANI + e-BARO + UYAP
 
 ## TUR #101+#102+#103+#104 — 9 MAY 2026 BİRLEŞİK ATOMIK AKIŞ ✅ KAPALI
 

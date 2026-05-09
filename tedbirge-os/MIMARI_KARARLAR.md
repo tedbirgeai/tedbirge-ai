@@ -6,6 +6,45 @@
 
 ---
 
+## 9 Mayıs 2026 gece — TUR #105 KARARI — TAZMİNAT HESAPLA UX FIX (Anayasa v1.24.0 → v1.24.1 PATCH, 46. mimar hatası tescil)
+
+**Karar:** `/tazminat-hesapla` Step2 form etiketi formülle uyumsuzdu — **Senaryo B (UX guard + label fix + default değişikliği)** uygulandı, formül DOKUNULMADI.
+
+**Kök sebep (Madde 4.4 emsal):**
+- Form etiketi: `"Kusur Yüzdesi (%) — karşı taraf kusuru"` (kullanıcıdan karşı tarafın kusurunu istiyor)
+- Formül: `(1 − kusur/100)` (kullanıcının kendi kusur oranı için doğru çarpan, Türkiye hukuk doktrini standart)
+- Default `kusur: 75` (etikete göre "karşı taraf %75" düşünür ama formülde "kendim %75" → tazminat × 0.25)
+- CEO smoke (Trafik Yaş 45 Maaş 28k Mal 10 **Kusur 100** PMF 16) → ₺0 (beklenen ~₺537.600)
+
+**Sebep:**
+- Madde 4.4 (kanıt-bazlı): git log son 14 gün tazminat-hesapla'ya doğrudan dokunan commit YOK → Senaryo A (regresyon) reddedildi, Senaryo B (UX bug) gerçek kök sebep
+- Madde 14.3 (ham koda saygı): formül matematiksel olarak doğru → label/default/UX guard değiştirildi, formül dokunulmadı
+- Madde 31.11 yeni (Sıfır Sonuç UX Guard): public hesaplama formlarında sıfır sonuç çıplak gösterilmesi yasak
+
+**Alternatif (mimar tarafından reddedildi):**
+- Senaryo A (regresyon revert) — git log doğrulanmadı
+- Formül yeniden yazma `(kusur/100)` — etiketle uyumlu yapsa da Türkiye hukuk doktrini "kendi kusur oranı" standardı ile çelişirdi (537600 senaryosu doğru üretilmesi için kullanıcı kendi kusur 0 girmeli)
+- Form gizleme/devre dışı — UX bozar
+
+**Etki:**
+- Anayasa: Madde 31.11 yeni (Sıfır Sonuç UX Guard, 31.10 R+ değil — yeni alt madde)
+- Sürüm: anayasa 1.24.0 → 1.24.1 PATCH, panel 1.7.0 → 1.7.1 PATCH
+- Mimar hatası sayacı: 45 → 46
+- Dosya: `app/(public)/tazminat-hesapla/page.tsx` 72 satır değişti (53+/19−)
+- Maliyet: $0
+
+**Mimar:** Claude Opus 4.7 (mektup yazımı) + Claude Code (otonom uygulama)
+
+**Smoke kanıt (4 senaryo node hesap doğrulama):**
+- Kusur 0 → ₺537.600 base ✅ (mektup eşleşti)
+- Kusur 50 → ₺268.800 base ✅ (mektup eşleşti)
+- Kusur 100 → ₺0 + UYARI KARTI ✅ (UX guard tetiklendi)
+- Kusur 20 + Mal 25 + Maaş 50k + Yaş 35 → ₺2.640.000 base (mektup ₺168k typo, gerçek 2.6M)
+
+**46. mimar hatası tescili:** Form etiketi/formül semantik tutarsızlık — yıllarca üretimde kalmış (TUR #45.2 brand refactor sırasında dokunulmamış, kök kayıt: `f85150c` initial complete frontend). CEO 9 May 22:50 üretim smoke ile yakaladı.
+
+---
+
 ## 9 Mayıs 2026 — TUR #101+#102+#103+#104 BİRLEŞİK KAPANIŞ (Anayasa v1.23.1 → v1.24.0 MINOR)
 
 **Karar:** 4 büyük TUR tek atomik akışla uygulandı:

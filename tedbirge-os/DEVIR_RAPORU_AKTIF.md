@@ -1,8 +1,8 @@
 # 🛡️ TEDBIRGE.AI — DEVİR RAPORU (AKTİF)
 
-📋 **ANAYASA:** v1.24.0 MINOR (Madde 36+37+38+39 yeni: AI Metin + UTM + e-baro + UYAP yasal sınırlar)
-📂 **🚀 PAZAR LANSMANI HAZIR + e-BARO + UYAP YASAL SINIRLARDA 🚀**
-📅 **SON GÜNCELLEME:** 9 Mayıs 2026 (4 birleşik TUR — TUR #101+#102+#103+#104 atomik kapanış)
+📋 **ANAYASA:** v1.24.1 PATCH (Madde 31.11 yeni — Sıfır Sonuç UX Guard, mimar hatası 46 tescil)
+📂 **🛠️ TAZMİNAT HESAPLA UX FIX — FORM/FORMÜL ÇELİŞKİSİ KAPALI 🛠️**
+📅 **SON GÜNCELLEME:** 9 Mayıs 2026 gece (TUR #105 hotfix — CEO production smoke ₺0 → ₺537.600)
 👤 **CEO Onay:** Mehmet DİNÇ — Madde 17.5 + 24.14 + 25.3 R1 + 30.25 + 36+37+38+39 sessiz onay
 🤖 **Mimar:** Claude Opus 4.7 (sohbet) + Claude Code (otonom uygulama, bypass açık)
 🌟 **Tarih:** 9 Mayıs 2026 — 4 BİRLEŞİK TUR ATOMIK AKIŞ
@@ -32,6 +32,7 @@ TUR #101    ✅  AI METİN ÜRETİCİ (39 hazır şablon + döngü + manuel düz
 TUR #102    ✅  PAZAR LANSMANI + UTM (UtmLinkBuilder + analytics entegrasyon, mevcut UTM altyapı KORUNDU — Madde 14.3) — Madde 37 yeni
 TUR #103    ✅  e-BARO MANUEL ADAPTER (User schema + manualVerify + ADMIN UX butonları + ActivityLog) — Madde 38 yeni
 TUR #104    ✅  UYAP MANUEL VERİ (uyapDosyaTuru/Notlar + adapter pattern + UyapPanel + uyap-yasal-bilgi sayfası) — Madde 39 yeni, TCK m.243 koruma
+TUR #105    ✅  TAZMİNAT HESAPLA UX FIX (form etiketi/formül çelişkisi — label "Kendi Kusur" + default 0 + UX guard kusur=100 + dinamik renk) — Madde 31.11 yeni, mimar hatası 46 tescil
 
 ═══════════════════════════════════════════════════════════
 359+ → 405+ atom (+46 atom sapma 0)
@@ -50,8 +51,8 @@ TUR #104    ✅  UYAP MANUEL VERİ (uyapDosyaTuru/Notlar + adapter pattern + Uya
   • 38 (e-baro Doğrulama — TUR #103)
   • 39 (UYAP Yasal Sınırlar — TUR #104, KRİTİK TCK m.243)
 
-2 yeni mimar hatası (TUR #92 + TUR #96 — ikisi de proaktif yakalandı)
-0 KIRMIZI nokta · 1 schema (Lead.uyapDosyaTuru/Notlar + User.ebaroVerifiedAt — IDEMPOTENT) · 0 npm install · $0 maliyet
+3 yeni mimar hatası (TUR #92 + TUR #96 + TUR #105 — üçü de proaktif/CEO smoke ile yakalandı)
+0 KIRMIZI nokta · 1 schema (TUR #103/#104 — IDEMPOTENT) · 0 npm install · $0 maliyet
 ═══════════════════════════════════════════════════════════
 ```
 

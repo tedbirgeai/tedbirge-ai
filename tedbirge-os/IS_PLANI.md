@@ -1,15 +1,21 @@
 # TEDBİRGE.AI YOL HARİTASI v1.0
-**Son güncelleme:** 9 Mayıs 2026 (🚀 TUR #101+#102+#103+#104 BİRLEŞİK — AI metin + UTM + e-baro + UYAP yasal)
-**Anayasa versiyonu:** v1.24.0 MINOR (Madde 36+37+38+39 yeni)
+**Son güncelleme:** 9 Mayıs 2026 gece (🛠️ TUR #105 hotfix — Tazminat Hesapla UX fix)
+**Anayasa versiyonu:** v1.24.1 PATCH (Madde 31.11 yeni — Sıfır Sonuç UX Guard)
 **İlke:** MoSCoW + Now-Next-Later hibrit (Madde 24.5)
 
 ---
 
-## NOW — TUR #101+#102+#103+#104 BİRLEŞİK KAPALI ✅ (9 May 2026)
+## NOW — TUR #105 KAPALI ✅ (9 May 2026 gece, hotfix)
+
+**Durum:** ✅ Tazminat Hesapla form etiketi/formül çelişkisi giderildi (mimar hatası 46 tescil). CEO production smoke ₺0 → ₺537.600 (default kusur 75→0 + label "Kendi Kusur" + UX guard kusur=100 + dinamik renk). Formül DOKUNULMADI (Madde 14.3 — kanıtlı UX bug, formül matematiksel doğru). 4 senaryo manuel hesap doğrulama geçti.
+
+**Sıradaki adaylar:** TUR #106 → CLAUDE.md modülerleştirme (öncelik korundu) + lansman göstergeleri + AI BYOK pattern (TUR #110+).
+
+---
+
+## ARŞİV — TUR #101+#102+#103+#104 BİRLEŞİK KAPALI ✅ (9 May 2026)
 
 **Durum:** ✅ 4 büyük TUR atomik akışla teslim. CEO 4 birleşik direktif: AI metin + pazar lansmanı + e-baro + UYAP. Madde 24.14 (sıfır maliyet) + 25.3 R1 (TBB Reklam Yasağı) + 39 (TCK m.243 koruma) korundu. Mektup spec'in N1+N2+N3 atomları SKIP — Madde 14.3 mevcut UTM altyapı tescil. Hearing modeli reddedildi — Durusma korundu (duplikat yasak).
-
-**Sıradaki adaylar:** Lansman göstergeleri + AI BYOK pattern (TUR #110+) veya CEO yeni direktifi.
 
 ---
 
@@ -35,6 +41,7 @@
 | #102 ✅ | Pazar Lansmanı + UTM (UtmLinkBuilder + Pazarlama entegrasyon, mevcut UTM altyapı KORUNDU) | N0+N6+N9+N11 (4 canlı, N1+N2+N3+N4+N5+N7+N8 SKIP Madde 14.3) | 0 | v1.24.0 MINOR |
 | #103 ✅ | e-baro Manuel Adapter + ADMIN UX butonları + ActivityLog | E0-E5 (6 atom, hepsi canlı) | 0 | v1.24.0 MINOR |
 | #104 ✅ | UYAP Manuel Veri (Lead+2 alan + uyap.routes + UyapPanel + yasal-bilgi sayfa, Hearing reddedildi Madde 14.3) | U0-U5+U9 (7 canlı, U6+U7+U8 mevcut altyapı korundu) | 0 (TCK m.243 koruma) | v1.24.0 MINOR |
+| #105 ✅ | Tazminat Hesapla UX Fix (form etiketi/formül çelişkisi — label + default 0 + UX guard + dinamik renk, formül dokunulmadı Madde 14.3) | T0-T3 keşif + 3 atom fix (Step2 label/Step2 default/Step3 guard) | 0 | v1.24.1 PATCH |
 | **TOPLAM** | **Tedbirge.ai 2.0** | 34 atom | 1 KIRMIZI | $0 maliyet |
 
 ## LATER — TUR #101+ Adayları

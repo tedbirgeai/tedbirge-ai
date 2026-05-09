@@ -3788,6 +3788,37 @@ Copy:     navigator.clipboard.writeText(...)
 
 ---
 
+## 31.11 — Sıfır Sonuç UX Guard Disiplini (TUR #105 — 9 May 2026, mimar hatası 46 tescil)
+
+**Kural:** Public hesaplama/değerlendirme formlarında matematiksel `0` veya `NaN` sonucu kullanıcıya **çıplak** gösterilemez. Her zaman:
+1. **Açıklayıcı uyarı kartı** (neden sıfır çıktı, ne yapması gerek)
+2. **Avukat değerlendirmesi CTA** (ücretsiz başvuru linki)
+3. **Form etiketi formülle UYUMLU olmalı** — kullanıcı yanlış yöne yönlendirilemez (Madde 4.4 emsal)
+
+**TUR #105 emsal (46. mimar hatası tescili):**
+
+`/tazminat-hesapla` Step2 form etiketi:
+- ❌ `"Kusur Yüzdesi (%) — karşı taraf kusuru"` + tooltip `"Karşı tarafın sizin hasarınızdaki kusur oranı (örn. %75)"`
+- Formül: `(maluliyet/100) × maaş × 12 × PMF × (1 − kusur/100)` (kullanıcının **kendi kusur oranı** için doğru)
+- Default kusur: `75` (form etiketiyle uyumlu — "karşı taraf %75 kusurlu" → ama formül bunu "kendi kusurum %75" sayıp tazminatı %25'e indiriyor)
+- CEO 9 May 22:50 Production smoke: Trafik · Konya · Yaş 45 · Maaş 28k · Maluliyet 10 · Kusur 100 · PMF 16 → **₺0 — ₺0** (beklenen ~₺537.600)
+
+**Düzeltme atomu (3 satır seviyesi, formül DOKUNULMADI — Madde 14.3):**
+1. **Etiket:** `"Kendi Kusur Oranınız (%) *"` + tooltip `"SİZİN kazadaki kusur oranınız. %0 = hiç kusurum yok (tam tazminat) · %100 = tüm kusur bende (mevzuat gereği tazminat alamam)"`
+2. **Default:** `kusur: 75 → 0` (en yaygın senaryo: müvekkil hasarlı, karşı taraf kusurlu)
+3. **Renk dinamik:** `≤30 yeşil · 30-70 sarı · >70 kırmızı` (eski sabit yeşil yanıltıcıydı)
+4. **Step3 UX guard:** `kusur >= 100` → AMBER UYARI KARTI (₺0 yerine açıklama + avukat CTA), aksi halde aralık göster
+
+**Yasak:**
+- ❌ Form etiketi formülle ÇELİŞMESİ ("karşı taraf kusuru" yazıp kullanıcıdan kendi kusurunu istemek)
+- ❌ Sıfır sonuç çıplak gösterilmesi (`₺0 — ₺0` kartı pratik değil — UX guard zorunlu)
+- ❌ Yanıltıcı default değer (75 = kullanıcı %75 kendi kusur olduğunu düşünmez, etiket "karşı taraf" der ama formül "kendi" varsayar)
+- ❌ Renk kodu yanlış semantik (yeşil = iyi, kırmızı = kötü — yüksek kusur = kötü, düşük kusur = iyi olmalı)
+
+**Madde 4.4 (kanıt-bazlı tanı) emsali:** Mektup Senaryo A (regresyon commit) hipotezini önerdi. Git log son 14 gün tazminat-hesapla'ya doğrudan dokunan commit YOK (sadece brand color refactor — `c396b38`/`71dbb3d`). **Senaryo B (UX bug) gerçek kök sebep** — form etiketi/formül semantik çelişkisi. Spekülatif "formül yeniden yaz" reddedildi.
+
+---
+
 ## 36. AI METİN ÜRETİCİ DİSİPLİNİ (TUR #101 — 9 May 2026)
 
 **Kural:** Tüm reklam/pazarlama metni üretimi **hazır şablon kütüphanesi tabanlıdır** (Madde 24.14 — sıfır maliyet). AI feature flag opsiyonel (default kapalı), açılırsa **BYOK pattern** (kullanıcı kendi API key'ini girer — TUR #110+ adayı).
@@ -3895,10 +3926,10 @@ Mehmet Bey sahaya çıkabilsin diye bu disiplin var.
 
 ---
 
-**— Tedbirge Mimari Anayasası v1.24.0**  
-**Toplam 109 TUR · 476+ atom sapma 0 · 56 kalibrasyon · 45 mimar hatası → 56 anayasa maddesi**  
-**🚀 PAZAR LANSMANI HAZIR + e-BARO + UYAP YASAL SINIRLARDA 🚀**  
-**Aktif Kesit:** TUR #101+#102+#103+#104 BİRLEŞİK KAPALI (AI metin + UTM + e-baro + UYAP manuel — Madde 36+37+38+39 yeni)  
+**— Tedbirge Mimari Anayasası v1.24.1**  
+**Toplam 110 TUR · 481+ atom sapma 0 · 57 kalibrasyon · 46 mimar hatası → 56 anayasa maddesi**  
+**🛠️ TAZMİNAT HESAPLA UX FIX — FORM/FORMÜL ÇELİŞKİSİ TESCİL 🛠️**  
+**Aktif Kesit:** TUR #105 KAPALI (Tazminat Hesapla form etiketi/formül çelişkisi — UX guard + label fix + default 0 — 46. mimar hatası tescil)  
 **Tüm sürüm geçmişi + TUR detayları + atom kayıtları: `tedbirge-os/MIMARI_KARARLAR.md`**
 
 **Versiyon geçmişi: tedbirge-os/MIMARI_KARARLAR.md**  
