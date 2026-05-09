@@ -6,6 +6,35 @@
 
 ---
 
+## 9 Mayıs 2026 gece (TUR #105 hemen sonrası) — TUR #105.5 KARARI — VERSION SENKRON MİKRO FIX (47. mimar hatası tescil)
+
+**Karar:** `sync-version.js` çalıştırıldı (backend 1.5.1→1.6.0, panel 1.6.1→1.7.1). Madde 22.9 R2 yeni: PATCH/MINOR bump'ında sync-version.js commit-öncesi zorunlu.
+
+**Kök sebep:** TUR #105 OS commit `bdbf8f6` `tedbirge-os/version.json`'ı 1.24.1'e güncelledi ama `tedbirge-os/scripts/sync-version.js` ÇALIŞTIRILMADI → `tedbirge-panel/package.json` (1.6.1) ve `tedbirge-ai/package.json` (1.5.1) drift kaldı.
+
+**Sebep:**
+- Madde 22.9 (sürüm tek-kaynak) ihlali — version.json source-of-truth ama package.json'lara yansımadı
+- CEO 9 May 23:19 production footer `v1.24.0` görünce yakaladı (Render deploy gecikmesi + drift birleşik)
+- Madde 4.4 (kanıt-bazlı): mektup spec "version.json güncellenmedi" hipotezini sınadım → version.json zaten doğru, gerçek bug package.json drift
+
+**Alternatif (mimar tarafından reddedildi):**
+- V1 (mektup spec: anayasa+panel bump) — version.json zaten doğru, gereksiz değişiklik (Madde 14.3 + 4.4)
+- Manuel package.json düzenleme — script var (sync-version.js), manuel YASAK (Madde 22.9 R2 yeni)
+- Husky pre-commit hook ekleme — npm install gerek (Madde 24.14), TUR #110+ adayı
+
+**Etki:**
+- Anayasa: Madde 22.9 R2 yeni (PATCH/MINOR bump'ında sync-version.js zorunlu)
+- Sürüm: anayasa 1.24.1 KORUNDU (zaten doğruydu), backend 1.5.1→1.6.0, panel 1.6.1→1.7.1
+- Mimar hatası sayacı: 46 → 47
+- Dosya: 2 package.json + 5 OS belge (atomik commit)
+- Maliyet: $0
+
+**Mimar:** Claude Opus 4.7 (mektup yazımı) + Claude Code (otonom uygulama)
+
+**47. mimar hatası tescili:** Sync script var ama otomatik tetikleme yok → mimar OS commit hazırlarken script çağrısını atladı. Çözüm: husky pre-commit hook (TUR #110+ adayı) — version.json diff varsa sync-version.js otomatik çalıştır.
+
+---
+
 ## 9 Mayıs 2026 gece — TUR #105 KARARI — TAZMİNAT HESAPLA UX FIX (Anayasa v1.24.0 → v1.24.1 PATCH, 46. mimar hatası tescil)
 
 **Karar:** `/tazminat-hesapla` Step2 form etiketi formülle uyumsuzdu — **Senaryo B (UX guard + label fix + default değişikliği)** uygulandı, formül DOKUNULMADI.

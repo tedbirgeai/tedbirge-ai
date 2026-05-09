@@ -5,11 +5,17 @@
 
 ---
 
-## NOW — TUR #105 KAPALI ✅ (9 May 2026 gece, hotfix)
+## NOW — TUR #105.5 KAPALI ✅ (9 May 2026 gece, mikro fix — TUR #105 hemen sonrası)
 
-**Durum:** ✅ Tazminat Hesapla form etiketi/formül çelişkisi giderildi (mimar hatası 46 tescil). CEO production smoke ₺0 → ₺537.600 (default kusur 75→0 + label "Kendi Kusur" + UX guard kusur=100 + dinamik renk). Formül DOKUNULMADI (Madde 14.3 — kanıtlı UX bug, formül matematiksel doğru). 4 senaryo manuel hesap doğrulama geçti.
+**Durum:** ✅ Sürüm tek-kaynak senkron disiplini tescil. TUR #105 OS commit version.json'ı 1.24.1'e güncellemiş ama `sync-version.js` çalıştırılmamış → package.json'lar drift (backend 1.5.1, panel 1.6.1). CEO 23:19 production footer `v1.24.0` görünce yakaladı. Atom: sync script çalıştırıldı (backend 1.5.1→1.6.0 + panel 1.6.1→1.7.1). Madde 22.9 R2 yeni: PATCH/MINOR bump'ında sync-version.js zorunlu.
 
-**Sıradaki adaylar:** TUR #106 → CLAUDE.md modülerleştirme (öncelik korundu) + lansman göstergeleri + AI BYOK pattern (TUR #110+).
+**Sıradaki adaylar:** TUR #106 → CLAUDE.md modülerleştirme (öncelik korundu) + sync-version.js husky pre-commit hook (TUR #110+ adayı) + lansman göstergeleri.
+
+---
+
+## ARŞİV — TUR #105 KAPALI ✅ (9 May 2026 gece, hotfix)
+
+**Durum:** ✅ Tazminat Hesapla form etiketi/formül çelişkisi giderildi (mimar hatası 46 tescil). CEO production smoke ₺0 → ₺537.600 (default kusur 75→0 + label "Kendi Kusur" + UX guard kusur=100 + dinamik renk).
 
 ---
 
@@ -42,6 +48,7 @@
 | #103 ✅ | e-baro Manuel Adapter + ADMIN UX butonları + ActivityLog | E0-E5 (6 atom, hepsi canlı) | 0 | v1.24.0 MINOR |
 | #104 ✅ | UYAP Manuel Veri (Lead+2 alan + uyap.routes + UyapPanel + yasal-bilgi sayfa, Hearing reddedildi Madde 14.3) | U0-U5+U9 (7 canlı, U6+U7+U8 mevcut altyapı korundu) | 0 (TCK m.243 koruma) | v1.24.0 MINOR |
 | #105 ✅ | Tazminat Hesapla UX Fix (form etiketi/formül çelişkisi — label + default 0 + UX guard + dinamik renk, formül dokunulmadı Madde 14.3) | T0-T3 keşif + 3 atom fix (Step2 label/Step2 default/Step3 guard) | 0 | v1.24.1 PATCH |
+| #105.5 ✅ | Version Senkron Mikro Fix (sync-version.js çalıştırıldı: backend+panel package.json drift kapatıldı) | V0-V4 (5 atom, Madde 22.9 R2 yeni) | 0 | v1.24.1 PATCH (anayasa korundu) |
 | **TOPLAM** | **Tedbirge.ai 2.0** | 34 atom | 1 KIRMIZI | $0 maliyet |
 
 ## LATER — TUR #101+ Adayları

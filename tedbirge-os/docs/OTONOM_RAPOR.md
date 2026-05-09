@@ -1,4 +1,63 @@
-# OTONOM RAPOR — TUR #105 — TAZMİNAT HESAPLA UX FIX (MİMAR HATASI 46)
+# OTONOM RAPOR — TUR #105.5 — VERSION SENKRON MİKRO FIX (MİMAR HATASI 47)
+
+## TUR #105.5 — 9 MAY 2026 GECE MİKRO FIX ✅ KAPALI
+
+**Tarih:** 9 Mayıs 2026 gece (TUR #105 hemen sonrası, CEO 23:19 yakalama)
+**Anayasa:** v1.24.1 PATCH (Madde 22.9 R2 yeni — sync-version.js zorunlu)
+**Tip:** Mikro fix (sürüm tek-kaynak senkron borç)
+**Atom:** V0-V4 (5 atom)
+**KIRMIZI:** 0
+**Maliyet:** $0 · 0 npm install · 0 schema
+
+---
+
+### CEO BULGU (23:19)
+- URL: `https://tedbirge.ai/tazminat-hesapla` adım 3
+- Footer: `Tedbirge.ai · v1.24.0`
+- Beklenen: `v1.24.1` (TUR #105 anayasa bump)
+
+### KEŞİF (V0)
+- Lokal `tedbirge-os/version.json`: **`anayasa: 1.24.1`** + **`panel: 1.7.1`** ✅ (TUR #105 commit `bdbf8f6` içinde güncellenmişti)
+- Production `/api/version`: **`anayasa: 1.24.0`** + **`panel: 1.7.0`** ❌ (eski)
+- `tedbirge-panel/package.json`: **`1.6.1`** (TUR #100.10 sürümü) ❌
+- `tedbirge-ai/package.json`: **`1.5.1`** (TUR #100.10 sürümü) ❌
+
+**Çift kök sebep:**
+1. **47. mimar hatası:** TUR #105 OS commit'inde `tedbirge-os/scripts/sync-version.js` ÇALIŞTIRILMADI → package.json'lar drift
+2. **Render backend deploy gecikmesi:** TUR #105 commit ~30 dk önce push edildi, deploy henüz tamamlanmamış (Render normal süre 5-15 dk büyük backend)
+
+### KARAR (Madde 4.4 — kanıt-bazlı)
+- V1 (mektup spec: anayasa 1.24.1 + panel 1.7.1 bump) **SKIP** — version.json zaten doğru, gereksiz değişiklik yasak (Madde 14.3 + 4.4)
+- Onun yerine: **`sync-version.js` ÇALIŞTIRILDI** → backend 1.5.1→1.6.0 + panel 1.6.1→1.7.1 senkron
+- Madde 22.9 R2 yeni: PATCH/MINOR bump'ında sync-version.js commit-öncesi ZORUNLU
+
+### V2 — Hardcoded sürüm taraması
+```bash
+grep -rn "1.24.0|v1.24.0" tedbirge-panel/ src/ --include="*.tsx" --include="*.ts" --include="*.js" --include="*.json"
+```
+- **Sonuç:** 0 hardcoded sürüm string (Madde 22.9 zaten temiz). Sadece `package-lock.json` içinde `1.24.0` literal eşleşmesi (paket bağımlılık sürümü, marka sürümü değil — false positive).
+
+### V3 — Smoke
+- `node tedbirge-os/scripts/sync-version.js` çıktı:
+  - `tedbirge-ai (backend): 1.5.1 → 1.6.0` ✅
+  - `tedbirge-panel: 1.6.1 → 1.7.1` ✅
+- TypeScript / build dokunulmadı (sadece package.json version field).
+
+### V4 — 5 Belge OS Senkron
+- CLAUDE.md: Madde 22.9 R2 yeni eklendi + footer v1.24.1 (mevcut korundu) + mimar hatası sayacı 46→47
+- DEVIR_RAPORU_AKTIF.md: TUR #105.5 satır + 47. mimar hatası tescil + 4. mimar hatası TUR sayacı
+- IS_PLANI.md: NOW TUR #105.5 + tablo satır
+- OTONOM_RAPOR.md: TUR #105.5 detay (bu rapor)
+- MIMARI_KARARLAR.md: 9 May gece TUR #105.5 karar
+
+### MİMAR DERSLERİ (3)
+1. **Sync script otomatik tetiklenmeli (TUR #110+ adayı):** husky pre-commit hook → version.json değişti mi diff kontrol → sync-version.js zorunlu
+2. **Mektup spec hipotezini Madde 4.4 ile sınama:** Mektup "47. mimar hatası: version.json güncellenmedi" varsaydı, gerçek "version.json güncellendi ama package.json sync atlandı" — kanıt-bazlı tanı mektup hipotezini düzeltti
+3. **Render deploy gecikmesi UI yanılgısı:** CEO `v1.24.0` görse de aslında 2 farklı problem (deploy bekleme + package.json drift). İki sorun aynı anda çözüldü, akış kapandı
+
+---
+
+# ARŞİV — TUR #105 — TAZMİNAT HESAPLA UX FIX (MİMAR HATASI 46)
 
 ## TUR #105 — 9 MAY 2026 GECE HOTFIX ✅ KAPALI
 

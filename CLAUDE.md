@@ -1004,6 +1004,36 @@ Anayasa versiyonu MIMARI_KARARLAR.md'ye yazılırken **tarih + commit hash + aç
 
 Versiyon kuralları **Madde 20.6 ile uyumlu** olmalı. Çelişki olursa Madde 20.8 (anayasa çatışması) süreci uygulanır.
 
+### 22.9 R2 — PATCH/MINOR Bump'ında sync-version.js Zorunlu (TUR #105.5 — 9 May 2026, mimar hatası 47 tescil)
+
+**Kural:** `tedbirge-os/version.json` güncellendiğinde (anayasa veya panel veya backend versiyon bump), commit öncesi **`node tedbirge-os/scripts/sync-version.js`** ZORUNLU çalıştırılmalı. Aksi halde `package.json` sürümleri version.json ile drift olur — frontend `useVersion` hook anayasa sürümünü gösterir ama panel `package.json.version` (build display) eski kalır.
+
+**TUR #105.5 emsal (47. mimar hatası tescili):**
+TUR #105 OS commit `bdbf8f6` `version.json` `anayasa: 1.24.0 → 1.24.1` + `panel: 1.7.0 → 1.7.1` güncelledi ama **`sync-version.js` çalıştırılmadı**. Sonuç:
+- `tedbirge-panel/package.json`: `1.6.1` (TUR #100.10 sürümü kalmıştı)
+- `tedbirge-ai/package.json`: `1.5.1` (TUR #100.10 sürümü kalmıştı)
+- `tedbirge-os/version.json`: `1.24.1` + panel `1.7.1` (doğru ama yalnız)
+
+CEO 9 May 23:19 Production footer `v1.24.0` gördü → kök sebep: Render backend deploy gecikmesi + version.json source-of-truth ile package.json drift birleşik.
+
+**Uygulama Pattern (Madde 22.4 + 30.26 birleşik):**
+```bash
+# 1. version.json güncelle (anayasa/panel/backend bump)
+# 2. sync-version.js ÇALIŞTIR (zorunlu)
+node tedbirge-os/scripts/sync-version.js
+# 3. 5 OS belge senkron (DEVIR_RAPORU + CLAUDE.md + IS_PLANI + OTONOM_RAPOR + MIMARI_KARARLAR)
+# 4. Atomik commit (version.json + 2 package.json + 5 OS belge)
+# 5. git push (Render + Vercel auto-deploy)
+```
+
+**Yasak:**
+- ❌ version.json güncellendikten sonra sync-version.js çalıştırmadan commit (47. mimar hatası emsali)
+- ❌ package.json'ı manuel düzenleme (script kullan, otomatik sync)
+- ❌ Sürüm bump commit'inde version.json ile package.json'ı ayrı commit etme (atomik şart)
+- ❌ Sync-version.js çalıştırma adımının pre-commit hook'a alınmadan kalıcı bırakılması (TUR #110+ adayı: husky pre-commit hook)
+
+---
+
 ### 22.9 — Sürüm Tek-Kaynak Disiplini (TUR #100.8 — 8 May 2026)
 
 **Kural:** Tüm sürüm bilgileri `tedbirge-os/version.json` dosyasından okunur. Hardcoded sürüm string'i UI'da YASAK. UI'da sürüm gösteren her komponent `useVersion` hook'unu kullanır.
@@ -3927,9 +3957,9 @@ Mehmet Bey sahaya çıkabilsin diye bu disiplin var.
 ---
 
 **— Tedbirge Mimari Anayasası v1.24.1**  
-**Toplam 110 TUR · 481+ atom sapma 0 · 57 kalibrasyon · 46 mimar hatası → 56 anayasa maddesi**  
-**🛠️ TAZMİNAT HESAPLA UX FIX — FORM/FORMÜL ÇELİŞKİSİ TESCİL 🛠️**  
-**Aktif Kesit:** TUR #105 KAPALI (Tazminat Hesapla form etiketi/formül çelişkisi — UX guard + label fix + default 0 — 46. mimar hatası tescil)  
+**Toplam 111 TUR · 486+ atom sapma 0 · 58 kalibrasyon · 47 mimar hatası → 56 anayasa maddesi**  
+**🔄 SÜRÜM SENKRON DİSİPLİNİ TESCİL — sync-version.js ZORUNLU 🔄**  
+**Aktif Kesit:** TUR #105.5 KAPALI (version.json + package.json drift — sync-version.js çalıştırılmadı, Madde 22.9 R2 yeni, 47. mimar hatası tescil)  
 **Tüm sürüm geçmişi + TUR detayları + atom kayıtları: `tedbirge-os/MIMARI_KARARLAR.md`**
 
 **Versiyon geçmişi: tedbirge-os/MIMARI_KARARLAR.md**  
