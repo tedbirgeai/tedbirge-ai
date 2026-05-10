@@ -338,6 +338,38 @@ Mehmet Bey sahaya çıkabilsin diye bu disiplin var.
 
 ---
 
-**— Tedbirge Mimari Anayasası v1.0**  
-**25 Nisan 2026, Claude Opus 4.7**  
+**— Tedbirge Mimari Anayasası v1.27.0 MINOR**
+**Son güncelleme: 10 Mayıs 2026 Pazar (TUR #110 KAPALI — production live)**
+
+---
+
+## ANAYASA EVRİM — TUR #110 (10 May 2026)
+
+**Son durum:** v1.27.0 MINOR — 3 yeni madde tescil (Madde 30.61 + 30.62 + 30.63).
+
+- **Madde 30.61 — Single Source of Truth Disiplini** (TUR #109 A1 + #110 emsal): Hardcoded modül listesi YASAK. `src/os/registry.js` + `getOSModules()` helper tek kaynak.
+- **Madde 30.62 — Module Active Task Disiplini** (TUR #109 A2 emsal): `runActiveTask()` gerçek aktör olmak zorunda; sadece `runStatusCheck` çağırıp `ACTION_TAKEN` yazmak Madde 30.17 ihlali.
+- **Madde 30.63 — Reconciler Drift Detection Disiplini** (TUR #110 A3 yeni): Auto-detect EVET, auto-fix YOK. ADMIN_FEED bildirim + manuel onay zorunlu (Madde 24.11).
+
+**TUR #110 sayısal özet:**
+- 8/17 atom kanıt-bazlı uygulandı (A3 + A4 + A6 + A8 + C1 + C2 + C3 + D1+D3)
+- 9/17 atom dürüst DEFER (A5 audit trail koruma + A7 mimar oturumu + B1-B4 manuel Niyazi smoke)
+- 2 KIRMIZI nokta (judicialResponse model + Lead.firstRealLead) — CEO sessiz onay (Madde 30.25)
+- Backend `1.6.0 → 1.7.0` · Panel `1.9.0 → 1.10.0` · Schema `1.3.0 → 1.4.0`
+- Production deploy: commit `ead8a6b` (backend) + `58a730c` (panel) — live ✅
+- $0 maliyet · 0 npm install · 23 ardışık temiz TUR REKOR (#90 → #110)
+
+**6 modül DEFER kanıt eşiği (Madde 28):** opposingParty (5 dava) · customerSentiment (30 müvekkil) · lawyerContractLifecycle (12 ay) · trustIndex (30 müvekkil + 5 WON) · financialFlowGuard (5 komisyon havalesi) · zamanasimiGuard (10 aktif dava).
+
+**Pazartesi 11 May 09:00 — Niyazi sahaya çıkış HAZIR.** İlk gerçek müvekkil akışı başlıyor.
+
+**Mimar hatası 50+51 dersleri:** Mimar (sohbet Claude) **CEO sözünün üzerine modül listesi pişirme refleksini** tespit ederse anında DUR (Madde 4.3 + 14.5). TUR #109 emsali — kod-kanıtsız 28 atom önerisi → 26 DEFER. TUR #110 düzeltme — 17 atom mektup, %47 uygulama, dürüst DEFER zinciri.
+
+**NEXT — TUR #111:** Ya ekrandaki 3 somut sorun fix (Footer 15/16 + Kurtarma retry + Güvenlik 2FA bildirim) ya Niyazi ilk gerçek lead retrospektifi. CEO seçimi (Madde 17.5).
+
+**Detay:** `tedbirge-os/MIMARI_KARARLAR.md` (TUR #110 kararı tam giriş + 6 modül DEFER tablosu) + `tedbirge-os/docs/OTONOM_RAPOR.md` (8 atom uygulama + 9 DEFER kanıt zinciri).
+
+---
+
+**25 Nisan 2026 v1.0 → 10 Mayıs 2026 v1.27.0 (110 TUR, 51 mimar hatası → 64 anayasa maddesi)**
 **Versiyon değişikliği için MIMARI_KARARLAR.md kaydı zorunlu**
