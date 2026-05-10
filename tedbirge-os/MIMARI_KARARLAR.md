@@ -6,6 +6,46 @@
 
 ---
 
+## 10 Mayıs 2026 — TUR #108 KARARI — OS DEPENDENCY MAPPING (Pure Keşif, Mimar Hatası 50 Düzeltme)
+
+**Karar:** Pure keşif TUR'u — kod değişikliği YOK, 3 tanı raporu üretildi. Sohbet mimarının 12 modül önerisi öncesi mevcut 17 OS modülünün gerçek dependency haritası çıkarıldı (TUR #97 emsali — pure tanı pattern).
+
+**Sebep:**
+- Mimar hatası 50 (10 May tescil): Sohbet mimarı 12 yeni modül önerdi (sonra 8 daha eklendi → 37 zihinsel model), hiçbiri kod gerçeğine dayalı değildi
+- CEO direktifi (lafzen): *"Sen bizim vizyonumuz ile yurtdışı vizyonumuzu hesaplayarak parçalı iş işletim sistemi mi kuracaksın? Önce DUR. 17 modülü gerçekten haritala. Üst kat çıkmadan önce temeli gör."*
+- Madde 4.4 (kod kaynak) + Madde 14.5 (Mimar Hatası Proaktif Tarama) + TUR #97 emsali (8 May AccidentCase tanı raporu pattern)
+
+**Alternatif (mimar tarafından reddedildi):**
+- Doğrudan TUR #109 mektubu yazıp 12 modül önerisi devam — REDDEDİLDİ (Madde 4.3 — şüphede DUR, Madde 14.5 ihlali)
+- Kısmi keşif (sadece 3-5 modül) — REDDEDİLDİ (CEO talebi 17 modülün TAMAMI)
+
+**Etki:**
+- 3 dosya output (`outputs/TUR_108_OS_HARITA.md` + `TUR_108_DEPENDENCY_GRAPH.md` + `TUR_108_GERCEK_EKSIKLER.md`)
+- 5 OS belge senkron + tek atomik commit (kod commit YOK)
+- TUR #109 sohbet mimarı oturumu için SOMUT temel
+
+**Kalıcı pattern (Madde 14.5 emsal genişleme):**
+- Yeni modül önerisi öncesi **mevcut modül haritası kanıtı** zorunlu (kod-bazlı, zihinsel değil)
+- Pure keşif TUR'u (kod yok, sadece tanı) "TUR #X.Y bulgu kapatma turu" alternatifi olarak meşru
+- 3 dosya formatı (HARİTA + GRAPH + EKSİKLER) gelecek keşif TUR'ları için emsal
+
+**Bulgular özet (3 dosyada detay):**
+1. 17 modül × 9092 satır toplam iş kodu, runStatusCheck 1459 + runActiveTask 1170
+2. Module-modül direct import: 0 (full isolation, EventBus üstünden)
+3. EventBus emit:listen oranı 15:1 (zengin altyapı, az tüketici — 3 listener: healer, reporter, notifications)
+4. Service-modül entegrasyon: 5 nokta (KVKK adapter ağırlıklı)
+5. External API bağımlı: 4/17 modül (ai, backup, deploy, navigation)
+6. ADMIN_FEED yazıcı: 13/17 modül + 3 ek nokta
+7. **mimarHatasi modülü `/api/agents-health` endpoint'inde GÖRÜNMÜYOR** (registry 17, route 16) — Madde 30.10 inkonsistansı
+8. Reconciler POLICY_HANDLERS map TODO (drift detection theoretical)
+9. Boot 12 step, 8 optional/stub
+10. HAL Adapter 9 type, 5 STUB mode
+11. 2 ayrı Auditor implementation (modules/ + agents/) — sorumluluk farklı, isim çakışması
+
+**Mimar:** Claude Opus 4.7 (1M context) — 10 Mayıs 2026 sabaha karşı oturum (Code raporu, sohbet mimarı için temel)
+
+---
+
 ## 10 Mayıs 2026 sabaha karşı — TUR #107 KARARI — TAM DONANIM (Anayasa v1.25.0 → v1.26.0 MINOR, 49. mimar hatası tescil — parçalı iş)
 
 **Karar:** Major refactor + 1 yeni modül + UX standartlaştırma:

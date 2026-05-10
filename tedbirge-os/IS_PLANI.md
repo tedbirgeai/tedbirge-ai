@@ -1,15 +1,29 @@
 # TEDBİRGE.AI YOL HARİTASI v1.0
-**Son güncelleme:** 10 Mayıs 2026 sabaha karşı (🛡️ TUR #107 — TAM DONANIM)
-**Anayasa versiyonu:** v1.26.0 MINOR (Madde 17.2 R1 + 31.14 + 31.15 yeni)
+**Son güncelleme:** 10 Mayıs 2026 (🛡️ TUR #108 — OS DEPENDENCY MAPPING — PURE KEŞİF)
+**Anayasa versiyonu:** v1.26.0 (yeni madde tescili YOK — keşif TUR'u, evrim TUR #109+ kararı)
 **İlke:** MoSCoW + Now-Next-Later hibrit (Madde 24.5)
 
 ---
 
-## NOW — TUR #107 KAPALI ✅ (10 May 2026 sabaha karşı, major refactor)
+## NOW — TUR #108 KAPALI ✅ (10 May 2026, pure keşif — kod değişikliği YOK)
+
+**Durum:** ✅ Mimar Hatası 50 düzeltme yolu — sohbet mimarının 12 modül önerisi öncesi gerçek OS haritası çıkarıldı. 17 OS modülü uçtan uca taranadı (9092 satır iş kodu), 3 katman (modül-içi yapı + modül-modül bağ + AgentEvent/RealtimeEvent communication) tanı raporlandı. **3 dosya `outputs/`:** TUR_108_OS_HARITA.md (12 keşif sorusu cevabı + production AgentEvent dağılımı) + TUR_108_DEPENDENCY_GRAPH.md (Mermaid görsel) + TUR_108_GERCEK_EKSIKLER.md (7 kritik + 5 orta + 5 yeni tanı). 0 KIRMIZI · 0 schema · 0 npm · 0 commit (panel + backend) · $0 maliyet.
+
+**Kritik bulgular özet:**
+1. mimarHatasi modülü `/api/agents-health` endpoint'inde GÖRÜNMÜYOR (registry 17, route hardcoded 16) — Madde 30.10 inkonsistansı
+2. Module-modül direct import: 0 — yeni öneri "X modülü Y'yi tetikler" varsayımıyla yapılırsa MİMARİ DEĞİŞİKLİK gerek
+3. Reconciler altyapısı kurulu ama POLICY_HANDLERS map TODO (drift detection theoretical)
+4. Boot sequence 12 step, 8 optional/stub
+5. HAL Adapter 9 type, 5 STUB mode
+6. 2 ayrı Auditor implementation (modules/ vs agents/) — isim çakışması, sorumluluk farklı
+
+**Sıradaki adaylar (TUR #109 mimar oturumu):** Sohbet mimarı 3 dosyayı okuyup **kendi 12 modül önerisini kod gerçeğiyle karşılaştıracak**. Üç olası yön: (a) mevcut 17 modülün gap'lerini kapatma (mimarHatasi visibility + Reconciler handlers + STUB adapters), (b) iş katmanı modülleri (B2B, KVKK, içerik, ödeme) genişletme, (c) hibrit. **CEO kararı (Madde 17.5).**
+
+---
+
+## ARŞİV — TUR #107 KAPALI ✅ (10 May 2026 sabaha karşı, major refactor)
 
 **Durum:** ✅ Tam donanım mektubu — CEO 4 bulgu (yaralanma seçeneği yok + bekar+çocuk çelişki + aralık uçurum + parçalı iş yasağı) tek mektupta düzeltildi. **20 ardışık temiz TUR (#90 → #107) — REKOR.** lib/pmf.ts tek-kaynak (TRH-2010) + lib/yaralanmaHesap.ts ayrıştırıldı + Step1 mağduriyet türü (Trafik+İş için) + Step2Arac + bekar state cleanup + aralık standardı (±%8 vefat / ±%15 yaralanma / ±%10 araç). Madde 17.2 R1 (parçalı iş yasağı) emsal kalıcı.
-
-**Sıradaki adaylar:** TUR #108 → CLAUDE.md modülerleştirme (200k+ char teknik borç KRİTİK) + 3 prerender bug fix + Niyazi sahaya çıkış desteği.
 
 ---
 

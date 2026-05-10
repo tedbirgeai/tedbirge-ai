@@ -4073,10 +4073,10 @@ Mehmet Bey sahaya çıkabilsin diye bu disiplin var.
 ---
 
 **— Tedbirge Mimari Anayasası v1.26.0**  
-**Toplam 113 TUR · 519+ atom sapma 0 · 60 kalibrasyon · 49 mimar hatası → 61 anayasa maddesi**  
-**🛡️ TAM DONANIM — Yaralanma + Vefat + Aralık Standardı + Bekar Mantık 🛡️**  
-**Aktif Kesit:** TUR #107 KAPALI (Mağduriyet türü + Yaralanma lib + PMF tek-kaynak + Bekar mantık + Aralık standardı — Madde 17.2 R1 + 31.14 + 31.15 yeni, 49. mimar hatası tescil — parçalı iş)  
-**20 ardışık temiz TUR (#90 → #107) — REKOR**  
+**Toplam 114 TUR · 519+ atom sapma 0 · 60 kalibrasyon · 50 mimar hatası → 61 anayasa maddesi**  
+**🔬 TUR #108 — OS DEPENDENCY MAPPING (Pure Keşif, Mimar Hatası 50 Düzeltme Yolu) 🔬**  
+**Aktif Kesit:** TUR #108 KAPALI ✅ (Pure keşif — kod commit YOK · 17 OS modülü uçtan uca tarama · 3 tanı dosyası `outputs/` · 5 OS belge senkron · Mimar Hatası 50 düzeltme zemini)  
+**21 ardışık temiz TUR (#90 → #108) — yeni REKOR**  
 **Tüm sürüm geçmişi + TUR detayları + atom kayıtları: `tedbirge-os/MIMARI_KARARLAR.md`**
 
 **Versiyon geçmişi: tedbirge-os/MIMARI_KARARLAR.md**  

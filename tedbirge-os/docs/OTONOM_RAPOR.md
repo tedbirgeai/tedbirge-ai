@@ -1,6 +1,119 @@
-# OTONOM RAPOR — TUR #107 — TAM DONANIM (MİMAR HATASI 49 — PARÇALI İŞ YASAĞI)
+# OTONOM RAPOR — TUR #108 — OS DEPENDENCY MAPPING (PURE KEŞİF — MİMAR HATASI 50 DÜZELTME YOLU)
 
-## TUR #107 — 10 MAY 2026 SABAHA KARŞI ✅ KAPALI (20. ARDIŞIK TEMİZ TUR — REKOR)
+## TUR #108 — 10 MAY 2026 ✅ KAPALI (PURE KEŞİF — KOD DEĞİŞİKLİĞİ YOK)
+
+**Tarih:** 10 Mayıs 2026 (TUR #107 sonrası, CEO sabah Niyazi öncesi keşif direktifi)
+**Anayasa:** v1.26.0 (yeni madde tescili YOK — keşif TUR'u, evrim TUR #109+ kararı)
+**Tip:** Pure keşif (TUR #97 emsali — kod fix YOK, sadece tanı raporu)
+**Süre:** ~1 saat (3 katman tarama + 3 dosya yazımı + 5 OS belge senkron)
+**KIRMIZI:** 0 · $0 maliyet · 0 schema · 0 npm install · **0 commit (panel + backend)** — sadece OS belge senkron
+
+---
+
+### CEO DİREKTİFİ (10 May 2026)
+> *"Önce DUR. 17 modülü gerçekten haritala. Üst kat çıkmadan önce temeli gör."*
+> *"Sen bizim vizyonumuz ile yurtdışı vizyonumuzu hesaplayarak parçalı iş işletim sistemi mi kuracaksın?"*
+> *"Soru sorma, başla bitir. Pure keşif — kod yazma yok, mektup yazma yok."*
+
+### MİMAR HATASI 50 (10 May tescil)
+Sohbet mimarı (Claude Opus) önceki turda 12 yeni OS modülü önerdi (sonra 8 daha eklendi → 37 zihinsel model), hiçbiri **kod gerçeğine** dayalı değildi. CEO yakaladı, pure keşif TUR'u açıldı.
+
+---
+
+### KEŞİF KAPSAMI (3 KATMAN)
+
+#### Katman 1 — Modül-İçi Yapı (17 modül × 7 grep)
+- 17 modül: ai (624) + analyzer (615) + appearance (237) + backup (724) + compliance (689) + costGuard (626) + deploy (691) + insurance (284) + maintenance (536) + mimarHatasi (139) + navigation (360) + notifications (648) + performance (541) + pulse (598) + recovery (472) + security (689) + uyapControl (619) = **9092 satır**
+- runStatusCheck toplam: **1459 satır** (ortalama 86 satır/modül)
+- runActiveTask toplam: **1170 satır** (ortalama 69 satır/modül)
+- 21 env variable (ANTHROPIC, SUPABASE, RENDER, VERCEL, COST_BUDGET, vb.)
+
+#### Katman 2 — Modül-Modül Bağ
+- Module-module direct import: **0** (full isolation)
+- bus.emit toplam: ~46 (17 modül)
+- bus.on listener: **3** (healer auditor:finding, reporter ~8 RELAY_EVENTS, notifications 2 event)
+- registerPolicyHandler: ~50 kayıt (handler implementations TODO)
+
+#### Katman 3 — Cross-Module Communication
+- AgentEvent yazıcı: **17/17 modül** (üretim ~7102 event/24h)
+- RealtimeEvent ADMIN_FEED yazıcı: **13/17 modül** + 3 ek nokta (auditor.agent + auth.controller + reporter.agent)
+- Service-modül entegrasyon: **5 nokta** (lead.controller + document.controller + admin.os + os.events + runner)
+- Dış API bağımlı: **4/17 modül** (ai/Anthropic + backup/Supabase + deploy/Render+Vercel + navigation/Panel)
+
+---
+
+### 🔴 KRİTİK BULGULAR (3 dosya outputs/'da detay)
+
+**1. mimarHatasi modülü `/api/agents-health` endpoint'inde GÖRÜNMÜYOR**
+- `src/os/registry.js` 17 modül (mimarHatasi DAHİL)
+- `src/agents/auditor.agent.js` 17 modül (mimarHatasi DAHİL)
+- `src/routes/agent.routes.js:50-54` hardcoded **16 modül** (mimarHatasi YOK)
+- `src/controllers/admin.os.controller.js:25-32` hardcoded **16 modül** (mimarHatasi YOK)
+- Production curl: `moduleCounts: 16, mimarHatasi: false`
+- **Madde 30.10 (16 Modül Otonom Disiplini) kuralı 17 modül için kod tarafında güncel değil**
+
+**2. Module-modül direct communication varsayımı YANLIŞ**
+- 17 modül full isolation, EventBus emit:listen oranı 15:1
+- "X modülü Y'yi tetikler" varsayımı yapılırsa MİMARİ DEĞİŞİKLİK gerek (eventBus listener eklenmesi)
+
+**3. Reconciler POLICY_HANDLERS map gerçek implementations TODO**
+- `src/os/reconciler.js:41-44` `POLICY_HANDLERS = {}` boş
+- ~50 modül `registerPolicyHandler()` çağırır ama runReconcileTick handler invoke etmiyor
+- "Drift detection" theoretical
+
+**4. mimarHatasi runActiveTask sadece runStatusCheck çağırır**
+- `src/os/modules/mimarHatasi.js:135-137` → `return runStatusCheck()` (eylem YOK)
+- Madde 30.17 (Sadece sayma yapan modül YASAK) ihlali
+
+**5. Boot 12 step, 8 optional/stub** (Oracle, pg-boss, UYAP, SBM, VERBİS, KVKK SCC)
+
+**6. HAL Adapter 9 type, 5 STUB mode** (oracle, uyap, sbm, eimza STUB + vercel THIN)
+
+**7. 2 ayrı Auditor implementation** (modules/auditor.js drift detection + agents/auditor.agent.js 5dk tick)
+
+---
+
+### 3 DOSYA OUTPUT (PURE KEŞİF SONUCU)
+
+1. **`outputs/TUR_108_OS_HARITA.md`** — 17 modül satır-bazlı tablo + Prisma table kullanımı + service-modül map + production AgentEvent dağılımı + 12 keşif sorusu cevabı
+2. **`outputs/TUR_108_DEPENDENCY_GRAPH.md`** — Mermaid görsel diagram (Tam OS mimarisi + EventBus trafik + ADMIN_FEED pipeline + 5dk Auditor sequence diagram)
+3. **`outputs/TUR_108_GERCEK_EKSIKLER.md`** — Mimar tanısı (7 kritik + 5 orta + 5 yeni eksik) — sohbet mimarının 12 modül önerisi karşılaştırma zemini
+
+---
+
+### 5 OS BELGE SENKRON (Madde 30.26)
+
+1. ✅ **CLAUDE.md** — TUR sayım `113 → 114 TUR · 519+ → 519 atom (kod commit yok)` + kapanış başlığı güncelleme
+2. ✅ **DEVIR_RAPORU_AKTIF.md** — TUR #108 KAPALI özet + 3 dosya output linki + sıradaki TUR #109 mimar oturumu önerisi
+3. ✅ **IS_PLANI.md** — NOW: TUR #108 KAPALI ✅ pure keşif + sıradaki adaylar (mimarHatasi visibility fix / iş katmanı modülleri / hibrit)
+4. ✅ **docs/OTONOM_RAPOR.md** — Bu dosya (TUR #108 kapanış)
+5. ✅ **MIMARI_KARARLAR.md** — TUR #108 KARARI (pure keşif pattern + mimar hatası 50 düzeltme + bulgular özet)
+
+---
+
+### MİMAR DERSİ (TUR #97 + TUR #108 emsal zinciri)
+
+> **"Önce kod, sonra önerme."** Sohbet mimarı zihinsel modeller üretirken mevcut altyapının %67'sinin iskelet/stub durumda olduğunu görmedi. Pure keşif TUR'u (kod yok, sadece tanı raporu) yeni bir kesit/öneri öncesi **somut zemin** oluşturma pattern'i. TUR #97 (AccidentCase tanı) + TUR #108 (OS dependency mapping) bu pattern'in 2 emsali.
+
+> **3 dosya formatı (HARİTA + GRAPH + EKSİKLER)** gelecek keşif TUR'ları için kalıcı emsal.
+
+> **Madde 14.5 emsal genişleme:** Yeni modül önerisi öncesi mevcut modül haritası kanıtı zorunlu — zihinsel rapor değil, kod-bazlı.
+
+---
+
+### TUR #109 MİMAR OTURUMU İÇİN HAZIRLIK
+
+Sohbet mimarı 3 dosyayı okuyup **kendi 12 modül önerisini kod gerçeğiyle karşılaştıracak**. Üç olası yön:
+
+1. **(a) Mevcut 17 modülün gap'lerini kapatma** — mimarHatasi visibility fix (3 dosya hardcoded list refactor) + Reconciler handlers implementation + STUB adapters'in en az 1-2'si production-ready
+2. **(b) İş katmanı modülleri genişletme** — B2B SaaS LegalTech için yeni iş alanları (KVKK derinleştirme, içerik üretim, ödeme entegrasyonu)
+3. **(c) Hibrit** — bazı OS gap'i + bazı iş katmanı modülü
+
+**CEO kararı (Madde 17.5).** Mimar oturumu açılınca CEO 3 yön arasından (veya 4. yön — "şu an ekleme yapma, mevcut sistemi tüketelim") seçecek.
+
+---
+
+## ARŞİV — TUR #107 — 10 MAY 2026 SABAHA KARŞI ✅ KAPALI (20. ARDIŞIK TEMİZ TUR — REKOR)
 
 **Tarih:** 10 Mayıs 2026 sabaha karşı (TUR #106 sonrası, CEO 4 bulgu mektubu 10 May 01:00)
 **Anayasa:** v1.25.0 → v1.26.0 MINOR (Madde 17.2 R1 + 31.14 + 31.15 yeni)

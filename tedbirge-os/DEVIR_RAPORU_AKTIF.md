@@ -1,11 +1,106 @@
 # 🛡️ TEDBIRGE.AI — DEVİR RAPORU (AKTİF)
 
-📋 **ANAYASA:** v1.26.0 MINOR (Madde 17.2 R1 + 31.14 + 31.15 yeni — tam senaryo + aralık standardı + mirasçı mantık)
-📂 **🛡️ TAM DONANIM — yaralanma+vefat+aralık+bekar mantık tek mektup 🛡️**
-📅 **SON GÜNCELLEME:** 10 Mayıs 2026 sabaha karşı (TUR #107 — 20 ardışık temiz TUR #90→#107 REKOR)
-👤 **CEO Onay:** Mehmet DİNÇ — Madde 17.5 + 24.14 + 25.3 R1 + 30.25 + 36+37+38+39 sessiz onay
-🤖 **Mimar:** Claude Opus 4.7 (sohbet) + Claude Code (otonom uygulama, bypass açık)
-🌟 **Tarih:** 9 Mayıs 2026 — 4 BİRLEŞİK TUR ATOMIK AKIŞ
+📋 **ANAYASA:** v1.26.0 (yeni madde tescili YOK — TUR #108 pure keşif TUR'u, evrim TUR #109+ kararı)
+📂 **🔬 TUR #108 KAPALI — OS DEPENDENCY MAPPING (Pure Keşif, Mimar Hatası 50 Düzeltme Yolu) 🔬**
+📅 **SON GÜNCELLEME:** 10 Mayıs 2026 (TUR #108 — 21. ardışık temiz TUR #90→#108)
+👤 **CEO Onay:** Mehmet DİNÇ — *"Önce DUR. 17 modülü gerçekten haritala. Soru sorma, başla bitir."*
+🤖 **Mimar:** Claude Opus 4.7 (sohbet — sıradaki TUR #109'da gerçek mimar konuşması) + Claude Code (otonom keşif raporu)
+🌟 **Tarih:** 10 Mayıs 2026 — PURE KEŞİF TURU (kod commit YOK, sadece 3 tanı dosyası + 5 OS belge senkron)
+
+---
+
+## 🎯 TUR #108 ÖZET — PURE KEŞİF KAPSAMI
+
+**Tip:** TUR #97 emsali (8 May AccidentCase tanı raporu pattern) — kod fix YOK, sadece tanı.
+**Kapsam:** 17 OS modülü uçtan uca tarama (3 katman: modül-içi yapı + modül-modül bağ + AgentEvent/RealtimeEvent)
+**Süre:** ~1 saat (CEO sabah talimatı sonrası)
+
+### 3 Dosya Output
+1. **`outputs/TUR_108_OS_HARITA.md`** — 17 modül satır-bazlı tablo (9092 satır toplam) + 8 ortak DB tablo + service-modül map + production AgentEvent dağılımı (16 modül 12-15 event/h) + 12 keşif sorusu cevabı
+2. **`outputs/TUR_108_DEPENDENCY_GRAPH.md`** — Mermaid görsel (Tam OS mimarisi + EventBus trafik 46 emit/3 listener + ADMIN_FEED pipeline + 5dk Auditor sequence)
+3. **`outputs/TUR_108_GERCEK_EKSIKLER.md`** — 7 KRİTİK + 5 ORTA + 5 YENİ tanı (sohbet mimarının 12 modül önerisi karşılaştırma zemini)
+
+### 🔴 7 KRİTİK BULGU (TUR #109 mimar oturumu için)
+1. **mimarHatasi modülü `/api/agents-health` endpoint'inde GÖRÜNMÜYOR** — registry 17, route hardcoded 16 (Madde 30.10 inkonsistansı)
+2. **Reconciler POLICY_HANDLERS map gerçek implementations YOK** — drift detection theoretical
+3. **EventBus emit:listen oranı 15:1** — 46 emit, sadece 3 listener (healer/reporter/notifications)
+4. **mimarHatasi runActiveTask sadece runStatusCheck çağırır** — Madde 30.17 (sayma yapan modül YASAK) ihlali
+5. **Boot sequence 12 step, 8 optional/stub** — Oracle/pg-boss/UYAP/SBM/VERBİS bekliyor
+6. **HAL Adapter 9 type, 5 STUB mode** — vendor lock-in riski hala var
+7. **2 ayrı Auditor implementation** — `src/os/modules/auditor.js` (drift detection) vs. `src/agents/auditor.agent.js` (5dk tick) — sorumluluk farklı, isim çakışması
+
+### 🟡 5 ORTA BULGU
+8. Module-modül direct communication varsayımı YANLIŞ (0 import, 3 listener)
+9. notifications modülü tek "consumer-style" modül (fan-in)
+10. Service-modül entegrasyon az ama hassas (KVKK adapter)
+11. Adaptive threshold altyapısı kurulu (kullanım derinleşmesi gerek)
+12. Production'da Auditor HEALTHY (tüm tick'ler yeşil)
+
+### 🆕 5 YENİ TANI (sohbet mimarının görmediği)
+13. `OSPolicy` tablosu içeriği (boş mu, dolu mu? — TUR #109'da kontrol)
+14. `SystemEvent` tablosu retention (Healer purge listesinde mi?)
+15. `BootRecord` tablosu büyüklüğü (her cold start kayıt)
+16. Healer `AUDIT_FINDINGS/OPEN/` dosya tabanlı suggestions (UI'da görünür mü?)
+17. Anthropic adapter production usage gerçekliği (CEO ne sıklıkta açıyor?)
+
+---
+
+## 📊 KOD GERÇEĞİ ÖZETLE
+
+| Metrik | Değer |
+|---|---|
+| OS modülü sayısı (registry) | **17** |
+| OS modülü sayısı (production endpoint) | **16** ⚠️ |
+| Toplam iş kodu satırı | **9092** (3 agent dahil 9858) |
+| runStatusCheck toplam satır | 1459 |
+| runActiveTask toplam satır | 1170 |
+| Modül-modül direct import | **0** |
+| EventBus emit | ~46 |
+| EventBus listener | **3** |
+| ADMIN_FEED yazıcı modül | 13/17 + 3 ek nokta |
+| External API bağımlı modül | 4/17 |
+| Service-modül entegrasyon | 5 nokta |
+| Production AgentEvent / saat | 293 |
+| Production AgentEvent / 24h | 7102 |
+| Boot step sayısı | 12 (4 critical + 8 optional/stub) |
+| HAL Adapter | 9 type (4 production + 5 STUB) |
+
+---
+
+## 🎯 SIRADAKİ İŞ — TUR #109 MİMAR OTURUMU
+
+**CEO Mehmet Bey 3 dosyayı okuyup sohbet mimarına dönecek:**
+> *"Şimdi gerçek mimar konuşması yap."*
+
+**Sohbet mimarı (Claude Opus 4.7):**
+- 3 dosya output'unu **soğukkanlı oku**
+- Önceki 12 modül önerisini kod gerçeğiyle **dürüstçe karşılaştır**
+- Hangi öneri yanlıştı, hangi öneri yeni eksiği gerçekten karşılıyor
+- Mehmet Bey'in vizyonu (sıfır maliyet + B2B SaaS LegalTech + yurtdışı hazırlık) ile mevcut altyapıyı **dürüstçe birleştir**
+
+**3 olası yön (CEO seçecek — Madde 17.5):**
+1. **(a) OS gap kapatma** — mimarHatasi visibility fix + Reconciler handlers + STUB adapters
+2. **(b) İş katmanı genişletme** — B2B SaaS LegalTech için yeni iş modülleri
+3. **(c) Hibrit** — bazı OS gap + bazı iş katmanı
+4. **(d) Şu an ekleme yok** — mevcut sistemi tüket, lansman + büyüme
+
+---
+
+## 📜 ARŞİV — TUR #107 (10 May sabaha karşı)
+
+🛡️ **TAM DONANIM** — yaralanma+vefat+aralık+bekar mantık tek mektup
+- lib/pmf.ts tek-kaynak (TRH-2010) + lib/yaralanmaHesap.ts ayrıştırıldı
+- Step1 mağduriyet türü (Trafik+İş için) + Step2Arac
+- Bekar state cleanup + aralık standardı (±%8 vefat / ±%15 yaralanma / ±%10 araç)
+- Madde 17.2 R1 + 31.14 + 31.15 yeni · 49. mimar hatası tescil
+- 20 ardışık temiz TUR (#90 → #107) — REKOR
+
+---
+
+## 🌟 BUGÜNÜN BİLANÇOSU (Eski — 8 May)
+
+```
+TUR #90  ✅  CLAUDE.md compaction (246k → 162k char, -%34)
 
 ---
 
