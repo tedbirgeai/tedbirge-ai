@@ -116,6 +116,35 @@ const STATEMENTS = [
   // Duruşma takibi mevcut "Durusma" modeli ile yapılır (Madde 14.3 — duplikat yasak).
   `ALTER TABLE "Lead" ADD COLUMN IF NOT EXISTS "uyapDosyaTuru" TEXT`,
   `ALTER TABLE "Lead" ADD COLUMN IF NOT EXISTS "uyapNotlar" TEXT`,
+
+  // ─── TUR #110 C1 — JudicialResponse: ilk dava kapanisi veri toplama (Madde 28) ───
+  // 6 alan: leadId (FK unique) + finalAmount + tedbirgeAITahmin + deviationPct + judgeNotes + decisionDate
+  // Modul YOK — 50+ dava kayitlandiginda eklenir (kanit-bazli, mektup C2 emsali)
+  `CREATE TABLE IF NOT EXISTS "JudicialResponse" (
+     "id" TEXT NOT NULL,
+     "leadId" TEXT NOT NULL,
+     "finalAmount" DOUBLE PRECISION,
+     "tedbirgeAITahmin" DOUBLE PRECISION,
+     "deviationPct" DOUBLE PRECISION,
+     "judgeNotes" TEXT,
+     "decisionDate" TIMESTAMP(3) NOT NULL,
+     "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+     "updatedAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+     "createdById" TEXT,
+     CONSTRAINT "JudicialResponse_pkey" PRIMARY KEY ("id")
+   )`,
+  `CREATE UNIQUE INDEX IF NOT EXISTS "JudicialResponse_leadId_key" ON "JudicialResponse"("leadId")`,
+  `CREATE INDEX IF NOT EXISTS "JudicialResponse_decisionDate_idx" ON "JudicialResponse"("decisionDate" DESC)`,
+  `DO $$ BEGIN
+     ALTER TABLE "JudicialResponse" ADD CONSTRAINT "JudicialResponse_leadId_fkey"
+       FOREIGN KEY ("leadId") REFERENCES "Lead"("id") ON DELETE CASCADE ON UPDATE CASCADE;
+   EXCEPTION WHEN duplicate_object THEN null;
+   END $$`,
+
+  // ─── TUR #110 C3 — Lead.firstRealLead: ilk gercek lead milestone flag ────
+  // Niyazi'nin ilk gercek lead'i (test degil) bu flag ile isaretlenir.
+  // ADMIN_FEED celebration RealtimeEvent + Reporter milestone log.
+  `ALTER TABLE "Lead" ADD COLUMN IF NOT EXISTS "firstRealLead" BOOLEAN NOT NULL DEFAULT false`,
 ];
 
 (async () => {

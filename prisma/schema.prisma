@@ -276,7 +276,10 @@ model Lead {
   referrer              String? // document.referrer
   landingPage           String? // Ilk gelinen URL (path)
   gclid                 String? // Google Click ID (server-side conversion)
+  // TUR #110 C3 — Niyazi sahaya cikis ilk gercek lead milestone flag
+  firstRealLead         Boolean          @default(false)
   AccidentCase          AccidentCase[]
+  judicialResponse      JudicialResponse?
   activities            ActivityLog[]
   assignments           Assignment[]
   Bilirkisi             Bilirkisi[]
@@ -306,6 +309,24 @@ model Lead {
   @@index([customerPhone])
   @@index([status])
   @@index([ownerId])
+}
+
+// TUR #110 C1 — judicialResponse: ilk dava kapanisi veri toplama altyapisi (Madde 28)
+// Modul YOK (50+ dava kayitli olunca eklenir, kanit-bazli). Sadece veri toplama.
+model JudicialResponse {
+  id                String   @id @default(cuid())
+  leadId            String   @unique
+  finalAmount       Float?
+  tedbirgeAITahmin  Float?
+  deviationPct      Float?
+  judgeNotes        String?  @db.Text
+  decisionDate      DateTime
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
+  createdById       String?
+  Lead              Lead     @relation(fields: [leadId], references: [id], onDelete: Cascade)
+
+  @@index([decisionDate(sort: Desc)])
 }
 
 model Masraf {

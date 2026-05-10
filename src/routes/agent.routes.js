@@ -112,6 +112,48 @@ router.get("/agents-health", async (req, res) => {
   }
 });
 
+// TUR #110 A8 — Boot timeline endpoint (BootRecord son N kayit, ADMIN)
+// Sistem-durumu UI BootTimelineWidget bu endpoint'i kullanir.
+router.get("/boot-status", auth, role("ADMIN"), async (req, res) => {
+  try {
+    const limit = Math.min(parseInt(req.query.limit, 10) || 10, 50);
+    let records = [];
+    try {
+      records = await prisma.bootRecord.findMany({
+        orderBy: { createdAt: "desc" },
+        take: limit,
+        select: {
+          id: true,
+          createdAt: true,
+          steps: true,
+          totalMs: true,
+          ok: true,
+          version: true,
+        },
+      });
+    } catch (e) {
+      // BootRecord tablosu drift / bos -> graceful empty
+      records = [];
+    }
+
+    const last = records[0] || null;
+    const successCount = records.filter((r) => r.ok).length;
+    const successRate = records.length ? Math.round((successCount / records.length) * 100) : null;
+
+    res.json({
+      success: true,
+      data: {
+        last,
+        records,
+        successRate, // % (son N boot icinde basari orani)
+        totalRecords: records.length,
+      },
+    });
+  } catch (e) {
+    res.status(500).json({ success: false, error: e.message });
+  }
+});
+
 // Manuel tick
 router.post("/agents/:name/tick", auth, role("ADMIN"), async (req, res) => {
   try {

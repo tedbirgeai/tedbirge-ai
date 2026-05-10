@@ -42,29 +42,17 @@ async function checkSupabaseStorage() {
   // TODO: gerçek bucket list çağrısı (adapter hazır olunca)
 }
 
-async function pingOracleWorker() {
-  // Oracle Free hibrit henüz kurulmadı, şimdilik skip
-  if (!process.env.ORACLE_SSH_HOST) {
-    throw new Error('Oracle SSH not configured (optional)');
-  }
-  // TODO: SSH ping gerçek implementation
-}
+// TUR #110 A6 — pingOracleWorker / restorePgBossQueue / registerCronScheduler ARŞİVE.
+// Oracle Free hibrit kullanılmıyor (Supabase yeterli kanıtlı, Madde 28).
+// pg-boss yerine Postgres LISTEN/NOTIFY + setInterval pattern (mevcut kanıtlı).
+// Cron yerine in-process scheduler (src/agents/runner.js — Madde 30.14 emsali).
+// Eski kod git history'de korunur. 12 → 9 step.
 
 async function checkAnthropicAPI() {
   if (!process.env.ANTHROPIC_API_KEY) {
     throw new Error('ANTHROPIC_API_KEY missing');
   }
   // Gerçek ping yapmadan sadece key varlığı kontrol (maliyet tasarruf)
-}
-
-async function restorePgBossQueue() {
-  // pg-boss henüz entegre değil, şimdilik skip
-  // TODO: pg-boss.start() + restore stuck jobs
-}
-
-async function registerCronScheduler() {
-  // Cron scheduler henüz kurulmadı, şimdilik skip
-  // TODO: node-cron veya benzeri register
 }
 
 async function initSSEEndpoints() {
@@ -128,15 +116,15 @@ async function checkVERBIS() {
 
 // ─── Boot Sequence Definition ───────────────────────────────────────────────
 
+// TUR #110 A6 — Boot 12 → 9 step (3 stub silme: Oracle + pg-boss + Cron Scheduler)
+// Sebep: Oracle Free hibrit gereksiz (Supabase yeterli), pg-boss yerine LISTEN/NOTIFY,
+// Cron yerine in-process scheduler. UYAP/SBM/VERBIS/KVKK SCC korunur (Madde 39 + KVKK).
 const BOOT_STEPS = [
   { name: 'DB Connection', run: checkDatabase, critical: true },
   { name: 'Supabase Storage', run: checkSupabaseStorage, critical: true },
-  { name: 'Oracle Worker', run: pingOracleWorker, optional: true },
   { name: 'Anthropic API', run: checkAnthropicAPI, critical: true },
-  { name: 'pg-boss Queue', run: restorePgBossQueue, optional: true },
-  { name: 'Cron Scheduler', run: registerCronScheduler, optional: true },
   { name: 'SSE Endpoints', run: initSSEEndpoints, critical: true },
-  { name: 'UYAP Connectivity', run: pingUYAP, optional: true }, // anlaşma gelene kadar optional
+  { name: 'UYAP Connectivity', run: pingUYAP, optional: true }, // anlaşma gelene kadar optional (Madde 39)
   { name: 'SBM Health', run: pingSBM, optional: true },
   { name: 'Compliance SCC Init', run: initComplianceSCC, optional: true },
   { name: 'KVKK SCC Validity', run: checkKVKKSCC, optional: true }, // ilk kurulum öncesi warn

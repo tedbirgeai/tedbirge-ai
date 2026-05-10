@@ -25,8 +25,110 @@ const CLEANUP_INTERVAL_MS   = 60 * 60 * 1000; // 1 saat
 
 // Module ismi -> policy handler fonksiyonu.
 // Handler imzasi: async (policy, prisma) => ({ drift: boolean, action: string|null, details: object })
-// Henuz hicbir handler yazilmadi — bos obje, TODO: pulse/backup/maintenance modulleri eklendikce doldurulacak.
-const POLICY_HANDLERS = {};
+//
+// TUR #110 A3 — Madde 30.63 yeni: Reconciler Drift Detection Disiplini.
+// 5 handler tanimli: env_drift, schema_drift, route_orphan, role_permission_drift, version_string_drift.
+// AUTO-FIX YOK — sadece detect + ADMIN_FEED bildirim (Madde 24.11). ADMIN manuel onay verir.
+// Aktivasyon: OSPolicy'de { module: '<handlerName>', key: 'monitor', value: {...} } kaydi olmali.
+// Aktif degilse handler hic cagrilmaz — guvenli (false alarm yok).
+const POLICY_HANDLERS = {
+
+  // 1. env_drift — beklenen env vars vs gercek
+  env_drift: async (_policy, _prisma) => {
+    const required = (_policy.value && Array.isArray(_policy.value.required))
+      ? _policy.value.required
+      : ['DATABASE_URL', 'JWT_SECRET', 'SUPABASE_URL', 'ANTHROPIC_API_KEY'];
+    const missing = required.filter((k) => !process.env[k] || process.env[k].length < 10);
+    return {
+      drift: missing.length > 0,
+      action: missing.length > 0 ? `${missing.length} env var eksik` : null,
+      details: { missing, requiredCount: required.length },
+    };
+  },
+
+  // 2. schema_drift — _prisma_migrations finished_at IS NULL bekleyen migration sayisi
+  schema_drift: async (_policy, prismaClient) => {
+    let pending = 0;
+    try {
+      const r = await prismaClient.$queryRaw`SELECT COUNT(*)::int AS pending FROM "_prisma_migrations" WHERE finished_at IS NULL`;
+      pending = Number(r?.[0]?.pending) || 0;
+    } catch (err) {
+      return { drift: false, action: null, details: { error: err.message?.slice(0, 200) } };
+    }
+    return {
+      drift: pending > 0,
+      action: pending > 0 ? `${pending} bekleyen migration (postinstall hook'u kontrol et)` : null,
+      details: { pendingMigrations: pending },
+    };
+  },
+
+  // 3. route_orphan — RolePermission'da olup registry'de olmayan modul isimleri (orphan)
+  route_orphan: async (_policy, prismaClient) => {
+    try {
+      const reg = require('./registry');
+      const known = new Set(reg.ALL_MODULES || []);
+      const distinct = await prismaClient.rolePermission.findMany({
+        select: { module: true },
+        distinct: ['module'],
+      }).catch(() => []);
+      const orphans = distinct.map((d) => d.module).filter((m) => !known.has(m));
+      return {
+        drift: orphans.length > 0,
+        action: orphans.length > 0 ? `${orphans.length} modul registry disi izin (orphan)` : null,
+        details: { orphans, knownModules: known.size },
+      };
+    } catch (err) {
+      return { drift: false, action: null, details: { error: err.message?.slice(0, 200) } };
+    }
+  },
+
+  // 4. role_permission_drift — registry'de olup RolePermission'da hic kaydi olmayan modul
+  role_permission_drift: async (_policy, prismaClient) => {
+    try {
+      const reg = require('./registry');
+      const expected = reg.ALL_MODULES || [];
+      const distinct = await prismaClient.rolePermission.findMany({
+        select: { module: true },
+        distinct: ['module'],
+      }).catch(() => []);
+      const present = new Set(distinct.map((d) => d.module));
+      const missing = expected.filter((m) => !present.has(m));
+      return {
+        drift: missing.length > 0,
+        action: missing.length > 0 ? `${missing.length} modul RBAC seed eksik (boot auto-register kontrol et)` : null,
+        details: { missing, expectedCount: expected.length, presentCount: present.size },
+      };
+    } catch (err) {
+      return { drift: false, action: null, details: { error: err.message?.slice(0, 200) } };
+    }
+  },
+
+  // 5. version_string_drift — version.json anayasa surumunu CLAUDE.md ile karsilastir (statik check yerine env var)
+  version_string_drift: async (_policy, _prisma) => {
+    try {
+      const path = require('path');
+      const fs = require('fs');
+      const versionJsonPath = path.resolve(__dirname, '../../tedbirge-os/version.json');
+      const pkgJsonPath = path.resolve(__dirname, '../../package.json');
+      let versionJson = null;
+      let pkgJson = null;
+      try { versionJson = JSON.parse(fs.readFileSync(versionJsonPath, 'utf8')); } catch (_) {}
+      try { pkgJson = JSON.parse(fs.readFileSync(pkgJsonPath, 'utf8')); } catch (_) {}
+      if (!versionJson || !pkgJson) {
+        return { drift: false, action: null, details: { reason: 'version.json veya package.json okunamadi' } };
+      }
+      const drift = versionJson.backend && pkgJson.version && versionJson.backend !== pkgJson.version;
+      return {
+        drift,
+        action: drift ? `Backend surum drift: version.json=${versionJson.backend} vs package.json=${pkgJson.version}` : null,
+        details: { versionJson: versionJson.backend, pkgJson: pkgJson.version },
+      };
+    } catch (err) {
+      return { drift: false, action: null, details: { error: err.message?.slice(0, 200) } };
+    }
+  },
+
+};
 
 // ─── Internal State ─────────────────────────────────────────────────────────
 
@@ -108,6 +210,28 @@ async function runReconcileTick() {
       results,
     },
   }).catch(() => {});
+
+  // TUR #110 A3 — Madde 30.63 yeni: Drift detected → ADMIN_FEED RealtimeEvent (Madde 24.11 onay icin)
+  // AUTO-FIX YOK — sadece bildirim. ADMIN /dashboard/sistem-durumu'dan görüp manuel müdahale eder.
+  const driftResults = results.filter((r) => r.drift);
+  for (const dr of driftResults) {
+    try {
+      await prisma.realtimeEvent.create({
+        data: {
+          channel: 'ADMIN_FEED',
+          eventType: 'RECONCILER_DRIFT_DETECTED',
+          payload: {
+            title: `🔧 Drift: ${dr.module}`,
+            body: dr.action || 'Sapma tespit edildi',
+            module: dr.module,
+            key: dr.key,
+            details: dr.details || {},
+            severity: 'WARNING',
+          },
+        },
+      });
+    } catch (_) {}
+  }
 }
 
 // ─── Idempotency Cleanup ────────────────────────────────────────────────────

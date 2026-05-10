@@ -89,7 +89,10 @@ const modules = {
   recovery:      safeRequire('./modules/recovery', 'recovery'),
   security:      safeRequire('./modules/security', 'security'),
   uyapControl:   safeRequire('./modules/uyapControl', 'uyapControl'),
-  auditor:       safeRequire('./modules/auditor', 'auditor'),
+  // TUR #110 A4 — modules.auditor SILINDI: src/os/modules/auditor.js DEAD CODE'du.
+  //   Hicbir yerden start() cagrilmiyordu (TESHIS docs + agents-health kaniti).
+  //   Drift detection sorumlulugu src/os/reconciler.js POLICY_HANDLERS'a (5 handler) tasindi (Madde 30.63 yeni).
+  //   Aktif Auditor: src/agents/auditor.agent.js (5dk tick orchestrator, KORUNDU).
   healer:        safeRequire('./modules/healer', 'healer'),
   reporter:      safeRequire('./modules/reporter', 'reporter'),
   // TUR #95 H2 — Mimar Hatası Proaktif Tarama (Madde 14.4)

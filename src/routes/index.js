@@ -39,6 +39,8 @@ const adminAnomalyRoutes = require("./admin.anomaly.routes");
 const representativeRoutes = require("./representative.routes");
 // TUR #104 — UYAP manuel veri (Madde 39 — TCK m.243 koruma)
 const uyapRoutes = require("./uyap.routes");
+// TUR #110 C1 — JudicialResponse veri toplama (KIRMIZI — Madde 28)
+const judicialRoutes = require("./judicial.routes");
 
 const router = express.Router();
 
@@ -87,6 +89,8 @@ router.use('/', adminAnomalyRoutes);
 router.use('/', representativeRoutes);
 // TUR #104 — UYAP manuel veri (Madde 39)
 router.use('/', uyapRoutes);
+// TUR #110 C1 — JudicialResponse (Madde 28 + KIRMIZI nokta)
+router.use('/', judicialRoutes);
 
 module.exports = router;
 

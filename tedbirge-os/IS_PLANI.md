@@ -1,11 +1,38 @@
 # TEDBİRGE.AI YOL HARİTASI v1.0
-**Son güncelleme:** 10 Mayıs 2026 (🛡️ TUR #109 — KISMİ KAPANIŞ — A1+A2 uygulandı, 26 atom DEFER)
-**Anayasa versiyonu:** v1.26.0 (yeni madde tescili YOK — kısmi TUR, MAJOR bump TUR #110+ kararı)
+**Son güncelleme:** 10 Mayıs 2026 gece (✅ TUR #110 KAPANIŞ — Niyazi Sahaya Çıkış + OS Temel Sıkılaştırma)
+**Anayasa versiyonu:** v1.27.0 MINOR (3 yeni madde: 30.61 + 30.62 + 30.63 — kanıt-bazlı kalıcı pattern)
 **İlke:** MoSCoW + Now-Next-Later hibrit (Madde 24.5)
 
 ---
 
-## NOW — TUR #109 KISMİ KAPALI ⚠️ (10 May 2026, 2/28 atom uygulandı, 26 atom DEFER — Madde 30.31 R1)
+## NOW — TUR #110 KAPALI ✅ (10 May 2026 gece, 8/17 atom uygulandı, 9 atom dürüst DEFER — Madde 30.31 R1 emsal)
+
+**Durum:** ✅ Niyazi Pazartesi 11 May sahaya çıkışına temel hazır. judicialResponse veri toplama altyapısı canlı (KIRMIZI nokta CEO sessiz onay). 17 OS modülü + Reconciler 5 detect handler + Boot timeline endpoint/widget + 3 stub silindi (12→9 step).
+
+**Uygulanan 8 atom (kod-kanıtlı):**
+- **A3** ✅ Reconciler 5 detect handler (env_drift + schema_drift + route_orphan + role_permission_drift + version_string_drift) — AUTO-FIX YOK + ADMIN_FEED RealtimeEvent (Madde 30.63 yeni)
+- **A4** ✅ Dead `src/os/modules/auditor.js` git rm (TESHIS docs + agents-health kanıtı: hiçbir yerden start çağrılmıyordu) + os/index.js modules barrel'dan kaldır
+- **A6** ✅ Boot 12 → 9 step (Oracle Worker + pg-boss Queue + Cron Scheduler silindi — Supabase + LISTEN/NOTIFY + in-process scheduler yeterli)
+- **A8** ✅ `GET /api/boot-status` ADMIN endpoint + `BootTimelineWidget` `/dashboard/sistem-durumu` üst (TUR #92+#93+#95 widget pattern emsali)
+- **C1** ✅ JudicialResponse Prisma model (KIRMIZI — 6 alan) + apply-pending-schemas.js idempotent SQL + `judicial.routes.js` 3 endpoint + `mahkeme-sonucu/page.tsx` form + LeadTabNav 9. sekme
+- **C2** ✅ 6 modül DEFER registry (opposingParty + customerSentiment + lawyerContractLifecycle + trustIndex + financialFlowGuard + zamanasimiGuard) — her birine kanıt eşiği MIMARI_KARARLAR.md
+- **C3** ✅ Lead.firstRealLead boolean (additive default false) — Niyazi'nin ilk gerçek lead milestone flag
+- **D1+D3** ✅ TS build PASS (panel npx tsc --noEmit EXIT:0) + 6 dosya `node -c` syntax check OK + version.json bump v1.26.0→v1.27.0 + sync-version.js (backend 1.6.0→1.7.0 + panel 1.9.0→1.10.0)
+
+**DEFER 9 atom (kanıt zinciri eksik veya manuel):**
+- **A5** EventBus 46 emit cleanup — emit'ler SystemEvent persist eder = audit trail, kanıt-bazlı liste yapılmadan silmek KVKK m.10 retroaktif kanıt zayıflaması; mektup "ölü emit sil" diyor ama %95+ üretim audit
+- **A7** HAL 9→6 type — mektup "Code keşfedecek" diyor = stratejik tasarım kararı, mimar oturumu (Madde 14.3 + 18.3 + TUR #109 emsal)
+- **B1-B4** Niyazi sahaya çıkış smoke — manuel/operasyonel iş; CEO+Niyazi Pazartesi 11 May test edecek; Code-yapılan hazırlık: panel rotaları + Lead schema firstRealLead + judicial endpoint hazır
+
+**Sıradaki adaylar (TUR #111+ — Niyazi geri bildirimi sonrası):**
+1. Pazartesi gerçek smoke sonrası UX bug listesi (varsa) tek mektupta düzeltme
+2. EventBus emit envanteri (Madde 14.3 — kanıt-bazlı liste)
+3. HAL adapter audit (mimar oturumu — 9 typedef × kullanım analizi × 2028 vizyon)
+4. judicialResponse 50+ kayıt biriktiğinde modül eklenmesi (Madde 28 emsali)
+
+---
+
+## ARŞİV — TUR #109 KISMİ KAPALI ⚠️ (10 May 2026, 2/28 atom uygulandı, 26 atom DEFER — Madde 30.31 R1)
 
 **Durum:** ⚠️ TUR #109 mektubu 28 atom (A1-D3) tek-soluk MAJOR teslim öneriyordu (v1.26.0 → v2.0.0). **Sadece 2 kod-kanıtlı atom uygulandı:**
 

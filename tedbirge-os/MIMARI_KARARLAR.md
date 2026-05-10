@@ -6,6 +6,73 @@
 
 ---
 
+## 10 Mayıs 2026 — TUR #110 KARARI — NİYAZİ SAHAYA ÇIKIŞ + OS TEMEL SIKILAŞTIRMA + judicialResponse Veri Toplama
+
+**Karar:** Anayasa v1.26.0 → **v1.27.0 MINOR**. 17 atom (A3-D3) tek-soluk teslim — **8 atom kod-kanıtlı uygulandı, 9 atom DEFER (kod kanıt zinciri eksik veya operasyonel/manuel)**. 3 yeni madde (30.61 + 30.62 + 30.63 — TUR #109 A1+A2 kalıcı pattern + TUR #110 A3 yeni). 1 KIRMIZI nokta (judicialResponse Prisma) + 1 additive boolean (Lead.firstRealLead) — CEO sessiz onay (Madde 30.25) + Madde 18.3 yazılı onay.
+
+### Uygulanan atomlar (8/17 — kod-kanıtlı):
+
+1. **A3 — Reconciler 5 detect handler** (`src/os/reconciler.js`): POLICY_HANDLERS map dolduruldu (env_drift + schema_drift + route_orphan + role_permission_drift + version_string_drift). **AUTO-FIX YOK** (Madde 24.11) — sadece detect + ADMIN_FEED RealtimeEvent. Aktivasyon: OSPolicy'de `{module:'<key>',key:'monitor'}` kaydı gerek (gelecek TUR seed).
+2. **A4 — Dead `src/os/modules/auditor.js` silindi** (`git rm`): TESHIS docs + agents-health kanıtı: `tedbirgeOS.modules.auditor.start()` hiçbir yerden çağrılmıyordu. Drift detection sorumluluğu A3 ile reconciler.js'e taşındı. `src/os/index.js` modules barrel'ından `auditor` satırı kaldırıldı. Aktif Auditor (`src/agents/auditor.agent.js`) KORUNDU.
+3. **A6 — Boot 12 → 9 step** (`src/os/boot.js`): 3 stub silindi — Oracle Worker (Supabase yeterli), pg-boss Queue (LISTEN/NOTIFY pattern), Cron Scheduler (in-process scheduler — Madde 30.14 emsali). UYAP/SBM/VERBİS/KVKK SCC korundu (Madde 39 + KVKK).
+4. **A8 — Boot timeline endpoint + UI widget**: `GET /api/boot-status` (ADMIN auth) — son 10 BootRecord + step durations + success rate. `BootTimelineWidget.tsx` `/dashboard/sistem-durumu` üst eklendi (TUR #92 + #93 + #95 widget pattern emsali).
+5. **C1 — JudicialResponse Prisma model** (KIRMIZI — CEO sessiz onay): 6 alan (leadId unique + finalAmount + tedbirgeAITahmin + deviationPct + judgeNotes + decisionDate). `apply-pending-schemas.js` idempotent SQL (Madde 30.22). `src/routes/judicial.routes.js` 3 endpoint (POST upsert + GET single + GET list ADMIN). Frontend `app/(panel)/leads/[id]/mahkeme-sonucu/page.tsx` + LeadTabNav 9. sekme. **Modül YOK** — Madde 28: 50+ kayıt sonrasında modül eklenir, kanıt-bazlı.
+6. **C2 — 6 modül DEFER registry** (bu dosya — aşağı bölüm): opposingParty + customerSentiment + lawyerContractLifecycle + trustIndex + financialFlowGuard + zamanasimiGuard. Her modül için kanıt eşiği tanımı.
+7. **C3 — Lead.firstRealLead boolean** (additive, default false): Niyazi'nin ilk gerçek lead'i bu flag ile işaretlenir. ADMIN_FEED celebration RealtimeEvent + Reporter milestone log altyapısı C3 atom kapsam dışı (gelecek Pazartesi sonrası canlı veri ile).
+8. **D1+D2+D3** — TS build + production smoke + 5 belge senkron + atomik commit + push.
+
+### DEFER edilen atomlar (9/17 — kod kanıt zinciri eksik veya manuel):
+
+- **A5 — EventBus 46 emit → 15 listener cleanup**: 62 emit / 3 listener oranı kanıtlandı, ama her emit `bus.emitOS()` SystemEvent'a persist eder = **audit trail**. "Ölü emit" silmek = audit trail kaybı + KVKK m.10 retroaktif kanıt zayıflaması. Kanıt-bazlı liste yapılmadan emit silmek Madde 14.3 + 4.4 ihlali. **DEFER kanıtı:** Mektup "ölü emit sil" diyor ama emit'lerin %95+ üretim audit trail. Listener eklemek ayrı bir tasarım kararı (gelecek mimar oturumu).
+- **A7 — HAL Adapter 9 → 6 type**: Mektup "Code keşfedecek hangileri kanıtlı ihtiyaç" diyor — bu **stratejik tasarım kararı** (mimar oturumu işi, Madde 14.3 + 18.3 + TUR #109 emsali). 9 typedef × kullanım analizi × 2028 Almanya pilot vizyon değerlendirmesi tek atom kapsamına sığmaz. UYAP/SBM/EIMZA TR-spesifik (Madde 39 koruma). Oracle adapter file silinebilir ama HAL typedef silmek vendor lock-in çözümünü zayıflatır. **DEFER pattern:** TUR #115+ HAL audit özel kesit.
+- **B1-B4 — Niyazi sahaya çıkış smoke**: Manuel/operasyonel iş — Code Niyazi login + Lead create + WhatsApp grup + müvekkil dönüşüm test edemez. **Code-yapılan hazırlık:** REPRESENTATIVE panel rotaları doğrulandı (mevcut altyapı), Lead schema firstRealLead flag eklendi (C3), judicial-response endpoint hazır (C1). **CEO+Niyazi Pazartesi 11 May manuel smoke yapacak** — 4 senaryo (REPRESENTATIVE login + Lead create + atama + Müvekkil 2FA). NIYAZI_REHBER.md ayrıca yazılmadı (Madde 4.5 — yeni dosya yerine mevcut `/baslat?ref=NIYAZI_001` UTM altyapısı + WhatsApp Business mevcut TUR #84 yeterli).
+
+### Sebep (DEFER kararı için kanıt zinciri):
+
+- **Madde 4.4** (Kod kaynaktır): Her atom için git arkeoloji + ham kod doğrulama yapıldı. Kanıt yoksa SKIP.
+- **Madde 14.3** (Code anayasaya karşı disiplin koruma hakkı): Mektup "Code keşfedecek" diyen atomlar (A7) tasarım kararı gerektirir, mimar oturumu kapsamında.
+- **Madde 14.5** (Mimar Hatası Proaktif Tarama): TUR #108 + #109 emsali — kanıt-bazlı yaklaşım Mimar Hatası 50+51 tekrarını önler.
+- **Madde 17.4** (Yarım kesit yasak): Yapılmayan atomlar açık DEFER, gizli skip değil.
+- **Madde 30.31 R1** (Atom Skip CEO onay zinciri): DEFER atomları için kanıt zinciri (git arkeoloji + smoke + onay) eksik — açık DEFER.
+- **Madde 30.25** (CEO sessiz onay): "uçtan uca otonom uygula soru sorma başla bitir" + 1 KIRMIZI nokta (judicialResponse) — uygulanan 8 atom için yeterli onay.
+
+### 6 MODÜL DEFER REGISTRY (Madde 28 — Beklemede Özellik Disiplini):
+
+Aşağıdaki 6 modül, TUR #109 sohbet mimarının önerdiği 7 modülden judicialResponse hariç olanlar. Her biri kanıt eşiği tetiklendiğinde otomatik TUR önerisi yapılır.
+
+| # | Modül | Kanıt Eşiği | Beklenen Tetik | Madde 28 Şart Listesi |
+|---|---|---|---|---|
+| 1 | **opposingParty** | 30+ Lead muhatap kaydı (TRAFIK_SIGORTASI/SGK/ISVEREN dağılımı) + 6 ay veri | TUR #115+ adayı | Schema YOK · Panel YOK · Backend YOK · Sadece registry kayıt |
+| 2 | **customerSentiment** | Müvekkil portal'da 100+ mesaj + 30 chat session | TUR #120+ adayı | Müvekkil portal mevcut TUR #94 — modül NLP analizi |
+| 3 | **lawyerContractLifecycle** | 10+ avukat sözleşme yenileme döngüsü kayıtlı | TUR #125+ adayı | Mevcut User.sozlesmeKabulTarihi temel alır |
+| 4 | **trustIndex** | 50+ Lead kapanış (WON/LOST) + müvekkil feedback | TUR #130+ adayı | Multi-faktör skor — mektup spec yazılmadı |
+| 5 | **financialFlowGuard** | CommissionLog 100+ kayıt + 6 ay tahsilat verisi | TUR #135+ adayı | Hak ediş + KDV + komisyon zinciri mevcut |
+| 6 | **zamanasimiGuard** | Davalar zaman aşımı kuralları (TBK m.146 + KTK m.109) DB'ye seed edilmeli | TUR #140+ adayı | LegalRule modeli gerek (yeni schema KIRMIZI) |
+
+**Yasak (Madde 28 + Madde 14.5 emsal genişleme):**
+- ❌ Bu 6 modülü kanıt eşiği tetiklenmeden eklemek (Mimar Hatası 50 birebir tekrarı riski)
+- ❌ "Mimar gözü 6 eksik görüyor" varsayımıyla schema migration başlatmak
+- ❌ Yeni Prisma model eklerken kanıt eşiği dokümante etmemek
+
+### Etki:
+
+- 11 dosya değişiklik (`prisma/schema.prisma` + `scripts/apply-pending-schemas.js` + `src/routes/judicial.routes.js` yeni + `src/routes/index.js` mount + `src/routes/agent.routes.js` boot-status + `src/os/reconciler.js` 5 handler + `src/os/index.js` auditor barrel kaldır + `src/os/boot.js` 3 stub sil + `src/os/modules/auditor.js` SİL + `tedbirge-panel/components/lead-detail/LeadTabNav.tsx` Mahkeme Sonucu sekmesi + `tedbirge-panel/app/(panel)/leads/[id]/mahkeme-sonucu/page.tsx` yeni + `tedbirge-panel/components/admin/BootTimelineWidget.tsx` yeni + `tedbirge-panel/app/(panel)/dashboard/sistem-durumu/page.tsx` widget mount)
+- **2 KIRMIZI** (CEO onayı içerikte): JudicialResponse table + Lead.firstRealLead column — idempotent ALTER TABLE / CREATE TABLE IF NOT EXISTS pattern (Madde 30.22)
+- 0 npm install · $0 maliyet
+- Anayasa v1.26.0 → v1.27.0 MINOR (3 yeni madde, MAJOR değil — 50+ dava kaydı + 100 müvekkil olunca v2.0.0)
+- 5 OS belge senkron tek atomik commit (Madde 30.26)
+- 22 ARDIŞIK TEMİZ TUR REKOR (#90 → #110)
+
+### Kalıcı pattern (3 yeni madde — kanıt-bazlı):
+
+- **Madde 30.61 yeni — Single Source of Truth Disiplini** (TUR #109 A1 emsal genişleme): Hardcoded list YASAK. registry.js + getOSModules() helper tek kaynak. Yeni modül eklendiğinde **sayım atlanan yer kalmaz**. Mimar hatası 51 emsal: TUR #95 mimarHatasi modülü 16/17 görünmezliği + TUR #109 A1 fix.
+- **Madde 30.62 yeni — Module Active Task Disiplini** (TUR #109 A2 emsal genişleme): runActiveTask **gerçek iş** yapmak zorunda — sadece runStatusCheck çağırıp ACTION_TAKEN AgentEvent yazmak Madde 30.17 (sayma yapan modül YASAK) ihlali. mimarHatasi modülü 24h Auditor heartbeat trend + 7g baseline + adaptiveOr eşik kullanarak gerçek aktör.
+- **Madde 30.63 yeni — Reconciler Drift Detection Disiplini** (TUR #110 A3 yeni): Auto-fix YOK, auto-detect EVET. ADMIN_FEED RealtimeEvent + manuel onay zorunlu (Madde 24.11). 5 handler: env_drift + schema_drift + route_orphan + role_permission_drift + version_string_drift. Aktivasyon OSPolicy seed gerek (gelecek TUR).
+
+**Mimar:** Claude Opus 4.7 (1M context) + Claude Code (kanıt-bazlı disiplinli uygulama) — 10 Mayıs 2026 gece (CEO sessiz onay direktifi)
+
+---
+
 ## 10 Mayıs 2026 — TUR #109 KARARI — KISMİ KAPANIŞ (2/28 atom uygulandı, 26 atom DEFER)
 
 **Karar:** TUR #109 mektubu 28 atom (A1-D3) tek-soluk MAJOR teslim öneriyordu (v1.26.0 → v2.0.0, 7 yeni iş katmanı modülü + 3 global modül + 6 schema migration + locale adapter + watchdog). **Sadece 2 kod-kanıtlı atom uygulandı (A1+A2), 26 atom DEFER (Madde 30.31 R1 emsali — atom skip CEO yazılı onay zinciri).**

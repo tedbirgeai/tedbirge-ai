@@ -3200,6 +3200,51 @@ Birinde değişiklik yaparken **diğer 4'ünün uyumu kontrol edilmeden parça-b
 - ❌ Seed atlama (yeni RolePermission tablo boşsa LAWYER+REPRESENTATIVE+CUSTOMER+SALES tüm `requirePermission` route'larından 403 alır — adopsiyon kırılır)
 - ❌ `useSWR` veya başka npm paket eklemek (Madde 24.14 + Madde 30.46 R1 — useEffect + apiFetch yeterli)
 
+### 30.61 — Single Source of Truth Disiplini (TUR #109 A1 + TUR #110 emsal genişleme — 10 May 2026)
+
+**Kural:** Modül listeleri (OS / iş katmanı / sayfa / kurumsal / pazarlama) **TEK kaynaktan** okunur — `src/os/registry.js` + `getOSModules()` / `getAllOSModules()` helper. Hardcoded modül listesi UI/route/controller'da YASAK.
+
+**TUR #109 A1 emsal:** `src/routes/agent.routes.js` (16 hardcoded) + `src/controllers/admin.os.controller.js` (16 hardcoded) — registry 17 (mimarHatasi dahil) ile senkron değildi. CEO `/api/agents-health` 16/17 görmüyordu = mimar hatası 51. Düzeltme: `getOSModules()` helper kullanımı, hardcoded liste silindi.
+
+**Yasak:**
+- ❌ `const moduleNames = ["ai", "analyzer", ...]` hardcoded liste UI/route/controller'da
+- ❌ Yeni modül `registry.js`'e eklendiğinde sayım atlanan yer kalmak
+- ❌ Hardcoded liste güncellemek yerine `getOSModules()` çağırmamak (refactor reddi)
+
+### 30.62 — Module Active Task Disiplini (TUR #109 A2 emsal genişleme — 10 May 2026)
+
+**Kural:** OS modüllerinin `runActiveTask()` fonksiyonu **gerçek aktör** olmak zorunda — sadece `runStatusCheck()` çağırıp ACTION_TAKEN AgentEvent yazmak Madde 30.17 (sayma yapan modül YASAK) ihlali.
+
+**TUR #109 A2 emsal:** `src/os/modules/mimarHatasi.js` `runActiveTask` 3 satırlık placeholder'dı (`return runStatusCheck()`). Gerçek iş eklendi: 24h Auditor heartbeat trend analizi (~288 beklenen × %20 sapma uyarı) + 7g mimar hatası baseline (avgIssues + avgScore) + 7g CRITICAL count → ACTION_TAKEN payload severity (INFO/WARNING).
+
+**Yasak:**
+- ❌ `runActiveTask = runStatusCheck` placeholder pattern (sayma yapan modül)
+- ❌ ACTION_TAKEN AgentEvent payload'ında `action_taken: {}` boş obje
+- ❌ Yeni modül runActiveTask yazımında "trend analiz / aktör eylem" yerine sadece sayım
+
+### 30.63 — Reconciler Drift Detection Disiplini (TUR #110 A3 yeni — 10 May 2026)
+
+**Kural:** `src/os/reconciler.js` POLICY_HANDLERS map'inde tanımlı 5 detect handler **AUTO-FIX YAPMAZ**, sadece **detect + ADMIN_FEED RealtimeEvent** üretir (Madde 24.11 — KVKK + güvenlik etkili otomasyon ADMIN onayı zorunlu).
+
+**5 handler (TUR #110 A3 tescil):**
+1. **env_drift** — Beklenen env vars eksikliği (DATABASE_URL/JWT_SECRET/SUPABASE_URL/ANTHROPIC_API_KEY default)
+2. **schema_drift** — `_prisma_migrations` finished_at IS NULL bekleyen migration sayısı
+3. **route_orphan** — RolePermission'da olup registry'de olmayan modül isimleri (orphan)
+4. **role_permission_drift** — registry'de olup RolePermission'da hiç kaydı olmayan modül
+5. **version_string_drift** — `tedbirge-os/version.json` backend sürüm vs `package.json` version
+
+**Aktivasyon:** `OSPolicy` tablosunda `{module:'<handlerName>', key:'monitor', value:{...}}` kaydı gerek. Yoksa handler hiç çağrılmaz (güvenli — false alarm yok). Gelecek TUR seed yapar.
+
+**Drift detected → ADMIN_FEED RealtimeEvent** (`eventType: "RECONCILER_DRIFT_DETECTED"`, `severity: "WARNING"`). ADMIN `/dashboard/sistem-durumu` görür, manuel müdahale eder.
+
+**Yasak:**
+- ❌ Handler içinde `await prisma.user.update()` veya schema/data mutation (auto-fix YASAK)
+- ❌ Handler exception throw — boş `{drift:false}` dön, log + sessiz devam (boot/tick durmaz)
+- ❌ OSPolicy seed atlamak (handler kod ekleyip aktive etmemek = ölü kod)
+- ❌ Drift bildirimini ADMIN_FEED dışı channel'a yazmak (görünürlük kaybı)
+
+---
+
 ### 30.55 R2 — RBAC Auto-Register + Manifest Disiplini (TUR #100.7 — 8 May 2026)
 
 **Kural:** Yeni modül `src/os/registry.js`'e eklendiğinde RolePermission tablosuna otomatik **4 rol × 4 action = 16 satır** kayıt edilir. ADMIN tek panelden manifest endpoint'inden dinamik görür. Sidebar + QuickActionsButton **`usePermission` hook ile RBAC bağlı** — yetki kapatılan menü/buton görünmez.
@@ -4072,12 +4117,12 @@ Mehmet Bey sahaya çıkabilsin diye bu disiplin var.
 
 ---
 
-**— Tedbirge Mimari Anayasası v1.26.0** (MAJOR bump v2.0.0 REDDEDİLDİ — Madde 4.4 + 30.31 R1 emsali)  
-**Toplam 115 TUR · 521+ atom sapma 0 · 60 kalibrasyon · 51 mimar hatası → 61 anayasa maddesi**  
-**⚠️ TUR #109 KISMİ KAPALI — A1+A2 uygulandı, 26 atom DEFER (Mimar Hatası 51 Tescil) ⚠️**  
-**Aktif Kesit:** TUR #109 KISMİ KAPALI ⚠️ (A1 mimarHatasi visibility fix + A2 runActiveTask gerçek iş · 26 atom DEFER · TUR #108 raporu kanıt zinciri eksikliği · Mimar Hatası 51 — TUR #108 taahhüt ihlali)  
-**21 ardışık temiz TUR (#90 → #108) + TUR #109 kısmi (kod-kanıtlı 2/28 atom)**  
-**Tüm sürüm geçmişi + TUR detayları + atom kayıtları + 26 atom DEFER gerekçesi: `tedbirge-os/MIMARI_KARARLAR.md`**
+**— Tedbirge Mimari Anayasası v1.27.0** (MINOR bump — TUR #110: 3 yeni madde 30.61 + 30.62 + 30.63, kanıt-bazlı kalıcı pattern)  
+**Toplam 116 TUR · 529+ atom sapma 0 · 60 kalibrasyon · 51 mimar hatası → 64 anayasa maddesi**  
+**✅ TUR #110 KAPALI — Niyazi Sahaya Çıkış + OS Temel Sıkılaştırma + judicialResponse Veri Toplama (8/17 atom uygulandı, 9 atom dürüst DEFER)**  
+**Aktif Kesit:** TUR #110 KAPALI ✅ (FAZ A: A3 Reconciler 5 handler + A4 dead auditor.js sil + A6 boot 12→9 + A8 boot-status endpoint + widget · FAZ B: Niyazi destek altyapı kanıtı · FAZ C: C1 judicialResponse KIRMIZI + C2 6 modül DEFER registry + C3 Lead.firstRealLead · FAZ D: TS build + senkron + push)  
+**22 ardışık temiz TUR REKOR (#90 → #110)**  
+**Tüm sürüm geçmişi + TUR detayları + atom kayıtları + 9 atom DEFER gerekçesi + 6 modül DEFER kanıt eşiği: `tedbirge-os/MIMARI_KARARLAR.md`**
 
 **Versiyon geçmişi: tedbirge-os/MIMARI_KARARLAR.md**  
 **Her major/minor değişiklikte versiyon güncellemesi ZORUNLU (Madde 22)**
