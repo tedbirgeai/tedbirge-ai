@@ -4072,12 +4072,12 @@ Mehmet Bey sahaya çıkabilsin diye bu disiplin var.
 
 ---
 
-**— Tedbirge Mimari Anayasası v1.26.0**  
-**Toplam 114 TUR · 519+ atom sapma 0 · 60 kalibrasyon · 50 mimar hatası → 61 anayasa maddesi**  
-**🔬 TUR #108 — OS DEPENDENCY MAPPING (Pure Keşif, Mimar Hatası 50 Düzeltme Yolu) 🔬**  
-**Aktif Kesit:** TUR #108 KAPALI ✅ (Pure keşif — kod commit YOK · 17 OS modülü uçtan uca tarama · 3 tanı dosyası `outputs/` · 5 OS belge senkron · Mimar Hatası 50 düzeltme zemini)  
-**21 ardışık temiz TUR (#90 → #108) — yeni REKOR**  
-**Tüm sürüm geçmişi + TUR detayları + atom kayıtları: `tedbirge-os/MIMARI_KARARLAR.md`**
+**— Tedbirge Mimari Anayasası v1.26.0** (MAJOR bump v2.0.0 REDDEDİLDİ — Madde 4.4 + 30.31 R1 emsali)  
+**Toplam 115 TUR · 521+ atom sapma 0 · 60 kalibrasyon · 51 mimar hatası → 61 anayasa maddesi**  
+**⚠️ TUR #109 KISMİ KAPALI — A1+A2 uygulandı, 26 atom DEFER (Mimar Hatası 51 Tescil) ⚠️**  
+**Aktif Kesit:** TUR #109 KISMİ KAPALI ⚠️ (A1 mimarHatasi visibility fix + A2 runActiveTask gerçek iş · 26 atom DEFER · TUR #108 raporu kanıt zinciri eksikliği · Mimar Hatası 51 — TUR #108 taahhüt ihlali)  
+**21 ardışık temiz TUR (#90 → #108) + TUR #109 kısmi (kod-kanıtlı 2/28 atom)**  
+**Tüm sürüm geçmişi + TUR detayları + atom kayıtları + 26 atom DEFER gerekçesi: `tedbirge-os/MIMARI_KARARLAR.md`**
 
 **Versiyon geçmişi: tedbirge-os/MIMARI_KARARLAR.md**  
 **Her major/minor değişiklikte versiyon güncellemesi ZORUNLU (Madde 22)**

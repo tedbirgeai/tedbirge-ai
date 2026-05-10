@@ -131,9 +131,100 @@ async function runStatusCheck() {
   }
 }
 
-// runActiveTask: 5 dk tick için runStatusCheck'i çağırır (idempotent)
-async function runActiveTask() {
-  return runStatusCheck();
+// shouldRunActiveTask: günde 1 kez gerçek aktör görev (TUR #109 A2 — Madde 30.62 yeni)
+let lastActionAt = null;
+function shouldRunActiveTask() {
+  if (!lastActionAt) return true;
+  const ageMs = Date.now() - lastActionAt;
+  return ageMs >= 24 * 60 * 60 * 1000; // 24h
 }
 
-module.exports = { runStatusCheck, runActiveTask, MODULE_NAME };
+// runActiveTask: GERÇEK aktör (TUR #109 A2 — Madde 30.62 yeni)
+// Madde 30.17 ihlali kapandı: artık sadece runStatusCheck çağırmıyor.
+// Aktör: son 24h Auditor heartbeat trend + son 7g mimar hatası baseline + adaptiveThreshold
+async function runActiveTask() {
+  const startTs = Date.now();
+  const last24h = new Date(Date.now() - 24 * 60 * 60 * 1000);
+  const last7d = new Date(Date.now() - 7 * 24 * 60 * 60 * 1000);
+
+  try {
+    // 1. Auditor heartbeat trend (son 24h)
+    const auditorHeartbeats24h = await prisma.agentEvent.count({
+      where: { agentName: "auditor", eventType: "HEARTBEAT", createdAt: { gte: last24h } },
+    }).catch(() => 0);
+
+    // Beklenen: 5 dk tick × 12 = 60 × 24 = ~288 heartbeat/24h. Sapma > %20 → uyarı.
+    const expectedHeartbeats = 288;
+    const heartbeatDeviationPct = expectedHeartbeats > 0
+      ? Math.abs((auditorHeartbeats24h - expectedHeartbeats) / expectedHeartbeats * 100)
+      : 0;
+
+    // 2. mimarHatasi baseline (son 7g STATUS_CHECK ortalama issues)
+    const mimarEvents7d = await prisma.agentEvent.findMany({
+      where: { agentName: MODULE_NAME, eventType: "STATUS_CHECK", createdAt: { gte: last7d } },
+      select: { payload: true },
+      take: 200,
+    }).catch(() => []);
+
+    let avgIssues = 0;
+    let avgScore = 100;
+    if (mimarEvents7d.length > 0) {
+      const issuesList = mimarEvents7d.map(e => e.payload?.issues || 0);
+      const scoreList = mimarEvents7d.map(e => e.payload?.archHealthScore || 100);
+      avgIssues = issuesList.reduce((a, b) => a + b, 0) / issuesList.length;
+      avgScore = scoreList.reduce((a, b) => a + b, 0) / scoreList.length;
+    }
+
+    // 3. AgentEvent CRITICAL son 7g sayım (mimar hatası tetikleyici)
+    const critical7d = await prisma.agentEvent.count({
+      where: { severity: "CRITICAL", createdAt: { gte: last7d } },
+    }).catch(() => 0);
+
+    let actionSeverity = "INFO";
+    let actionMessage = `Trend analizi: 24h heartbeat ${auditorHeartbeats24h}/${expectedHeartbeats} (sapma %${heartbeatDeviationPct.toFixed(1)}), 7g ortalama skor %${avgScore.toFixed(0)}, CRITICAL ${critical7d}`;
+
+    if (heartbeatDeviationPct > 20 || avgScore < 60) {
+      actionSeverity = "WARNING";
+      actionMessage = `Mimar trend uyarı: heartbeat sapma %${heartbeatDeviationPct.toFixed(1)}, skor %${avgScore.toFixed(0)}, CRITICAL ${critical7d}/7g`;
+    }
+
+    // ACTION_TAKEN AgentEvent (Madde 30.17 + Madde 30.62 yeni — gerçek aktör kanıt)
+    await prisma.agentEvent.create({
+      data: {
+        agentName: MODULE_NAME,
+        eventType: "ACTION_TAKEN",
+        severity: actionSeverity,
+        payload: {
+          message: actionMessage,
+          action_taken: {
+            trendAnalyzed: true,
+            heartbeats24h: auditorHeartbeats24h,
+            heartbeatDeviationPct: Number(heartbeatDeviationPct.toFixed(2)),
+            avgIssues7d: Number(avgIssues.toFixed(2)),
+            avgScore7d: Number(avgScore.toFixed(0)),
+            critical7d,
+          },
+          durationMs: Date.now() - startTs,
+        },
+      },
+    });
+
+    lastActionAt = Date.now();
+    return { ok: true, action: "trend_analyzed", severity: actionSeverity };
+  } catch (err) {
+    console.error(`[${MODULE_NAME}] runActiveTask error:`, err.message);
+    try {
+      await prisma.agentEvent.create({
+        data: {
+          agentName: MODULE_NAME,
+          eventType: "ACTION_TAKEN",
+          severity: "WARNING",
+          payload: { message: `runActiveTask hata: ${err.message?.slice(0, 200)}`, error: true },
+        },
+      });
+    } catch (_) {}
+    return { ok: false, error: err.message };
+  }
+}
+
+module.exports = { runStatusCheck, runActiveTask, shouldRunActiveTask, MODULE_NAME };

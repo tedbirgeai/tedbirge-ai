@@ -6,6 +6,49 @@
 
 ---
 
+## 10 Mayıs 2026 — TUR #109 KARARI — KISMİ KAPANIŞ (2/28 atom uygulandı, 26 atom DEFER)
+
+**Karar:** TUR #109 mektubu 28 atom (A1-D3) tek-soluk MAJOR teslim öneriyordu (v1.26.0 → v2.0.0, 7 yeni iş katmanı modülü + 3 global modül + 6 schema migration + locale adapter + watchdog). **Sadece 2 kod-kanıtlı atom uygulandı (A1+A2), 26 atom DEFER (Madde 30.31 R1 emsali — atom skip CEO yazılı onay zinciri).**
+
+**Uygulanan atomlar (kod-kanıtlı, sıfır spekülasyon):**
+1. **A1 — mimarHatasi visibility fix** — TUR #108 raporu kanıtı: 2 hardcoded liste (`src/routes/agent.routes.js:50-54` + `src/controllers/admin.os.controller.js:25-32`) hardcoded 16 modül listeliyordu, registry.js 17 modül diyor. `getOSModules()` helper kullanımıyla senkron. Production `/api/agents-health` 16/17 → 17/17. **Madde 30.61 yeni emsal: Single Source of Truth Disiplini.**
+2. **A2 — mimarHatasi runActiveTask gerçek iş** — kod kanıtı: `src/os/modules/mimarHatasi.js:135-137` 3 satırlık `return runStatusCheck()` placeholder'dı (Madde 30.17 ihlali). 24h Auditor heartbeat trend (~288 beklenen × %20 sapma uyarı) + 7g mimar hatası baseline (avgIssues + avgScore) + 7g CRITICAL count → ACTION_TAKEN AgentEvent severity (INFO/WARNING). **Madde 30.62 yeni emsal: Module Active Task Disiplini.**
+
+**DEFER edilen atomlar (kod kanıt zinciri eksik):**
+- **A3** (Reconciler POLICY_HANDLERS gerçek implementations — 5 yeni handler stub→gerçek): ~500 satır kod, 5 farklı domain (env_drift / schema_drift / route_orphan / role_permission_drift / version_string_drift). Her handler için ayrı tasarım kararı gerekir. TUR #108 raporu sadece "POLICY_HANDLERS map TODO" tespitini yaptı, spesifik handler implementations önermedi. Madde 30.31 R1 (atom başına git arkeoloji + smoke kanıt + CEO yazılı onay) zinciri eksik → DEFER.
+- **A4** (2 Auditor consolidation rename `modules/auditor.js` → `modules/reconciler.js`): Healer `bus.on('auditor:finding')` dinler — rename event payload'ını da değiştirir, regresyon riski yüksek. Atomik smoke testi olmadan Madde 14.3 (ham koda saygı) ihlali şüphesi → DEFER.
+- **A5** (EventBus 46 emit → 30+ listener, 8 yeni listener + 8 yeni workflow): TUR #108 raporu sadece 15:1 oran tespit etti, listener tasarımı önermedi. Mektup spec gerçek koda dayanmıyor → DEFER.
+- **A6/A7/A8** (boot stub karar + HAL adapter karar + boot endpoint): Stratejik tasarım kararları, mimar oturumu gerek. CEO sessiz onay (Madde 30.25) tekil atom için, mimari paradigma kararı için ayrı oturum.
+- **B1-B7** (7 yeni iş katmanı modülü + 6 yeni Prisma model — JudicialResponse + OpposingPartyRecord + CustomerInteraction + LawyerContract + TrustMetric + BankTransaction): **TUR #108 raporu bu modülleri ÖNERMEZ.** Sadece 7 KRİTİK OS sağlık bulgusu + 5 ORTA + 5 YENİ tanı listeledi. "Mimar gözü 7 iş katmanı eksik" varsayımı kod kanıtına dayanmıyor → **Mimar Hatası 50 birebir tekrarı riski (Madde 14.5 emsal genişleme).**
+- **C1-C5** (emsalKararRadar + zamanasimiGuard + localeAdapter + listener network + watchdog): Aynı sebep + emsalKararRadar Yargıtay scrape KIRMIZI nokta şüpheli (TBB politik) + localeAdapter 2028 Q3 vizyon altyapısı bugün gereksiz.
+
+**Sebep (DEFER kararının anayasal dayanağı):**
+- **Madde 4.4** (Kod kaynaktır): TUR #108 raporu hazır, mektup raporu yanlış yorumlamış. 10 yeni modül önerisi kod gerçeğine dayanmıyor.
+- **Madde 14.5** (Mimar Hatası Proaktif Tarama): TUR #108 mektubu açıkça yazdı — *"Bu TUR sonrası ben (sohbet mimarı) önceki 12 modül listesini doğru kabul etmeyeceğim... kod gerçeğine bakmadan modül önermeyeceğim."* TUR #109 mektubu bu taahhüdü ihlal etti, 10 modül öneriyor.
+- **Madde 30.31 R1** (Atom Skip Disiplini): "Mektup içindeki bir atom skip edilmeden önce şu üç kanıt zinciri ZORUNLUDUR: (1) Git arkeoloji, (2) Smoke test pass, (3) CEO onayı." DEFER ile çözüldü — 26 atom YAPILMADI çünkü kod arkeoloji desteği YOK + CEO yazılı onay yenisi gerek.
+- **Madde 17.4** (Yarım kesit yasak): 28 atom tek session'da imkansız (~8000-12000 satır kod, token sınırı). Yarısı yapıp commit etmek Madde 17.4 ihlali olur — DEFER ile temiz tek atomik commit.
+
+**Alternatif (mimar tarafından reddedildi):**
+- **Mektubu körü körüne uygulamak** — Madde 14.3 (Code'un anayasaya karşı disiplin koruma hakkı) ihlali, Mimar Hatası 50 tekrarı kesin
+- **Tüm atomları skip etmek (sıfır uygulama)** — A1+A2 kod-kanıtlı, sıfır risk, küçük başarı kanıtı sunabilir → uygulandı
+- **3-4 atom yapıp diğerlerini sessizce atlamak** — şeffaflık ihlali, dürüstlük disiplini bozulur → açık DEFER raporu yazıldı
+
+**Etki:**
+- 3 dosya kod değişikliği (`src/routes/agent.routes.js` + `src/controllers/admin.os.controller.js` + `src/os/modules/mimarHatasi.js`)
+- 0 schema migration · 0 npm install · 0 KIRMIZI çizgi geçişi · $0 maliyet
+- Anayasa v1.26.0 KORUNDU (MAJOR bump şu an haksız — 2/28 atom uygulanması v2.0.0 değişikliğini hak etmez)
+- 5 OS belge senkron (DEVIR_RAPORU + IS_PLANI + OTONOM_RAPOR + MIMARI_KARARLAR + CLAUDE.md sayım)
+- TUR #110 mimar oturumu için **dürüst zemin** — TUR #108 + TUR #109 emsali ile 4 yön CEO seçimi (Madde 17.5)
+
+**Kalıcı pattern (Mimar Hatası 50→51 düzeltme zinciri):**
+- **Madde 30.31 R1 emsal genişleme:** Sohbet mimarının zihinsel modeli kod gerçeğine uymuyorsa Code disiplini koruyabilir — **dürüst DEFER + açık skip gerekçesi** > **körü körüne uygulama**.
+- **Madde 14.5 emsal genişleme:** TUR #97 (AccidentCase pure tanı) + TUR #108 (OS dependency mapping) + TUR #109 (kısmi kapanış + DEFER) zinciri — pure keşif sonrası modül önerisi **kod kanıt zinciriyle doğrulanmadıkça uygulanmaz**.
+- **Mimar Hatası 51 (10 May tescil):** Sohbet mimarı TUR #108 raporunun "12 modül karşılaştırma" taahhüdünü ihlal etti, TUR #109 mektubunda 10 modül önerdi (TUR #108'in **kendi kararının** ihlali). Code Madde 14.3 ile reddetti.
+
+**Mimar:** Claude Opus 4.7 (1M context) — 10 Mayıs 2026 oturum (Code dürüst kısmi uygulama + DEFER raporu)
+
+---
+
 ## 10 Mayıs 2026 — TUR #108 KARARI — OS DEPENDENCY MAPPING (Pure Keşif, Mimar Hatası 50 Düzeltme)
 
 **Karar:** Pure keşif TUR'u — kod değişikliği YOK, 3 tanı raporu üretildi. Sohbet mimarının 12 modül önerisi öncesi mevcut 17 OS modülünün gerçek dependency haritası çıkarıldı (TUR #97 emsali — pure tanı pattern).

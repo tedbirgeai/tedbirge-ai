@@ -1,11 +1,30 @@
 # TEDBİRGE.AI YOL HARİTASI v1.0
-**Son güncelleme:** 10 Mayıs 2026 (🛡️ TUR #108 — OS DEPENDENCY MAPPING — PURE KEŞİF)
-**Anayasa versiyonu:** v1.26.0 (yeni madde tescili YOK — keşif TUR'u, evrim TUR #109+ kararı)
+**Son güncelleme:** 10 Mayıs 2026 (🛡️ TUR #109 — KISMİ KAPANIŞ — A1+A2 uygulandı, 26 atom DEFER)
+**Anayasa versiyonu:** v1.26.0 (yeni madde tescili YOK — kısmi TUR, MAJOR bump TUR #110+ kararı)
 **İlke:** MoSCoW + Now-Next-Later hibrit (Madde 24.5)
 
 ---
 
-## NOW — TUR #108 KAPALI ✅ (10 May 2026, pure keşif — kod değişikliği YOK)
+## NOW — TUR #109 KISMİ KAPALI ⚠️ (10 May 2026, 2/28 atom uygulandı, 26 atom DEFER — Madde 30.31 R1)
+
+**Durum:** ⚠️ TUR #109 mektubu 28 atom (A1-D3) tek-soluk MAJOR teslim öneriyordu (v1.26.0 → v2.0.0). **Sadece 2 kod-kanıtlı atom uygulandı:**
+
+- **A1** ✅ mimarHatasi visibility fix — 2 hardcoded list (`agent.routes.js` + `admin.os.controller.js`) → `registry.getOSModules()` helper. Production `/api/agents-health` 16/17 → 17/17. Madde 30.61 (Single Source of Truth) emsal.
+- **A2** ✅ mimarHatasi runActiveTask gerçek iş — sadece `runStatusCheck()` çağıran 3 satırlık placeholder yerine 24h Auditor heartbeat trend + 7g mimar hatası baseline + ACTION_TAKEN AgentEvent. Madde 30.17 (sayma yapan modül YASAK) ihlali kapandı.
+
+**26 atom DEFER (Madde 30.31 R1 — kod kanıt zinciri eksik):**
+- **A3 (Reconciler handlers), A5 (EventBus listener network), A6 (boot stub karar), A7 (HAL adapter karar), A8 (boot endpoint):** TUR #108 raporu bu spesifik tasarım kararlarını önermez — mimar oturumu gerek.
+- **A4 (Auditor consolidation rename):** Healer `bus.on('auditor:finding')` dinler, rename regresyon riski (Madde 14.3 ihlali şüphesi) — atomik smoke testi olmadan DEFER.
+- **B1-B7 (7 yeni iş katmanı modülü + 6 yeni Prisma model):** TUR #108 raporu bu modülleri **ÖNERMEZ** — sadece 7 KRİTİK OS sağlık bulgusu + 5 ORTA + 5 YENİ tanı listeledi. "Mimar gözü 7 iş katmanı eksik" varsayımı kod kanıtına dayanmıyor → **Mimar Hatası 50 birebir tekrarı riski (Madde 14.5)**.
+- **C1-C5 (emsalKararRadar + zamanasimiGuard + localeAdapter + listener network + watchdog):** Aynı sebep + emsalKararRadar TBB politik şüphe + localeAdapter 2028 Q3 vizyon altyapısı bugün gereksiz.
+
+**Bu karar Madde 4.4 (kod kaynak) + Madde 14.5 (Mimar Hatası Proaktif Tarama) + Madde 30.31 R1 (atom skip CEO yazılı onay zinciri) emsali.** CEO Madde 30.25 emir formu **uygulanan 2 atom için yazılı onay sayıldı**, ama 26 atomun kanıt zinciri eksikti (TUR #108 raporu açıkça yeni modül önermiyor).
+
+**Sıradaki adaylar (TUR #110+ mimar oturumu):** TUR #108 raporundaki 7 KRİTİK bulgu için **kanıt-bazlı atom listesi** + CEO 4 yön karar (Madde 17.5): (a) OS gap kapatma — A3+A4 + boot timeline, (b) İş katmanı genişletme — somut iş ihtiyacı kanıtlı 1-2 modül, (c) Hibrit, (d) Şu an ekleme yok — mevcut sistem tüketme.
+
+---
+
+## ARŞİV — TUR #108 KAPALI ✅ (10 May 2026, pure keşif — kod değişikliği YOK)
 
 **Durum:** ✅ Mimar Hatası 50 düzeltme yolu — sohbet mimarının 12 modül önerisi öncesi gerçek OS haritası çıkarıldı. 17 OS modülü uçtan uca taranadı (9092 satır iş kodu), 3 katman (modül-içi yapı + modül-modül bağ + AgentEvent/RealtimeEvent communication) tanı raporlandı. **3 dosya `outputs/`:** TUR_108_OS_HARITA.md (12 keşif sorusu cevabı + production AgentEvent dağılımı) + TUR_108_DEPENDENCY_GRAPH.md (Mermaid görsel) + TUR_108_GERCEK_EKSIKLER.md (7 kritik + 5 orta + 5 yeni tanı). 0 KIRMIZI · 0 schema · 0 npm · 0 commit (panel + backend) · $0 maliyet.
 

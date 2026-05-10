@@ -8,6 +8,7 @@
 
 const asyncHandler = require("../utils/asyncHandler");
 const prisma = require("../config/db");
+const { getOSModules } = require("../os/registry"); // TUR #109 A1 — Madde 30.61 (Single Source of Truth)
 
 // GET /api/os/status - 16 modul + son boot + son metrikler
 exports.getStatus = asyncHandler(async (req, res) => {
@@ -23,13 +24,9 @@ exports.getStatus = asyncHandler(async (req, res) => {
   }
 
   const modules = {};
-  // src/os/modules/ klasöründeki 16 gerçek dosya — TAM_TESHIS ile doğrulandı
-  const moduleNames = [
-    "ai", "analyzer", "appearance", "backup", "compliance",
-    "costGuard", "deploy", "insurance", "maintenance", "navigation",
-    "notifications", "performance", "pulse", "recovery", "security",
-    "uyapControl",
-  ];
+  // TUR #109 A1 — Madde 30.61 Single Source of Truth (mimarHatasi visibility fix)
+  // Eski hardcoded 16 modül listesi → registry.getOSModules() (17 modül, mimarHatasi DAHİL)
+  const moduleNames = getOSModules();
 
   for (const name of moduleNames) {
     try {

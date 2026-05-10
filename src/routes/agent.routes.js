@@ -7,6 +7,7 @@ const role = require("../middlewares/roleMiddleware");
 const prisma = require("../config/db");
 const runner = require("../agents/runner");
 const memoryCache = require("../utils/memoryCache"); // TUR #91 P4 — public read-only cache
+const { getOSModules } = require("../os/registry"); // TUR #109 A1 — Madde 30.61 (Single Source of Truth)
 
 // Agent durumlari
 router.get("/agents/status", auth, role("ADMIN"), (req, res) => {
@@ -47,11 +48,9 @@ router.get("/agents-health", async (req, res) => {
       }),
     ]);
 
-    const moduleNames = [
-      "ai", "analyzer", "appearance", "backup", "compliance",
-      "costGuard", "deploy", "insurance", "maintenance", "navigation",
-      "notifications", "performance", "pulse", "recovery", "security", "uyapControl",
-    ];
+    // TUR #109 A1 — Madde 30.61 Single Source of Truth (mimarHatasi visibility fix)
+    // Eski hardcoded 16 modül listesi → registry.getOSModules() (17 modül, mimarHatasi DAHİL)
+    const moduleNames = getOSModules();
 
     const moduleCounts = await Promise.all(
       moduleNames.map(async (name) => {

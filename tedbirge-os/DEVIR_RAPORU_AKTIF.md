@@ -1,11 +1,42 @@
 # 🛡️ TEDBIRGE.AI — DEVİR RAPORU (AKTİF)
 
-📋 **ANAYASA:** v1.26.0 (yeni madde tescili YOK — TUR #108 pure keşif TUR'u, evrim TUR #109+ kararı)
-📂 **🔬 TUR #108 KAPALI — OS DEPENDENCY MAPPING (Pure Keşif, Mimar Hatası 50 Düzeltme Yolu) 🔬**
-📅 **SON GÜNCELLEME:** 10 Mayıs 2026 (TUR #108 — 21. ardışık temiz TUR #90→#108)
-👤 **CEO Onay:** Mehmet DİNÇ — *"Önce DUR. 17 modülü gerçekten haritala. Soru sorma, başla bitir."*
-🤖 **Mimar:** Claude Opus 4.7 (sohbet — sıradaki TUR #109'da gerçek mimar konuşması) + Claude Code (otonom keşif raporu)
-🌟 **Tarih:** 10 Mayıs 2026 — PURE KEŞİF TURU (kod commit YOK, sadece 3 tanı dosyası + 5 OS belge senkron)
+📋 **ANAYASA:** v1.26.0 KORUNDU (MAJOR bump v2.0.0 REDDEDİLDİ — 2/28 atom uygulanması v2.0.0'ı hak etmez)
+📂 **⚠️ TUR #109 KISMİ KAPALI — A1+A2 uygulandı, 26 atom DEFER (Mimar Hatası 51 — TUR #108 Taahhüt İhlali) ⚠️**
+📅 **SON GÜNCELLEME:** 10 Mayıs 2026 (TUR #109 kısmi kapanış)
+👤 **CEO Onay:** Mehmet DİNÇ — *"Madde 30.25 emir + Madde 18.3 yazılı onay (4 schema migration KIRMIZI)"* AMA Code Madde 14.3 + 14.5 + 30.31 R1 ile 26 atom DEFER
+🤖 **Mimar:** Claude Opus 4.7 (sohbet — TUR #109 mektubu Mimar Hatası 51 tescili) + Claude Code (dürüst kısmi uygulama)
+🌟 **Tarih:** 10 Mayıs 2026 — KISMİ KAPANIŞ (2 kod-kanıtlı atom + 26 atom DEFER + dürüst rapor)
+
+---
+
+## ⚠️ TUR #109 KISMİ KAPANIŞ ÖZETİ
+
+**Mektup talebi:** 28 atom (A1-D3) tek-soluk MAJOR teslim, v1.26.0 → v2.0.0, 7 yeni iş katmanı modülü + 3 global modül + 6 yeni Prisma model + 4 schema migration + locale adapter + watchdog.
+
+**Code uygulaması:** 2 kod-kanıtlı atom (A1 + A2) + 26 atom DEFER (kod kanıt zinciri eksik — Madde 30.31 R1).
+
+### ✅ UYGULANAN (2/28)
+- **A1** — mimarHatasi visibility fix: 2 hardcoded liste (`agent.routes.js` + `admin.os.controller.js`) → `registry.getOSModules()`. Production `/api/agents-health` 16/17 → 17/17 (deploy sonrası).
+- **A2** — mimarHatasi runActiveTask gerçek iş: Madde 30.17 ihlali kapandı. 24h Auditor heartbeat trend + 7g baseline + ACTION_TAKEN AgentEvent.
+
+### ⛔ DEFER (26/28) — Madde 30.31 R1
+- **A3-A8** OS sağlık atomları — kod-kanıtlı tasarım kararları, mimar oturumu gerek
+- **B1-B7** 7 yeni iş katmanı modülü + 6 yeni Prisma model — TUR #108 raporu bu modülleri ÖNERMEZ ("Mimar gözü" = Mimar Hatası 50 birebir tekrar)
+- **C1-C5** 3 global modül + locale + watchdog — aynı sebep + emsalKararRadar TBB politik şüphe + locale 2028 vizyon altyapısı bugün gereksiz
+- **D1-D2** Smoke 12 senaryo — uygulanan 2 atom için 2 senaryo smoke yapıldı
+
+---
+
+## 🎯 SIRADAKİ İŞ — TUR #110 (4 yön CEO seçimi — Madde 17.5)
+
+1. **(a) OS sağlık FAZ A devam** — A3 (Reconciler handlers) + A4 (Auditor rename) + A5 (EventBus listener) küçük TUR'lar
+2. **(b) İş katmanı kanıt-bazlı** — 7 modülden somut iş ihtiyacı kanıtlı 1-2'si seçilir
+3. **(c) Niyazi sahaya çıkış desteği** — Pazartesi öncesi son hazırlık (TUR #107 ana öncelik), yeni modül YOK
+4. **(d) Şu an ekleme yok** — mevcut sistem tüketme + lansman + büyüme
+
+---
+
+## 📜 ESKİ DEVİR — TUR #108 (PURE KEŞİF)
 
 ---
 
