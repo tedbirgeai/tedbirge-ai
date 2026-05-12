@@ -6,6 +6,83 @@
 
 ---
 
+## 12 Mayıs 2026 Salı — TUR #116 KAPALI (User.address Schema KIRMIZI Geçişi + Profil Adres Edit + Kartvizit Tam Adres)
+
+**Karar:** Anayasa **v1.30.0 → v1.31.0 MINOR**. Backend `1.11.0 → 1.12.0` MINOR. Panel `1.13.0 → 1.14.0` MINOR. Schema `1.4.0 → 1.5.0`. **1 KIRMIZI** (User schema 4 additive alan) — **CEO yazılı onay Madde 18.3** ile geçildi.
+
+**CEO yazılı onay (Madde 18.3):**
+> "TUR #116 = User.address schema eklemesi (Madde 3 KIRMIZI — CEO onaylıyor) Profil sayfasında adres edit özelliği Sonra kartvizit otomatik tam adres gösterir" — Mehmet DİNÇ, 12 Mayıs 2026
+
+**Saha kanıt:** Emine ÇELİK kartvizit ön yüzünde "SAKARYA" (user.bolge tek alan) görünüyordu. Saha temsilcisi matbaaya gitmeden önce TAM ADRES gerekli. TUR #115 SARI ENDIŞE → TUR #116'da çözüldü.
+
+**Schema KIRMIZI Geçiş Protokolü (Madde 30.71 yeni — TUR #116 emsali):**
+
+3 zorunlu şart:
+1. CEO yazılı onayı (Madde 18.3) — sohbette açık beyan
+2. Additive — mevcut alan silme/rename YASAK (Madde 4.6 emsali)
+3. Idempotent SQL — `apply-pending-schemas.js` pattern, Prisma migration YASAK
+
+**6 ATOM uygulandı (UÇTAN UCA):**
+
+1. **ATOM 1 — Schema additive 4 alan** (`prisma/schema.prisma` User model):
+   - `address String?` — açık adres (sokak/mahalle/no, max 200 char)
+   - `city String?` — şehir/il (max 60)
+   - `district String?` — ilçe (max 60)
+   - `postalCode String?` — posta kodu (max 10)
+   - `bolge` KORUNDU (Madde 4.6 geriye uyumluluk)
+
+2. **ATOM 2 — Idempotent ALTER TABLE** (`scripts/apply-pending-schemas.js`):
+   - 4 satır `ALTER TABLE "User" ADD COLUMN IF NOT EXISTS "X" TEXT`
+   - Production deploy sonrası postinstall otomatik
+   - Lokal'de idempotent (zaten varsa no-op)
+
+3. **ATOM 3 — Backend PATCH /auth/me genişletme** (`src/routes/auth.routes.js`):
+   - `allowed` array'e 4 yeni alan
+   - Validation: max length (200/60/60/10), postalCode rakam+tire regex
+   - `select` 4 alan eklendi (GET ve PATCH response)
+   - KVKK m.10 audit (`PROFILE_ADDRESS_UPDATE` ActivityLog)
+
+4. **ATOM 4 — Paylaşılan AdresEditCard component** (`tedbirge-panel/components/profile/AdresEditCard.tsx` yeni):
+   - 4 input field (address textarea + city + district + postalCode)
+   - Validation client-side
+   - Toast feedback
+   - `bolge` legacy info banner (varsa)
+   - Mount: `/temsilci/profil/page.tsx` + `(panel)/profil/page.tsx` (ADMIN/LAWYER/SALES)
+
+5. **ATOM 5 — corporate.service.js adres öncelik 4 seviye** (3 nokta):
+   - `buildUserAddressLine(user, brand)` helper yeni
+   - vCard RFC 6350 yapılandırılmış ADR (`;;street;city;district;postal;Turkiye`)
+   - SVG `<text>` + PDF text aynı 4-seviye öncelik
+   - LAWYER kısıt korundu (Madde 25.3 m.55 footer)
+
+6. **ATOM 6 — bolge migrate utility** (DEFER, SARI ENDIŞE):
+   - Manuel kullanıcı kendi adresini girer
+   - Otomatik migration YOK (kullanıcı tercihi koruma)
+
+**Smoke (local — kanıt-bazlı):**
+```
+vCard: ADR:;;Atatürk Cd. Çiçek Sk. No:42/3;Sakarya;Adapazarı;54100;Turkiye ✓
+SVG:   Atatürk Cd. Çiçek Sk. No:42/3, Adapazarı, Sakarya ✓
+PDF:   line 10 doğru render (Türkçe karakter UTF-8 korundu) ✓
+Fallback city+district: ADR:;;;Istanbul;Kadikoy;;Turkiye ✓
+Fallback bolge (eski): ADR:;;Eski Bolge ✓ (Madde 4.6)
+```
+
+**Etki:**
+- Backend: 4 dosya (schema + apply-pending + auth.routes + corporate.service)
+- Panel: 3 dosya (AdresEditCard yeni + temsilci/profil + (panel)/profil)
+- OS: 5 belge + version
+- 29 → **30 ardışık temiz TUR REKOR (#90 → #116)** — KIRMIZI geçişi REKOR bozmadı (CEO yazılı onay protokolü)
+
+**NEXT — TUR #117:**
+- Premium görsel iterasyon (TUR #112 plan, ertelendi)
+- Niyazi DEMİR ilk gerçek lead retrospektifi
+- bolge → address migration script (sarı endişe çözümü)
+
+**Mimar:** Claude Opus 4.7 (sohbet) + Claude Code (uçtan uca tek mektup, Madde 17.2 R1 + 30.25 R1 + 30.71 yeni) — 12 Mayıs 2026
+
+---
+
 ## 12 Mayıs 2026 Salı — TUR #115 KAPALI (Kartvizit Adres + Yetki Türkçe + Sidebar RBAC Dinamik — Emine ÇELİK Saha Zinciri #3)
 
 **Karar:** Anayasa **v1.29.0 → v1.30.0 MINOR**. Backend `1.10.0 → 1.11.0` MINOR. Panel `1.12.0 → 1.13.0` MINOR. 2 yeni madde tescili (30.69 + 30.70). 0 KIRMIZI, 0 schema, 0 npm install.

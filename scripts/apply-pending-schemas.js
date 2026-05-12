@@ -145,6 +145,15 @@ const STATEMENTS = [
   // Niyazi'nin ilk gercek lead'i (test degil) bu flag ile isaretlenir.
   // ADMIN_FEED celebration RealtimeEvent + Reporter milestone log.
   `ALTER TABLE "Lead" ADD COLUMN IF NOT EXISTS "firstRealLead" BOOLEAN NOT NULL DEFAULT false`,
+
+  // ─── TUR #116 — User adres alanlari (KIRMIZI cizgi, CEO yazili onay Madde 18.3 + 30.71) ──
+  // bolge alani korundu (Madde 4.6 geriye uyumluluk). 4 yeni additive alan:
+  // address (acik adres), city (sehir/il), district (ilce), postalCode (posta kodu)
+  // Kartvizit ve vCard'da kullanilir. Profil sayfasinda edit edilir.
+  `ALTER TABLE "User" ADD COLUMN IF NOT EXISTS "address" TEXT`,
+  `ALTER TABLE "User" ADD COLUMN IF NOT EXISTS "city" TEXT`,
+  `ALTER TABLE "User" ADD COLUMN IF NOT EXISTS "district" TEXT`,
+  `ALTER TABLE "User" ADD COLUMN IF NOT EXISTS "postalCode" TEXT`,
 ];
 
 (async () => {

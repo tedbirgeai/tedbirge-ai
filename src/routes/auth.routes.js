@@ -62,6 +62,8 @@ router.get("/me", auth, async (req, res) => {
         baroSicilNo: true, uzmanlik: true, isActive: true,
         iban: true, vergiKimlikNo: true, vergiDairesi: true, preferences: true,
         twoFactorEnabled: true, twoFactorEnabledAt: true, twoFactorMethod: true,
+        // TUR #116 — adres alanlari (Madde 30.71)
+        address: true, city: true, district: true, postalCode: true,
       },
     });
     if (!user) return res.status(404).json({ error: "Kullanici bulunamadi" });
@@ -74,19 +76,50 @@ router.get("/me", auth, async (req, res) => {
 router.patch("/me", auth, async (req, res) => {
   try {
     const prisma = require("../config/db");
-    const allowed = ["phone", "bolge", "iban", "vergiKimlikNo", "vergiDairesi", "preferences"];
+    // TUR #116 — address/city/district/postalCode eklendi (Madde 30.71 KIRMIZI gecisi, CEO yazili onay)
+    const allowed = [
+      "phone", "bolge", "iban", "vergiKimlikNo", "vergiDairesi", "preferences",
+      "address", "city", "district", "postalCode",
+    ];
     const data = {};
     for (const key of allowed) {
       if (req.body[key] !== undefined) data[key] = req.body[key];
     }
     if (data.iban) data.iban = String(data.iban).replace(/\s+/g, "").toUpperCase().slice(0, 32);
     if (data.vergiKimlikNo) data.vergiKimlikNo = String(data.vergiKimlikNo).slice(0, 11);
+    // TUR #116 — adres alanlari validation (max length + bos string -> null)
+    if (data.address !== undefined) data.address = data.address ? String(data.address).slice(0, 200) : null;
+    if (data.city !== undefined) data.city = data.city ? String(data.city).slice(0, 60) : null;
+    if (data.district !== undefined) data.district = data.district ? String(data.district).slice(0, 60) : null;
+    if (data.postalCode !== undefined) {
+      // Posta kodu: rakam + opsiyonel tire, max 10 char
+      const pc = data.postalCode ? String(data.postalCode).replace(/[^0-9-]/g, "").slice(0, 10) : null;
+      data.postalCode = pc || null;
+    }
 
     const updated = await prisma.user.update({
       where: { id: req.user.id },
       data,
-      select: { id: true, iban: true, vergiKimlikNo: true, vergiDairesi: true, phone: true, bolge: true },
+      select: {
+        id: true, iban: true, vergiKimlikNo: true, vergiDairesi: true, phone: true, bolge: true,
+        address: true, city: true, district: true, postalCode: true,
+      },
     });
+
+    // KVKK m.10 audit (adres alanlari guncellendiginde)
+    const addressKeys = ["address", "city", "district", "postalCode"];
+    const addressChanged = addressKeys.some((k) => data[k] !== undefined);
+    if (addressChanged) {
+      try {
+        await prisma.activityLog.create({
+          data: {
+            action: "PROFILE_ADDRESS_UPDATE",
+            detail: `userId:${req.user.id} fields:${addressKeys.filter((k) => data[k] !== undefined).join(",")}`,
+          },
+        });
+      } catch (_) {}
+    }
+
     res.json({ user: updated });
   } catch (e) {
     res.status(400).json({ error: e.message });

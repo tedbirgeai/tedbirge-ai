@@ -338,8 +338,41 @@ Mehmet Bey sahaya çıkabilsin diye bu disiplin var.
 
 ---
 
-**— Tedbirge Mimari Anayasası v1.30.0 MINOR**
-**Son güncelleme: 12 Mayıs 2026 Salı (TUR #115 KAPALI — Kartvizit Adres + Yetki Türkçe + Sidebar Dinamik + Madde 30.69 + 30.70)**
+**— Tedbirge Mimari Anayasası v1.31.0 MINOR**
+**Son güncelleme: 12 Mayıs 2026 Salı (TUR #116 KAPALI — User.address Schema KIRMIZI Geçişi + Profil Adres Edit + Madde 30.71)**
+
+---
+
+## ANAYASA EVRİM — TUR #116 (12 May 2026) — Schema KIRMIZI Geçiş Protokolü
+
+**Madde 30.71 — Schema KIRMIZI Geçiş Protokolü:**
+
+Schema değişikliği **Madde 3 KIRMIZI** çizgidir — kural kalır. Ancak CEO yazılı onayı ile geçilebilir; 3 zorunlu şart:
+
+1. **CEO yazılı onayı** (Madde 18.3) — sohbette açık beyan ("schema değişikliği onaylıyorum"). Sessiz onay 3 tekrar YETERSİZ. Yazılı bir cümle gerekli.
+2. **Additive** (Madde 4.6 emsali) — yeni alanlar EKLE, mevcut alan SİLME / RENAME yapma. Geriye uyumluluk zorunlu (eski alan örn. `User.bolge` korunur).
+3. **Idempotent SQL** (Madde 30.22 emsali) — `apply-pending-schemas.js` pattern ile `ALTER TABLE ADD COLUMN IF NOT EXISTS` / `CREATE TABLE IF NOT EXISTS`. Prisma migration dosyası YASAK (migrate ayrı KIRMIZI).
+
+**TUR #116 birebir emsal:** Emine ÇELİK saha kartvizit kanıtı — `User.bolge` "SAKARYA" tek alan yeterli değil. 4 yeni alan (address/city/district/postalCode). CEO yazılı onay 12 May 2026. Madde 4.6 geriye uyumluluk: `bolge` korundu, kartvizit adres öncelik 4 seviye:
+1. `user.address` (+ district + city) — yeni
+2. `user.city` (+ district) — yeni
+3. `user.bolge` — geriye uyumluluk (TUR #115 emsali)
+4. `brand.address.fullAddress` — kurumsal fallback
+
+**Yasak (KIRMIZI olmaya devam):**
+- Migration dosyası (`prisma/migrations/`) oluşturma — idempotent SQL yerine
+- Mevcut alan silme / rename (Madde 4.6 ihlali)
+- CEO yazılı onayı OLMADAN schema değişikliği (Madde 18.3 ihlali)
+
+### TUR #116 sayısal özet
+- 1 KIRMIZI (CEO yazılı onaylı, Madde 18.3 + 30.71)
+- 8 dosya değişiklik + 1 yeni component (AdresEditCard)
+- 0 npm install · 0 env · $0 maliyet
+- Backend `1.11.0 → 1.12.0` MINOR
+- Panel `1.13.0 → 1.14.0` MINOR
+- Anayasa `v1.30.0 → v1.31.0` MINOR
+- Schema `1.4.0 → 1.5.0` (4 yeni alan)
+- 29 → **30 ardışık temiz TUR REKOR (#90 → #116)** — schema KIRMIZI geçişi REKOR'u bozmadı (CEO yazılı onay disiplin korundu)
 
 ---
 

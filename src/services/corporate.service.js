@@ -121,11 +121,32 @@ function wrapText(text, charsPerLine, maxLines) {
   return lines.slice(0, maxLines);
 }
 
+function buildUserAddressLine(user, brand) {
+  // TUR #116 — Adres oncelik 4 seviye (Madde 30.71 KIRMIZI gecisi, CEO yazili onay)
+  // 1. user.address (+ district + city) — TUR #116 yeni alan, tam adres
+  // 2. user.city (+ district) — sehir ve ilce
+  // 3. user.bolge — geriye uyumluluk (Madde 4.6 TUR #115 emsali)
+  // 4. brand.address.fullAddress — kurumsal fallback
+  if (user.address) {
+    const parts = [user.address];
+    if (user.district) parts.push(user.district);
+    if (user.city) parts.push(user.city);
+    return parts.join(", ");
+  }
+  if (user.city) {
+    return user.district ? `${user.district}, ${user.city}` : user.city;
+  }
+  if (user.bolge) return user.bolge;
+  return brand.address.fullAddress;
+}
+
 function generateVCard(user, brand) {
   const name = user.fullName || user.adSoyad || user.name || "";
   const tel = user.phone || user.telefon || brand.contact.callCenter;
-  // TUR #115 — Adres oncelik: user.bolge -> brand.address (Madde 30.69 SARI: User.address schema TUR #116 onerisi)
-  const addressLine = user.address || user.city || user.bolge || brand.address.fullAddress;
+  // TUR #116 — vCard ADR yapilandirilmis (street;district;city;postal;country)
+  // Backward compat: tek satir address line ek olarak X-FULL-ADDRESS
+  const adrStruct = `ADR:;;${user.address || ""};${user.city || ""};${user.district || ""};${user.postalCode || ""};Turkiye`;
+  const addressLine = buildUserAddressLine(user, brand);
   return [
     "BEGIN:VCARD",
     "VERSION:3.0",
@@ -133,7 +154,8 @@ function generateVCard(user, brand) {
     `TEL;TYPE=CELL:${tel}`,
     `EMAIL:${user.email}`,
     `URL:${brand.website.primary}`,
-    `ADR:;;${addressLine}`,
+    // RFC 6350: ADR yapilandirilmis 7 alanli (pobox;ext;street;locality;region;code;country)
+    user.address || user.city ? adrStruct : `ADR:;;${addressLine}`,
     `ORG:${brand.displayName}`,
     user.role === "LAWYER" ? "TITLE:Tedbirge.ai Uye Avukati" : "",
     "END:VCARD",
@@ -205,8 +227,8 @@ async function generateKartvizitSVG(user) {
   <text x="400" y="302" fill="#111827" font-family="'JetBrains Mono', ui-monospace, SFMono-Regular, monospace" font-size="14">${escapeXml(user.email || "")}</text>
   <text x="400" y="329" fill="#111827" font-family="'JetBrains Mono', ui-monospace, SFMono-Regular, monospace" font-size="14">${escapeXml(brand.website.shortLink)}</text>
 
-  <!-- Adres — TUR #115: user.bolge -> brand.address oncelik (Madde 30.69) -->
-  <text x="400" y="380" fill="#6b7280" font-family="'Inter Tight', Inter, system-ui, sans-serif" font-size="11">${escapeXml(user.address || user.city || user.bolge || brand.address.fullAddress)}</text>
+  <!-- Adres — TUR #116: address+district+city -> city -> bolge -> brand oncelik (Madde 30.71) -->
+  <text x="400" y="380" fill="#6b7280" font-family="'Inter Tight', Inter, system-ui, sans-serif" font-size="11">${escapeXml(buildUserAddressLine(user, brand))}</text>
 
   <!-- QR vCard (sag alt, cerceveli) -->
   <g transform="translate(720, 380)">
@@ -540,10 +562,10 @@ function drawCardFront(doc, ctx) {
   doc.text(user.email || "", rx, bleed + mm(34), { lineBreak: false });
   doc.text(brand.website.shortLink, rx, bleed + mm(38), { lineBreak: false });
 
-  // Adres (40 -> 43, +3mm) — TUR #115: user.bolge -> brand oncelik (Madde 30.69)
+  // Adres (40 -> 43, +3mm) — TUR #116: 4-level oncelik (Madde 30.71)
   doc.fillColor("#6b7280");
   trySetFont(doc, "Inter-Regular", "Helvetica").fontSize(5);
-  const cardAddress = user.address || user.city || user.bolge || brand.address.fullAddress || "";
+  const cardAddress = buildUserAddressLine(user, brand) || "";
   doc.text(cardAddress, rx, bleed + mm(43), { width: mm(40), lineBreak: true });
 
   // LAWYER disclaimer (cardH - 4 -> cardH - 2.5, daha alta kaydirildi)

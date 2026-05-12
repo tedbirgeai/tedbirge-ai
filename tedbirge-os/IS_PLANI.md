@@ -1,12 +1,43 @@
 # 📋 TEDBİRGE.AI — İŞ PLANI (AKTİF KESİT)
 
-**Son güncelleme:** 12 Mayıs 2026 Salı (TUR #115)
-**Anayasa:** v1.30.0 MINOR (Madde 30.65 + 30.66 + 30.67 + 30.68 + 30.69 + 30.70)
-**Aktif rekor:** 29 ardışık temiz TUR (#90 → #115)
+**Son güncelleme:** 12 Mayıs 2026 Salı (TUR #116)
+**Anayasa:** v1.31.0 MINOR (Madde 30.65-71 — Madde 30.71 yeni: Schema KIRMIZI Geçiş Protokolü)
+**Aktif rekor:** 30 ardışık temiz TUR (#90 → #116) — schema KIRMIZI geçişi REKOR bozmadı (CEO yazılı onay disiplin)
 
 ---
 
-## 🎯 NOW — TUR #115 KAPALI ✅ (Kartvizit Adres + Yetki Türkçe + Sidebar RBAC Dinamik)
+## 🎯 NOW — TUR #116 KAPALI ✅ (User.address Schema KIRMIZI + Profil Adres Edit + Kartvizit Tam Adres)
+
+**CEO YAZILI ONAY (Madde 18.3):** "TUR #116 = User.address schema eklemesi (Madde 3 KIRMIZI — CEO onaylıyor)" — Mehmet DİNÇ, 12 May 2026
+
+**Saha kanıt:** Emine ÇELİK kartvizit "SAKARYA" tek alan, tam adres gerekli (matbaa öncesi).
+
+### 6 atom (UÇTAN UCA, KIRMIZI 1)
+- **A1** Schema +4 alan (address/city/district/postalCode), bolge KORUNDU (Madde 4.6)
+- **A2** apply-pending-schemas idempotent ALTER × 4
+- **A3** PATCH /auth/me + GET genişletme + KVKK audit
+- **A4** AdresEditCard paylaşılan component, temsilci/profil + (panel)/profil mount
+- **A5** corporate.service 3 nokta `buildUserAddressLine` 4-seviye öncelik + RFC 6350 vCard
+- **A6** bolge migrate DEFER (manuel)
+
+### Madde 30.71 yeni — Schema KIRMIZI Geçiş Protokolü
+3 şart: CEO yazılı onay + Additive + Idempotent SQL. Migration dosyası YASAK.
+
+Backend 1.11.0→1.12.0, Panel 1.13.0→1.14.0, Anayasa v1.30.0→v1.31.0, Schema 1.4.0→1.5.0.
+
+---
+
+## ⏭️ NEXT — TUR #117
+
+**CEO seçimi (Madde 17.5):**
+1. **Premium görsel iterasyon** (TUR #112'den ertelenen — kartvizit estetiği)
+2. **Niyazi DEMİR ilk gerçek lead retrospektifi** (saha akış kanıtı)
+3. **bolge → address migration script** (SARI ENDIŞE çözümü)
+4. **DRY refactor** `components/kurumsal/KurumsalPage.tsx` (TUR #114 teknik borç)
+
+---
+
+## 🎯 ÖNCEKİ — TUR #115 KAPALI ✅ (Kartvizit Adres + Yetki Türkçe + Sidebar RBAC Dinamik)
 
 **Saha kanıt:** Emine ÇELİK saha zincirinin #3 bulgusu — 3 saha sorunu uçtan uca çözüldü.
 

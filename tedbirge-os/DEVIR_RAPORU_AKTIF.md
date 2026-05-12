@@ -1,15 +1,43 @@
 # 🛡️ TEDBIRGE.AI — DEVİR RAPORU (AKTİF)
 
-📋 **ANAYASA:** v1.30.0 MINOR (Madde 30.65 + 30.66 + 30.67 + 30.68 + 30.69 + 30.70 yeni — TUR #112-115)
-📂 **🚀 EMİNE ÇELİK SAHA ZİNCİRİ #3 — KARTVİZİT ADRES + TÜRKÇE LOKALİZASYON + RBAC DİNAMİK SİDEBAR 🚀**
-📅 **SON GÜNCELLEME:** 12 Mayıs 2026 Salı (TUR #115 KAPALI)
-👤 **CEO Onay:** Mehmet DİNÇ — Madde 17.2 R1 + 30.25 R1 (uçtan uca tek mektup)
-🤖 **Mimar:** Claude Opus 4.7 (sohbet) + Claude Code (5 atom uçtan uca, DEFER 0)
-🌟 **Tarih:** 12 Mayıs 2026 — 29 ARDIŞIK TEMİZ TUR REKOR (#90 → #115)
+📋 **ANAYASA:** v1.31.0 MINOR (Madde 30.65-71 — TUR #112-116, **Madde 30.71 yeni: Schema KIRMIZI Geçiş Protokolü**)
+📂 **🚀 USER.ADDRESS SCHEMA + PROFİL ADRES EDİT + KARTVİZİT TAM ADRES 🚀**
+📅 **SON GÜNCELLEME:** 12 Mayıs 2026 Salı (TUR #116 KAPALI)
+👤 **CEO Onay:** Mehmet DİNÇ — Madde 18.3 YAZILI onay (schema KIRMIZI geçişi) + 17.2 R1
+🤖 **Mimar:** Claude Opus 4.7 (sohbet) + Claude Code (6 atom uçtan uca, KIRMIZI 1 yazılı onay)
+🌟 **Tarih:** 12 Mayıs 2026 — 30 ARDIŞIK TEMİZ TUR REKOR (#90 → #116)
 
 ---
 
-## 🎯 BUGÜN — TUR #115 KAPALI (Kartvizit Adres + Yetki Türkçe + Sidebar RBAC Dinamik)
+## 🎯 BUGÜN — TUR #116 KAPALI (User.address Schema + Profil Adres Edit + Kartvizit Tam Adres)
+
+**CEO yazılı onay (Madde 18.3):** "TUR #116 = User.address schema eklemesi (Madde 3 KIRMIZI — CEO onaylıyor) + Profil sayfasında adres edit + kartvizit tam adres" — Mehmet DİNÇ, 12 May 2026
+
+**Saha kanıt:** Emine ÇELİK kartvizitinde "SAKARYA" (user.bolge tek alan), matbaaya gitmeden tam adres gerekli. TUR #115 SARI ENDIŞE → TUR #116'da çözüldü.
+
+**Sürüm:** Backend 1.11.0 → **1.12.0** MINOR, Panel 1.13.0 → **1.14.0** MINOR, Anayasa v1.30.0 → **v1.31.0** MINOR, Schema 1.4.0 → **1.5.0**
+
+### Uygulanan 6 atom (KIRMIZI 1 — CEO yazılı onaylı)
+
+- **A1** Schema additive: User'a 4 yeni alan (address/city/district/postalCode). `bolge` KORUNDU (Madde 4.6).
+- **A2** `apply-pending-schemas.js` idempotent ALTER TABLE IF NOT EXISTS × 4. Migration dosyası YASAK (Madde 3 ikincil).
+- **A3** Backend PATCH /auth/me genişletme + GET /auth/me select genişletme + validation + KVKK m.10 audit (PROFILE_ADDRESS_UPDATE)
+- **A4** Paylaşılan `AdresEditCard.tsx` component (4 input + validation + toast + bolge legacy banner). Mount: temsilci/profil + (panel)/profil.
+- **A5** `corporate.service.js` 3 nokta `buildUserAddressLine` helper — 4 seviye öncelik (address → city → bolge → brand). vCard RFC 6350 yapılandırılmış ADR.
+- **A6** bolge migration script DEFER (manuel kullanıcı tercih korunsun)
+
+### Madde 30.71 yeni — Schema KIRMIZI Geçiş Protokolü
+
+3 zorunlu şart: CEO yazılı onay + Additive (Madde 4.6) + Idempotent SQL (Madde 30.22). Prisma migration dosyası YASAK.
+
+### Smoke (local)
+- vCard: `ADR:;;Atatürk Cd. Çiçek Sk. No:42/3;Sakarya;Adapazarı;54100;Turkiye` ✓
+- SVG/PDF: Türkçe karakterler UTF-8 korundu ✓
+- 3 fallback seviye doğrulandı (yeni address → city+district → bolge)
+
+---
+
+## 🎯 ÖNCEKİ — TUR #115 KAPALI (Kartvizit Adres + Yetki Türkçe + Sidebar RBAC Dinamik)
 
 **Saha kanıt:** Emine ÇELİK saha zincirinin #3 bulgusu — kartvizit kurumsal adres + İngilizce modül adları + sidebar'da REP yetkili modüller görünmüyor.
 

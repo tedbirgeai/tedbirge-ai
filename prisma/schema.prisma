@@ -396,6 +396,12 @@ model User {
   sozlesmeKabulTarihi         DateTime?
   baroSicilNo                 String?
   bolge                       String?
+  // TUR #116 — User adres alanlari (CEO yazili onay Madde 18.3, Madde 30.71 KIRMIZI gecisi)
+  // bolge alani korundu (Madde 4.6 geriye uyumluluk). address ana alan, fallback bolge.
+  address                     String?
+  city                        String?
+  district                    String?
+  postalCode                  String?
   hukukcuKomisyon             Float?               @default(20)
   primOrani                   Float?               @default(50)
   uzmanlik                    String?

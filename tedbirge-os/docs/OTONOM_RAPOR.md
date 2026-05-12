@@ -1,3 +1,51 @@
+# 🤖 TEDBİRGE.AI — OTONOM RAPOR (TUR #116)
+
+**Tarih:** 12 Mayıs 2026 Salı
+**TUR:** #116 ✅ KAPALI
+**Tip:** User.address Schema KIRMIZI Geçişi + Profil Adres Edit + Kartvizit Tam Adres
+**Anayasa:** v1.30.0 → **v1.31.0 MINOR** (Madde 30.71 yeni — Schema KIRMIZI Geçiş Protokolü)
+
+## 📋 Sayısal özet
+- 6 atom UÇTAN UCA · **1 KIRMIZI** (CEO yazılı onaylı Madde 18.3)
+- 7 dosya değişiklik + 1 yeni component (`AdresEditCard.tsx`)
+- 0 npm install · 0 env · $0 maliyet
+- Backend 1.11.0→1.12.0 / Panel 1.13.0→1.14.0 / Anayasa v1.30.0→v1.31.0 / Schema 1.4.0→1.5.0
+- **29 → 30 ardışık temiz TUR REKOR** — KIRMIZI geçişi rekor bozmadı (CEO yazılı onay disiplin)
+
+## CEO yazılı onay (Madde 18.3)
+> "TUR #116 = User.address schema eklemesi (Madde 3 KIRMIZI — CEO onaylıyor) Profil sayfasında adres edit özelliği Sonra kartvizit otomatik tam adres gösterir" — Mehmet DİNÇ, 12 May 2026
+
+## ✅ 6 ATOM
+- **A1** `prisma/schema.prisma` User'a 4 alan (address/city/district/postalCode), `bolge` korundu
+- **A2** `apply-pending-schemas.js` 4 idempotent ALTER TABLE IF NOT EXISTS (TUR #110 JudicialResponse emsali)
+- **A3** `auth.routes.js` PATCH /me + GET /me genişletme + validation (200/60/60/10 max length) + KVKK m.10 audit
+- **A4** `components/profile/AdresEditCard.tsx` yeni paylaşılan component (4 input + bolge legacy banner). `temsilci/profil` + `(panel)/profil` mount.
+- **A5** `corporate.service.js` `buildUserAddressLine(user, brand)` helper — 4 seviye öncelik (address+district+city → city+district → bolge → brand.address). vCard RFC 6350 structured ADR. SVG + PDF aynı helper.
+- **A6** bolge migrate DEFER (manuel — kullanıcı tercih koruma, sarı endişe MIMARI_KARARLAR'a kayıt)
+
+## 📝 Madde 30.71 yeni — Schema KIRMIZI Geçiş Protokolü
+
+3 zorunlu şart:
+1. CEO yazılı onayı (Madde 18.3) — açık beyan
+2. Additive (Madde 4.6) — mevcut alan silme/rename YASAK
+3. Idempotent SQL (Madde 30.22) — Prisma migration dosyası YASAK
+
+## 🔬 Smoke (local kanıt)
+```
+vCard: ADR:;;Atatürk Cd. Çiçek Sk. No:42/3;Sakarya;Adapazarı;54100;Turkiye ✓
+SVG:   Atatürk Cd. Çiçek Sk. No:42/3, Adapazarı, Sakarya ✓
+PDF:   line 10 doğru render — Türkçe karakter UTF-8 korundu ✓
+Fallback city+district: ADR:;;;Istanbul;Kadikoy;;Turkiye ✓
+Fallback bolge (eski kullanıcı): ADR:;;Eski Bolge ✓ (Madde 4.6 geriye uyumluluk)
+```
+
+## 🎯 NEXT — TUR #117
+1. Premium görsel iterasyon (kartvizit estetik, ertelenen)
+2. Niyazi DEMİR ilk gerçek lead retrospektifi
+3. bolge → address migration script (manuel/opsiyonel)
+4. DRY refactor components/kurumsal
+
+═══════════════════════════════════════════════════════════════════
 # 🤖 TEDBİRGE.AI — OTONOM RAPOR (TUR #115)
 
 **Tarih:** 12 Mayıs 2026 Salı
