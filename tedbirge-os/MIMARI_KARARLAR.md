@@ -6,7 +6,28 @@
 
 ---
 
-## 12 Mayıs 2026 Salı — TUR #112 KAPALI (Premium Kartvizit Uçtan Uca — 5 Format + Font Embed + Türkçe Fix + Tedbirator Etiket)
+## 12 Mayıs 2026 Salı — TUR #112 KAPALI + 3 MIKRO HOTFIX ITERASYONU (Premium Kartvizit Uçtan Uca + Türkçe Variable Font + PDF Spacing)
+
+### 3 Mikro Iterasyon Zinciri (commit hash'ler)
+
+1. **Ana commit `58fbe6f`** — TUR #112 10 atom uçtan uca premium kartvizit (5 format + ön/arka + reklam editör)
+2. **Hotfix #1 `f8b9c59`** — Variable font geçişi (Türkçe karakter Ş/ş/Ğ/ğ/İ font subset eksik → google/fonts variable TTF). Backend 1.8.0 → 1.8.1 PATCH
+3. **Hotfix #2 `ad5d8db`** — PDF sağ panel satır aralığı yayma (variable font metrics ascent/descent farkı). Backend 1.8.1 → 1.8.2 PATCH
+4. **Hotfix #3 (bu commit)** — PDF sol panel + arka yüz "Tedbirge.ai altı" satır aralığı. Backend 1.8.2 → 1.8.3 PATCH
+
+### 3 Mimar Hatası Emsali (TUR #112 ders notu)
+
+**Mimar Hatası 52 — Sahte Ekran-Bazlı Hotfix:** Sohbet Mimarı production'a inmemiş eski state'i görüp "kod hatası" teşhisi koyar. Code Madde 4.4 ile reddetti — `git log`/`grep` ile kod doğru olduğu kanıtlandı. Production deploy gecikmesi gerçek sorun.
+
+**Mimar Hatası 53 — Frontend Skill Kuralı İhlali:** Mimar gradient/renk/spacing/font-weight değerleri kod-kanıtsız pişirdi. Frontend görsel iterasyon CEO görsel onayı + fontkit metrics ölçümü gerektirir.
+
+**Mimar Hatası 54 — Parçalı İş Atom Listesi:** Mimar CEO mektubundaki direktifi atomize edip 10-15 atomluk liste pişirdi. Madde 17.2 R1 — CEO direktifini eklemeden atomize etmek YASAK.
+
+### Madde 30.66 — Variable Font Trade-off Disiplini (TUR #112 mikro hotfix #1 emsali)
+
+pdfkit 0.18.0 variable font `wght` axis runtime'da uygulanmaz → Bold/Medium/Regular alias'lar Regular weight render. **Görsel weight ayrımı kaybı KABUL** çünkü Türkçe karakter doğru render > visual Bold (Madde 30.65 #1+#2 önceliği). Bold gerekirse font instance pre-rendering veya pdfkit upgrade — gelecek TUR teknik borç.
+
+### Karar
 
 **Karar:** Anayasa **v1.27.0 → v1.28.0 MINOR**. 10/10 atom uçtan uca uygulandı (Madde 17.2 R1 emsali — CEO direktifi "uçtan uca, parçalı iş yasak"). 1 yeni madde tescili (30.65 — Premium Kartvizit Disiplini). 0 KIRMIZI, $0 maliyet, 0 npm install (Google Fonts OFL = ücretsiz).
 

@@ -339,7 +339,49 @@ Mehmet Bey sahaya çıkabilsin diye bu disiplin var.
 ---
 
 **— Tedbirge Mimari Anayasası v1.28.0 MINOR**
-**Son güncelleme: 12 Mayıs 2026 Salı (TUR #112 KAPALI — Premium Kartvizit + Font Embed + 5 Format + Türkçe Fix)**
+**Son güncelleme: 12 Mayıs 2026 Salı (TUR #112 KAPALI + 3 mikro hotfix iterasyonu — Premium Kartvizit + VF Türkçe)**
+
+---
+
+## ANAYASA EVRİM — TUR #112 (12 May 2026) — 2 Yeni Madde + 3 Mimar Hatası Emsali
+
+**Son durum:** v1.27.0 → **v1.28.0 MINOR** — **2 yeni madde tescil** (30.65 + 30.66).
+
+### Madde 30.65 — Premium Kartvizit Disiplini (TUR #112 ana commit)
+
+5 zorunluluk:
+1. **UTF-8 zorunlu** — Content-Type charset + RFC 5987 filename + Buffer utf8
+2. **Font pipeline OFL** — Variable font (`InterTight-VF.ttf`/`CrimsonPro-VF.ttf`/`JetBrainsMono-VF.ttf`) Google Fonts repo, OFL 1.1 lisansli, `tedbirge-os/assets/fonts/` commit'li
+3. **5 format zorunlu** — SVG + PNG (frontend canvas) + PDF Paylaş + PDF Matbaa + vCard
+4. **LAWYER backend enforcement 403** — arka yüz reklam + matbaa PDF (Madde 25.3 + 30.64 mirası)
+5. **PNG sharp YOK pattern** — backend /png SVG döndürür, frontend canvas API çevirir
+
+### Madde 30.66 — Variable Font Trade-off Disiplini (TUR #112 mikro hotfix #1 emsali)
+
+**Trade-off kalici karari:** pdfkit `0.18.0` variable font `wght` axis'i runtime'da uygulamıyor — Bold/Medium/Regular alias'lar **default weight (Regular)** ile render eder. **Görsel weight ayrımı kaybı KABUL EDİLİR** çünkü:
+- Türkçe karakter doğru render > visual Bold/Regular ayrımı (Madde 30.65 önceliği)
+- VF font 17/17 Türkçe glyph (subset TTF 12/17 — 5 eksik)
+- pdfkit upgrade veya font instance pre-render gelecek TUR (teknik borç dokümante)
+
+**Yasak:** Variable font wght axis çalışmaması bahanesiyle Türkçe karakter eksik subset TTF'ye dönüş (Madde 30.65 #1+#2 ihlali). Bold gerekiyorsa font instance pre-rendering veya pdfkit major upgrade — KIRMIZI değil ama mimar oturumu gerek.
+
+### Mimar Hatası 52 — Sahte Ekran-Bazlı Hotfix (TUR #112 emsali)
+
+**Pattern:** Sohbet Mimarı (yeni Claude) production'a inmemiş eski state'i görüp "kod hatası" teşhisi koyar, hotfix önerir. Çift commit + sahte sorun çözme şovu yaratır. **Madde 4.4 ihlali** — kod kaynaktır.
+
+**Düzeltme:** Mimar önce `git log`/`grep` ile kodun mevcut durumunu doğrular. Production deploy bekliyor mu, kod gerçekten eksik mi ayırt eder. Sahte hotfix YASAK.
+
+### Mimar Hatası 53 — Frontend Skill Kuralı İhlali (TUR #112 emsali)
+
+**Pattern:** Mimar gradient/renk/spacing değerleri kod-kanıtsız "pişirir" (frontend-design skill kullanmadan). CEO ekran karşılaştırması yapınca uyumsuzluk ortaya çıkar.
+
+**Düzeltme:** Frontend görsel iterasyon **CEO görsel onayıyla** ilerler. Mimar lineGap/spacing/font-weight değerlerini code-pişirmesi yerine **fontkit metrics ölçümü** veya **test PDF üretip görsel kontrol** ile belirler.
+
+### Mimar Hatası 54 — Parçalı İş Atom Listesi (TUR #112 emsali)
+
+**Pattern:** Mimar 8-15 atomluk büyük liste pişirir, kod-kanıtsız. Madde 17.2 R1 (parçalı iş yasağı) ihlali — CEO atom listesini bekler ama atom listesi pişirmek de **CEO sözünün üzerine konuşmak** demek.
+
+**Düzeltme:** Mimar `git log`/`code grep` ile kod-kanıt önce, atom listesi sonra. CEO mektubundaki direktife eklemek YASAK — sadece direktifi atomize et.
 
 ---
 

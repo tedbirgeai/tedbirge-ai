@@ -11,7 +11,20 @@
 
 ## 🎯 BUGÜN — TUR #112 KAPALI (Premium Kartvizit Uçtan Uca)
 
-**Sürüm:** Backend 1.7.0 → **1.8.0**, Panel 1.10.0 → **1.11.0**, Anayasa v1.27.0 → **v1.28.0 MINOR**
+**Sürüm:** Backend 1.7.0 → **1.8.3** (3 PATCH hotfix), Panel 1.10.0 → **1.11.0**, Anayasa v1.27.0 → **v1.28.0 MINOR**
+
+**Commit zinciri:**
+- Ana `58fbe6f` — 10 atom premium kartvizit uçtan uca (5 format + ön/arka + reklam editör)
+- Hotfix #1 `f8b9c59` — Variable font Türkçe karakter (jsdelivr subset → google/fonts VF)
+- Hotfix #2 `ad5d8db` — PDF sağ panel satır aralığı yayma
+- Hotfix #3 (bu commit) — PDF sol panel + arka yüz "Tedbirge.ai altı" spacing
+
+**3 Mimar Hatası emsali (ders notu):**
+- MH52 — Sahte ekran-bazlı hotfix (production deploy bekliyorken hotfix teşhisi)
+- MH53 — Frontend skill kuralı ihlali (gradient/spacing kod-kanıtsız pişirme)
+- MH54 — Parçalı iş atom listesi (CEO direktifini eklenmiş atom listesi pişirme)
+
+**Madde 30.66 yeni** — Variable Font Trade-off Disiplini (pdfkit wght axis çalışmaması → Bold/Regular ayrımı kaybı KABUL, Türkçe karakter önceliği)
 
 ### Uygulanan 10 atom (10/10 — UÇTAN UCA, parçalı iş yasak)
 

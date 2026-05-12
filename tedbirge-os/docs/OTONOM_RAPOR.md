@@ -7,7 +7,41 @@
 
 ---
 
-## 🔧 TUR #112 HOTFIX (Aynı gün, 12 May 2026 — PATCH bump)
+## 🔧 TUR #112 — 3 MIKRO HOTFIX ITERASYONU (Aynı gün, 12 May 2026)
+
+**Iterasyon zinciri:**
+- Hotfix #1 `f8b9c59` — Variable font (Türkçe karakter Ş/ş/Ğ/ğ/İ jsdelivr subset eksik → google/fonts VF). Backend 1.8.0→1.8.1.
+- Hotfix #2 `ad5d8db` — PDF sağ panel satır aralığı yayma (variable font ascent metric). Backend 1.8.1→1.8.2.
+- Hotfix #3 (bu) — PDF sol panel + arka yüz "Tedbirge.ai altı" spacing. Backend 1.8.2→1.8.3.
+
+### Hotfix #3 detayı (Mikro hotfix #2 — Tedbirge.ai altı satır aralığı)
+
+**CEO ekran kanıtı:** Hotfix #2 sonrası sağ panel düzeldi ama:
+- ÖN YÜZ sol panel: Tedbirge.ai + tedbirator + slogan birbirine yapışık
+- ARKA YÜZ: Tedbirge.ai + slogan birbirine yapışık
+
+**Sebep (aynı kök):** Variable font metrics (ascent/descent) statik TTF'den farklı. Sol panel ve arka yüz spacing'leri hotfix #2'de unutulmuş.
+
+**Çözüm:**
+- `drawCardFront` sol panel: `-9/-3/+3/+6` → `-13/-4/+5/+11` mm (toplam 24mm range, +12pt Tedbirge→tedbirator, +18pt tedbirator→slogan)
+- `drawCardBack`: logo `-10` → `-14` mm, slogan `-3` → `+3` mm (fark 7mm → 17mm = +20pt eklendi)
+- `generateKartvizitSVG` sol panel: y=245/278/298/332 → y=230/285/312/350 (~37% spacing artisi)
+- `generateKartvizitBackSVG`: displayName y=230 → 220, slogan y=275 → 290, ad lines y=340 → 355
+
+**Smoke (pdf-parse text extract):**
+ADMIN PDF / REP PDF — sol panel 3 satır ayrı (Tedbirge.ai / tedbirator / Hakkınızı...), arka yüz 2 satır ayrı (Tedbirge.ai / Hak ettiğiniz tazminat...).
+
+**3 Mimar Hatası emsali (yeni — CLAUDE.md + MIMARI_KARARLAR.md tescil):**
+- **MH52** — Sahte ekran-bazlı hotfix (production deploy bekliyor, kod doğru, sahte hotfix YASAK)
+- **MH53** — Frontend skill kuralı ihlali (gradient/spacing kod-kanıtsız pişirme)
+- **MH54** — Parçalı iş atom listesi (CEO direktifini eklenmiş atom listesi pişirme — Madde 17.2 R1)
+
+**Yeni anayasa madde — Madde 30.66:**
+Variable Font Trade-off Disiplini — pdfkit wght axis çalışmaması Bold/Regular ayrımı kaybı KABUL, Türkçe karakter önceliği. Bold gerekirse font instance pre-rendering veya pdfkit upgrade (gelecek TUR teknik borç).
+
+---
+
+## 🔧 TUR #112 HOTFIX #1 (12 May 2026 — PATCH bump)
 
 **Sebep:** İlk deploy sonrası CEO smoke testinde **Matbaa PDF Türkçe karakter ❌**. SVG endpoint Türkçe ✅ ama PDF endpoint `Hakkı[]ı`, `Gü[]ah` (`.notdef` boşluk render).
 

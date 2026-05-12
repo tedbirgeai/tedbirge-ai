@@ -47,14 +47,24 @@ TUR #111 `registered: true` SMK m.30 riski → TUR #112 `displayMode: "label"` i
 
 ---
 
-## ⏭️ NEXT — TUR #113 (Niyazi sahaya çıkış sonrası)
+## ⏭️ NEXT — TUR #113 (Önerilen: Premium Görsel İterasyonu)
 
-**Tetikleyici:** Niyazi 11 May sahaya çıkıp ilk komisyon havalesi tetiklendikten sonra VEYA mevcut sari endişe temizleme.
+**Tetikleyici:** TUR #112 PDF spacing 3 mikro hotfix sonrası kartvizit fonksiyonel ✅ ama görsel olarak eski Tedbirator estetiği seviyesinde değil.
 
-### 3 öneri yön (CEO seçimi — Madde 17.5):
-1. **financialFlowGuard modül aktivasyonu** — ilk 5 komisyon havalesi sonrası (Madde 28 kanıt eşiği — DEFER registry TUR #110)
-2. **zamanaşımıGuard modülü** — ilk 10 aktif dava zaman aşımı yaklaşan
-3. **Ekrandaki 3 somut sorun fix** — Footer sayım + Healer retry + Güvenlik 2FA bildirim (TUR #110 IS_PLANI öneri)
+### NEXT 1 (önerilen): Premium Görsel İterasyon
+- Kişi fotoğrafı slot (REPRESENTATIVE/SALES için, opsiyonel)
+- Diyagonal pattern aksent (eski Tedbirator estetik referansı)
+- Hiyerarşik kompozisyon (isim/rol/iletişim grup ayrımı belirgin)
+- pdfkit upgrade ile variable font wght axis aktivasyonu (Bold/Regular ayrımı)
+- Madde 30.66 trade-off güncellemesi (visual weight kayıp → kazanım)
+
+### NEXT 2 (alternatif): Niyazi sahaya çıkış retrospektifi
+- Saha kullanıcı geri bildirimi
+- Lead.firstRealLead manuel set + uçtan uca akış kanıtı
+- UX bug listesi (varsa fix)
+- 24 saat sonra `firstContactSpeed` computed metric
+
+### NEXT 3 (DEFER registry): financialFlowGuard / zamanaşımıGuard / opposingParty (Madde 28 kanıt eşiği — TUR #112+)
 
 ---
 

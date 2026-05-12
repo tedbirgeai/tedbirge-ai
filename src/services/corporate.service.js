@@ -175,12 +175,12 @@ async function generateKartvizitSVG(user) {
   return `<?xml version="1.0" encoding="UTF-8"?>
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 850 550" width="850" height="550">
   ${fontFace}
-  <!-- Sol panel: Tedbirge marka -->
+  <!-- Sol panel: Tedbirge marka — TUR #112 mikro hotfix #2: spacing yayildi -->
   <rect x="0" y="0" width="360" height="550" fill="${primary}"/>
-  <text x="180" y="245" text-anchor="middle" fill="white" font-family="'Inter Tight', Inter, system-ui, sans-serif" font-weight="700" font-size="40">${escapeXml(brand.displayName)}</text>
-  ${tedbirator ? `<text x="180" y="278" text-anchor="middle" fill="${tedbiratorColor}" font-family="'Crimson Pro', Georgia, serif" font-weight="400" font-style="italic" font-size="20">${escapeXml(tedbirator.name)}</text>` : ""}
-  <line x1="80" y1="298" x2="280" y2="298" stroke="rgba(255,255,255,0.18)" stroke-width="1"/>
-  <text x="180" y="332" text-anchor="middle" fill="rgba(255,255,255,0.78)" font-family="'Inter Tight', Inter, system-ui, sans-serif" font-size="13">${escapeXml(brand.shortTagline)}</text>
+  <text x="180" y="230" text-anchor="middle" fill="white" font-family="'Inter Tight', Inter, system-ui, sans-serif" font-weight="700" font-size="40">${escapeXml(brand.displayName)}</text>
+  ${tedbirator ? `<text x="180" y="285" text-anchor="middle" fill="${tedbiratorColor}" font-family="'Crimson Pro', Georgia, serif" font-weight="400" font-style="italic" font-size="20">${escapeXml(tedbirator.name)}</text>` : ""}
+  <line x1="80" y1="312" x2="280" y2="312" stroke="rgba(255,255,255,0.18)" stroke-width="1"/>
+  <text x="180" y="350" text-anchor="middle" fill="rgba(255,255,255,0.78)" font-family="'Inter Tight', Inter, system-ui, sans-serif" font-size="13">${escapeXml(brand.shortTagline)}</text>
 
   <!-- Sag panel: kullanici -->
   <rect x="360" y="0" width="490" height="550" fill="white"/>
@@ -253,12 +253,12 @@ async function generateKartvizitBackSVG(user, adContent) {
     <polygon points="850,550 770,550 850,470" fill="${accent}"/>
   </g>
 
-  <!-- Merkez buyuk logo + slogan -->
-  <text x="425" y="230" text-anchor="middle" fill="white" font-family="'Inter Tight', Inter, system-ui, sans-serif" font-weight="700" font-size="64">${escapeXml(brand.displayName)}</text>
-  <text x="425" y="275" text-anchor="middle" fill="white" font-family="'Crimson Pro', Georgia, serif" font-weight="400" font-style="italic" font-size="22">${escapeXml(slogan)}</text>
+  <!-- Merkez buyuk logo + slogan — TUR #112 mikro hotfix #2: spacing yayildi -->
+  <text x="425" y="220" text-anchor="middle" fill="white" font-family="'Inter Tight', Inter, system-ui, sans-serif" font-weight="700" font-size="64">${escapeXml(brand.displayName)}</text>
+  <text x="425" y="290" text-anchor="middle" fill="white" font-family="'Crimson Pro', Georgia, serif" font-weight="400" font-style="italic" font-size="22">${escapeXml(slogan)}</text>
 
   <!-- Reklam metni (varsa) -->
-  ${adLines.map((line, i) => `<text x="425" y="${340 + i * 24}" text-anchor="middle" fill="rgba(255,255,255,0.92)" font-family="'Inter Tight', Inter, system-ui, sans-serif" font-size="14">${escapeXml(line)}</text>`).join("\n  ")}
+  ${adLines.map((line, i) => `<text x="425" y="${355 + i * 26}" text-anchor="middle" fill="rgba(255,255,255,0.92)" font-family="'Inter Tight', Inter, system-ui, sans-serif" font-size="14">${escapeXml(line)}</text>`).join("\n  ")}
 
   <!-- QR sag alt (basvuru linki) -->
   <g transform="translate(700, 410)">
@@ -486,23 +486,25 @@ function drawCardFront(doc, ctx) {
   // Sol panel
   doc.rect(0, 0, leftW + bleed, bleed * 2 + cardH).fill(primary);
 
+  // TUR #112 mikro hotfix #2 — sol panel Tedbirge.ai alti spacing yayildi
+  // -9/-3/+3/+6 -> -13/-4/+5/+11 (toplam 23mm range, +12pt Tedbirge->tedbirator, +18pt tedbirator->slogan)
   doc.fillColor("white");
   trySetFont(doc, "Inter-Bold", "Helvetica-Bold").fontSize(16);
-  doc.text(brand.displayName, bleed, bleed + cardH / 2 - mm(9), { width: leftW, align: "center", lineBreak: false });
+  doc.text(brand.displayName, bleed, bleed + cardH / 2 - mm(13), { width: leftW, align: "center", lineBreak: false });
 
   if (tedbirator) {
     doc.fillColor(tedbiratorColor);
     trySetFont(doc, "Crimson-Regular", "Times-Italic").fontSize(9);
-    doc.text(tedbirator.name, bleed, bleed + cardH / 2 - mm(3), { width: leftW, align: "center", lineBreak: false });
+    doc.text(tedbirator.name, bleed, bleed + cardH / 2 - mm(4), { width: leftW, align: "center", lineBreak: false });
   }
 
   // Hairline
   doc.strokeColor("rgba(255,255,255,0.18)").lineWidth(0.3);
-  doc.moveTo(bleed + leftW * 0.22, bleed + cardH / 2 + mm(3)).lineTo(bleed + leftW * 0.78, bleed + cardH / 2 + mm(3)).stroke();
+  doc.moveTo(bleed + leftW * 0.22, bleed + cardH / 2 + mm(5)).lineTo(bleed + leftW * 0.78, bleed + cardH / 2 + mm(5)).stroke();
 
   doc.fillColor("white");
   trySetFont(doc, "Inter-Regular", "Helvetica").fontSize(6);
-  doc.text(brand.shortTagline || "", bleed, bleed + cardH / 2 + mm(6), { width: leftW, align: "center", lineBreak: false });
+  doc.text(brand.shortTagline || "", bleed, bleed + cardH / 2 + mm(11), { width: leftW, align: "center", lineBreak: false });
 
   // Sag panel: beyaz (bleed alaninda sag) — kart beyaz arkaplani
   doc.rect(leftW + bleed, 0, cardW - leftW + bleed, bleed * 2 + cardH).fill("white");
@@ -561,20 +563,21 @@ async function drawCardBack(doc, ctx) {
   doc.moveTo(bleed * 2 + cardW, bleed * 2 + cardH).lineTo(bleed * 2 + cardW - mm(10), bleed * 2 + cardH).lineTo(bleed * 2 + cardW, bleed * 2 + cardH - mm(10)).closePath().fill();
   doc.restore().opacity(1);
 
-  // Merkez logo
+  // TUR #112 mikro hotfix #2 — Tedbirge.ai alti spacing yayildi
+  // logo -10/-3/+4 -> -14/+3/+10 (Tedbirge -> slogan +20pt fark)
   doc.fillColor("white");
   trySetFont(doc, "Inter-Bold", "Helvetica-Bold").fontSize(22);
-  doc.text(brand.displayName, bleed, bleed + cardH / 2 - mm(10), { width: cardW, align: "center", lineBreak: false });
+  doc.text(brand.displayName, bleed, bleed + cardH / 2 - mm(14), { width: cardW, align: "center", lineBreak: false });
 
-  // Slogan
+  // Slogan (lineGap eklendi VF metrics icin)
   trySetFont(doc, "Crimson-Regular", "Times-Italic").fontSize(8);
   const slogan = brand.marketing?.defaultBackTagline || brand.shortTagline || "";
-  doc.text(slogan, bleed, bleed + cardH / 2 - mm(3), { width: cardW, align: "center", lineBreak: false });
+  doc.text(slogan, bleed, bleed + cardH / 2 + mm(3), { width: cardW, align: "center", lineBreak: true, lineGap: 1 });
 
-  // Reklam metni (varsa)
+  // Reklam metni (varsa) — slogan'dan 7mm asagi
   if (typeof adContent === "string" && adContent.trim()) {
     trySetFont(doc, "Inter-Regular", "Helvetica").fontSize(6);
-    doc.text(adContent.trim().slice(0, 200), bleed + mm(6), bleed + cardH / 2 + mm(4), { width: cardW - mm(12), align: "center", lineBreak: true });
+    doc.text(adContent.trim().slice(0, 200), bleed + mm(6), bleed + cardH / 2 + mm(10), { width: cardW - mm(12), align: "center", lineBreak: true, lineGap: 1 });
   }
 
   // QR kod (varsa qrcode paketi)
