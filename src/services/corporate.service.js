@@ -298,7 +298,8 @@ async function generateKartvizitBackSVG(user, adContent) {
   const customAd = (typeof adContent === "string" && adContent.trim())
     ? adContent.trim().slice(0, 200)
     : "";
-  const adLines = customAd ? wrapText(customAd, 60, 3) : [];
+  // TUR #118.1 hotfix — Reklam metni QR kod cakismasi: 60 char/3 satir -> 45 char/3 satir + sol hizali
+  const adLines = customAd ? wrapText(customAd, 45, 3) : [];
 
   // QR — kullaniciya ozel basvuru linki
   const repCode = (user.id || "").toString().slice(0, 8);
@@ -321,8 +322,8 @@ async function generateKartvizitBackSVG(user, adContent) {
   <text x="425" y="220" text-anchor="middle" fill="white" font-family="'Inter Tight', Inter, system-ui, sans-serif" font-weight="700" font-size="64">${escapeXml(brand.displayName)}</text>
   <text x="425" y="290" text-anchor="middle" fill="white" font-family="'Crimson Pro', Georgia, serif" font-weight="400" font-style="italic" font-size="22">${escapeXml(slogan)}</text>
 
-  <!-- Reklam metni (varsa) -->
-  ${adLines.map((line, i) => `<text x="425" y="${355 + i * 26}" text-anchor="middle" fill="rgba(255,255,255,0.92)" font-family="'Inter Tight', Inter, system-ui, sans-serif" font-size="14">${escapeXml(line)}</text>`).join("\n  ")}
+  <!-- Reklam metni (varsa) — TUR #118.1: sol hizali, QR (x=700+) ile cakismaz, dikey biraz yukari -->
+  ${adLines.map((line, i) => `<text x="50" y="${340 + i * 22}" text-anchor="start" fill="rgba(255,255,255,0.92)" font-family="'Inter Tight', Inter, system-ui, sans-serif" font-size="13">${escapeXml(line)}</text>`).join("\n  ")}
 
   <!-- QR sag alt (basvuru linki) -->
   <g transform="translate(700, 410)">
@@ -640,10 +641,20 @@ async function drawCardBack(doc, ctx) {
   const slogan = brand.marketing?.defaultBackTagline || brand.shortTagline || "";
   doc.text(slogan, bleed, bleed + cardH / 2 + mm(3), { width: cardW, align: "center", lineBreak: true, lineGap: 1 });
 
-  // Reklam metni (varsa) — slogan'dan 7mm asagi
+  // TUR #118.1 hotfix — Reklam metni QR kod cakismasi (CEO PDF kanit)
+  // QR sag alt 15×15mm + 3mm padding. Metin genisligi: QR soluna kadar.
+  // Yeni layout: width = cardW - qrZone(15+3+3) - leftMargin(6) = cardW - 27mm
+  // Dikey: cardH/2 + mm(8) (2mm yukari, QR ile 4mm dikey bosluk)
+  const qrZoneW = mm(21); // 15mm QR + 3mm padding + 3mm bosluk metin tarafinda
   if (typeof adContent === "string" && adContent.trim()) {
     trySetFont(doc, "Inter-Regular", "Helvetica").fontSize(6);
-    doc.text(adContent.trim().slice(0, 200), bleed + mm(6), bleed + cardH / 2 + mm(10), { width: cardW - mm(12), align: "center", lineBreak: true, lineGap: 1 });
+    doc.text(adContent.trim().slice(0, 200), bleed + mm(6), bleed + cardH / 2 + mm(8), {
+      width: cardW - mm(6) - qrZoneW,
+      align: "left",
+      lineBreak: true,
+      lineGap: 1.5,
+      ellipsis: true,
+    });
   }
 
   // QR kod (varsa qrcode paketi)
