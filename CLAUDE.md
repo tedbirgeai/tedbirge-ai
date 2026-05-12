@@ -338,8 +338,53 @@ Mehmet Bey sahaya çıkabilsin diye bu disiplin var.
 
 ---
 
-**— Tedbirge Mimari Anayasası v1.29.0 MINOR**
-**Son güncelleme: 12 Mayıs 2026 Salı (TUR #114 KAPALI — REP Kurumsal Route Scope + Admin Sözleşme Görünürlük + Madde 30.68)**
+**— Tedbirge Mimari Anayasası v1.30.0 MINOR**
+**Son güncelleme: 12 Mayıs 2026 Salı (TUR #115 KAPALI — Kartvizit Adres + Yetki Türkçe + Sidebar Dinamik + Madde 30.69 + 30.70)**
+
+---
+
+## ANAYASA EVRİM — TUR #115 (12 May 2026) — Türkçe Lokalizasyon + RBAC Dinamik Sidebar
+
+**Madde 30.69 — Türkçe Lokalizasyon Disiplini:**
+
+Kullanıcıya görünen her metin Türkçe olmalı. Modül ID'leri (registry.js — `campaignBuilder`, `socialCalendar`, `paylasim`) JS naming convention kalır ama **frontend MODULE_LABELS dictionary** her ID için Türkçe karşılık tanımlamak ZORUNLU. Yetki Matrisi, Sidebar, Panel başlıklarında ham İngilizce ID gösterimi YASAK.
+
+**Kanıt (Emine ÇELİK saha):** Yetki Matrisi sayfasında `campaignBuilder`, `socialCalendar` ham gösteriliyordu — kullanıcı anlayamaz.
+
+**Düzeltme:** MODULE_LABELS dict'e 4 yeni satır eklendi (campaignBuilder/socialCalendar/ebaroVerify/uyap). Her yeni modül eklendiğinde MODULE_LABELS güncellenmesi zorunlu — kanıt-bazlı pattern checklist.
+
+**Madde 30.70 — RBAC Dinamik Sidebar Disiplini:**
+
+Sidebar item'ları **RBAC yetki bağı** ile dinamik render edilmeli. `usePermissions().can(module, action)` filtreli. Hardcoded item gösterimi (yetkiye bakmadan) YASAK.
+
+**AppLayout pattern:**
+```ts
+{ href, label, icon, roles: [...], permission: { module, action } }
+```
+`permission` alanı varsa `canPerm(module, action)` true olunca görünür.
+
+**Kanıt (Emine ÇELİK saha):** REPRESENTATIVE'in `paylasim`, `campaignBuilder`, `socialCalendar` yetkisi vardı ama sidebar'da link yoktu. AppLayout TEMSILCI section'a 3 yeni RBAC-bağlı item eklendi + placeholder route'lar (`/temsilci/sosyal-paylasim`, `/temsilci/kampanya`, `/temsilci/sosyal-takvim`).
+
+**Yasak:** Yetki seed'ed olmuş bir modülün sidebar item'ı eksik (RBAC matriste görünür ama navigasyon yok). REP/SALES yeni modül eklenirse AppLayout NAV_GROUPS güncellenmesi zorunlu.
+
+### TUR #115 sayısal özet
+- 5 dosya değişiklik + 3 yeni placeholder sayfa
+- 0 KIRMIZI · 0 schema · 0 npm install · 0 env · $0 maliyet
+- User.bolge mevcut alan kullanıldı (User.address schema teklifi TUR #116 önerisi — SARI ENDIŞE)
+- Backend `1.10.0 → 1.11.0` MINOR (adres öncelik)
+- Panel `1.12.0 → 1.13.0` MINOR (yeni sayfalar + sidebar + MODULE_LABELS)
+- Anayasa `v1.29.0 → v1.30.0` MINOR (Madde 30.69 + 30.70)
+- 28 → **29 ardışık temiz TUR REKOR (#90 → #115)**
+
+### Adres öncelik sırası (Madde 30.69 alt-madde)
+
+Kartvizit, vCard, PDF'lerde:
+1. `user.address` (gelecek schema — TUR #116)
+2. `user.city` (gelecek schema — TUR #116)
+3. `user.bolge` (mevcut — User.bolge string?)
+4. `brand.address.fullAddress` (kurumsal fallback — broşür hep buradan)
+
+Broşür (`generateBrosurSVG`) kurumsal olduğu için brand.address sabit kalır.
 
 ---
 

@@ -6,6 +6,70 @@
 
 ---
 
+## 12 Mayıs 2026 Salı — TUR #115 KAPALI (Kartvizit Adres + Yetki Türkçe + Sidebar RBAC Dinamik — Emine ÇELİK Saha Zinciri #3)
+
+**Karar:** Anayasa **v1.29.0 → v1.30.0 MINOR**. Backend `1.10.0 → 1.11.0` MINOR. Panel `1.12.0 → 1.13.0` MINOR. 2 yeni madde tescili (30.69 + 30.70). 0 KIRMIZI, 0 schema, 0 npm install.
+
+**Saha kanıt zinciri (Emine ÇELİK 3. bulgu):**
+- BULGU 1: Kartvizit ön yüz temsilci adresi yerine kurumsal Tedbirge adresi (Meram/Konya) görünüyordu
+- BULGU 2: Yetki Matrisi'nde `campaignBuilder`, `socialCalendar`, `ebaroVerify`, `uyap` ham İngilizce ID
+- BULGU 3: REPRESENTATIVE yetkili olduğu pazarlama modülleri sidebar'da link yok (RBAC matriste görünür ama navigasyon eksik)
+
+**Teşhis sonucu (kanıt-bazlı):**
+- User schema: `User.bolge String?` mevcut (line 398), `User.address` ve `User.city` YOK. SARI ENDIŞE: TUR #116 schema teklifi.
+- corporate.service.js 3 nokta `brand.address.fullAddress` hardcoded (vCard + SVG + PDF)
+- MODULE_LABELS frontend dict'inde 4 modül Türkçe yok (campaignBuilder/socialCalendar/ebaroVerify/uyap)
+- AppLayout TEMSILCI section'da paylasim/campaignBuilder/socialCalendar sidebar item YOK
+
+**5 ATOM uygulandı (UÇTAN UCA):**
+
+1. **ATOM 1 — Kartvizit adres öncelik** (`corporate.service.js` 3 nokta):
+   - `generateVCard`: `ADR:;;${user.address || user.city || user.bolge || brand.address.fullAddress}`
+   - `generateKartvizitSVG`: SVG `<text>` adres satırı aynı öncelik
+   - `drawCardFront`: PDF text aynı öncelik
+   - Broşür (`generateBrosurSVG`) kurumsal kalır (brand.address sabit)
+
+2. **ATOM 2 — Schema kontrolü** (KIRMIZI çizgi):
+   - User.address ve User.city YOK
+   - User.bolge VAR → kullanıldı, KIRMIZI yok
+   - SARI ENDIŞE: TUR #116 schema teklifi (User.address explicit field profile edit için)
+
+3. **ATOM 3 — MODULE_LABELS Türkçe** (`yetkiler/page.tsx`):
+   - 4 yeni: campaignBuilder → "Kampanya Oluşturucu", socialCalendar → "Sosyal Takvim", ebaroVerify → "e-Baro Doğrulama", uyap → "UYAP"
+   - Madde 30.69 emsali tescil
+
+4. **ATOM 4 — AppLayout TEMSILCI section RBAC item'lar** (`AppLayout.tsx`):
+   - `/temsilci/sosyal-paylasim` (paylasim:execute)
+   - `/temsilci/kampanya` (campaignBuilder:read)
+   - `/temsilci/sosyal-takvim` (socialCalendar:read)
+   - `permission` alanı ile RBAC bağı — Madde 30.70 emsali
+
+5. **ATOM 5 — 3 placeholder sayfa** (`/temsilci/{sosyal-paylasim,kampanya,sosyal-takvim}/page.tsx`):
+   - usePermissions can() kontrolü
+   - "Yakında" mesajı + ilgili mevcut altyapı linki (kartvizit/UTM)
+   - Tam işlevsellik gelecek TUR (yetki erişimi öncelikti)
+
+### Madde 30.69 yeni — Türkçe Lokalizasyon Disiplini
+
+Modül ID JS naming convention kalır, frontend MODULE_LABELS Türkçe ZORUNLU. Yeni modül eklenince checklist: registry.js + MODULE_LABELS + AppLayout NAV_GROUPS güncelleme.
+
+### Madde 30.70 yeni — RBAC Dinamik Sidebar Disiplini
+
+Sidebar item'ları `permission: { module, action }` ile bağlı. Yetki seed'ed modüllerin sidebar item'ı zorunlu. Hardcoded gösterim YASAK.
+
+### Etki
+
+- 5 dosya değişiklik (`corporate.service.js`, `AppLayout.tsx`, `yetkiler/page.tsx`, `version.json`, 2x `package.json`)
+- 3 yeni dosya (`sosyal-paylasim/page.tsx`, `kampanya/page.tsx`, `sosyal-takvim/page.tsx`)
+- 5 belge OS senkron
+- 28 → **29 ardışık temiz TUR REKOR (#90 → #115)**
+
+### NEXT — TUR #116
+
+**Öneri:** User.address + User.city schema teklifi + Profil sayfasında adres edit — TUR #115 SARI ENDIŞE çözümü. VEYA Premium görsel iterasyon.
+
+---
+
 ## 12 Mayıs 2026 Salı — TUR #114 KAPALI (REP Kurumsal Route + Admin Sözleşme Görünürlük — Emine ÇELİK Saha Bulgusu Zinciri)
 
 **Karar:** Anayasa **v1.28.0 → v1.29.0 MINOR**. Backend `1.9.0 → 1.10.0` MINOR. Panel `1.11.0 → 1.12.0` MINOR. 1 yeni madde tescili (30.68 — Rol Bazlı Route Scope). 0 KIRMIZI, 0 schema, 0 npm install.

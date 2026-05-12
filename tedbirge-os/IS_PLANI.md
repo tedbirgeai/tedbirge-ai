@@ -1,12 +1,34 @@
 # 📋 TEDBİRGE.AI — İŞ PLANI (AKTİF KESİT)
 
-**Son güncelleme:** 12 Mayıs 2026 Salı (TUR #114)
-**Anayasa:** v1.29.0 MINOR (Madde 30.65 + 30.66 + 30.67 + 30.68)
-**Aktif rekor:** 28 ardışık temiz TUR (#90 → #114)
+**Son güncelleme:** 12 Mayıs 2026 Salı (TUR #115)
+**Anayasa:** v1.30.0 MINOR (Madde 30.65 + 30.66 + 30.67 + 30.68 + 30.69 + 30.70)
+**Aktif rekor:** 29 ardışık temiz TUR (#90 → #115)
 
 ---
 
-## 🎯 NOW — TUR #114 KAPALI ✅ (REP Kurumsal Route + Admin Sözleşme Görünürlük)
+## 🎯 NOW — TUR #115 KAPALI ✅ (Kartvizit Adres + Yetki Türkçe + Sidebar RBAC Dinamik)
+
+**Saha kanıt:** Emine ÇELİK saha zincirinin #3 bulgusu — 3 saha sorunu uçtan uca çözüldü.
+
+**5 atom:** Adres öncelik (A1) + Schema kontrol (A2 SARI TUR #116) + MODULE_LABELS Türkçe (A3) + Sidebar RBAC (A4) + Placeholder (A5)
+
+**Madde 30.69 + 30.70 yeni** — Türkçe Lokalizasyon + RBAC Dinamik Sidebar
+
+Backend 1.10.0→1.11.0, Panel 1.12.0→1.13.0, Anayasa v1.29.0→v1.30.0.
+
+---
+
+## ⏭️ NEXT — TUR #116 (SARI ENDIŞE çözümü)
+
+**Öneri 1:** User.address + User.city schema teklifi + Profil sayfasında adres edit (TUR #115 SARI ENDIŞE çözümü)
+
+**Öneri 2:** Premium kartvizit görsel iterasyon (TUR #112 plan)
+
+**Öneri 3:** DRY refactor `components/kurumsal/KurumsalPage.tsx` (TUR #114 teknik borç)
+
+---
+
+## 🎯 ÖNCEKİ — TUR #114 KAPALI ✅ (REP Kurumsal Route + Admin Sözleşme Görünürlük)
 
 **Saha kanıt zinciri:** Emine ÇELİK TUR #113'te sözleşme imzaladı (ilk REPRESENTATIVE milestone) → TUR #114 #2 bulgu: sidebar Kurumsal butonları çalışmıyor + ADMIN panel sözleşme listesi yok.
 

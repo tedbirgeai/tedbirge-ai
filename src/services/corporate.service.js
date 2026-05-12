@@ -124,6 +124,8 @@ function wrapText(text, charsPerLine, maxLines) {
 function generateVCard(user, brand) {
   const name = user.fullName || user.adSoyad || user.name || "";
   const tel = user.phone || user.telefon || brand.contact.callCenter;
+  // TUR #115 — Adres oncelik: user.bolge -> brand.address (Madde 30.69 SARI: User.address schema TUR #116 onerisi)
+  const addressLine = user.address || user.city || user.bolge || brand.address.fullAddress;
   return [
     "BEGIN:VCARD",
     "VERSION:3.0",
@@ -131,7 +133,7 @@ function generateVCard(user, brand) {
     `TEL;TYPE=CELL:${tel}`,
     `EMAIL:${user.email}`,
     `URL:${brand.website.primary}`,
-    `ADR:;;${brand.address.fullAddress}`,
+    `ADR:;;${addressLine}`,
     `ORG:${brand.displayName}`,
     user.role === "LAWYER" ? "TITLE:Tedbirge.ai Uye Avukati" : "",
     "END:VCARD",
@@ -203,8 +205,8 @@ async function generateKartvizitSVG(user) {
   <text x="400" y="302" fill="#111827" font-family="'JetBrains Mono', ui-monospace, SFMono-Regular, monospace" font-size="14">${escapeXml(user.email || "")}</text>
   <text x="400" y="329" fill="#111827" font-family="'JetBrains Mono', ui-monospace, SFMono-Regular, monospace" font-size="14">${escapeXml(brand.website.shortLink)}</text>
 
-  <!-- Adres -->
-  <text x="400" y="380" fill="#6b7280" font-family="'Inter Tight', Inter, system-ui, sans-serif" font-size="11">${escapeXml(brand.address.fullAddress)}</text>
+  <!-- Adres — TUR #115: user.bolge -> brand.address oncelik (Madde 30.69) -->
+  <text x="400" y="380" fill="#6b7280" font-family="'Inter Tight', Inter, system-ui, sans-serif" font-size="11">${escapeXml(user.address || user.city || user.bolge || brand.address.fullAddress)}</text>
 
   <!-- QR vCard (sag alt, cerceveli) -->
   <g transform="translate(720, 380)">
@@ -538,10 +540,11 @@ function drawCardFront(doc, ctx) {
   doc.text(user.email || "", rx, bleed + mm(34), { lineBreak: false });
   doc.text(brand.website.shortLink, rx, bleed + mm(38), { lineBreak: false });
 
-  // Adres (40 -> 43, +3mm)
+  // Adres (40 -> 43, +3mm) — TUR #115: user.bolge -> brand oncelik (Madde 30.69)
   doc.fillColor("#6b7280");
   trySetFont(doc, "Inter-Regular", "Helvetica").fontSize(5);
-  doc.text(brand.address.fullAddress || "", rx, bleed + mm(43), { width: mm(40), lineBreak: true });
+  const cardAddress = user.address || user.city || user.bolge || brand.address.fullAddress || "";
+  doc.text(cardAddress, rx, bleed + mm(43), { width: mm(40), lineBreak: true });
 
   // LAWYER disclaimer (cardH - 4 -> cardH - 2.5, daha alta kaydirildi)
   if (isLawyer) {

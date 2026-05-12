@@ -1,7 +1,7 @@
 {
-  "anayasa": "1.29.0",
-  "backend": "1.10.0",
-  "panel": "1.12.0",
+  "anayasa": "1.30.0",
+  "backend": "1.11.0",
+  "panel": "1.13.0",
   "schema": "1.4.0",
   "buildDate": "2026-05-12",
   "compliance": [

@@ -1,3 +1,33 @@
+# 🤖 TEDBİRGE.AI — OTONOM RAPOR (TUR #115)
+
+**Tarih:** 12 Mayıs 2026 Salı
+**TUR:** #115 ✅ KAPALI
+**Tip:** Kartvizit Adres Öncelik + Yetki Matrisi Türkçe + Sidebar RBAC Dinamik (Emine ÇELİK saha zinciri #3)
+**Anayasa:** v1.29.0 → **v1.30.0 MINOR** (Madde 30.69 + 30.70 yeni)
+
+## 📋 Sayısal özet
+- 5 atom (UÇTAN UCA, DEFER 0) · 8 dosya değişiklik + 3 yeni placeholder
+- Backend 1.10.0 → 1.11.0 / Panel 1.12.0 → 1.13.0 / Anayasa v1.30.0
+- 0 KIRMIZI · 0 schema · 0 npm install · $0 maliyet
+- 28 → **29 ardışık temiz TUR REKOR**
+
+## ✅ 5 ATOM
+- **A1** corporate.service.js 3 nokta (vCard + SVG + PDF) adres öncelik `user.address || user.city || user.bolge || brand.address.fullAddress`. Smoke: vCard `ADR:;;İstanbul Kadıköy` ✓
+- **A2** Schema kontrol: User.bolge mevcut kullanıldı, User.address/city YOK → SARI ENDIŞE TUR #116 teklifi (Profil sayfasında adres edit gerek)
+- **A3** MODULE_LABELS 4 yeni Türkçe (campaignBuilder → Kampanya Oluşturucu, socialCalendar → Sosyal Takvim, ebaroVerify → e-Baro Doğrulama, uyap → UYAP)
+- **A4** AppLayout TEMSILCI section 3 RBAC item (paylasim/campaignBuilder/socialCalendar `permission` bağı ile)
+- **A5** 3 placeholder sayfa (/temsilci/sosyal-paylasim, /kampanya, /sosyal-takvim) — usePermissions can() + "Yakında" mesajı + mevcut altyapı link
+
+## 📝 Madde 30.69 + 30.70 yeni
+- **30.69** — Türkçe Lokalizasyon Disiplini (MODULE_LABELS her ID için zorunlu)
+- **30.70** — RBAC Dinamik Sidebar (sidebar item `permission` bağı zorunlu, hardcoded yasak)
+
+## 🎯 NEXT — TUR #116
+1. User.address + User.city schema teklifi + Profil adres edit (SARI ENDIŞE çözümü)
+2. Premium görsel iterasyon
+3. DRY refactor components/kurumsal
+
+═══════════════════════════════════════════════════════════════════
 # 🤖 TEDBİRGE.AI — OTONOM RAPOR (TUR #114)
 
 **Tarih:** 12 Mayıs 2026 Salı

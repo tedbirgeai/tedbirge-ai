@@ -1,15 +1,34 @@
 # 🛡️ TEDBIRGE.AI — DEVİR RAPORU (AKTİF)
 
-📋 **ANAYASA:** v1.29.0 MINOR (Madde 30.65 + 30.66 + 30.67 + 30.68 yeni — TUR #112+113+114)
-📂 **🚀 EMİNE ÇELİK SAHA ZİNCİRİ — KURUMSAL ROUTE + ADMIN SÖZLEŞME GÖRÜNÜRLÜK 🚀**
-📅 **SON GÜNCELLEME:** 12 Mayıs 2026 Salı (TUR #114 KAPALI — Rol Bazlı Route Scope + Admin Sözleşme Görünürlük)
-👤 **CEO Onay:** Mehmet DİNÇ — Madde 17.2 R1 + 30.25 R1 (uçtan uca tek mektup, parçalı iş yasak)
-🤖 **Mimar:** Claude Opus 4.7 (sohbet) + Claude Code (6 atom uçtan uca, DEFER 0)
-🌟 **Tarih:** 12 Mayıs 2026 — 28 ARDIŞIK TEMİZ TUR REKOR (#90 → #114)
+📋 **ANAYASA:** v1.30.0 MINOR (Madde 30.65 + 30.66 + 30.67 + 30.68 + 30.69 + 30.70 yeni — TUR #112-115)
+📂 **🚀 EMİNE ÇELİK SAHA ZİNCİRİ #3 — KARTVİZİT ADRES + TÜRKÇE LOKALİZASYON + RBAC DİNAMİK SİDEBAR 🚀**
+📅 **SON GÜNCELLEME:** 12 Mayıs 2026 Salı (TUR #115 KAPALI)
+👤 **CEO Onay:** Mehmet DİNÇ — Madde 17.2 R1 + 30.25 R1 (uçtan uca tek mektup)
+🤖 **Mimar:** Claude Opus 4.7 (sohbet) + Claude Code (5 atom uçtan uca, DEFER 0)
+🌟 **Tarih:** 12 Mayıs 2026 — 29 ARDIŞIK TEMİZ TUR REKOR (#90 → #115)
 
 ---
 
-## 🎯 BUGÜN — TUR #114 KAPALI (REP Kurumsal Route + Admin Sözleşme Görünürlük)
+## 🎯 BUGÜN — TUR #115 KAPALI (Kartvizit Adres + Yetki Türkçe + Sidebar RBAC Dinamik)
+
+**Saha kanıt:** Emine ÇELİK saha zincirinin #3 bulgusu — kartvizit kurumsal adres + İngilizce modül adları + sidebar'da REP yetkili modüller görünmüyor.
+
+**Sürüm:** Backend 1.10.0 → **1.11.0** MINOR, Panel 1.12.0 → **1.13.0** MINOR, Anayasa v1.29.0 → **v1.30.0** MINOR
+
+### Uygulanan 5 atom (UÇTAN UCA, DEFER 0)
+- **A1** — corporate.service.js 3 nokta adres öncelik (`user.address || user.city || user.bolge || brand.address.fullAddress`)
+- **A2** — Schema kontrol: User.bolge mevcut (kullanıldı), User.address SARI ENDIŞE TUR #116 teklifi
+- **A3** — MODULE_LABELS 4 Türkçe (campaignBuilder/socialCalendar/ebaroVerify/uyap)
+- **A4** — AppLayout TEMSILCI 3 RBAC item (paylasim/campaignBuilder/socialCalendar)
+- **A5** — 3 placeholder sayfa (/temsilci/sosyal-paylasim, /kampanya, /sosyal-takvim)
+
+### Madde 30.69 + 30.70 yeni
+- **30.69** — Türkçe Lokalizasyon Disiplini (MODULE_LABELS zorunlu Türkçe karşılık)
+- **30.70** — RBAC Dinamik Sidebar Disiplini (sidebar item RBAC bağı zorunlu, hardcoded yasak)
+
+---
+
+## 🎯 ÖNCEKİ — TUR #114 KAPALI (REP Kurumsal Route + Admin Sözleşme Görünürlük)
 
 **Saha kanıt:** Emine ÇELİK zincirinin 2. bulgusu — REP sidebar Kurumsal butonları çalışmıyor + ADMIN panel sözleşmeler listesi yok.
 
