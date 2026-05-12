@@ -477,6 +477,8 @@ function registerPdfFonts(doc) {
 }
 
 function drawCardFront(doc, ctx) {
+  // TUR #112 MIKRO HOTFIX — Variable font metrics nedeniyle satir araliklari yayildi
+  // 8/15/18.5/23/27/30/33/40 -> 8/16/20/25/30/34/38/43 mm (toplam +30% spacing)
   const { bleed, cardW, cardH, primary, tedbiratorColor, tedbirator, brand, user, name, tel, isLawyer, dark } = ctx;
   const mm = (v) => v * 2.834645669;
   const leftW = cardW * (360 / 850); // 360/850 oran
@@ -486,7 +488,7 @@ function drawCardFront(doc, ctx) {
 
   doc.fillColor("white");
   trySetFont(doc, "Inter-Bold", "Helvetica-Bold").fontSize(16);
-  doc.text(brand.displayName, bleed, bleed + cardH / 2 - mm(8), { width: leftW, align: "center", lineBreak: false });
+  doc.text(brand.displayName, bleed, bleed + cardH / 2 - mm(9), { width: leftW, align: "center", lineBreak: false });
 
   if (tedbirator) {
     doc.fillColor(tedbiratorColor);
@@ -496,11 +498,11 @@ function drawCardFront(doc, ctx) {
 
   // Hairline
   doc.strokeColor("rgba(255,255,255,0.18)").lineWidth(0.3);
-  doc.moveTo(bleed + leftW * 0.22, bleed + cardH / 2 + mm(2)).lineTo(bleed + leftW * 0.78, bleed + cardH / 2 + mm(2)).stroke();
+  doc.moveTo(bleed + leftW * 0.22, bleed + cardH / 2 + mm(3)).lineTo(bleed + leftW * 0.78, bleed + cardH / 2 + mm(3)).stroke();
 
   doc.fillColor("white");
   trySetFont(doc, "Inter-Regular", "Helvetica").fontSize(6);
-  doc.text(brand.shortTagline || "", bleed, bleed + cardH / 2 + mm(5), { width: leftW, align: "center", lineBreak: false });
+  doc.text(brand.shortTagline || "", bleed, bleed + cardH / 2 + mm(6), { width: leftW, align: "center", lineBreak: false });
 
   // Sag panel: beyaz (bleed alaninda sag) — kart beyaz arkaplani
   doc.rect(leftW + bleed, 0, cardW - leftW + bleed, bleed * 2 + cardH).fill("white");
@@ -512,37 +514,37 @@ function drawCardFront(doc, ctx) {
   trySetFont(doc, "Crimson-Bold", "Times-Bold").fontSize(15);
   doc.text(name, rx, bleed + mm(8), { width: cardW - leftW - mm(8), lineBreak: false });
 
-  // Rol
+  // Rol (8 -> 16, +1mm)
   doc.fillColor("#6b7280");
   trySetFont(doc, "Inter-Medium", "Helvetica-Bold").fontSize(7);
   if (isLawyer) {
-    doc.text("Tedbirge.ai Uye Avukati", rx, bleed + mm(15), { lineBreak: false });
+    doc.text("Tedbirge.ai Uye Avukati", rx, bleed + mm(16), { lineBreak: false });
     doc.fillColor("#9ca3af").fontSize(6);
-    doc.text(`Baro Sicil: ${user.baroSicilNo || "—"}`, rx, bleed + mm(18.5), { lineBreak: false });
+    doc.text(`Baro Sicil: ${user.baroSicilNo || "—"}`, rx, bleed + mm(20), { lineBreak: false });
   } else {
-    doc.text(getRoleTitle(user.role), rx, bleed + mm(15), { lineBreak: false });
+    doc.text(getRoleTitle(user.role), rx, bleed + mm(16), { lineBreak: false });
   }
 
-  // Hairline
+  // Hairline (23 -> 25, +2mm)
   doc.strokeColor("#e7e7ef").lineWidth(0.3);
-  doc.moveTo(rx, bleed + mm(23)).lineTo(bleed + cardW - mm(4), bleed + mm(23)).stroke();
+  doc.moveTo(rx, bleed + mm(25)).lineTo(bleed + cardW - mm(4), bleed + mm(25)).stroke();
 
-  // Iletisim (mono)
+  // Iletisim (mono) — yayilmis (27/30/33 -> 30/34/38, +1mm fark 3 -> 4mm her arali)
   doc.fillColor("#111827");
   trySetFont(doc, "Mono", "Courier").fontSize(7);
-  doc.text(tel, rx, bleed + mm(27), { lineBreak: false });
-  doc.text(user.email || "", rx, bleed + mm(30), { lineBreak: false });
-  doc.text(brand.website.shortLink, rx, bleed + mm(33), { lineBreak: false });
+  doc.text(tel, rx, bleed + mm(30), { lineBreak: false });
+  doc.text(user.email || "", rx, bleed + mm(34), { lineBreak: false });
+  doc.text(brand.website.shortLink, rx, bleed + mm(38), { lineBreak: false });
 
-  // Adres
+  // Adres (40 -> 43, +3mm)
   doc.fillColor("#6b7280");
   trySetFont(doc, "Inter-Regular", "Helvetica").fontSize(5);
-  doc.text(brand.address.fullAddress || "", rx, bleed + mm(40), { width: mm(40), lineBreak: true });
+  doc.text(brand.address.fullAddress || "", rx, bleed + mm(43), { width: mm(40), lineBreak: true });
 
-  // LAWYER disclaimer
+  // LAWYER disclaimer (cardH - 4 -> cardH - 2.5, daha alta kaydirildi)
   if (isLawyer) {
     doc.fillColor("#cbd5e1").fontSize(4);
-    doc.text("Avukatlik K. m.55 ve TBB Reklam Yasagi'na uygundur.", rx, bleed + cardH - mm(4), { lineBreak: false });
+    doc.text("Avukatlik K. m.55 ve TBB Reklam Yasagi'na uygundur.", rx, bleed + cardH - mm(2.5), { lineBreak: false });
   }
 }
 
