@@ -18,16 +18,18 @@ try { qrcode = require("qrcode"); } catch (e) { /* SVG fallback QR */ }
 let PDFDocument = null;
 try { PDFDocument = require("pdfkit"); } catch (e) { /* PDF YOK */ }
 
-// ─── Font Pipeline (TUR #112 — Madde 30.65) ──────────────────────────
+// ─── Font Pipeline (TUR #112 HOTFIX — Madde 30.65) ───────────────────
+// Variable font (full Latin Extended-A glyph coverage — Turkce destegi)
+// Eski jsdelivr latin-400 subset Turkce karakter ihlali (S/G/I) icin VF'ye gecildi.
 const FONTS_DIR = path.join(__dirname, "..", "..", "tedbirge-os", "assets", "fonts");
 const FONT_FILES = {
-  interRegular: "InterTight-Regular.ttf",
-  interMedium: "InterTight-Medium.ttf",
-  interBold: "InterTight-Bold.ttf",
-  crimsonRegular: "CrimsonPro-Regular.ttf",
-  crimsonSemiBold: "CrimsonPro-SemiBold.ttf",
-  crimsonBold: "CrimsonPro-Bold.ttf",
-  monoRegular: "JetBrainsMono-Regular.ttf",
+  interRegular: "InterTight-VF.ttf",
+  interMedium: "InterTight-VF.ttf",
+  interBold: "InterTight-VF.ttf",
+  crimsonRegular: "CrimsonPro-VF.ttf",
+  crimsonSemiBold: "CrimsonPro-VF.ttf",
+  crimsonBold: "CrimsonPro-VF.ttf",
+  monoRegular: "JetBrainsMono-VF.ttf",
 };
 
 const fontBase64Cache = {};
@@ -53,20 +55,18 @@ function getFontPath(key) {
 }
 
 function svgFontFaceBlock() {
-  // SVG offline render icin TTF base64 embed
-  // Kullanilan fontlar: Inter Tight (400/700) + Crimson Pro (400/700) + JetBrains Mono (400)
+  // SVG offline render icin variable TTF base64 embed (Madde 30.65 HOTFIX)
+  // 3 aile - her biri tek @font-face wght 100-900 range (variable font format)
   const fonts = [
-    { family: "Inter Tight", weight: 400, key: "interRegular" },
-    { family: "Inter Tight", weight: 700, key: "interBold" },
-    { family: "Crimson Pro", weight: 400, key: "crimsonRegular" },
-    { family: "Crimson Pro", weight: 700, key: "crimsonBold" },
-    { family: "JetBrains Mono", weight: 400, key: "monoRegular" },
+    { family: "Inter Tight", key: "interRegular" },     // VF: weight 100-900
+    { family: "Crimson Pro", key: "crimsonRegular" },   // VF: weight 200-900
+    { family: "JetBrains Mono", key: "monoRegular" },   // VF: weight 100-800
   ];
   const rules = [];
   for (const f of fonts) {
     const b64 = getFontBase64(f.key);
     if (!b64) continue;
-    rules.push(`@font-face { font-family: '${f.family}'; font-weight: ${f.weight}; font-style: normal; src: url(data:font/ttf;base64,${b64}) format('truetype'); }`);
+    rules.push(`@font-face { font-family: '${f.family}'; font-weight: 100 900; font-style: normal; src: url(data:font/ttf;base64,${b64}) format('truetype-variations'), url(data:font/ttf;base64,${b64}) format('truetype'); }`);
   }
   if (!rules.length) return "";
   return `<defs><style type="text/css">${rules.join("\n")}</style></defs>`;
@@ -456,7 +456,9 @@ async function generateKartvizitDigitalPDF(user, adContent) {
 }
 
 function registerPdfFonts(doc) {
-  // pdfkit registerFont — TTF dosyalari mevcutsa
+  // pdfkit registerFont (HOTFIX) — variable font dosyalari, 7 alias aynı dosyayı paylaşır
+  // Bold/Regular ayrımı görsel pdfkit'te variable axis desteklemediği için Regular default render olur
+  // Türkçe karakter coverage 17/17 doğrulandı — visual ayrım > Türkçe karakter trade-off Madde 30.65
   const map = {
     "Inter-Regular": "interRegular",
     "Inter-Medium": "interMedium",

@@ -1,9 +1,63 @@
 # 🤖 TEDBİRGE.AI — OTONOM RAPOR (TUR #112)
 
 **Tarih:** 12 Mayıs 2026 Salı
-**TUR:** #112 ✅ KAPALI
+**TUR:** #112 ✅ KAPALI + HOTFIX
 **Tip:** Premium Kartvizit Uçtan Uca — 5 Format + Font Embed + Türkçe Fix + Tedbirator Etiket
 **Anayasa:** v1.27.0 → **v1.28.0 MINOR** (1 yeni madde tescili — 30.65)
+
+---
+
+## 🔧 TUR #112 HOTFIX (Aynı gün, 12 May 2026 — PATCH bump)
+
+**Sebep:** İlk deploy sonrası CEO smoke testinde **Matbaa PDF Türkçe karakter ❌**. SVG endpoint Türkçe ✅ ama PDF endpoint `Hakkı[]ı`, `Gü[]ah` (`.notdef` boşluk render).
+
+**Teşhis (fontkit cmap kontrol):**
+- jsdelivr `@fontsource` paketleri `latin-400-normal.ttf` BASIC Latin subset
+- Eksik glyph'ler: `Ş ş Ğ ğ İ` (U+015E, U+015F, U+011E, U+011F, U+0130)
+- Mevcut glyph'ler: `Ç ç Ö ö Ü ü ı â î û` (Latin-1 zaten basic'te)
+
+**Çözüm (SENARYO A — gorev.md teşhis çerçevesi):**
+- `github.com/google/fonts/raw/main/ofl/{family}/{Name}[wght].ttf` variable font (full Latin Extended-A)
+- 7 statik subset TTF → 3 variable TTF
+- `corporate.service.js` FONT_FILES: 7 girdi (aynı dosyaya 7 alias) — pdfkit 7 alias aynı VF dosyayı paylaşır
+- `svgFontFaceBlock`: 5 @font-face → 3 @font-face (variable font, font-weight: 100 900 range, format('truetype-variations') primary + format('truetype') fallback)
+
+**Glyph coverage doğrulama (fontkit):**
+```
+InterTight-VF.ttf      → 2547 glyph, Türkçe 17/17 ✓ (Ş ş Ğ ğ İ ı Ç ç Ö ö Ü ü â î û)
+CrimsonPro-VF.ttf      →  832 glyph, Türkçe 17/17 ✓
+JetBrainsMono-VF.ttf   → 1179 glyph, Türkçe 17/17 ✓
+```
+
+**PDF text extract smoke (pdf-parse):**
+```
+=== Matbaa PDF text ===
+Tedbirge.ai
+tedbirator
+Hakkınızı Almak İçin Beklemeyin
+Şükrü ÇAĞRI Üst
+Temsilci
++90 532 111 22 33
+sukru.cagri@tedbirge.ai
+Gülşah Sokak No:20/A Meram/Konya
+Hak ettiğiniz tazminat için ön değerlendirme
+✓ Ş ş ğ İ tümü düzgün render
+```
+
+**Sari endise (kabul edilen trade-off):**
+- SVG dosya boyutu 370KB → **2.7MB** (3 variable font ~500KB base64 inflated × 3 aile). Bandwidth maliyeti $0 (Madde 24.14) ama indirme yavaş.
+- pdfkit variable font axis (wght) **çalışmıyor** — tüm Bold/Medium/Regular alias'ları Regular default render. Görsel weight ayrımı kaybı. Trade-off: Türkçe karakter doğru > visual weight ayrımı (Madde 30.65).
+
+**Versiyon:** Backend `1.8.0 → 1.8.1` PATCH (Madde 22.8 — hotfix bump). Anayasa + Panel değişmedi.
+
+**Dosya değişikliği (2 commit):**
+- `src/services/corporate.service.js` — FONT_FILES + svgFontFaceBlock
+- `tedbirge-os/assets/fonts/` — 7 statik TTF silindi, 3 VF eklendi
+- `tedbirge-os/assets/fonts/README.md` — hotfix dokümante
+- `tedbirge-os/version.json` — 1.8.0 → 1.8.1
+- `package.json` — sync 1.8.1
+
+---
 
 ---
 
