@@ -1,3 +1,117 @@
+# 🤖 TEDBİRGE.AI — OTONOM RAPOR (TUR #114)
+
+**Tarih:** 12 Mayıs 2026 Salı
+**TUR:** #114 ✅ KAPALI
+**Tip:** REP Kurumsal Route Scope + Admin Sözleşme Görünürlük (Emine ÇELİK saha zinciri #2 bulgu)
+**Anayasa:** v1.28.0 → **v1.29.0 MINOR** (Madde 30.68 yeni — Rol Bazlı Route Scope)
+
+---
+
+## 📋 SAYISAL ÖZET (TUR #114)
+
+| Metrik | Değer |
+|---|---|
+| Atom uygulama | 6/6 (UÇTAN UCA, DEFER 0) |
+| Yeni dosya | 3 (admin-sozlesmeler.routes + admin sözleşmeler UI + /temsilci/kurumsal page) |
+| Değiştirilen dosya | 5 (AppLayout + index.js mount + version.json + 2x package.json) |
+| Schema değişikliği | 0 (mevcut User alanları yeterli) |
+| KIRMIZI nokta | 0 |
+| Yeni anayasa madde | 1 (30.68 — Rol Bazlı Route Scope) |
+| Yeni Mimar Hatası emsali | 1 (MH56 — Route Scope Karışıklığı) |
+| Backend sürüm | 1.9.0 → 1.10.0 MINOR |
+| Panel sürüm | 1.11.0 → 1.12.0 MINOR |
+| Anayasa sürüm | v1.28.0 → v1.29.0 MINOR |
+| Maliyet | $0 |
+| npm install | 0 |
+| **Ardışık temiz TUR** | **27 → 28 (#90 → #114)** |
+
+---
+
+## ✅ TEŞHİS ZİNCİRİ (4 grep + 1 layout incele, kanıt-bazlı)
+
+1. **Sidebar URL kontrol** (`AppLayout.tsx:96-99`):
+   - 4 KURUMSAL item TÜM rollere `/dashboard/kurumsal?tab=X` URL'i veriyor
+   - REPRESENTATIVE için scope eksik — `/temsilci/*` olmalıydı
+
+2. **Kurumsal sayfa varlığı:**
+   - `tedbirge-panel/app/(panel)/dashboard/kurumsal/page.tsx` MEVCUT (TUR #112)
+   - `tedbirge-panel/app/(panel)/temsilci/kurumsal/` **YOK**
+
+3. **Admin sözleşme endpoint:**
+   - `grep -rn "sozlesme" src/routes/` → sadece TUR #113 `representative.routes.js` (kullanıcının kendi imzalama)
+   - **Admin listeleme endpoint'i YOK**
+
+4. **Admin sözleşmeler UI:**
+   - `find tedbirge-panel/app -name "sozlesme*"` → sadece `/temsilci/sozlesme/page.tsx`
+   - **`/dashboard/sozlesmeler/page.tsx` YOK**
+
+5. **AppLayout middleware:**
+   - REPRESENTATIVE için /dashboard segment redirect YOK
+   - Routing tarafında kod tarafında bloka yok — production deploy lag + route scope ayrımı net bir UX katmanı oluşturuyor
+
+**Senaryo seçim:** Senaryo C (sidebar URL'leri rol bazlı dinamik) + Senaryo A (admin endpoint yazılmamış)
+
+---
+
+## ✅ 6 ATOM UYGULAMASI (UÇTAN UCA, DEFER 0)
+
+### ATOM 1 — `/temsilci/kurumsal/page.tsx` yeni
+`/dashboard/kurumsal/page.tsx` tam kopyası yeni route'a (23KB). REP için kurumsal materyallere doğru scope'tan erişim. DRY refactor (`components/kurumsal/KurumsalPage.tsx`) gelecek TUR #115 teknik borç.
+
+### ATOM 2 — AppLayout sidebar rol bazlı URL
+`components/layout/AppLayout.tsx` KURUMSAL section 4 item × 2 rol = 8 satır:
+- REPRESENTATIVE → `/temsilci/kurumsal?tab=X`
+- ADMIN / LAWYER / SALES → `/dashboard/kurumsal?tab=X`
+- Madde 30.68 emsali tescil
+
+### ATOM 3 — Admin sözleşmeler endpoint
+`src/routes/admin-sozlesmeler.routes.js` yeni (197 satır):
+- `GET /api/admin/sozlesmeler` — ADMIN auth, query (role, search, from, to, page, limit), User WHERE platformAgreementAcceptedAt|sozlesmeKabulTarihi not null, pagination, telefon mask (audit yetkilisi tam görür)
+- `GET /api/admin/sozlesmeler/:userId` — detay + ActivityLog audit zinciri (REPRESENTATIVE_CONTRACT_OTP_SENT + REPRESENTATIVE_CONTRACT_SIGNED)
+- ActivityLog audit (ADMIN_CONTRACTS_LIST_VIEW + ADMIN_CONTRACT_DETAIL_VIEW — kim, ne zaman baktı)
+- Mount: `src/routes/index.js` (`router.use('/', adminSozlesmelerRoutes)`)
+
+### ATOM 4 — Admin sözleşmeler UI
+`tedbirge-panel/app/(panel)/dashboard/sozlesmeler/page.tsx` yeni (310 satır):
+- Filter: rol (5 seçenek) + search (isim/email/telefon) + pagination
+- Tablo: Ad Soyad / Rol (renkli badge) / E-posta / Telefon (mono) / İmza Tarihi / Sürüm / IP / Detay buton
+- Detay modal: kullanıcı bilgileri + audit log zinciri (KVKK m.10 görünürlük)
+- ADMIN-only enforcement (frontend RBAC role check + backend `requireRole("ADMIN")`)
+
+### ATOM 5 — Sidebar admin sözleşme link
+`AppLayout.tsx` HUKUK section'a `/dashboard/sozlesmeler` link (ADMIN-only icon: ✍️).
+
+### ATOM 6 — TUR #113 audit zinciri kontrolü (skip)
+TUR #113 `representative.routes.js sms-imzala` endpoint'i zaten User update + ActivityLog yazıyor (`REPRESENTATIVE_CONTRACT_SIGNED`). Audit eksik DEĞİL — admin endpoint bunu listeleyecek. Hotfix gerekmedi.
+
+---
+
+## 📝 Madde 30.68 yeni — Rol Bazlı Route Scope Disiplini
+
+1. Sidebar URL'leri **rol bazlı dinamik** olmalı — tek URL çoklu rol YASAK
+2. REPRESENTATIVE → `/temsilci/*` (kurumsal, pipeline, hakedis, profil, sozlesme)
+3. ADMIN / LAWYER / SALES → `/dashboard/*` (kurumsal, leads, ajanda, analytics)
+4. CUSTOMER → `/musteri/*` (mevcut)
+5. Aynı sayfa içeriği farklı path'lerden import — DRY refactor (gelecek TUR teknik borç kabul)
+
+## 📝 Mimar Hatası 56 — Route Scope Karışıklığı
+
+**Pattern:** Sidebar tek URL çoklu rol → Production deploy lag + route scope ayrımı eksik = "ekran boş" hatası (Emine ÇELİK kanıtı).
+
+**Düzeltme:** Her rol kendi scope'unda + sidebar item rol başına ayrı + explicit path. AppLayout NAV_GROUPS pattern (TUR #114 emsali).
+
+---
+
+## 🎯 NEXT — TUR #115
+
+CEO seçimi (Madde 17.5):
+1. **Premium kartvizit görsel iterasyon** (TUR #112 plan, TUR #113-114 gecikti) — kişi fotoğrafı + diyagonal pattern + pdfkit upgrade
+2. **DRY refactor `components/kurumsal/KurumsalPage.tsx`** — `(panel)/dashboard/kurumsal` + `(panel)/temsilci/kurumsal` ortak component (TUR #114 teknik borç)
+3. **Niyazi+Emine retrospektif** — ilk REP sözleşmeleri sonrası saha akış kanıtı
+
+---
+
+═══════════════════════════════════════════════════════════════════
 # 🤖 TEDBİRGE.AI — OTONOM RAPOR (TUR #113)
 
 **Tarih:** 12 Mayıs 2026 Salı

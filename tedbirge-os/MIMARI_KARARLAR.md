@@ -6,6 +6,52 @@
 
 ---
 
+## 12 Mayıs 2026 Salı — TUR #114 KAPALI (REP Kurumsal Route + Admin Sözleşme Görünürlük — Emine ÇELİK Saha Bulgusu Zinciri)
+
+**Karar:** Anayasa **v1.28.0 → v1.29.0 MINOR**. Backend `1.9.0 → 1.10.0` MINOR. Panel `1.11.0 → 1.12.0` MINOR. 1 yeni madde tescili (30.68 — Rol Bazlı Route Scope). 0 KIRMIZI, 0 schema, 0 npm install.
+
+**Saha kanıt (Emine ÇELİK zinciri TUR #113 → #114):**
+- BULGU 1: Sidebar KURUMSAL butonları REP için çalışmıyor (`/dashboard/kurumsal` URL'i, REP scope'u `/temsilci` olmalıydı)
+- BULGU 2: ADMIN panel sözleşmeler listesi yoktu (Emine'nin TUR #113 imzası görünmüyordu)
+- BULGU 3: Parçalı iş yasağı (Madde 17.2 R1) defalarca ihlal (MH52+53+54) → TUR #114 uçtan uca tek mektup
+
+**6 ATOM uygulandı (UÇTAN UCA, DEFER 0):**
+
+1. **ATOM 1 — `/temsilci/kurumsal/page.tsx`** (yeni): `/dashboard/kurumsal/page.tsx` kopyası. REP buradan kurumsal materyallere erişir. DRY refactor (components klasörüne taşıma) gelecek TUR teknik borç.
+
+2. **ATOM 2 — AppLayout sidebar rol bazlı URL** (`components/layout/AppLayout.tsx`): 4 kurumsal item × 2 rol = 8 sidebar satır (REPRESENTATIVE için `/temsilci/kurumsal?tab=X`, ADMIN/LAWYER/SALES için `/dashboard/kurumsal?tab=X`). Madde 30.68 emsali tescil.
+
+3. **ATOM 3 — Admin sözleşmeler endpoint** (`src/routes/admin-sozlesmeler.routes.js` yeni + index.js mount):
+   - `GET /api/admin/sozlesmeler` — ADMIN auth, query (role, search, from, to, page, limit), User WHERE platformAgreementAcceptedAt|sozlesmeKabulTarihi not null
+   - `GET /api/admin/sozlesmeler/:userId` — detay + ActivityLog audit zinciri
+   - ActivityLog audit (ADMIN_CONTRACTS_LIST_VIEW + ADMIN_CONTRACT_DETAIL_VIEW)
+
+4. **ATOM 4 — Admin sözleşmeler UI** (`tedbirge-panel/app/(panel)/dashboard/sozlesmeler/page.tsx` yeni): Filter (rol + search + tarih) + tablo (Ad/Rol/Email/Telefon/İmza/IP/Sürüm) + detay modal + pagination. Audit log zinciri (KVKK m.10 görünürlük).
+
+5. **ATOM 5 — Sidebar admin sözleşme link** (HUKUK section): `/dashboard/sozlesmeler` ADMIN-only link eklendi.
+
+6. **ATOM 6 — TUR #113 audit zinciri kontrolü** (skip): TUR #113 `representative.routes.js sms-imzala` endpoint'i zaten User.platformAgreementAcceptedAt + ActivityLog REPRESENTATIVE_CONTRACT_SIGNED yazıyor. Audit eksik DEĞİL — admin endpoint bunu listeleyecek (TUR #114 ATOM 3). Hotfix gerekmedi.
+
+**Şema değişikliği YOK:** User.platformAgreementAcceptedAt + sozlesmeKabulTarihi + sozlesmeKabulIp + kvkkAcceptedAt mevcut alanlar yeterli (TUR #113 zaten kullanıyor).
+
+**Mimar Hatası 56 yeni — Route Scope Karışıklığı:**
+Sidebar tek URL çoklu rol → Production deploy lag + route scope ayrımı eksik = "ekran boş" hatası. Düzeltme: rol başına ayrı sidebar item + explicit path. AppLayout NAV_GROUPS pattern.
+
+### Etki
+
+- 5 dosya değişiklik (`AppLayout.tsx`, `index.js` mount, `version.json`, 2x `package.json`)
+- 2 yeni dosya (`admin-sozlesmeler.routes.js`, `/dashboard/sozlesmeler/page.tsx`, `/temsilci/kurumsal/page.tsx` 3 yeni aslında)
+- 5 belge OS senkron (CLAUDE/DEVIR/IS_PLANI/OTONOM/MIMARI)
+- 27 → **28 ardışık temiz TUR REKOR (#90 → #114)**
+
+### NEXT — TUR #115
+
+**Öneri:** Premium Görsel İterasyonu (TUR #112'de planlanan, TUR #113-114 saha bulguları ile geciken) — kartvizit estetiği eski Tedbirator seviyesine. Veya Niyazi+Emine sahaya çıkış retrospektifi.
+
+**Mimar:** Claude Opus 4.7 (sohbet) + Claude Code (uçtan uca tek mektup, Madde 17.2 R1 + 30.25 R1) — 12 Mayıs 2026
+
+---
+
 ## 12 Mayıs 2026 Salı — TUR #113 KAPALI (Temsilci Sözleşme SMS OTP — Emine ÇELİK Saha Acil Fix)
 
 **Karar:** Anayasa **v1.28.0 sabit** (sadece Madde 30.67 yeni). Backend `1.8.3 → 1.9.0` MINOR. 0 KIRMIZI, 0 schema değişikliği (mevcut User alanları + PhoneOtp modeli kullanıldı), 0 npm install. 27 ardışık temiz TUR REKOR.

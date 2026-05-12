@@ -37,6 +37,8 @@ const agentRoutes = require("./agent.routes");
 // TUR #57 A2
 const adminAnomalyRoutes = require("./admin.anomaly.routes");
 const representativeRoutes = require("./representative.routes");
+// TUR #114 — Admin sozlesme gorunurluk (Emine CELIK saha bulgusu)
+const adminSozlesmelerRoutes = require("./admin-sozlesmeler.routes");
 // TUR #104 — UYAP manuel veri (Madde 39 — TCK m.243 koruma)
 const uyapRoutes = require("./uyap.routes");
 // TUR #110 C1 — JudicialResponse veri toplama (KIRMIZI — Madde 28)
@@ -87,6 +89,8 @@ router.use('/', agentRoutes);
 // TUR #57 A2 — anomaly + representative pipeline
 router.use('/', adminAnomalyRoutes);
 router.use('/', representativeRoutes);
+// TUR #114 — Admin sozlesme gorunurluk
+router.use('/', adminSozlesmelerRoutes);
 // TUR #104 — UYAP manuel veri (Madde 39)
 router.use('/', uyapRoutes);
 // TUR #110 C1 — JudicialResponse (Madde 28 + KIRMIZI nokta)

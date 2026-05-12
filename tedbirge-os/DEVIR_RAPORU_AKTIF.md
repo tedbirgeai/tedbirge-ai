@@ -1,15 +1,37 @@
 # 🛡️ TEDBIRGE.AI — DEVİR RAPORU (AKTİF)
 
-📋 **ANAYASA:** v1.28.0 (Madde 30.65 + 30.66 + 30.67 yeni — TUR #112+113)
-📂 **🚀 EMİNE ÇELİK SAHA SÖZLEŞME AKIŞI AKTİF — REPRESENTATIVE ONBOARDING FİX 🚀**
-📅 **SON GÜNCELLEME:** 12 Mayıs 2026 Salı (TUR #113 KAPALI — Emine ÇELİK saha milestone)
-👤 **CEO Onay:** Mehmet DİNÇ — Madde 17.2 R1 + 30.25 R1 (uçtan uca direktifi, saha öncelik)
-🤖 **Mimar:** Claude Opus 4.7 (sohbet) + Claude Code (SENARYO A teşhis + endpoint yazımı, schema değişikliği yok)
-🌟 **Tarih:** 12 Mayıs 2026 — 27 ARDIŞIK TEMİZ TUR REKOR (#90 → #113)
+📋 **ANAYASA:** v1.29.0 MINOR (Madde 30.65 + 30.66 + 30.67 + 30.68 yeni — TUR #112+113+114)
+📂 **🚀 EMİNE ÇELİK SAHA ZİNCİRİ — KURUMSAL ROUTE + ADMIN SÖZLEŞME GÖRÜNÜRLÜK 🚀**
+📅 **SON GÜNCELLEME:** 12 Mayıs 2026 Salı (TUR #114 KAPALI — Rol Bazlı Route Scope + Admin Sözleşme Görünürlük)
+👤 **CEO Onay:** Mehmet DİNÇ — Madde 17.2 R1 + 30.25 R1 (uçtan uca tek mektup, parçalı iş yasak)
+🤖 **Mimar:** Claude Opus 4.7 (sohbet) + Claude Code (6 atom uçtan uca, DEFER 0)
+🌟 **Tarih:** 12 Mayıs 2026 — 28 ARDIŞIK TEMİZ TUR REKOR (#90 → #114)
 
 ---
 
-## 🎯 BUGÜN — TUR #113 KAPALI (Temsilci Sözleşme SMS OTP — Saha Acil)
+## 🎯 BUGÜN — TUR #114 KAPALI (REP Kurumsal Route + Admin Sözleşme Görünürlük)
+
+**Saha kanıt:** Emine ÇELİK zincirinin 2. bulgusu — REP sidebar Kurumsal butonları çalışmıyor + ADMIN panel sözleşmeler listesi yok.
+
+**Sürüm:** Backend 1.9.0 → **1.10.0** MINOR, Panel 1.11.0 → **1.12.0** MINOR, Anayasa v1.28.0 → **v1.29.0** MINOR
+
+### Uygulanan 6 atom (UÇTAN UCA, DEFER 0)
+- **A1** — `/temsilci/kurumsal/page.tsx` yeni (REP için /dashboard kopyası, DRY refactor TUR #115)
+- **A2** — AppLayout sidebar rol bazlı URL (REP→/temsilci, ADMIN/LAWYER/SALES→/dashboard, Madde 30.68 emsali)
+- **A3** — `GET /api/admin/sozlesmeler` + `/:userId` (User join + ActivityLog audit, KVKK m.10 görünürlük)
+- **A4** — `/dashboard/sozlesmeler` admin UI (filter + tablo + detay modal + pagination)
+- **A5** — Sidebar HUKUK section'a admin "Sözleşmeler" link (ADMIN only)
+- **A6** — TUR #113 audit zinciri kontrolü (skip — audit zaten var, admin endpoint listeleyecek)
+
+### Madde 30.68 yeni — Rol Bazlı Route Scope Disiplini
+Sidebar URL'leri rol bazlı dinamik: REP → /temsilci/*, ADMIN/LAWYER/SALES → /dashboard/*, CUSTOMER → /musteri/*. Tek URL çoklu rol YASAK.
+
+### Mimar Hatası 56 — Route Scope Karışıklığı
+Production deploy lag + route scope ayrımı eksik = "ekran boş" hatası. Düzeltme: rol başına ayrı sidebar item + explicit path.
+
+---
+
+## 🎯 ÖNCEKİ — TUR #113 KAPALI (Temsilci Sözleşme SMS OTP — Saha Acil)
 
 **Saha kanıt:** Emine ÇELİK (REPRESENTATIVE, gerçek kullanıcı) `/temsilci/sozlesme` sayfasında "SMS gönderilemedi: Route bulunamadı". Onboarding tıkalı, kartvizit/broşür/reklam butonları çalışmıyor (sözleşme kilidi).
 

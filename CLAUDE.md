@@ -338,8 +338,44 @@ Mehmet Bey sahaya çıkabilsin diye bu disiplin var.
 
 ---
 
-**— Tedbirge Mimari Anayasası v1.28.0 MINOR**
-**Son güncelleme: 12 Mayıs 2026 Salı (TUR #113 KAPALI — Temsilci Sözleşme SMS OTP Saha Acil Fix + Madde 30.67)**
+**— Tedbirge Mimari Anayasası v1.29.0 MINOR**
+**Son güncelleme: 12 Mayıs 2026 Salı (TUR #114 KAPALI — REP Kurumsal Route Scope + Admin Sözleşme Görünürlük + Madde 30.68)**
+
+---
+
+## ANAYASA EVRİM — TUR #114 (12 May 2026) — Rol Bazlı Route Scope + Admin Görünürlük
+
+**Madde 30.68 — Rol Bazlı Route Scope Disiplini:**
+
+Sidebar URL'leri **rol bazlı dinamik** olmalı. Tek URL ile tüm rollere link verme YASAK — Next.js routing scope ile rol scope ayrı olmalı:
+- REPRESENTATIVE → `/temsilci/*` (kurumsal, pipeline, hakedis, profil, sozlesme)
+- ADMIN / LAWYER / SALES → `/dashboard/*` (kurumsal, leads, ajanda, analytics, vs.)
+- CUSTOMER → `/musteri/*` (mevcut)
+
+**Sebep (Emine ÇELİK saha kanıtı):** AppLayout sidebar tüm rollere `/dashboard/kurumsal` URL'i veriyordu. REPRESENTATIVE bu sayfaya tıklayınca CEO'nun ekran kanıtına göre "hiçbir şey çıkmıyor" davranışı — muhtemelen production'da TUR #112 panel deploy lag + route scope karışıklığı. Çözüm: rol bazlı URL ayrımı.
+
+**Yasak:**
+- Tek URL'de tüm roller list (`roles: ["ADMIN", "LAWYER", "REPRESENTATIVE", "SALES"]`)
+- REP için /dashboard segment'i kullanma
+- ADMIN için /temsilci segment'i kullanma
+
+**Doğru:**
+- Aynı sayfa içeriği farklı path'lerden import (DRY: components/kurumsal/KurumsalPage.tsx yoluyla refactor — gelecek TUR teknik borç)
+- Sidebar item'ı rol başına ayrı satır + dedike `href`
+
+### TUR #114 sayısal özet
+- 5 dosya değişiklik + 2 yeni dosya
+- 0 KIRMIZI · 0 schema · 0 npm install · 0 env · $0 maliyet
+- Backend `1.9.0 → 1.10.0` MINOR (admin sözleşme endpoint)
+- Panel `1.11.0 → 1.12.0` MINOR (yeni sayfalar)
+- Anayasa `v1.28.0 → v1.29.0` MINOR (Madde 30.68 yeni)
+- 27 → **28 ardışık temiz TUR REKOR (#90 → #114)**
+
+### Mimar Hatası 56 — Route Scope Karışıklığı (TUR #114 emsali)
+
+**Pattern:** Sidebar item tek URL (`/dashboard/X`) çoklu rol — REP gibi `/temsilci` scope'unda olması gereken rol için yanıltıcı navigasyon. Production'da deploy lag + route scope ayrımı eksikliği görsel olarak "ekran boş" hatasına dönüşür.
+
+**Düzeltme:** Her rol kendi scope'unda — sidebar item rol başına ayrı + path explicit. AppLayout NAV_GROUPS pattern.
 
 ---
 

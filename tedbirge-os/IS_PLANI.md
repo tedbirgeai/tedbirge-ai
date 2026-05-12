@@ -1,12 +1,28 @@
 # 📋 TEDBİRGE.AI — İŞ PLANI (AKTİF KESİT)
 
-**Son güncelleme:** 12 Mayıs 2026 Salı (TUR #113)
-**Anayasa:** v1.28.0 (Madde 30.65 + 30.66 + 30.67)
-**Aktif rekor:** 27 ardışık temiz TUR (#90 → #113)
+**Son güncelleme:** 12 Mayıs 2026 Salı (TUR #114)
+**Anayasa:** v1.29.0 MINOR (Madde 30.65 + 30.66 + 30.67 + 30.68)
+**Aktif rekor:** 28 ardışık temiz TUR (#90 → #114)
 
 ---
 
-## 🎯 NOW — TUR #113 KAPALI ✅ (Temsilci Sözleşme SMS OTP — Emine ÇELİK Saha Acil)
+## 🎯 NOW — TUR #114 KAPALI ✅ (REP Kurumsal Route + Admin Sözleşme Görünürlük)
+
+**Saha kanıt zinciri:** Emine ÇELİK TUR #113'te sözleşme imzaladı (ilk REPRESENTATIVE milestone) → TUR #114 #2 bulgu: sidebar Kurumsal butonları çalışmıyor + ADMIN panel sözleşme listesi yok.
+
+**Sonuç:** 6 atom uçtan uca uygulandı (DEFER 0), Madde 30.68 yeni (Rol Bazlı Route Scope), MH56 emsali.
+
+### Ana değişiklikler
+- `/temsilci/kurumsal/page.tsx` yeni — REP için Kurumsal sayfa
+- AppLayout sidebar rol bazlı URL (REP→/temsilci, ADMIN/LAWYER/SALES→/dashboard)
+- `GET /api/admin/sozlesmeler` + UI sayfa — ADMIN audit görünürlük
+- Sidebar HUKUK section'a "Sözleşmeler" link
+
+Backend 1.9.0→1.10.0, Panel 1.11.0→1.12.0, Anayasa v1.28.0→v1.29.0.
+
+---
+
+## 🎯 ÖNCEKİ — TUR #113 KAPALI ✅ (Temsilci Sözleşme SMS OTP — Emine ÇELİK Saha Acil)
 
 **Saha kanıt:** Emine ÇELİK (gerçek REPRESENTATIVE) `/temsilci/sozlesme` "SMS gönderilemedi: Route bulunamadı" hatası — onboarding tıkalı, kartvizit/broşür/reklam butonları çalışmıyor (sözleşme kilidi).
 
