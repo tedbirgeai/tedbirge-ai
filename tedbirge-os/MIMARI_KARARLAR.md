@@ -6,6 +6,80 @@
 
 ---
 
+## 13 Mayıs 2026 Çarşamba — TUR #119 KAPALI (Vercel Domain Redirect + SEO Temizliği — Marka Domain Disiplini)
+
+**Karar:** Anayasa **v1.33.0 → v1.34.0 MINOR**. Panel `1.16.0 → 1.17.0` MINOR. Backend sabit (1.14.1). 1 yeni madde tescili (30.76 — Marka Domain Disiplini). 0 KIRMIZI, 0 schema, 0 npm install.
+
+**CEO direktifi (Madde 30.25 R1, 13 May 2026 01:10):**
+> "Vercel URL redirect tek seferde yap, code'a yapıştırıp uyuyayım" — Mehmet DİNÇ
+
+**Saha kanıt (Bing arama ekranı):**
+- `tedbirge-panel.vercel.app/haberler` → SGK İş Kazası içerik index olmuş
+- `tedbirge-panel.vercel.app/basvuru` → Belge Yükleme sayfası index olmuş
+- 2 farklı URL aynı içerik → SEO duplicate content + TBB Reklam Yasağı denetiminde "iki kanal mı?" sorusu
+
+**5 ATOM uygulandı (UÇTAN UCA, DEFER 0):**
+
+1. **ATOM 1 — middleware.ts yeni** (`tedbirge-panel/middleware.ts`):
+   - `*.vercel.app` (default + preview) → 301 `www.tedbirge.ai` + same path/query
+   - `tedbirge.ai` (apex) → 301 `www.tedbirge.ai`
+   - Matcher: static asset'ler + Next.js internal (`_next/static`, `_next/image`, `favicon`, `icons`, `manifest`, `sw.js`) hariç
+   - `NextResponse.redirect(url, 301)` — permanent redirect (SEO juice transfer)
+
+2. **ATOM 2 — Mevcut middleware MERGE:** Mevcut middleware YOK (Glob teşhis kanıtı), yeni dosya yeterli. Madde 4.6 geriye uyumluluk korundu.
+
+3. **ATOM 3 — robots.ts genişletme**:
+   - Disallow listesi `/api, /dashboard, /admin, /musteri` → 12 path (`+/temsilci, /hukukcu, /leads, /profil, /login, /2fa-secim, /lawyer-dashboard, /register`)
+   - `host: "https://www.tedbirge.ai"` eklendi (Yandex SE için, canonical host bildirimi)
+   - Sitemap canonical korundu
+
+4. **ATOM 4 — Canonical metadata** (`app/layout.tsx`):
+   - `metadataBase` zaten vardı (`https://www.tedbirge.ai`)
+   - `alternates.canonical: "https://www.tedbirge.ai"` eklendi (Google'a tek-kaynak bildirimi)
+   - Diğer metadata (OG, Twitter, icons) dokunulmadı (Madde 4.6)
+
+5. **ATOM 5 — sitemap.ts kontrol** (no-op):
+   - Mevcut sitemap zaten `https://www.tedbirge.ai` canonical base kullanıyor
+   - 18 static page + dinamik blog post URL'leri
+   - Dokunmaya gerek yok
+
+### Madde 30.76 — Marka Domain Disiplini
+
+3 katmanlı SEO defensive:
+1. **Middleware 301** (runtime) — `*.vercel.app` → canonical
+2. **Canonical metadata** (server-render) — HTML `<link rel="canonical">`
+3. **robots.ts** — Google'a host bildirimi + private path disallow
+
+**Yasak:**
+- Production'da `*.vercel.app` URL'sini canlı kanal olarak kullanmak
+- Apex `tedbirge.ai` + www aynı içerik (duplicate)
+- Canonical olmayan host için crawl allow
+
+### Manual iş — Google Search Console (CEO 5 dk)
+
+TUR #119 deploy sonrası:
+1. `search.google.com/search-console`
+2. `tedbirge.ai` property seç
+3. URL Removals → `tedbirge-panel.vercel.app/*` removal talebi
+4. 24-48 saat içinde Google index'ten kalkar
+
+### Etki
+
+- 1 yeni dosya (`middleware.ts`)
+- 2 değişiklik (`app/layout.tsx` canonical + `app/robots.ts` disallow)
+- 5 belge OS senkron + version
+- 32 → **33 ardışık temiz TUR REKOR (#90 → #119)**
+
+**NEXT — TUR #120:**
+- Email/Phone 2FA + 24h onay penceresi (TUR #118 sarı endişe)
+- Niyazi DEMİR ilk gerçek lead retrospektifi
+- TUR #117 deploy fail kök sebep teşhis (Render log)
+- Premium görsel iterasyon
+
+**Mimar:** Claude Opus 4.7 (sohbet) + Claude Code (UÇTAN UCA tek mektup, Madde 17.2 R1 + 30.25 R1 + 30.76 yeni) — 13 Mayıs 2026
+
+---
+
 ## 13 Mayıs 2026 Çarşamba — TUR #118 KAPALI (Profil Edit Tam Donanım — Ad Soyad + Email + Telefon + KVKK Audit)
 
 **Karar:** Anayasa **v1.32.0 → v1.33.0 MINOR**. Backend `1.13.0 → 1.14.0` MINOR. Panel `1.15.0 → 1.16.0` MINOR. Schema sabit (1.6.0). 1 yeni madde tescili (30.75 — Kritik Veri Değişim Audit Disiplini). 0 KIRMIZI, 0 schema, 0 npm install.

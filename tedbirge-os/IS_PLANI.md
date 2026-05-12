@@ -1,12 +1,43 @@
 # 📋 TEDBİRGE.AI — İŞ PLANI (AKTİF KESİT)
 
-**Son güncelleme:** 13 Mayıs 2026 Çarşamba (TUR #118)
-**Anayasa:** v1.33.0 MINOR (Madde 30.65-75 — **Madde 30.75 yeni: Kritik Veri Audit**)
-**Aktif rekor:** 32 ardışık temiz TUR (#90 → #118)
+**Son güncelleme:** 13 Mayıs 2026 Çarşamba (TUR #119)
+**Anayasa:** v1.34.0 MINOR (Madde 30.65-76 — **Madde 30.76 yeni: Marka Domain Disiplini**)
+**Aktif rekor:** 33 ardışık temiz TUR (#90 → #119)
 
 ---
 
-## 🎯 NOW — TUR #118 KAPALI ✅ (Profil Edit Tam Donanım — Ad Soyad + Email + Telefon)
+## 🎯 NOW — TUR #119 KAPALI ✅ (Vercel Domain Redirect + SEO Temizliği)
+
+**Saha kanıt:** Bing'de `tedbirge-panel.vercel.app/haberler+/basvuru` index olmuş — marka karmaşası + SEO duplicate. CEO 13 May 01:10 direktifi.
+
+### 5 atom (UÇTAN UCA, DEFER 0, panel-only)
+- A1 middleware.ts yeni (`*.vercel.app` + apex → 301 canonical)
+- A2 Mevcut middleware MERGE (yoktu, yeni dosya)
+- A3 robots.ts disallow 12 path + host bildirimi
+- A4 layout.tsx canonical metadata
+- A5 sitemap.ts no-op (zaten canonical)
+
+**Madde 30.76 yeni** — Marka Domain Disiplini (3 katmanlı SEO defensive)
+
+Panel 1.16.0→1.17.0, Anayasa v1.33.0→v1.34.0. Backend sabit.
+
+### Manual iş (CEO 5 dk)
+Google Search Console URL Removals — `tedbirge-panel.vercel.app/*`
+
+---
+
+## ⏭️ NEXT — TUR #120
+
+**CEO seçimi:**
+1. **Email/Phone 2FA + 24h onay penceresi** (TUR #118 sarı endişe, KVKK m.11)
+2. **Niyazi DEMİR ilk gerçek lead retrospektifi**
+3. **TUR #117 deploy fail kök sebep teşhis** (Render log analizi)
+4. **Premium görsel iterasyon** (kartvizit estetik, ertelenen)
+5. **DocumentStatus enum eksik** (analyzer/maintenance)
+
+---
+
+## 🎯 ÖNCEKİ — TUR #118 KAPALI ✅ (Profil Edit Tam Donanım — Ad Soyad + Email + Telefon)
 
 **Saha kanıt:** Emine ÇELİK profil edit eksik — TUR #116-117 fokuslarında profil kimliği unutuldu (Mimar Hatası 57).
 

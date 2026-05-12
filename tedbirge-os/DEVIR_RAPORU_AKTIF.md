@@ -1,15 +1,36 @@
 # 🛡️ TEDBIRGE.AI — DEVİR RAPORU (AKTİF)
 
-📋 **ANAYASA:** v1.33.0 MINOR (Madde 30.65-75 — **Madde 30.75 yeni: Kritik Veri Audit Disiplini**)
-📂 **🚀 PROFİL EDİT TAM DONANIM — AD SOYAD + EMAİL + TELEFON + KVKK M.10 AUDİT 🚀**
-📅 **SON GÜNCELLEME:** 13 Mayıs 2026 Çarşamba (TUR #118 KAPALI)
-👤 **CEO Onay:** Mehmet DİNÇ — Madde 18.3 YAZILI onay (eksik bırakma) + 17.2 R1 UÇTAN UCA
-🤖 **Mimar:** Claude Opus 4.7 (sohbet) + Claude Code (6 atom uçtan uca, DEFER 0)
-🌟 **Tarih:** 13 Mayıs 2026 — 32 ARDIŞIK TEMİZ TUR REKOR (#90 → #118)
+📋 **ANAYASA:** v1.34.0 MINOR (Madde 30.65-76 — **Madde 30.76 yeni: Marka Domain Disiplini**)
+📂 **🚀 VERCEL → www.tedbirge.ai 301 REDIRECT + SEO TEMİZLİĞİ (canonical metadata + robots disallow) 🚀**
+📅 **SON GÜNCELLEME:** 13 Mayıs 2026 Çarşamba (TUR #119 KAPALI)
+👤 **CEO Onay:** Mehmet DİNÇ — Madde 30.25 R1 direktifi (Vercel URL redirect tek seferde)
+🤖 **Mimar:** Claude Opus 4.7 (sohbet) + Claude Code (5 atom uçtan uca, DEFER 0)
+🌟 **Tarih:** 13 Mayıs 2026 — 33 ARDIŞIK TEMİZ TUR REKOR (#90 → #119)
 
 ---
 
-## 🎯 BUGÜN — TUR #118 KAPALI (Profil Edit Tam Donanım — Ad Soyad + Email + Telefon + KVKK Audit)
+## 🎯 BUGÜN — TUR #119 KAPALI (Vercel Domain Redirect + SEO Temizliği — Marka Domain Disiplini)
+
+**Saha kanıt (Bing arama):** `tedbirge-panel.vercel.app/haberler` + `/basvuru` Google'a index olmuş. SEO duplicate content + marka karmaşası.
+
+**Sürüm:** Panel 1.16.0 → **1.17.0** MINOR, Anayasa v1.33.0 → **v1.34.0** MINOR. Backend sabit (1.14.1).
+
+### Uygulanan 5 atom (UÇTAN UCA, DEFER 0)
+- **A1** middleware.ts yeni (`*.vercel.app` + apex `tedbirge.ai` → 301 `www.tedbirge.ai`, static asset exclude)
+- **A2** Mevcut middleware MERGE — yoktu, yeni dosya yeterli (Madde 4.6 korundu)
+- **A3** robots.ts disallow listesi 4 → 12 path (private/auth all blocked) + `host: https://www.tedbirge.ai`
+- **A4** layout.tsx `alternates.canonical: "https://www.tedbirge.ai"` (Google duplicate önleme)
+- **A5** sitemap.ts kontrol (no-op — zaten canonical kullanıyordu)
+
+### Madde 30.76 yeni — Marka Domain Disiplini
+3 katmanlı SEO defensive: Middleware 301 + Canonical metadata + robots host bildirimi. Production sadece canonical domain üzerinden erişilir.
+
+### Manual iş (CEO 5 dk, deploy sonrası)
+Google Search Console → tedbirge.ai property → URL Removals → `tedbirge-panel.vercel.app/*` removal talebi (24-48h içinde index'ten kalkar).
+
+---
+
+## 🎯 ÖNCEKİ — TUR #118 KAPALI (Profil Edit Tam Donanım — Ad Soyad + Email + Telefon + KVKK Audit)
 
 **Saha kanıt:** Emine ÇELİK profil "Kişisel Bilgi" görüntüleme var ama edit YOK. TUR #116-117 adres+country fokuslarında profil kimliği unutulmuş (Mimar Hatası 57).
 

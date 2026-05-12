@@ -338,8 +338,55 @@ Mehmet Bey sahaya çıkabilsin diye bu disiplin var.
 
 ---
 
-**— Tedbirge Mimari Anayasası v1.33.0 MINOR**
-**Son güncelleme: 13 Mayıs 2026 Çarşamba (TUR #118 KAPALI — Profil Edit Tam Donanım + Madde 30.75)**
+**— Tedbirge Mimari Anayasası v1.34.0 MINOR**
+**Son güncelleme: 13 Mayıs 2026 Çarşamba (TUR #119 KAPALI — Marka Domain Disiplini + Madde 30.76)**
+
+---
+
+## ANAYASA EVRİM — TUR #119 (13 May 2026) — Marka Domain Disiplini
+
+**Madde 30.76 — Marka Domain Disiplini:**
+
+Production sadece **canonical domain** üzerinden erişilir: `www.tedbirge.ai`. Vercel default URL (`*.vercel.app`), preview deployment URL'leri, apex domain → **301 permanent redirect** ile canonical'a yönlenir. SEO duplicate content + marka karmaşası önlenir.
+
+**Pattern (`tedbirge-panel/middleware.ts`):**
+```ts
+const CANONICAL_HOST = "www.tedbirge.ai";
+if (host.endsWith(".vercel.app")) {
+  return NextResponse.redirect({ host: CANONICAL_HOST, protocol: "https:" }, 301);
+}
+if (host === "tedbirge.ai") {
+  return NextResponse.redirect({ host: CANONICAL_HOST, ... }, 301);
+}
+```
+
+**SEO katmanları (3 layer):**
+1. **Middleware 301** — runtime redirect *.vercel.app → www
+2. **Canonical metadata** — `app/layout.tsx` `alternates.canonical: "https://www.tedbirge.ai"`
+3. **robots.ts** — `host: "https://www.tedbirge.ai"` + sitemap canonical + private path disallow
+
+**Yasak:**
+- Production'da `*.vercel.app` URL'sini canlı kanal olarak kullanmak (marka karmaşası)
+- Apex domain ile www domain'i aynı içerikten servis etmek (duplicate content)
+- Canonical olmayan host için index allow
+
+**Kanıt (Bing arama ekranı):** TUR #119 öncesi `tedbirge-panel.vercel.app/haberler` + `/basvuru` Google'a index olmuş. CEO ekran kanıtı + 13 May 2026 direktifi.
+
+### TUR #119 sayısal özet
+- 5 atom · DEFER 0 (Madde 17.2 R1)
+- 0 KIRMIZI · 0 schema · 0 npm install · 0 env · $0 maliyet
+- Panel-only değişiklikler (backend dokunulmadı)
+- Panel `1.16.0 → 1.17.0` MINOR
+- Anayasa `v1.33.0 → v1.34.0` MINOR
+- 32 → **33 ardışık temiz TUR REKOR (#90 → #119)**
+
+### Manual iş — Google Search Console (CEO 5 dk)
+
+Vercel URL'lerin Google index'inden kalkması için manual removal:
+1. `search.google.com/search-console`
+2. `tedbirge.ai` property seç
+3. "URL Removals" → "New request" → `tedbirge-panel.vercel.app/*` removal talebi
+4. 24-48 saat içinde Google index'ten kalkar (301 redirect zaten aktif)
 
 ---
 

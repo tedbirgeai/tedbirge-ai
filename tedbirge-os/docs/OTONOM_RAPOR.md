@@ -1,3 +1,81 @@
+# 🤖 TEDBİRGE.AI — OTONOM RAPOR (TUR #119)
+
+**Tarih:** 13 Mayıs 2026 Çarşamba
+**TUR:** #119 ✅ KAPALI
+**Tip:** Vercel Domain Redirect + SEO Temizliği — Marka Domain Disiplini (Madde 30.76)
+**Anayasa:** v1.33.0 → **v1.34.0 MINOR**
+
+## 📋 Sayısal özet
+- 5 atom UÇTAN UCA · DEFER 0 (Madde 17.2 R1)
+- 0 KIRMIZI · 0 schema · 0 npm install · 0 env · $0 maliyet
+- Panel-only (backend dokunulmadı, 1.14.1 sabit)
+- 1 yeni dosya (`middleware.ts`) + 2 değişiklik (`layout.tsx`, `robots.ts`)
+- Panel `1.16.0 → 1.17.0` MINOR / Anayasa `v1.33.0 → v1.34.0` MINOR
+- **32 → 33 ardışık temiz TUR REKOR (#90 → #119)**
+
+## CEO direktifi (Madde 30.25 R1)
+> "Vercel URL redirect tek seferde yap, code'a yapıştırıp uyuyayım" — Mehmet DİNÇ, 13 May 2026 01:10
+
+## ✅ 5 ATOM
+- **A1** `tedbirge-panel/middleware.ts` yeni: `*.vercel.app` + apex `tedbirge.ai` → 301 `www.tedbirge.ai` (NextResponse.redirect, matcher static asset hariç)
+- **A2** Mevcut middleware MERGE: yoktu (Glob: 0 file), yeni dosya yeterli — Madde 4.6 geriye uyumluluk korundu
+- **A3** `app/robots.ts`: disallow 4 → 12 path (`/temsilci, /hukukcu, /leads, /profil, /login, /2fa-secim, /lawyer-dashboard, /register` eklendi) + `host: "https://www.tedbirge.ai"` (Yandex SE canonical host)
+- **A4** `app/layout.tsx`: `alternates.canonical: "https://www.tedbirge.ai"` eklendi (Google duplicate önleme). Diğer metadata dokunulmadı (Madde 4.6).
+- **A5** `app/sitemap.ts`: no-op — zaten canonical base kullanıyordu, dokunmaya gerek yok
+
+## 📝 Madde 30.76 yeni — Marka Domain Disiplini
+
+3 katmanlı SEO defensive:
+1. **Middleware 301** (runtime) — `*.vercel.app` → canonical
+2. **Canonical metadata** (server-render) — HTML `<link rel="canonical">`
+3. **robots.ts** — `host:` bildirim + private path disallow
+
+**Yasak:** Production'da `*.vercel.app` URL canlı kanal kullanım, apex+www duplicate content, canonical olmayan host index allow.
+
+## 🔬 Smoke (local)
+- TypeScript `tsc --noEmit` exit 0 ✓
+- middleware.ts syntax valid (Next.js 16 standart export)
+
+## 📋 Deploy sonrası smoke (CEO/otomatik):
+```bash
+# 1. *.vercel.app 301 kanıt
+curl -I https://tedbirge-panel.vercel.app/
+→ HTTP/1.1 301 Moved Permanently
+→ Location: https://www.tedbirge.ai/
+
+# 2. Path korumalı redirect
+curl -I https://tedbirge-panel.vercel.app/basvuru
+→ 301 + Location: https://www.tedbirge.ai/basvuru
+
+# 3. Canonical 200
+curl -I https://www.tedbirge.ai/
+→ HTTP/1.1 200 OK
+
+# 4. robots.txt
+curl https://www.tedbirge.ai/robots.txt
+→ User-agent: * / Disallow: /api, /dashboard, ... / Host: ...
+
+# 5. sitemap.xml
+curl https://www.tedbirge.ai/sitemap.xml
+→ <urlset> with all canonical URLs
+```
+
+## 📌 Manual iş — CEO (5 dk, deploy sonrası)
+
+Google Search Console index temizlik:
+1. `search.google.com/search-console`
+2. `tedbirge.ai` property
+3. URL Removals → New request → `tedbirge-panel.vercel.app/*`
+4. 24-48h içinde Google index'ten kalkar (301 zaten aktif redirect ediyor)
+
+## 🎯 NEXT — TUR #120
+1. Email/Phone 2FA + 24h onay (TUR #118 sarı endişe)
+2. Niyazi DEMİR ilk gerçek lead retrospektifi
+3. TUR #117 deploy fail teşhis (Render log)
+4. Premium görsel iterasyon
+5. DocumentStatus enum eksik
+
+═══════════════════════════════════════════════════════════════════
 # 🤖 TEDBİRGE.AI — OTONOM RAPOR (TUR #118)
 
 **Tarih:** 13 Mayıs 2026 Çarşamba
