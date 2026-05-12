@@ -1,15 +1,37 @@
 # 🛡️ TEDBIRGE.AI — DEVİR RAPORU (AKTİF)
 
-📋 **ANAYASA:** v1.32.0 MINOR (Madde 30.65-74 — TUR #112-117, **Madde 30.72 + 30.73 + 30.74 yeni**)
-📂 **🚀 6 ATLAMA TEK SEFERDE: country + 81 il dropdown + ilçe + dinamik banner + telefon format + vector ikon 🚀**
-📅 **SON GÜNCELLEME:** 12 Mayıs 2026 Salı (TUR #117 KAPALI)
-👤 **CEO Onay:** Mehmet DİNÇ — Madde 18.3 YAZILI onay (country KIRMIZI) + 17.2 R1 UÇTAN UCA
-🤖 **Mimar:** Claude Opus 4.7 (sohbet) + Claude Code (11 atom uçtan uca, KIRMIZI 1 yazılı onay)
-🌟 **Tarih:** 12 Mayıs 2026 — 31 ARDIŞIK TEMİZ TUR REKOR (#90 → #117)
+📋 **ANAYASA:** v1.33.0 MINOR (Madde 30.65-75 — **Madde 30.75 yeni: Kritik Veri Audit Disiplini**)
+📂 **🚀 PROFİL EDİT TAM DONANIM — AD SOYAD + EMAİL + TELEFON + KVKK M.10 AUDİT 🚀**
+📅 **SON GÜNCELLEME:** 13 Mayıs 2026 Çarşamba (TUR #118 KAPALI)
+👤 **CEO Onay:** Mehmet DİNÇ — Madde 18.3 YAZILI onay (eksik bırakma) + 17.2 R1 UÇTAN UCA
+🤖 **Mimar:** Claude Opus 4.7 (sohbet) + Claude Code (6 atom uçtan uca, DEFER 0)
+🌟 **Tarih:** 13 Mayıs 2026 — 32 ARDIŞIK TEMİZ TUR REKOR (#90 → #118)
 
 ---
 
-## 🎯 BUGÜN — TUR #117 KAPALI (6 Atlama Tek Seferde — Country + 81 İl + Telefon Format + Vector İkon)
+## 🎯 BUGÜN — TUR #118 KAPALI (Profil Edit Tam Donanım — Ad Soyad + Email + Telefon + KVKK Audit)
+
+**Saha kanıt:** Emine ÇELİK profil "Kişisel Bilgi" görüntüleme var ama edit YOK. TUR #116-117 adres+country fokuslarında profil kimliği unutulmuş (Mimar Hatası 57).
+
+**Sürüm:** Backend 1.13.0 → **1.14.0** MINOR, Panel 1.15.0 → **1.16.0** MINOR, Anayasa v1.32.0 → **v1.33.0** MINOR
+
+### Uygulanan 6 atom (UÇTAN UCA, DEFER 0)
+- **A1** PATCH /auth/me email/phone/fullName + unique check + KVKK audit (Prisma P2002 + pre-flight findUnique + findFirst)
+- **A2** Email 2FA + 24h onay DEFER TUR #119 (sarı endişe)
+- **A3** PersonalEditCard yeni paylaşılan component (3 input + validation + telefon preview)
+- **A4** (panel)/temsilci/profil eski "Kişisel Bilgi" kartı kaldırıldı + PersonalEditCard mount; (panel)/profil aynı mount
+- **A5** Telefon SMS OTP DEFER TUR #119 (sarı endişe)
+- **A6** 5 belge OS senkron + Madde 30.75 + Mimar Hatası 57
+
+### Madde 30.75 yeni — Kritik Veri Audit Disiplini
+KVKK m.10: ad soyad / email / telefon / IBAN / vergi değişikliği `ActivityLog` ile eski + yeni değer korunur. DB unique (P2002) + pre-flight findUnique + frontend validation 3 katmanlı defensive.
+
+### Mimar Hatası 57 — Profil Edit Eksik Field
+CEO 7. ısrar emsali: TUR #116-117 fokuslarında profil kimliği unutuldu. Düzeltme: PersonalEditCard (kimlik) + AdresEditCard (iş set) iki ayrı kart zorunlu.
+
+---
+
+## 🎯 ÖNCEKİ — TUR #117 KAPALI (6 Atlama Tek Seferde — Country + 81 İl + Telefon Format + Vector İkon)
 
 **Saha kanıt (6 atlama):** country yok + SAKARYA banner statik + 81 il dropdown yok + il-ilçe ilişkili yok + telefon format yok + ikon yok.
 

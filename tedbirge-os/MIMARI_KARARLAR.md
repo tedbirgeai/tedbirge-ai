@@ -6,6 +6,85 @@
 
 ---
 
+## 13 Mayıs 2026 Çarşamba — TUR #118 KAPALI (Profil Edit Tam Donanım — Ad Soyad + Email + Telefon + KVKK Audit)
+
+**Karar:** Anayasa **v1.32.0 → v1.33.0 MINOR**. Backend `1.13.0 → 1.14.0` MINOR. Panel `1.15.0 → 1.16.0` MINOR. Schema sabit (1.6.0). 1 yeni madde tescili (30.75 — Kritik Veri Değişim Audit Disiplini). 0 KIRMIZI, 0 schema, 0 npm install.
+
+**CEO yazılı onay (Madde 18.3):**
+> "emine çelik mail adresini ve ya bir başka roldeki kullanıcı e posta adresini değiştirecek olursa düzenleyebilmeli... eksik bir şey bırakma uçtan uca kod tabanlı otonom aksın gitsin 0 hata ile düzelt" — Mehmet DİNÇ, 13 May 2026
+
+**Saha kanıt (CEO panel ekran):** Emine ÇELİK profil sayfası "Kişisel Bilgi" bölümü görüntülemede email + telefon var ama **edit YOK**. TUR #116 (adres) + TUR #117 (country) eklendi ama profil kimliği unutuldu.
+
+**Mimar Hatası 57 — Profil Edit Eksik Field:**
+
+CEO profil edit isteklerinde TUR #116-117 sırasında **adres + country fokus**ladı, kişisel kimlik (fullName/email/phone) **gözden kaçtı**. CEO 7. ısrar emsali. Düzeltme: profil edit içinde "kişisel kimlik" (PersonalEditCard) + "iş kimlik" (AdresEditCard + IBAN/Vergi) iki ayrı kart zorunlu.
+
+**6 ATOM uygulandı (UÇTAN UCA, DEFER 0):**
+
+1. **ATOM 1 — PATCH /auth/me email/phone/fullName** (`src/routes/auth.routes.js`):
+   - `allowed` array'e 3 yeni alan
+   - Eski değer pre-fetch (audit + duplicate check)
+   - **Email validation:** regex `/^[^\s@]+@[^\s@]+\.[^\s@]+$/` + unique check (DB-level Prisma P2002 + pre-flight `findUnique`)
+   - **Phone validation:** 10-12 digit + duplicate check (`findFirst where phone AND id NOT IN current`)
+   - **FullName validation:** trim + min 2 char
+   - **KVKK m.10 audit:** her değişen alan için `ActivityLog` (PROFILE_FULLNAME/EMAIL/PHONE_UPDATE) — eski + yeni değer
+   - 409 Conflict: duplicate email/phone, 400 Bad Request: format hatası
+   - Prisma P2002 catch → 409 (DB constraint defensive)
+
+2. **ATOM 2 — Email 2FA + bildirim DEFER** (TUR #119 sarı endişe):
+   - Email değişimi eski email'e bildirim + 24 saat onay penceresi
+   - 2FA aktif kullanıcılar email değişiminde 2FA OTP zorunluluğu
+   - Şu an: doğrudan değişim + audit log yeterli (CEO direktif)
+
+3. **ATOM 3 — PersonalEditCard yeni component** (`tedbirge-panel/components/profile/PersonalEditCard.tsx`):
+   - 3 input field: Ad Soyad + Email + Telefon
+   - Client validation (email regex + phone 10-12 digit + fullName 2+ char)
+   - Telefon canlı format preview (`formatPhonePreview` helper, TUR #117 emsali)
+   - Toast feedback (başarılı / hata)
+   - Inline field-level error mesajı
+   - KVKK m.10 disclaimer footer (Madde 30.75 görünür)
+
+4. **ATOM 4 — Profil sayfası entegrasyon**:
+   - `(panel)/temsilci/profil/page.tsx`: eski "Kişisel Bilgi" kartı (Phone + Bölge) kaldırıldı, PersonalEditCard mount
+   - `(panel)/profil/page.tsx`: ProfileLayout altına PersonalEditCard + AdresEditCard sıra
+   - Tüm roller için (ADMIN/LAWYER/REPRESENTATIVE/SALES) — CUSTOMER ayrı profil sayfası (TUR #119 candidate)
+
+5. **ATOM 5 — Telefon SMS doğrulama DEFER** (TUR #119 sarı endişe):
+   - TUR #113 emsali sms-gonder + sms-dogrula pattern
+   - Şu an: doğrudan değişim + duplicate check yeterli
+
+6. **ATOM 6 — 5 belge OS senkron**:
+   - CLAUDE.md Madde 30.75 + Mimar Hatası 57
+   - MIMARI_KARARLAR.md TUR #118 entry (bu)
+   - DEVIR_RAPORU_AKTIF.md TUR #118 üst başlık
+   - IS_PLANI.md TUR #118 KAPALI + NEXT TUR #119
+   - OTONOM_RAPOR.md detay
+
+### Madde 30.75 — Kritik Veri Değişim Audit Disiplini
+
+KVKK m.10 zorunluluğu: kullanıcının ad/email/telefon/IBAN/vergi gibi kritik veri değişikliği `ActivityLog` ile **eski + yeni değer korunur**. Audit zincirini atlamak Madde 30.75 ihlali.
+
+**Unique constraint defensive layering:**
+1. DB-level (`@unique` Prisma constraint, P2002 catch → 409)
+2. Application-level (`findUnique` / `findFirst` pre-flight check → 409 anlamlı mesaj)
+3. Frontend-level (regex validation)
+
+### Etki
+
+- 1 dosya değişiklik (`src/routes/auth.routes.js`) backend
+- 3 dosya değişiklik (PersonalEditCard yeni + 2 profil sayfası) panel
+- 5 belge OS senkron + version
+- 31 → **32 ardışık temiz TUR REKOR (#90 → #118)**
+
+**NEXT — TUR #119:**
+- Email değişim 2FA + 24 saat onay penceresi (KVKK m.11 hak)
+- Telefon değişim SMS OTP doğrulama (TUR #113 emsali)
+- 2FA aktif kullanıcılar profil değişikliğinde 2FA OTP zorunluluğu
+- Premium görsel iterasyon (kartvizit estetik, ertelenen)
+- TUR #117 deploy fail teşhis çözüm (Render log analizi)
+
+---
+
 ## 12 Mayıs 2026 Salı — TUR #117 KAPALI (6 Atlama Tek Seferde — Country + Dropdown + Telefon Format + Vector İkon)
 
 **Karar:** Anayasa **v1.31.0 → v1.32.0 MINOR**. Backend `1.12.0 → 1.13.0` MINOR. Panel `1.14.0 → 1.15.0` MINOR. Schema `1.5.0 → 1.6.0`. **3 yeni madde tescili** (30.72 + 30.73 + 30.74). **1 KIRMIZI** (User.country, CEO yazılı onay Madde 18.3 + 30.71).

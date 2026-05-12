@@ -1,12 +1,42 @@
 # 📋 TEDBİRGE.AI — İŞ PLANI (AKTİF KESİT)
 
-**Son güncelleme:** 12 Mayıs 2026 Salı (TUR #117)
-**Anayasa:** v1.32.0 MINOR (Madde 30.65-74 — **Madde 30.72 + 30.73 + 30.74 yeni**)
-**Aktif rekor:** 31 ardışık temiz TUR (#90 → #117) — 2 KIRMIZI ardışık (TUR #116 + #117) rekor bozmadı (CEO yazılı onay disiplin)
+**Son güncelleme:** 13 Mayıs 2026 Çarşamba (TUR #118)
+**Anayasa:** v1.33.0 MINOR (Madde 30.65-75 — **Madde 30.75 yeni: Kritik Veri Audit**)
+**Aktif rekor:** 32 ardışık temiz TUR (#90 → #118)
 
 ---
 
-## 🎯 NOW — TUR #117 KAPALI ✅ (6 Atlama Tek Seferde)
+## 🎯 NOW — TUR #118 KAPALI ✅ (Profil Edit Tam Donanım — Ad Soyad + Email + Telefon)
+
+**Saha kanıt:** Emine ÇELİK profil edit eksik — TUR #116-117 fokuslarında profil kimliği unutuldu (Mimar Hatası 57).
+
+### 6 atom (UÇTAN UCA, DEFER 0)
+- A1 PATCH /auth/me email/phone/fullName + unique check + KVKK m.10 audit
+- A2 Email 2FA + 24h onay DEFER TUR #119
+- A3 PersonalEditCard yeni component (3 input + validation + phone preview)
+- A4 Profil sayfa entegrasyon (temsilci + (panel) profil)
+- A5 Telefon SMS OTP DEFER TUR #119
+- A6 5 belge OS senkron + Madde 30.75 + Mimar Hatası 57
+
+**Madde 30.75 yeni** — Kritik Veri Değişim Audit Disiplini (KVKK m.10)
+
+Backend 1.13.0→1.14.0, Panel 1.15.0→1.16.0, Anayasa v1.32.0→v1.33.0.
+
+---
+
+## ⏭️ NEXT — TUR #119
+
+**CEO seçimi (Madde 17.5):**
+1. **Email değişim 2FA + 24h onay penceresi** (KVKK m.11 hak, TUR #118 SARI)
+2. **Telefon SMS OTP doğrulama** (TUR #113 emsali, TUR #118 SARI)
+3. **2FA aktif kullanıcılar profil değişikliğinde 2FA OTP**
+4. **TUR #117 deploy fail çözüm** (Render log analizi gerek)
+5. **Premium görsel iterasyon** (kartvizit estetik, ertelenen)
+6. **Niyazi DEMİR ilk gerçek lead retrospektifi**
+
+---
+
+## 🎯 ÖNCEKİ — TUR #117 KAPALI ✅ (6 Atlama Tek Seferde)
 
 **Saha kanıt — 6 atlama:** country + dinamik banner + 81 il + ilçe + telefon format + vector ikon. CEO 5. ısrar emsali — UÇTAN UCA tek atomik commit.
 

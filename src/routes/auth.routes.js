@@ -80,9 +80,11 @@ router.patch("/me", auth, async (req, res) => {
     const prisma = require("../config/db");
     // TUR #116 — address/city/district/postalCode eklendi (Madde 30.71 KIRMIZI gecisi, CEO yazili onay)
     // TUR #117 — country eklendi (Madde 30.73 Almanya pilot 2028+ hazirlik)
+    // TUR #118 — fullName + email + phone profil edit (Madde 30.75 Kritik Veri Audit)
     const allowed = [
       "phone", "bolge", "iban", "vergiKimlikNo", "vergiDairesi", "preferences",
       "address", "city", "district", "postalCode", "country",
+      "fullName", "email",
     ];
     const data = {};
     for (const key of allowed) {
@@ -104,11 +106,74 @@ router.patch("/me", auth, async (req, res) => {
       data.country = data.country ? String(data.country).slice(0, 60) : "Türkiye";
     }
 
+    // TUR #118 — fullName / email / phone validation + unique check (Madde 30.75)
+    // Eski degerleri once cek (audit + duplicate check icin)
+    const current = await prisma.user.findUnique({
+      where: { id: req.user.id },
+      select: { fullName: true, email: true, phone: true },
+    });
+    if (!current) return res.status(404).json({ error: "Kullanici bulunamadi" });
+
+    const auditChanges = [];
+
+    if (data.fullName !== undefined) {
+      const trimmed = String(data.fullName).trim().slice(0, 100);
+      if (trimmed.length < 2) {
+        return res.status(400).json({ error: "Ad Soyad en az 2 karakter olmali" });
+      }
+      data.fullName = trimmed;
+      if (trimmed !== current.fullName) {
+        auditChanges.push({ field: "fullName", old: current.fullName, new: trimmed });
+      }
+    }
+
+    if (data.email !== undefined) {
+      const trimmed = String(data.email).trim().toLowerCase().slice(0, 100);
+      const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+      if (!emailRegex.test(trimmed)) {
+        return res.status(400).json({ error: "Gecersiz email formati" });
+      }
+      data.email = trimmed;
+      if (trimmed !== current.email) {
+        // Unique check (DB-level unique constraint var ama explicit kontrol daha temiz hata mesaji)
+        const existing = await prisma.user.findUnique({ where: { email: trimmed }, select: { id: true } });
+        if (existing && existing.id !== req.user.id) {
+          return res.status(409).json({ error: "Bu email zaten kayitli" });
+        }
+        auditChanges.push({ field: "email", old: current.email, new: trimmed });
+      }
+    }
+
+    if (data.phone !== undefined) {
+      // Telefon: rakam + boslara/tire/plus izinli, max 20 char
+      const trimmed = data.phone ? String(data.phone).slice(0, 20) : null;
+      // Normalize (sadece rakam) + Turkiye 10/11 digit check
+      if (trimmed) {
+        const digits = trimmed.replace(/\D/g, "");
+        if (digits.length < 10 || digits.length > 12) {
+          return res.status(400).json({ error: "Telefon 10-12 haneli olmali (orn: 5454903395 veya +905454903395)" });
+        }
+        if (trimmed !== current.phone) {
+          // Unique check (DB'de unique constraint phone'da yok ama denetim icin)
+          const existing = await prisma.user.findFirst({
+            where: { phone: trimmed, id: { not: req.user.id } },
+            select: { id: true },
+          });
+          if (existing) {
+            return res.status(409).json({ error: "Bu telefon numarasi baska bir kullanicida kayitli" });
+          }
+          auditChanges.push({ field: "phone", old: current.phone, new: trimmed });
+        }
+      }
+      data.phone = trimmed || null;
+    }
+
     const updated = await prisma.user.update({
       where: { id: req.user.id },
       data,
       select: {
-        id: true, iban: true, vergiKimlikNo: true, vergiDairesi: true, phone: true, bolge: true,
+        id: true, fullName: true, email: true, phone: true,
+        iban: true, vergiKimlikNo: true, vergiDairesi: true, bolge: true,
         address: true, city: true, district: true, postalCode: true, country: true,
       },
     });
@@ -127,8 +192,24 @@ router.patch("/me", auth, async (req, res) => {
       } catch (_) {}
     }
 
+    // TUR #118 — Kritik veri audit (Madde 30.75): fullName/email/phone degisikligi
+    for (const ch of auditChanges) {
+      try {
+        await prisma.activityLog.create({
+          data: {
+            action: `PROFILE_${ch.field.toUpperCase()}_UPDATE`,
+            detail: `userId:${req.user.id} old:${ch.old || "-"} new:${ch.new}`,
+          },
+        });
+      } catch (_) {}
+    }
+
     res.json({ user: updated });
   } catch (e) {
+    // Prisma unique constraint hatasi (P2002) ozel mesaj
+    if (e && e.code === "P2002") {
+      return res.status(409).json({ error: "Bu email veya alan zaten kayitli (unique kisit)" });
+    }
     res.status(400).json({ error: e.message });
   }
 });
