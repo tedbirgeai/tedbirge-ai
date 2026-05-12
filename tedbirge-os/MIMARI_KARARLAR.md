@@ -6,6 +6,77 @@
 
 ---
 
+## 12 Mayıs 2026 Salı — TUR #112 KAPALI (Premium Kartvizit Uçtan Uca — 5 Format + Font Embed + Türkçe Fix + Tedbirator Etiket)
+
+**Karar:** Anayasa **v1.27.0 → v1.28.0 MINOR**. 10/10 atom uçtan uca uygulandı (Madde 17.2 R1 emsali — CEO direktifi "uçtan uca, parçalı iş yasak"). 1 yeni madde tescili (30.65 — Premium Kartvizit Disiplini). 0 KIRMIZI, $0 maliyet, 0 npm install (Google Fonts OFL = ücretsiz).
+
+### CEO uçtan uca direktifi (Madde 17.2 R1 + 30.25 R1 sentezi)
+
+CEO mektubu: *"uçtan uca kod tabanlı otonom aksın gitsin 0 hata ile düzelt bana hiç bir şey sorma başla bitir."*
+
+Code disiplinli uygulama: Madde 4.3 (şüphelenirsen DUR) ile Madde 14.3 R1 (KIRMIZI değilse + 30.25 R1 sessiz onay) sentezi → sari endişeler raporlandı ama uygulama engellenmedi. Bu pattern **Mimar Hatası 52 yeni emsali** (TUR #111 retrospektifinde isimlendirilmiş, TUR #112'de pratik tescil).
+
+TUR #111'in reset edilmesi → CEO görsel inceleme yaptı, Tedbirator `registered: true` riski elimine etti, tasarımı premium yeniden tasarladı, gerçek font dosyaları ile tekrar istedi. TUR #112 daha güvenli ve daha kaliteli.
+
+### Uygulanan 10 atom (10/10 — UÇTAN UCA)
+
+1. **A1 — Google Fonts TTF pipeline** (`tedbirge-os/assets/fonts/`): 7 TTF dosyası jsdelivr fontsource CDN'den indirildi (OFL lisanslı, ticari kullanım izinli). README.md lisans + kaynak + tarih dokümante. Inter Tight 3 weight + Crimson Pro 3 weight + JetBrains Mono Regular = ~376KB. Madde 24.14 sıfır maliyet.
+2. **A2 — UTF-8 encoding fix** (`corporate.routes.js`): `Content-Type: image/svg+xml; charset=utf-8`, `Buffer.from(svgStr, 'utf8')`, RFC 5987 `filename*=UTF-8''` Content-Disposition. Türkçe karakter render OK (smoke: "Şükrü ÇAĞRI Ümit Ğüleryüz" düzgün).
+3. **A3 — Premium ön yüz SVG** (`corporate.service.js generateKartvizitSVG`): 850×550 viewBox (85×55mm), sol panel 360px lacivert + Tedbirge logo + "tedbirator" etiket italic yeşil #5cb85c (alt etiket, alt marka DEĞİL), sağ panel 490px beyaz + Crimson Pro Bold isim + Inter Tight rol + JetBrains Mono iletişim + QR vCard. LAWYER kısıtı KORUNDU (Madde 25.3 — m.55 footer + Baro Sicil + sadece iletişim).
+4. **A4 — Premium arka yüz SVG** (`generateKartvizitBackSVG`): full bleed lacivert + 2 diyagonal yeşil aksent köşe + büyük merkez logo + Crimson Pro italic slogan + reklam metni alanı (adContent max 200 char) + QR `baslat?ref={userId}`. LAWYER icin endpoint 403 (Madde 25.3 R1 backend enforcement — Madde 30.64 mirası).
+5. **A5 — PNG frontend canvas conversion** (`tedbirge-panel/lib/svgToPng.ts` yeni helper): backend `/kartvizit/png` artık SVG döndürür (sharp YOK pattern korunur), frontend canvas API ile retina 2x (1700px) PNG çevirir. Madde 24.14 sıfır maliyet + Madde 30.6 npm install YOK + Madde 30.65 sharp YOK pattern.
+6. **A6 — Matbaa PDF endpoint** (`generateKartvizitMatbaaPDF`): pdfkit + 92×62mm (85+3.5mm bleed her kenardan) + 2 sayfa (ön+arka) + `doc.registerFont(...)` Inter/Crimson/Mono TTF embed + trim marks 4 köşe (L-şekli, lineWidth 0.25). Yetki: `requirePermission("kartvizit", "print")`. Endpoint: `GET /corporate/kartvizit/print-pdf`. Çıktı boyutu ~23KB (compress aktif).
+7. **A7 — Dijital paylaşım PDF endpoint** (`generateKartvizitDigitalPDF`): pdfkit + 85×55mm (bleed YOK, trim YOK) + 1 sayfa (170×55 ön+arka yan yana, LAWYER tek sayfa 85×55 sadece ön yüz) + compress aktif. Yetki: `requirePermission("kartvizit", "execute")`. Endpoint: `GET /corporate/kartvizit/share-pdf`. Çıktı boyutu ~20-22KB (email/WhatsApp uyumlu).
+8. **A8 — RBAC kartvizit:print** (`scripts/seed-role-permissions.js`): `RBAC_ACTIONS` arrayına `"print"` eklendi (5. action — uniform genişleme, Madde 30.55 R2). ROLE_DEFAULTS.REPRESENTATIVE.kartvizit + ROLE_DEFAULTS.SALES.kartvizit `+= "print"`. LAWYER + CUSTOMER `print` falsiy default (Madde 25.3 + KVKK). Idempotent upsert (mevcut yetkiler dokunulmaz).
+9. **A9 — Panel UI premium KartvizitTab** (`tedbirge-panel/app/(panel)/dashboard/kurumsal/page.tsx`): 2-kolon grid (ön/arka önizleme), arka yüz LAWYER için "kapalı" uyarı kutusu, reklam editor textarea (200 char + sayaç + localStorage cache `tedbirge.kartvizit.adContent`), "Önizlemeyi Güncelle" butonu, 5 format buton (SVG / PNG / PDF Paylaş / PDF Matbaa / vCard), 3 ShareButton (kartvizit + kartvizit-back + kartvizit-print, LAWYER hariç). Madde 13.2 R1 useAuthenticatedBlob korundu.
+10. **A10 — ShareButton + brand.json + 5 belge OS senkron + atomik commit + push + smoke**: `kartvizit-back` + `kartvizit-print` types eklendi (share.routes LAWYER 403). brand.json additive (secondary.tedbirator + print + marketing.defaultBackTagline). version 1.27.0→1.28.0. 6 belge senkron (CLAUDE.md Madde 30.65 + bu giriş + DEVIR_RAPORU_AKTIF.md + IS_PLANI.md + OTONOM_RAPOR.md + sync-version.js çağrı).
+
+### Tedbirator etiket stratejisi (CEO kararı — TUR #112)
+
+TUR #111'deki `secondary.tedbirator.registered: true` SMK m.30 riski (tescilsiz ® kullanımı suç) CEO tarafından elimine edildi. Yeni şema:
+```json
+"secondary": {
+  "tedbirator": {
+    "name": "tedbirator",
+    "displayMode": "label",          // "badge" YOK
+    "position": "below-logo",
+    "color": "#5cb85c",
+    "fontStyle": "italic"
+  }
+}
+```
+**Alt marka DEĞİL.** **Sektör konumlandırma etiketi** — Crimson Pro italic yeşil, ana logonun altında küçük. Tescil iddiası YOK. Hukuki risk YOK.
+
+### Madde 30.65 yeni — Premium Kartvizit Disiplini
+
+1. **UTF-8 zorunlu:** `Content-Type` charset=utf-8, `Content-Disposition` RFC 5987 (filename*=UTF-8''), `Buffer.from(str, 'utf8')` encode. Türkçe karakter desteği müzakere edilemez.
+2. **Font pipeline OFL:** Inter Tight + Crimson Pro + JetBrains Mono (Google Fonts OFL 1.1). `tedbirge-os/assets/fonts/` altında TTF dosyaları repo'ya commit'li (production'da Render erişebilir). SVG'lerde base64 embed (offline render), PDF'lerde `doc.registerFont(...)` (subset embed, küçük dosya).
+3. **5 format zorunlu:** SVG (vektör) + PNG (frontend canvas, retina 2x) + PDF Paylaş (1 sayfa email/WhatsApp) + PDF Matbaa (2 sayfa bleed+trim marks) + vCard (telefon kaydı). 5 formattan biri silinirse Madde 30.65 ihlali.
+4. **LAWYER enforcement:** Arka yüz reklam + matbaa PDF endpoint'leri backend'de 403 zorunlu (panel UI'a güvenme). RBAC default `LAWYER.kartvizit.print = false`. Madde 25.3 + 30.64 mirası.
+5. **PNG sharp YOK pattern:** Sunucuda sharp paketi yok → `/png` SVG döndürür (charset=utf-8), frontend `lib/svgToPng.ts` canvas API ile çevirir. Madde 30.6 npm install yok.
+
+### Etki
+
+- **Backend (5 dosya):** `corporate.service.js` tam yeniden yazıldı (4 yeni fonksiyon: generateKartvizitBackSVG + generateKartvizitMatbaaPDF + generateKartvizitDigitalPDF + svgFontFaceBlock + drawCardFront/drawCardBack/drawTrimMarks helpers), `corporate.routes.js` 3 yeni endpoint + PNG SVG fallback + UTF-8 disposition helper, `share.routes.js` kartvizit-back + kartvizit-print types, `scripts/seed-role-permissions.js` print action, `package.json` 1.7.0→1.8.0.
+- **Panel (3 dosya):** `lib/svgToPng.ts` yeni helper, `app/(panel)/dashboard/kurumsal/page.tsx` KartvizitTab premium yeniden yazıldı, `components/share/ShareButton.tsx` type union, `package.json` 1.10.0→1.11.0.
+- **OS (5 belge + brand + version + 7 TTF + README):** CLAUDE.md Madde 30.65, MIMARI_KARARLAR.md (bu giriş), DEVIR_RAPORU_AKTIF.md, IS_PLANI.md, OTONOM_RAPOR.md, brand.json additive 3 blok, version.json 1.27.0→1.28.0, assets/fonts/{7 TTF + README.md}.
+- **Total:** ~17 dosya değişiklik + 8 yeni dosya
+- **Maliyet:** $0 (OFL fontlar ücretsiz, jsdelivr CDN ücretsiz, npm install yok)
+- **TUR rekor:** 24 → **25 ardışık temiz TUR (#90 → #112)**
+
+### NEXT — TUR #113
+
+**Tetikleyici:** Niyazi Pazartesi 11 May sahaya çıkış sonrası ilk komisyon havalesi VEYA mevcut sari endişe temizleme.
+
+**3 öneri yön (CEO seçimi — Madde 17.5):**
+1. **financialFlowGuard modül aktivasyonu** — ilk 5 komisyon havalesi sonrası (Madde 28 kanıt eşiği — DEFER registry TUR #110)
+2. **zamanaşımıGuard modülü** — ilk 10 aktif dava zaman aşımı yaklaşan (DEFER registry TUR #110)
+3. **Ekrandaki 3 somut sorun fix** — Footer sayım + Healer retry + Güvenlik 2FA bildirim (TUR #110 IS_PLANI.md NEXT önerisi)
+
+**Mimar:** Claude Opus 4.7 (1M context) + Claude Code (CEO uçtan uca direktifi, Madde 17.2 R1 + 30.25 R1 sentezi) — 12 Mayıs 2026 Salı
+
+---
+
 ## 10 Mayıs 2026 Pazar — TUR #110 KAPALI (Niyazi Sahaya Çıkış + OS Temel Sıkılaştırma + judicialResponse Veri Toplama)
 
 **Karar:** Anayasa **v1.26.0 → v1.27.0 MINOR**. 17 atom (A3-D3) tek-soluk teslim — **8 atom kod-kanıtlı uygulandı, 9 atom dürüst DEFER (Madde 30.31 R1 emsal)**. 3 yeni madde tescili (30.61 + 30.62 + 30.63). 1 KIRMIZI nokta (judicialResponse Prisma) + 1 additive boolean (Lead.firstRealLead) — CEO sessiz onay (Madde 30.25) + Madde 18.3 yazılı onay.

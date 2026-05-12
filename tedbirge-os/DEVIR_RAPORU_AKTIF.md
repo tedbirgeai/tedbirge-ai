@@ -1,15 +1,55 @@
 # 🛡️ TEDBIRGE.AI — DEVİR RAPORU (AKTİF)
 
-📋 **ANAYASA:** v1.27.0 MINOR (Madde 30.61 + 30.62 + 30.63 yeni — TUR #110: Single Source of Truth + Module Active Task + Reconciler Drift Detection)
-📂 **🚀 PAZAR LANSMANI HAZIR + NİYAZİ SAHADA + JUDICIAL RESPONSE VERİ TOPLAMA AKTİF 🚀**
-📅 **SON GÜNCELLEME:** 10 Mayıs 2026 Pazar 07:37 (TUR #110 KAPALI — production live)
-👤 **CEO Onay:** Mehmet DİNÇ — Madde 17.5 + 24.14 + 25.3 R1 + 30.25 + 30.61-63 sessiz onay
-🤖 **Mimar:** Claude Opus 4.7 (sohbet) + Claude Code (otonom uygulama, bypass açık)
-🌟 **Tarih:** 10 Mayıs 2026 — 23 ARDIŞIK TEMİZ TUR REKOR (#90 → #110)
+📋 **ANAYASA:** v1.28.0 MINOR (Madde 30.65 yeni — TUR #112: Premium Kartvizit Disiplini)
+📂 **🚀 PREMIUM KARTVİZİT 5 FORMAT AKTİF — FONT EMBED + TÜRKÇE FİX + MATBAA PDF 🚀**
+📅 **SON GÜNCELLEME:** 12 Mayıs 2026 Salı (TUR #112 KAPALI)
+👤 **CEO Onay:** Mehmet DİNÇ — Madde 17.2 R1 + 30.25 R1 sentezi (uçtan uca direktifi, Mimar Hatası 52 pratik tescil)
+🤖 **Mimar:** Claude Opus 4.7 (sohbet) + Claude Code (10/10 atom uygulandı, parçalı iş yasağı)
+🌟 **Tarih:** 12 Mayıs 2026 — 25 ARDIŞIK TEMİZ TUR REKOR (#90 → #112)
 
 ---
 
-## 🎯 BUGÜN — TUR #110 KAPALI (production live)
+## 🎯 BUGÜN — TUR #112 KAPALI (Premium Kartvizit Uçtan Uca)
+
+**Sürüm:** Backend 1.7.0 → **1.8.0**, Panel 1.10.0 → **1.11.0**, Anayasa v1.27.0 → **v1.28.0 MINOR**
+
+### Uygulanan 10 atom (10/10 — UÇTAN UCA, parçalı iş yasak)
+
+- **A1** — Google Fonts TTF pipeline: 7 OFL dosya (Inter Tight + Crimson Pro + JetBrains Mono) `tedbirge-os/assets/fonts/` altında, jsdelivr fontsource CDN'den çekildi, README dokümante.
+- **A2** — UTF-8 encoding fix: `Content-Type: charset=utf-8`, RFC 5987 filename, `Buffer.from(svg, 'utf8')`. Türkçe karakter (Şükrü, ÇAĞRI, Ümit) render OK.
+- **A3** — Premium ön yüz SVG (`generateKartvizitSVG`): 850×550, sol panel Tedbirge + "tedbirator" italic yeşil etiket (alt etiket, alt marka DEĞİL), sağ panel Crimson Pro Bold isim + JetBrains Mono iletişim. LAWYER kısıt KORUNDU.
+- **A4** — Premium arka yüz SVG (`generateKartvizitBackSVG`): full bleed lacivert + diyagonal yeşil aksent + merkez logo + Crimson Pro italic slogan + reklam metni + QR. LAWYER 403 (Madde 25.3).
+- **A5** — PNG frontend canvas conversion: `lib/svgToPng.ts` yeni helper, backend `/png` SVG döndürür, panel canvas API retina 2x PNG çevirir. Sharp YOK pattern korundu.
+- **A6** — Matbaa PDF (`generateKartvizitMatbaaPDF`): pdfkit + 92×62mm (bleed) + 2 sayfa + font embed (Inter/Crimson/Mono `registerFont`) + trim marks 4 köşe. Çıktı ~23KB.
+- **A7** — Dijital paylaşım PDF (`generateKartvizitDigitalPDF`): pdfkit + 85×55mm (LAWYER) veya 170×55mm (ön+arka yan yana, REP/SALES) + compress aktif. Çıktı ~20-22KB email/WhatsApp uyumlu.
+- **A8** — RBAC `kartvizit:print` action: 5. RBAC action (uniform genişleme Madde 30.55 R2), REPRESENTATIVE + SALES default açık, LAWYER + CUSTOMER default kapalı (Madde 25.3 + KVKK).
+- **A9** — Panel premium KartvizitTab: 2-kolon ön/arka önizleme + reklam editor (200 char + localStorage) + 5 format buton + 3 ShareButton. LAWYER 2 format (SVG/PNG/PDF Paylaş + vCard, arka yüz YOK + matbaa YOK).
+- **A10** — ShareButton + brand.json + 5 belge OS senkron + atomik commit + push + smoke.
+
+### Madde 30.65 yeni — Premium Kartvizit Disiplini
+
+5 zorunluluk:
+1. UTF-8 zorunlu (Türkçe karakter desteği)
+2. Font pipeline OFL (Inter Tight + Crimson Pro + JetBrains Mono — `assets/fonts/` commit'li)
+3. 5 format zorunlu (SVG + PNG + PDF Paylaş + PDF Matbaa + vCard)
+4. LAWYER enforcement backend 403 (arka yüz + matbaa)
+5. PNG sharp YOK pattern (frontend canvas)
+
+### Tedbirator etiket stratejisi (CEO TUR #112 kararı)
+
+`secondary.tedbirator.registered: true` SMK m.30 riski elimine → artık `displayMode: "label"` italic yeşil etiket (alt etiket, alt marka DEĞİL, tescil iddiası YOK). Hukuki risk sıfır.
+
+### Sayısal özet
+
+- 10/10 atom (parçalı iş yasak — Madde 17.2 R1)
+- 0 KIRMIZI, 0 schema, 0 env, 0 npm install
+- $0 maliyet (OFL fontlar ücretsiz, jsdelivr CDN ücretsiz)
+- ~17 dosya değişiklik + 8 yeni dosya (7 TTF + svgToPng.ts + README)
+- 24 → **25 ardışık temiz TUR REKOR (#90 → #112)**
+
+---
+
+## 🎯 ÖNCEKİ — TUR #110 KAPALI (production live)
 
 **Commit:** `ead8a6b` (backend) + `58a730c` (panel) — Render deploy `dep-d800eomrnols73cpchjg` ✅ live 07:37
 **Sürüm:** Backend 1.6.0 → **1.7.0**, Panel 1.9.0 → **1.10.0**, Anayasa v1.26.0 → **v1.27.0 MINOR**

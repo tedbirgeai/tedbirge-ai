@@ -44,7 +44,8 @@ const ROLE_DEFAULTS = {
     hakedis: ["read"],               // kendi komisyonu
     calendar: ["read"],              // randevu görüntüleme
     // TUR #100.9 yeni — REPRESENTATIVE pazarlama yapabilir (Madde 25.3 dışı, avukat değil)
-    kartvizit: ["read", "execute"],
+    // TUR #112 — kartvizit:print acik (matbaa PDF — Madde 30.65)
+    kartvizit: ["read", "execute", "print"],
     brosur: ["read", "execute"],
     reklamGorseli: ["read", "execute"],
     emailImzasi: ["read", "execute"],
@@ -75,7 +76,8 @@ const ROLE_DEFAULTS = {
     marketing: ["read", "write"],    // pazarlama yönetimi
     calendar: ["read"],              // randevu
     // TUR #100.9 yeni — SALES tam pazarlama yetkisi
-    kartvizit: ["read", "execute"],
+    // TUR #112 — kartvizit:print acik (matbaa PDF — Madde 30.65)
+    kartvizit: ["read", "execute", "print"],
     brosur: ["read", "write", "execute"],
     reklamGorseli: ["read", "write", "execute"],
     emailImzasi: ["read", "execute"],
@@ -90,7 +92,8 @@ const ROLE_DEFAULTS = {
 
 // Madde 30.21 + 30.29 — 5 rol envanteri (LEGAL_REP enum'da YOK, A maddesi)
 const RBAC_ROLES = ["LAWYER", "REPRESENTATIVE", "CUSTOMER", "SALES"];
-const RBAC_ACTIONS = ["read", "write", "delete", "execute"];
+// TUR #112 — 'print' action eklendi (Madde 30.65). Default false; sadece kartvizit:print acik (REP+SALES).
+const RBAC_ACTIONS = ["read", "write", "delete", "execute", "print"];
 
 /**
  * Tek modül için 4 rol × 4 action = 16 satır upsert.

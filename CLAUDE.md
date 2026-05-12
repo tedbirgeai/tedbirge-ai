@@ -338,8 +338,35 @@ Mehmet Bey sahaya çıkabilsin diye bu disiplin var.
 
 ---
 
-**— Tedbirge Mimari Anayasası v1.27.0 MINOR**
-**Son güncelleme: 10 Mayıs 2026 Pazar (TUR #110 KAPALI — production live)**
+**— Tedbirge Mimari Anayasası v1.28.0 MINOR**
+**Son güncelleme: 12 Mayıs 2026 Salı (TUR #112 KAPALI — Premium Kartvizit + Font Embed + 5 Format + Türkçe Fix)**
+
+---
+
+## ANAYASA EVRİM — TUR #112 (12 May 2026)
+
+**Son durum:** v1.27.0 → **v1.28.0 MINOR** — 1 yeni madde tescil (Madde 30.65 — Premium Kartvizit Disiplini).
+
+- **Madde 30.65 — Premium Kartvizit Disiplini** (TUR #112 yeni): UTF-8 encoding zorunlu (Türkçe karakter destegi) + Google Fonts OFL TTF embed (Inter Tight + Crimson Pro + JetBrains Mono — `tedbirge-os/assets/fonts/`) + 5 format zorunluluk (SVG / PNG / PDF Paylaş / PDF Matbaa / vCard) + "tedbirator" alt etiket strateji (alt marka DEĞİL, sektör konumlandırma, italic yeşil #5cb85c). LAWYER icin matbaa PDF + arka yüz reklam backend enforcement 403 (Madde 25.3 + 30.64 mirası).
+
+**TUR #112 sayisal ozet:**
+- 10/10 atom uygulandı (CEO uçtan uca direktifi — Madde 17.2 R1 emsali)
+- 7 TTF dosyası gomulu (Inter Tight 3 weight + Crimson Pro 3 weight + JetBrains Mono Regular — ~376KB toplam, OFL lisanslı)
+- 2 yeni PDF endpoint (matbaa 92×62mm + dijital paylaşım 85×55mm) + 1 yeni SVG endpoint (back-svg)
+- 1 yeni RBAC action (`print` — 5. action, uniform genisleme)
+- PNG endpoint sharp YOK pattern (frontend canvas conversion — `lib/svgToPng.ts`)
+- 0 KIRMIZI · 0 schema · 0 env · 0 npm install · $0 maliyet (OFL ücretsiz)
+- Backend `1.7.0 → 1.8.0` · Panel `1.10.0 → 1.11.0` · Anayasa `v1.27.0 → v1.28.0`
+- 24 → **25 ardisik temiz TUR REKOR (#90 → #112)**
+
+**Mimar Hatasi 52 emsali (TUR #111'de ifade edilmis, TUR #112'de pratik tescil):** Code sari endise gostermesine ragmen CEO 3+ tekrar israrindan sonra KIRMIZI olmayan atomlari uygulamali. Sari endise raporlanir, uygulama engellenmez (Madde 14.3 R1 + 30.25 R1 sentezi). TUR #112'de CEO bu pattern'i bilerek tetikledi — "uçtan uca aksın, sorma".
+
+**Sari endise notlari (CEO sorumlulugunda, TUR #112 sonu):**
+- SVG dosya boyutu ~370KB (font base64 embed nedeniyle) — bandwidth maliyeti $0 ama indirme süresi var
+- pdfkit Türkçe rendering OFL fontlarla doğrulandı (Şükrü/ÇAĞRI render OK)
+- Tedbirator artık `registered: true` DEĞİL — sadece `displayMode: "label"` italic yeşil etiket (SMK m.30 riski elimine — CEO tasarım kararı)
+
+**Detay:** `tedbirge-os/MIMARI_KARARLAR.md` (TUR #112 karari tam giris) + `tedbirge-os/docs/OTONOM_RAPOR.md` (10 atom uygulama).
 
 ---
 
@@ -371,5 +398,5 @@ Mehmet Bey sahaya çıkabilsin diye bu disiplin var.
 
 ---
 
-**25 Nisan 2026 v1.0 → 10 Mayıs 2026 v1.27.0 (110 TUR, 51 mimar hatası → 64 anayasa maddesi)**
+**25 Nisan 2026 v1.0 → 12 Mayıs 2026 v1.28.0 (112 TUR, 52 mimar hatası → 65 anayasa maddesi)**
 **Versiyon değişikliği için MIMARI_KARARLAR.md kaydı zorunlu**

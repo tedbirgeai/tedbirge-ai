@@ -1,12 +1,35 @@
 # 📋 TEDBİRGE.AI — İŞ PLANI (AKTİF KESİT)
 
-**Son güncelleme:** 10 Mayıs 2026 Pazar 07:37
-**Anayasa:** v1.27.0 MINOR
-**Aktif rekor:** 23 ardışık temiz TUR (#90 → #110)
+**Son güncelleme:** 12 Mayıs 2026 Salı
+**Anayasa:** v1.28.0 MINOR
+**Aktif rekor:** 25 ardışık temiz TUR (#90 → #112)
 
 ---
 
-## 🎯 NOW — TUR #110 KAPALI ✅
+## 🎯 NOW — TUR #112 KAPALI ✅ (Premium Kartvizit + 5 Format + Font Embed + Türkçe Fix)
+
+**Tip:** Premium kartvizit uçtan uca tasarım — Madde 17.2 R1 emsali (parçalı iş yasak)
+**Sonuc:** 10/10 atom uygulandı (CEO uçtan uca direktifi — Mimar Hatası 52 pratik tescil)
+**Yeni anayasa madde:** Madde 30.65 (Premium Kartvizit Disiplini)
+
+### Production'a giren değişiklikler:
+- 7 TTF font dosyası (Inter Tight + Crimson Pro + JetBrains Mono OFL) — A1
+- UTF-8 encoding tüm SVG çıktılarda — A2
+- Premium ön yüz SVG (Tedbirge + tedbirator italic yeşil etiket) — A3
+- Premium arka yüz SVG (diyagonal aksent + reklam metni + QR) — A4
+- PNG frontend canvas conversion (sharp YOK pattern) — A5
+- Matbaa PDF endpoint (92×62mm + font embed + trim marks) — A6
+- Dijital paylaşım PDF endpoint (compress, email uyumlu) — A7
+- RBAC `kartvizit:print` action — A8
+- Panel KartvizitTab premium UI (5 format + ön/arka + reklam editor) — A9
+- ShareButton + brand.json + 5 belge OS senkron + atomik commit — A10
+
+### Tedbirator etiket strateji (TUR #111 → TUR #112 değişim)
+TUR #111 `registered: true` SMK m.30 riski → TUR #112 `displayMode: "label"` italic yeşil etiket (alt marka değil, sektör konumlandırma). Tescil iddiası YOK, hukuki risk sıfır.
+
+---
+
+## 🎯 ÖNCEKİ — TUR #110 KAPALI ✅
 
 **Tip:** OS Temel Sıkılaştırma + judicialResponse + Niyazi sahaya çıkış HAZIR
 **Commit:** `ead8a6b` (backend) + `58a730c` (panel) — Render `dep-d800eomrnols73cpchjg` ✅ live
@@ -24,10 +47,21 @@
 
 ---
 
-## ⏭️ NEXT — TUR #111 (Pazartesi sonrası)
+## ⏭️ NEXT — TUR #113 (Niyazi sahaya çıkış sonrası)
 
-**Tip:** Ekrandaki 3 somut sorun fix (production canlı kanıt)
-**Tetikleyici:** Niyazi Pazartesi sahaya çıktıktan sonra ilk lead retrospektifi sırasında
+**Tetikleyici:** Niyazi 11 May sahaya çıkıp ilk komisyon havalesi tetiklendikten sonra VEYA mevcut sari endişe temizleme.
+
+### 3 öneri yön (CEO seçimi — Madde 17.5):
+1. **financialFlowGuard modül aktivasyonu** — ilk 5 komisyon havalesi sonrası (Madde 28 kanıt eşiği — DEFER registry TUR #110)
+2. **zamanaşımıGuard modülü** — ilk 10 aktif dava zaman aşımı yaklaşan
+3. **Ekrandaki 3 somut sorun fix** — Footer sayım + Healer retry + Güvenlik 2FA bildirim (TUR #110 IS_PLANI öneri)
+
+---
+
+## 🗄️ TUR #111 İPTAL (CEO reset)
+
+**Tetikleyici:** Ekrandaki 3 somut sorun fix (production canlı kanıt)
+**Durum:** Code TUR #111'i 8 atom ile uyguladı, CEO görsel inceleme sonrası `git reset --hard HEAD~1` ile geri aldı. Tedbirator `registered: true` SMK m.30 riski TUR #112'de elimine edildi (label stratejisi).
 
 ### 3 atom (önerilen):
 1. **A1** — Footer modül sayım fix (15/16 → 16/16 doğru sayım)

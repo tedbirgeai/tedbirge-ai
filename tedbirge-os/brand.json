@@ -58,7 +58,28 @@
       "KVKK Uyumlu, ISO 27001 Hazırlığında"
     ],
     "ctaPrimary": "Ücretsiz Başvur",
-    "ctaSecondary": "Dava Takibi"
+    "ctaSecondary": "Dava Takibi",
+    "defaultBackTagline": "Hak ettiğiniz tazminat için ön değerlendirme"
+  },
+
+  "secondary": {
+    "tedbirator": {
+      "name": "tedbirator",
+      "displayMode": "label",
+      "position": "below-logo",
+      "color": "#5cb85c",
+      "fontStyle": "italic"
+    }
+  },
+
+  "print": {
+    "cardSizeMM": { "w": 85, "h": 55 },
+    "bleedMM": 3.5,
+    "dpi": 300,
+    "colorMode": "RGB",
+    "trimMarks": true,
+    "fontStrategy": "embedded",
+    "fontPath": "tedbirge-os/assets/fonts/"
   },
 
   "compliance": {

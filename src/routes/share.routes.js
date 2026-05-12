@@ -18,7 +18,8 @@ router.post(
   requirePermission("paylasim", "execute"),
   asyncHandler(async (req, res) => {
     const { type, contentUrl, customText } = req.body;
-    const validTypes = ["kartvizit", "brosur", "reklam", "website", "custom"];
+    // TUR #112 — "kartvizit-back" + "kartvizit-print" eklendi (Madde 30.65)
+    const validTypes = ["kartvizit", "kartvizit-back", "kartvizit-print", "brosur", "reklam", "website", "custom"];
     if (!validTypes.includes(type)) {
       return res.status(400).json({
         success: false,
@@ -29,13 +30,13 @@ router.post(
     const brand = loadBrand();
     const role = req.user.role;
 
-    // Madde 25.3 R1 — LAWYER için reklam/broşür yasak
-    if (role === "LAWYER" && (type === "reklam" || type === "brosur")) {
+    // Madde 25.3 R1 — LAWYER için reklam/broşür/arka-yuz/matbaa yasak
+    if (role === "LAWYER" && (type === "reklam" || type === "brosur" || type === "kartvizit-back" || type === "kartvizit-print")) {
       return res.status(403).json({
         success: false,
         code: "TBB_REKLAM_YASAGI",
         message:
-          "Avukatlık K. m.55 ve TBB Reklam Yasağı gereği avukatlar reklam veya broşür paylaşımı yapamaz. Sadece kartvizit paylaşımı izinlidir.",
+          "Avukatlık K. m.55 ve TBB Reklam Yasağı gereği avukatlar reklam, broşür, kartvizit arka yüzü veya matbaa kartı paylaşamaz. Sadece kartvizit ön yüz paylaşımı izinlidir.",
       });
     }
 
@@ -43,6 +44,8 @@ router.post(
     const userName = req.user.fullName || req.user.adSoyad || req.user.name || "";
     const messages = {
       kartvizit: customText || `${userName} - ${brand.displayName} iletişim kartım`,
+      "kartvizit-back": customText || `${brand.displayName} - ${brand.marketing?.defaultBackTagline || brand.shortTagline}`,
+      "kartvizit-print": customText || `${userName} - ${brand.displayName} matbaa kartvizit (PDF)`,
       brosur: customText || `${brand.displayName} - ${brand.shortTagline}`,
       reklam: customText || `${brand.displayName} - ${brand.shortTagline}`,
       website: customText || brand.tagline,

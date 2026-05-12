@@ -1,17 +1,78 @@
 // TUR #100.9 P8 — Kurumsal Üretim Servisi (Madde 34) — Sıfır Maliyet (Madde 24.14)
-// Server-side SVG template (vanilla) + qrcode + opsiyonel sharp (PNG)
+// TUR #112 — Premium Kartvizit (Madde 30.65): UTF-8 + font embed + 5 format + on/arka + reklam editor
+// Server-side SVG template (vanilla) + qrcode + pdfkit (PDF) + opsiyonel sharp (PNG)
 
 "use strict";
 
+const fs = require("fs");
+const path = require("path");
 const { loadBrand } = require("../routes/brand.routes");
 
-// Opsiyonel paketler (P0 keşif: sharp YOK, qrcode VAR, pdfkit VAR)
+// Opsiyonel paketler
 let sharp = null;
 try { sharp = require("sharp"); } catch (e) { /* SVG-only mode */ }
 
 let qrcode = null;
 try { qrcode = require("qrcode"); } catch (e) { /* SVG fallback QR */ }
 
+let PDFDocument = null;
+try { PDFDocument = require("pdfkit"); } catch (e) { /* PDF YOK */ }
+
+// ─── Font Pipeline (TUR #112 — Madde 30.65) ──────────────────────────
+const FONTS_DIR = path.join(__dirname, "..", "..", "tedbirge-os", "assets", "fonts");
+const FONT_FILES = {
+  interRegular: "InterTight-Regular.ttf",
+  interMedium: "InterTight-Medium.ttf",
+  interBold: "InterTight-Bold.ttf",
+  crimsonRegular: "CrimsonPro-Regular.ttf",
+  crimsonSemiBold: "CrimsonPro-SemiBold.ttf",
+  crimsonBold: "CrimsonPro-Bold.ttf",
+  monoRegular: "JetBrainsMono-Regular.ttf",
+};
+
+const fontBase64Cache = {};
+function getFontBase64(key) {
+  if (fontBase64Cache[key] !== undefined) return fontBase64Cache[key];
+  const fname = FONT_FILES[key];
+  if (!fname) return null;
+  try {
+    const buf = fs.readFileSync(path.join(FONTS_DIR, fname));
+    fontBase64Cache[key] = buf.toString("base64");
+    return fontBase64Cache[key];
+  } catch (_) {
+    fontBase64Cache[key] = null;
+    return null;
+  }
+}
+
+function getFontPath(key) {
+  const fname = FONT_FILES[key];
+  if (!fname) return null;
+  const p = path.join(FONTS_DIR, fname);
+  return fs.existsSync(p) ? p : null;
+}
+
+function svgFontFaceBlock() {
+  // SVG offline render icin TTF base64 embed
+  // Kullanilan fontlar: Inter Tight (400/700) + Crimson Pro (400/700) + JetBrains Mono (400)
+  const fonts = [
+    { family: "Inter Tight", weight: 400, key: "interRegular" },
+    { family: "Inter Tight", weight: 700, key: "interBold" },
+    { family: "Crimson Pro", weight: 400, key: "crimsonRegular" },
+    { family: "Crimson Pro", weight: 700, key: "crimsonBold" },
+    { family: "JetBrains Mono", weight: 400, key: "monoRegular" },
+  ];
+  const rules = [];
+  for (const f of fonts) {
+    const b64 = getFontBase64(f.key);
+    if (!b64) continue;
+    rules.push(`@font-face { font-family: '${f.family}'; font-weight: ${f.weight}; font-style: normal; src: url(data:font/ttf;base64,${b64}) format('truetype'); }`);
+  }
+  if (!rules.length) return "";
+  return `<defs><style type="text/css">${rules.join("\n")}</style></defs>`;
+}
+
+// ─── Helpers ─────────────────────────────────────────────────────────
 function escapeXml(str) {
   if (!str) return "";
   return String(str)
@@ -33,13 +94,31 @@ function escapeHtml(str) {
 
 function getRoleTitle(role) {
   const titles = {
-    ADMIN: "Yönetici",
+    ADMIN: "Yonetici",
     LAWYER: "Avukat",
     REPRESENTATIVE: "Temsilci",
-    CUSTOMER: "Müvekkil",
-    SALES: "Satış Temsilcisi",
+    CUSTOMER: "Muvekkil",
+    SALES: "Satis Temsilcisi",
   };
   return titles[role] || "";
+}
+
+function wrapText(text, charsPerLine, maxLines) {
+  if (!text) return [];
+  const words = String(text).split(/\s+/);
+  const lines = [];
+  let current = "";
+  for (const w of words) {
+    if ((current + " " + w).trim().length <= charsPerLine) {
+      current = (current + " " + w).trim();
+    } else {
+      if (current) lines.push(current);
+      current = w;
+      if (lines.length >= maxLines) break;
+    }
+  }
+  if (current && lines.length < maxLines) lines.push(current);
+  return lines.slice(0, maxLines);
 }
 
 function generateVCard(user, brand) {
@@ -54,108 +133,172 @@ function generateVCard(user, brand) {
     `URL:${brand.website.primary}`,
     `ADR:;;${brand.address.fullAddress}`,
     `ORG:${brand.displayName}`,
-    user.role === "LAWYER" ? "TITLE:Tedbirge.ai Üye Avukatı" : "",
+    user.role === "LAWYER" ? "TITLE:Tedbirge.ai Uye Avukati" : "",
     "END:VCARD",
   ].filter(Boolean).join("\n");
 }
 
+async function generateQRInner(text, size) {
+  if (qrcode) {
+    try {
+      const qrSvg = await qrcode.toString(text, { type: "svg", width: size, margin: 0, errorCorrectionLevel: "M" });
+      return qrSvg
+        .replace(/<\?xml.*?\?>/, "")
+        .replace(/<svg[^>]*>/, "")
+        .replace(/<\/svg>/, "");
+    } catch (_) {}
+  }
+  return `<rect width="${size}" height="${size}" fill="#f1f5f9"/><text x="${size/2}" y="${size/2+4}" text-anchor="middle" font-size="10">QR</text>`;
+}
+
+// ─── ATOM 3: Premium On Yuz SVG ──────────────────────────────────────
 /**
- * Kartvizit SVG (1050×600 px standart kartvizit)
- * Madde 25.3: LAWYER için sadece iletişim, uzmanlık YASAK
+ * Premium kartvizit on yuz (Madde 30.65)
+ * 850x550 viewBox (85mm x 55mm @ 10x)
+ * Sol panel: #1e1e8e lacivert + Tedbirge logo + tedbirator label
+ * Sag panel: beyaz + isim/iletisim/QR
+ * LAWYER: sadece isim + Baro Sicil + iletisim + m.55 footer (Madde 25.3)
  */
 async function generateKartvizitSVG(user) {
   const brand = loadBrand();
   const isLawyer = user.role === "LAWYER";
   const name = user.fullName || user.adSoyad || user.name || "";
   const tel = user.phone || user.telefon || brand.contact.callCenter;
+  const tedbirator = brand.secondary?.tedbirator;
+  const fontFace = svgFontFaceBlock();
+  const primary = brand.brand.primaryColor || "#1e1e8e";
+  const tedbiratorColor = tedbirator?.color || "#5cb85c";
 
-  // QR kod (vCard formatında)
-  let qrInner = "";
-  if (qrcode) {
-    try {
-      const vcard = generateVCard(user, brand);
-      const qrSvg = await qrcode.toString(vcard, { type: "svg", width: 120, margin: 0, errorCorrectionLevel: "M" });
-      qrInner = qrSvg
-        .replace(/<\?xml.*?\?>/, "")
-        .replace(/<svg[^>]*>/, "")
-        .replace(/<\/svg>/, "");
-    } catch (_) {
-      qrInner = `<rect x="0" y="0" width="120" height="120" fill="#f1f5f9"/><text x="60" y="65" text-anchor="middle" font-size="10">QR</text>`;
-    }
-  } else {
-    qrInner = `<rect x="0" y="0" width="120" height="120" fill="#f1f5f9"/><text x="60" y="65" text-anchor="middle" font-size="10">QR</text>`;
-  }
+  const vcard = generateVCard(user, brand);
+  const qrInner = await generateQRInner(vcard, 100);
 
   return `<?xml version="1.0" encoding="UTF-8"?>
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1050 600" width="1050" height="600">
-  <rect x="0" y="0" width="350" height="600" fill="${brand.brand.primaryColor}"/>
-  <text x="175" y="280" text-anchor="middle" fill="white" font-family="${brand.brand.fontFamily}" font-size="48" font-weight="700">${escapeXml(brand.displayName)}</text>
-  <text x="175" y="320" text-anchor="middle" fill="rgba(255,255,255,0.8)" font-family="${brand.brand.fontFamily}" font-size="14">${escapeXml(brand.shortTagline)}</text>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 850 550" width="850" height="550">
+  ${fontFace}
+  <!-- Sol panel: Tedbirge marka -->
+  <rect x="0" y="0" width="360" height="550" fill="${primary}"/>
+  <text x="180" y="245" text-anchor="middle" fill="white" font-family="'Inter Tight', Inter, system-ui, sans-serif" font-weight="700" font-size="40">${escapeXml(brand.displayName)}</text>
+  ${tedbirator ? `<text x="180" y="278" text-anchor="middle" fill="${tedbiratorColor}" font-family="'Crimson Pro', Georgia, serif" font-weight="400" font-style="italic" font-size="20">${escapeXml(tedbirator.name)}</text>` : ""}
+  <line x1="80" y1="298" x2="280" y2="298" stroke="rgba(255,255,255,0.18)" stroke-width="1"/>
+  <text x="180" y="332" text-anchor="middle" fill="rgba(255,255,255,0.78)" font-family="'Inter Tight', Inter, system-ui, sans-serif" font-size="13">${escapeXml(brand.shortTagline)}</text>
 
-  <rect x="350" y="0" width="700" height="600" fill="white"/>
+  <!-- Sag panel: kullanici -->
+  <rect x="360" y="0" width="490" height="550" fill="white"/>
 
-  <text x="400" y="140" fill="${brand.brand.darkColor}" font-family="${brand.brand.fontFamily}" font-size="42" font-weight="700">${escapeXml(name)}</text>
+  <!-- Isim -->
+  <text x="400" y="155" fill="${primary}" font-family="'Crimson Pro', Georgia, serif" font-weight="700" font-size="32">${escapeXml(name)}</text>
+
+  <!-- Rol -->
   ${isLawyer
-    ? `<text x="400" y="180" fill="#64748b" font-family="${brand.brand.fontFamily}" font-size="18">Tedbirge.ai Üye Avukatı</text>
-       <text x="400" y="205" fill="#94a3b8" font-family="${brand.brand.fontFamily}" font-size="14">Baro Sicil: ${escapeXml(user.baroSicilNo || "—")}</text>`
-    : `<text x="400" y="180" fill="#64748b" font-family="${brand.brand.fontFamily}" font-size="18">${escapeXml(getRoleTitle(user.role))}</text>`
+    ? `<text x="400" y="185" fill="#6b7280" font-family="'Inter Tight', Inter, system-ui, sans-serif" font-weight="600" font-size="13">Tedbirge.ai Uye Avukati</text>
+       <text x="400" y="208" fill="#9ca3af" font-family="'Inter Tight', Inter, system-ui, sans-serif" font-size="11">Baro Sicil: ${escapeXml(user.baroSicilNo || "—")}</text>`
+    : `<text x="400" y="185" fill="#6b7280" font-family="'Inter Tight', Inter, system-ui, sans-serif" font-weight="600" font-size="13">${escapeXml(getRoleTitle(user.role))}</text>`
   }
 
-  <text x="400" y="290" fill="${brand.brand.darkColor}" font-family="${brand.brand.fontFamily}" font-size="16">📞 ${escapeXml(tel)}</text>
-  <text x="400" y="320" fill="${brand.brand.darkColor}" font-family="${brand.brand.fontFamily}" font-size="16">✉️ ${escapeXml(user.email || "")}</text>
-  <text x="400" y="350" fill="${brand.brand.darkColor}" font-family="${brand.brand.fontFamily}" font-size="16">🌐 ${escapeXml(brand.website.shortLink)}</text>
+  <!-- Hairline ayirici -->
+  <line x1="400" y1="232" x2="700" y2="232" stroke="#e7e7ef" stroke-width="1"/>
 
-  <text x="400" y="410" fill="#64748b" font-family="${brand.brand.fontFamily}" font-size="13">${escapeXml(brand.address.fullAddress)}</text>
+  <!-- Iletisim (JetBrains Mono) -->
+  <text x="400" y="275" fill="#111827" font-family="'JetBrains Mono', ui-monospace, SFMono-Regular, monospace" font-size="14">${escapeXml(tel)}</text>
+  <text x="400" y="302" fill="#111827" font-family="'JetBrains Mono', ui-monospace, SFMono-Regular, monospace" font-size="14">${escapeXml(user.email || "")}</text>
+  <text x="400" y="329" fill="#111827" font-family="'JetBrains Mono', ui-monospace, SFMono-Regular, monospace" font-size="14">${escapeXml(brand.website.shortLink)}</text>
 
-  <g transform="translate(870, 410)">
+  <!-- Adres -->
+  <text x="400" y="380" fill="#6b7280" font-family="'Inter Tight', Inter, system-ui, sans-serif" font-size="11">${escapeXml(brand.address.fullAddress)}</text>
+
+  <!-- QR vCard (sag alt, cerceveli) -->
+  <g transform="translate(720, 380)">
+    <rect x="-6" y="-6" width="112" height="112" fill="white" stroke="#e7e7ef" stroke-width="1"/>
     ${qrInner}
   </g>
-  <text x="930" y="555" text-anchor="middle" fill="#94a3b8" font-family="${brand.brand.fontFamily}" font-size="10">vCard</text>
+  <text x="770" y="512" text-anchor="middle" fill="#9ca3af" font-family="'Inter Tight', Inter, system-ui, sans-serif" font-size="9">vCard — Telefona Kaydet</text>
 
-  ${isLawyer ? `<text x="400" y="570" fill="#cbd5e1" font-family="${brand.brand.fontFamily}" font-size="9">Avukatlık K. m.55 ve TBB Reklam Yasağı'na uygundur.</text>` : ""}
+  <!-- LAWYER m.55 disclaimer (Madde 25.3) -->
+  ${isLawyer ? `<text x="400" y="535" fill="#cbd5e1" font-family="'Inter Tight', Inter, system-ui, sans-serif" font-style="italic" font-size="9">Avukatlik K. m.55 ve TBB Reklam Yasagi'na uygundur.</text>` : ""}
 </svg>`;
 }
 
+// ─── ATOM 4: Premium Arka Yuz SVG ────────────────────────────────────
 /**
- * Broşür SVG (A5 1240×1748 @ 150dpi) — sadece Tedbirge.ai marka
+ * Premium arka yuz (Madde 30.65)
+ * Full bleed lacivert + 2 diyagonal yesil aksent + buyuk logo + slogan + reklam metni
+ * LAWYER icin endpoint 403 doner (corporate.routes.js)
+ * adContent: temsilcinin reklam metni (max 200 char)
  */
+async function generateKartvizitBackSVG(user, adContent) {
+  const brand = loadBrand();
+  const fontFace = svgFontFaceBlock();
+  const primary = brand.brand.primaryColor || "#1e1e8e";
+  const accent = brand.secondary?.tedbirator?.color || brand.brand.accentColor || "#5cb85c";
+  const slogan = brand.marketing?.defaultBackTagline || "Hak ettiginiz tazminat icin on degerlendirme";
+  const customAd = (typeof adContent === "string" && adContent.trim())
+    ? adContent.trim().slice(0, 200)
+    : "";
+  const adLines = customAd ? wrapText(customAd, 60, 3) : [];
+
+  // QR — kullaniciya ozel basvuru linki
+  const repCode = (user.id || "").toString().slice(0, 8);
+  const refUrl = `${brand.website.primary}/baslat?ref=${encodeURIComponent(repCode)}`;
+  const qrInner = await generateQRInner(refUrl, 100);
+
+  return `<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 850 550" width="850" height="550">
+  ${fontFace}
+  <!-- Full bleed lacivert -->
+  <rect x="0" y="0" width="850" height="550" fill="${primary}"/>
+
+  <!-- Diyagonal yesil aksent cubuklar -->
+  <g opacity="0.9">
+    <polygon points="0,0 80,0 0,80" fill="${accent}"/>
+    <polygon points="850,550 770,550 850,470" fill="${accent}"/>
+  </g>
+
+  <!-- Merkez buyuk logo + slogan -->
+  <text x="425" y="230" text-anchor="middle" fill="white" font-family="'Inter Tight', Inter, system-ui, sans-serif" font-weight="700" font-size="64">${escapeXml(brand.displayName)}</text>
+  <text x="425" y="275" text-anchor="middle" fill="white" font-family="'Crimson Pro', Georgia, serif" font-weight="400" font-style="italic" font-size="22">${escapeXml(slogan)}</text>
+
+  <!-- Reklam metni (varsa) -->
+  ${adLines.map((line, i) => `<text x="425" y="${340 + i * 24}" text-anchor="middle" fill="rgba(255,255,255,0.92)" font-family="'Inter Tight', Inter, system-ui, sans-serif" font-size="14">${escapeXml(line)}</text>`).join("\n  ")}
+
+  <!-- QR sag alt (basvuru linki) -->
+  <g transform="translate(700, 410)">
+    <rect x="-6" y="-6" width="112" height="112" fill="white" stroke="rgba(255,255,255,0.3)" stroke-width="1"/>
+    ${qrInner}
+  </g>
+  <text x="750" y="540" text-anchor="middle" fill="rgba(255,255,255,0.85)" font-family="'Inter Tight', Inter, system-ui, sans-serif" font-size="10">QR ile basvuru</text>
+
+  <!-- Alt: web -->
+  <text x="40" y="525" fill="white" font-family="'Inter Tight', Inter, system-ui, sans-serif" font-weight="700" font-size="14">${escapeXml(brand.website.primary.replace(/^https?:\/\//, ""))}</text>
+</svg>`;
+}
+
+// ─── Brosur SVG (mevcut — TUR #100.9 korunur) ────────────────────────
 async function generateBrosurSVG() {
   const brand = loadBrand();
   const valueProps = (brand.marketing.valueProps || []).slice(0, 4);
   return `<?xml version="1.0" encoding="UTF-8"?>
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1240 1748" width="1240" height="1748">
   <rect x="0" y="0" width="1240" height="1748" fill="white"/>
-
   <rect x="0" y="0" width="1240" height="400" fill="${brand.brand.primaryColor}"/>
   <text x="620" y="180" text-anchor="middle" fill="white" font-family="${brand.brand.fontFamily}" font-size="80" font-weight="700">${escapeXml(brand.displayName)}</text>
   <text x="620" y="240" text-anchor="middle" fill="rgba(255,255,255,0.9)" font-family="${brand.brand.fontFamily}" font-size="32">${escapeXml(brand.tagline)}</text>
   <text x="620" y="310" text-anchor="middle" fill="rgba(255,255,255,0.7)" font-family="${brand.brand.fontFamily}" font-size="22">${escapeXml(brand.shortTagline)}</text>
-
   <text x="620" y="500" text-anchor="middle" fill="${brand.brand.darkColor}" font-family="${brand.brand.fontFamily}" font-size="36" font-weight="600">Neden ${escapeXml(brand.displayName)}?</text>
-  ${valueProps.map((vp, i) => `
-    <text x="80" y="${600 + i * 60}" fill="${brand.brand.darkColor}" font-family="${brand.brand.fontFamily}" font-size="22">✓ ${escapeXml(vp)}</text>
-  `).join("")}
-
+  ${valueProps.map((vp, i) => `<text x="80" y="${600 + i * 60}" fill="${brand.brand.darkColor}" font-family="${brand.brand.fontFamily}" font-size="22">- ${escapeXml(vp)}</text>`).join("")}
   <rect x="120" y="900" width="1000" height="120" rx="12" fill="${brand.brand.accentColor}"/>
   <text x="620" y="970" text-anchor="middle" fill="white" font-family="${brand.brand.fontFamily}" font-size="36" font-weight="600">${escapeXml(brand.marketing.ctaPrimary)}</text>
   <text x="620" y="1000" text-anchor="middle" fill="rgba(255,255,255,0.9)" font-family="${brand.brand.fontFamily}" font-size="20">${escapeXml(brand.website.shortLink)}</text>
-
-  <text x="620" y="1200" text-anchor="middle" fill="${brand.brand.darkColor}" font-family="${brand.brand.fontFamily}" font-size="28" font-weight="600">Bize Ulaşın</text>
-  <text x="620" y="1260" text-anchor="middle" fill="${brand.brand.darkColor}" font-family="${brand.brand.fontFamily}" font-size="22">📞 ${escapeXml(brand.contact.callCenter)}</text>
-  <text x="620" y="1300" text-anchor="middle" fill="${brand.brand.darkColor}" font-family="${brand.brand.fontFamily}" font-size="22">✉️ ${escapeXml(brand.contact.emails.general)}</text>
-
-  <text x="620" y="1400" text-anchor="middle" fill="#64748b" font-family="${brand.brand.fontFamily}" font-size="18">📍 ${escapeXml(brand.address.fullAddress)}</text>
-
+  <text x="620" y="1200" text-anchor="middle" fill="${brand.brand.darkColor}" font-family="${brand.brand.fontFamily}" font-size="28" font-weight="600">Bize Ulasin</text>
+  <text x="620" y="1260" text-anchor="middle" fill="${brand.brand.darkColor}" font-family="${brand.brand.fontFamily}" font-size="22">${escapeXml(brand.contact.callCenter)}</text>
+  <text x="620" y="1300" text-anchor="middle" fill="${brand.brand.darkColor}" font-family="${brand.brand.fontFamily}" font-size="22">${escapeXml(brand.contact.emails.general)}</text>
+  <text x="620" y="1400" text-anchor="middle" fill="#64748b" font-family="${brand.brand.fontFamily}" font-size="18">${escapeXml(brand.address.fullAddress)}</text>
   <rect x="0" y="1648" width="1240" height="100" fill="${brand.brand.darkColor}"/>
-  <text x="620" y="1700" text-anchor="middle" fill="rgba(255,255,255,0.7)" font-family="${brand.brand.fontFamily}" font-size="14">${escapeXml(brand.compliance.kvkk)} · ${escapeXml(brand.compliance.iso27001)}</text>
-  <text x="620" y="1725" text-anchor="middle" fill="rgba(255,255,255,0.5)" font-family="${brand.brand.fontFamily}" font-size="12">© ${new Date().getFullYear()} ${escapeXml(brand.legalName)}</text>
+  <text x="620" y="1700" text-anchor="middle" fill="rgba(255,255,255,0.7)" font-family="${brand.brand.fontFamily}" font-size="14">${escapeXml(brand.compliance.kvkk)} - ${escapeXml(brand.compliance.iso27001)}</text>
+  <text x="620" y="1725" text-anchor="middle" fill="rgba(255,255,255,0.5)" font-family="${brand.brand.fontFamily}" font-size="12">(c) ${new Date().getFullYear()} ${escapeXml(brand.legalName)}</text>
 </svg>`;
 }
 
-/**
- * Reklam görseli (3 boyut) — sosyal medya
- * Madde 25.3 — sadece Tedbirge marka, avukat ismi YOK
- */
+// ─── Reklam Gorseli (mevcut — TUR #100.9 korunur) ────────────────────
 async function generateReklamGorseliSVG(format = "square", text = null) {
   const brand = loadBrand();
   const dimensions = {
@@ -164,7 +307,6 @@ async function generateReklamGorseliSVG(format = "square", text = null) {
     landscape: { w: 1200, h: 628 },
   };
   const { w, h } = dimensions[format] || dimensions.square;
-
   return `<?xml version="1.0" encoding="UTF-8"?>
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${w} ${h}" width="${w}" height="${h}">
   <defs>
@@ -174,59 +316,315 @@ async function generateReklamGorseliSVG(format = "square", text = null) {
     </linearGradient>
   </defs>
   <rect x="0" y="0" width="${w}" height="${h}" fill="url(#bg)"/>
-
   <text x="${w / 2}" y="${h * 0.4}" text-anchor="middle" fill="white" font-family="${brand.brand.fontFamily}" font-size="${w * 0.08}" font-weight="700">${escapeXml(brand.displayName)}</text>
   <text x="${w / 2}" y="${h * 0.5}" text-anchor="middle" fill="rgba(255,255,255,0.9)" font-family="${brand.brand.fontFamily}" font-size="${w * 0.035}">${escapeXml(text || brand.shortTagline)}</text>
-
   <rect x="${w * 0.2}" y="${h * 0.65}" width="${w * 0.6}" height="${h * 0.1}" rx="8" fill="${brand.brand.accentColor}"/>
   <text x="${w / 2}" y="${h * 0.71}" text-anchor="middle" fill="white" font-family="${brand.brand.fontFamily}" font-size="${w * 0.04}" font-weight="600">${escapeXml(brand.marketing.ctaPrimary)}</text>
-
   <text x="${w / 2}" y="${h * 0.92}" text-anchor="middle" fill="rgba(255,255,255,0.8)" font-family="${brand.brand.fontFamily}" font-size="${w * 0.025}">${escapeXml(brand.website.shortLink)}</text>
 </svg>`;
 }
 
-/**
- * Email HTML imzası
- */
+// ─── Email imzasi (mevcut korunur) ───────────────────────────────────
 async function generateEmailImzasi(user) {
   const brand = loadBrand();
   const isLawyer = user.role === "LAWYER";
   const name = user.fullName || user.adSoyad || user.name || "";
   const tel = user.phone || user.telefon || brand.contact.callCenter;
-
   return `<table cellpadding="0" cellspacing="0" border="0" style="font-family: ${brand.brand.fontFamily}; color: ${brand.brand.darkColor}; font-size: 14px;">
   <tr>
     <td style="padding-right: 20px; border-right: 3px solid ${brand.brand.primaryColor};">
       <strong style="font-size: 18px; color: ${brand.brand.primaryColor};">${escapeHtml(name)}</strong><br>
       <span style="color: #64748b; font-size: 13px;">
-        ${isLawyer ? `Tedbirge.ai Üye Avukatı${user.baroSicilNo ? " · Baro Sicil: " + escapeHtml(user.baroSicilNo) : ""}` : escapeHtml(getRoleTitle(user.role))}
+        ${isLawyer ? `Tedbirge.ai Uye Avukati${user.baroSicilNo ? " - Baro Sicil: " + escapeHtml(user.baroSicilNo) : ""}` : escapeHtml(getRoleTitle(user.role))}
       </span>
     </td>
     <td style="padding-left: 20px; font-size: 13px; color: #64748b;">
-      📞 ${escapeHtml(tel)}<br>
-      ✉️ <a href="mailto:${escapeHtml(user.email || "")}" style="color: ${brand.brand.primaryColor}; text-decoration: none;">${escapeHtml(user.email || "")}</a><br>
-      🌐 <a href="${brand.website.primary}" style="color: ${brand.brand.primaryColor}; text-decoration: none;">${escapeHtml(brand.website.shortLink)}</a>
+      ${escapeHtml(tel)}<br>
+      <a href="mailto:${escapeHtml(user.email || "")}" style="color: ${brand.brand.primaryColor}; text-decoration: none;">${escapeHtml(user.email || "")}</a><br>
+      <a href="${brand.website.primary}" style="color: ${brand.brand.primaryColor}; text-decoration: none;">${escapeHtml(brand.website.shortLink)}</a>
     </td>
   </tr>
   ${isLawyer ? `<tr><td colspan="2" style="padding-top: 12px; font-size: 10px; color: #cbd5e1;">${escapeHtml(brand.compliance.tbbReklamYasagi)}</td></tr>` : ""}
 </table>`;
 }
 
+// ─── ATOM 6: Matbaa PDF (font embed + bleed + trim marks) ────────────
 /**
- * SVG → PNG (sharp varsa)
+ * Matbaa baski PDF (Madde 30.65)
+ * 92mm x 62mm (85+3.5mm bleed her kenardan)
+ * 2 sayfa: on yuz + arka yuz
+ * Font embed: pdfkit registerFont (Inter Tight + Crimson Pro + JetBrains Mono)
+ * Trim marks: 4 kose, lineWidth 0.25, L-sekli
  */
+async function generateKartvizitMatbaaPDF(user, adContent) {
+  if (!PDFDocument) {
+    const err = new Error("PDF üretimi için pdfkit gerekli.");
+    err.statusCode = 503; err.code = "PDF_UNAVAILABLE"; throw err;
+  }
+  const brand = loadBrand();
+  const print = brand.print || { cardSizeMM: { w: 85, h: 55 }, bleedMM: 3.5, trimMarks: true };
+  const tedbirator = brand.secondary?.tedbirator;
+  const isLawyer = user.role === "LAWYER";
+  const name = user.fullName || user.adSoyad || user.name || "";
+  const tel = user.phone || user.telefon || brand.contact.callCenter;
+
+  const mm = (v) => v * 2.834645669;
+  const cardW = mm(print.cardSizeMM.w);
+  const cardH = mm(print.cardSizeMM.h);
+  const bleed = mm(print.bleedMM);
+  const fullW = cardW + bleed * 2;
+  const fullH = cardH + bleed * 2;
+
+  const primary = brand.brand.primaryColor || "#1e1e8e";
+  const tedbiratorColor = tedbirator?.color || "#5cb85c";
+  const dark = brand.brand.darkColor || "#0A1628";
+
+  const doc = new PDFDocument({ size: [fullW, fullH], margin: 0, autoFirstPage: true, compress: true });
+  registerPdfFonts(doc);
+
+  const chunks = [];
+  doc.on("data", (c) => chunks.push(c));
+  const done = new Promise((resolve, reject) => {
+    doc.on("end", () => resolve(Buffer.concat(chunks)));
+    doc.on("error", reject);
+  });
+
+  // === ON YUZ ===
+  drawCardFront(doc, { bleed, cardW, cardH, primary, tedbiratorColor, tedbirator, brand, user, name, tel, isLawyer, dark });
+  if (print.trimMarks) drawTrimMarks(doc, bleed, fullW, fullH);
+
+  // === ARKA YUZ ===
+  doc.addPage({ size: [fullW, fullH], margin: 0 });
+  await drawCardBack(doc, { bleed, cardW, cardH, primary, tedbiratorColor, brand, user, adContent });
+  if (print.trimMarks) drawTrimMarks(doc, bleed, fullW, fullH);
+
+  doc.end();
+  return done;
+}
+
+// ─── ATOM 7: Dijital Paylasim PDF (email/WhatsApp uyumlu) ────────────
+/**
+ * Dijital paylasim PDF (Madde 30.65)
+ * 85x55mm (LAWYER: 85x55 tek sayfa on yuz) veya 170x55mm (on + arka yan yana)
+ * Bleed YOK, trim marks YOK, compress aktif (<500KB hedef)
+ * LAWYER: sadece on yuz (Madde 25.3 — arka reklam YASAK)
+ */
+async function generateKartvizitDigitalPDF(user, adContent) {
+  if (!PDFDocument) {
+    const err = new Error("PDF üretimi için pdfkit gerekli.");
+    err.statusCode = 503; err.code = "PDF_UNAVAILABLE"; throw err;
+  }
+  const brand = loadBrand();
+  const tedbirator = brand.secondary?.tedbirator;
+  const isLawyer = user.role === "LAWYER";
+  const name = user.fullName || user.adSoyad || user.name || "";
+  const tel = user.phone || user.telefon || brand.contact.callCenter;
+
+  const mm = (v) => v * 2.834645669;
+  const cardW = mm(85);
+  const cardH = mm(55);
+  const fullW = isLawyer ? cardW : cardW * 2;
+  const fullH = cardH;
+
+  const primary = brand.brand.primaryColor || "#1e1e8e";
+  const tedbiratorColor = tedbirator?.color || "#5cb85c";
+  const dark = brand.brand.darkColor || "#0A1628";
+
+  const doc = new PDFDocument({ size: [fullW, fullH], margin: 0, autoFirstPage: true, compress: true });
+  registerPdfFonts(doc);
+
+  const chunks = [];
+  doc.on("data", (c) => chunks.push(c));
+  const done = new Promise((resolve, reject) => {
+    doc.on("end", () => resolve(Buffer.concat(chunks)));
+    doc.on("error", reject);
+  });
+
+  // ON YUZ (sol)
+  drawCardFront(doc, { bleed: 0, cardW, cardH, primary, tedbiratorColor, tedbirator, brand, user, name, tel, isLawyer, dark });
+
+  // ARKA YUZ (sag, LAWYER hariç)
+  if (!isLawyer) {
+    doc.save();
+    doc.translate(cardW, 0);
+    await drawCardBack(doc, { bleed: 0, cardW, cardH, primary, tedbiratorColor, brand, user, adContent });
+    doc.restore();
+  }
+
+  doc.end();
+  return done;
+}
+
+function registerPdfFonts(doc) {
+  // pdfkit registerFont — TTF dosyalari mevcutsa
+  const map = {
+    "Inter-Regular": "interRegular",
+    "Inter-Medium": "interMedium",
+    "Inter-Bold": "interBold",
+    "Crimson-Regular": "crimsonRegular",
+    "Crimson-SemiBold": "crimsonSemiBold",
+    "Crimson-Bold": "crimsonBold",
+    "Mono": "monoRegular",
+  };
+  for (const [alias, key] of Object.entries(map)) {
+    const p = getFontPath(key);
+    if (p) {
+      try { doc.registerFont(alias, p); } catch (_) {}
+    }
+  }
+}
+
+function drawCardFront(doc, ctx) {
+  const { bleed, cardW, cardH, primary, tedbiratorColor, tedbirator, brand, user, name, tel, isLawyer, dark } = ctx;
+  const mm = (v) => v * 2.834645669;
+  const leftW = cardW * (360 / 850); // 360/850 oran
+
+  // Sol panel
+  doc.rect(0, 0, leftW + bleed, bleed * 2 + cardH).fill(primary);
+
+  doc.fillColor("white");
+  trySetFont(doc, "Inter-Bold", "Helvetica-Bold").fontSize(16);
+  doc.text(brand.displayName, bleed, bleed + cardH / 2 - mm(8), { width: leftW, align: "center", lineBreak: false });
+
+  if (tedbirator) {
+    doc.fillColor(tedbiratorColor);
+    trySetFont(doc, "Crimson-Regular", "Times-Italic").fontSize(9);
+    doc.text(tedbirator.name, bleed, bleed + cardH / 2 - mm(3), { width: leftW, align: "center", lineBreak: false });
+  }
+
+  // Hairline
+  doc.strokeColor("rgba(255,255,255,0.18)").lineWidth(0.3);
+  doc.moveTo(bleed + leftW * 0.22, bleed + cardH / 2 + mm(2)).lineTo(bleed + leftW * 0.78, bleed + cardH / 2 + mm(2)).stroke();
+
+  doc.fillColor("white");
+  trySetFont(doc, "Inter-Regular", "Helvetica").fontSize(6);
+  doc.text(brand.shortTagline || "", bleed, bleed + cardH / 2 + mm(5), { width: leftW, align: "center", lineBreak: false });
+
+  // Sag panel: beyaz (bleed alaninda sag) — kart beyaz arkaplani
+  doc.rect(leftW + bleed, 0, cardW - leftW + bleed, bleed * 2 + cardH).fill("white");
+
+  const rx = bleed + leftW + mm(4);
+
+  // Isim
+  doc.fillColor(primary);
+  trySetFont(doc, "Crimson-Bold", "Times-Bold").fontSize(15);
+  doc.text(name, rx, bleed + mm(8), { width: cardW - leftW - mm(8), lineBreak: false });
+
+  // Rol
+  doc.fillColor("#6b7280");
+  trySetFont(doc, "Inter-Medium", "Helvetica-Bold").fontSize(7);
+  if (isLawyer) {
+    doc.text("Tedbirge.ai Uye Avukati", rx, bleed + mm(15), { lineBreak: false });
+    doc.fillColor("#9ca3af").fontSize(6);
+    doc.text(`Baro Sicil: ${user.baroSicilNo || "—"}`, rx, bleed + mm(18.5), { lineBreak: false });
+  } else {
+    doc.text(getRoleTitle(user.role), rx, bleed + mm(15), { lineBreak: false });
+  }
+
+  // Hairline
+  doc.strokeColor("#e7e7ef").lineWidth(0.3);
+  doc.moveTo(rx, bleed + mm(23)).lineTo(bleed + cardW - mm(4), bleed + mm(23)).stroke();
+
+  // Iletisim (mono)
+  doc.fillColor("#111827");
+  trySetFont(doc, "Mono", "Courier").fontSize(7);
+  doc.text(tel, rx, bleed + mm(27), { lineBreak: false });
+  doc.text(user.email || "", rx, bleed + mm(30), { lineBreak: false });
+  doc.text(brand.website.shortLink, rx, bleed + mm(33), { lineBreak: false });
+
+  // Adres
+  doc.fillColor("#6b7280");
+  trySetFont(doc, "Inter-Regular", "Helvetica").fontSize(5);
+  doc.text(brand.address.fullAddress || "", rx, bleed + mm(40), { width: mm(40), lineBreak: true });
+
+  // LAWYER disclaimer
+  if (isLawyer) {
+    doc.fillColor("#cbd5e1").fontSize(4);
+    doc.text("Avukatlik K. m.55 ve TBB Reklam Yasagi'na uygundur.", rx, bleed + cardH - mm(4), { lineBreak: false });
+  }
+}
+
+async function drawCardBack(doc, ctx) {
+  const { bleed, cardW, cardH, primary, tedbiratorColor, brand, user, adContent } = ctx;
+  const mm = (v) => v * 2.834645669;
+
+  // Full bleed lacivert
+  doc.rect(0, 0, bleed * 2 + cardW, bleed * 2 + cardH).fill(primary);
+
+  // Diyagonal aksent kose
+  doc.save().fillColor(tedbiratorColor).opacity(0.9);
+  doc.moveTo(0, 0).lineTo(mm(10), 0).lineTo(0, mm(10)).closePath().fill();
+  doc.moveTo(bleed * 2 + cardW, bleed * 2 + cardH).lineTo(bleed * 2 + cardW - mm(10), bleed * 2 + cardH).lineTo(bleed * 2 + cardW, bleed * 2 + cardH - mm(10)).closePath().fill();
+  doc.restore().opacity(1);
+
+  // Merkez logo
+  doc.fillColor("white");
+  trySetFont(doc, "Inter-Bold", "Helvetica-Bold").fontSize(22);
+  doc.text(brand.displayName, bleed, bleed + cardH / 2 - mm(10), { width: cardW, align: "center", lineBreak: false });
+
+  // Slogan
+  trySetFont(doc, "Crimson-Regular", "Times-Italic").fontSize(8);
+  const slogan = brand.marketing?.defaultBackTagline || brand.shortTagline || "";
+  doc.text(slogan, bleed, bleed + cardH / 2 - mm(3), { width: cardW, align: "center", lineBreak: false });
+
+  // Reklam metni (varsa)
+  if (typeof adContent === "string" && adContent.trim()) {
+    trySetFont(doc, "Inter-Regular", "Helvetica").fontSize(6);
+    doc.text(adContent.trim().slice(0, 200), bleed + mm(6), bleed + cardH / 2 + mm(4), { width: cardW - mm(12), align: "center", lineBreak: true });
+  }
+
+  // QR kod (varsa qrcode paketi)
+  if (qrcode) {
+    try {
+      const repCode = (user.id || "").toString().slice(0, 8);
+      const refUrl = `${brand.website.primary}/baslat?ref=${encodeURIComponent(repCode)}`;
+      const qrPng = await qrcode.toBuffer(refUrl, { type: "png", width: 200, margin: 0, errorCorrectionLevel: "M" });
+      const qrSize = mm(15);
+      doc.rect(bleed + cardW - qrSize - mm(3), bleed + cardH - qrSize - mm(3), qrSize, qrSize).fill("white");
+      doc.image(qrPng, bleed + cardW - qrSize - mm(3), bleed + cardH - qrSize - mm(3), { width: qrSize, height: qrSize });
+    } catch (_) {}
+  }
+
+  // Web URL alt sol
+  doc.fillColor("white");
+  trySetFont(doc, "Inter-Bold", "Helvetica-Bold").fontSize(6);
+  doc.text(brand.website.primary.replace(/^https?:\/\//, ""), bleed + mm(3), bleed + cardH - mm(4), { lineBreak: false });
+}
+
+function trySetFont(doc, primary, fallback) {
+  try { return doc.font(primary); } catch (_) {
+    try { return doc.font(fallback); } catch (e) { return doc; }
+  }
+}
+
+function drawTrimMarks(doc, bleed, fullW, fullH) {
+  doc.strokeColor("#000000").lineWidth(0.25);
+  const len = 6;
+  const gap = 2;
+  doc.moveTo(bleed - gap, 0).lineTo(bleed - gap, len).stroke();
+  doc.moveTo(0, bleed - gap).lineTo(len, bleed - gap).stroke();
+  doc.moveTo(fullW - bleed + gap, 0).lineTo(fullW - bleed + gap, len).stroke();
+  doc.moveTo(fullW - len, bleed - gap).lineTo(fullW, bleed - gap).stroke();
+  doc.moveTo(bleed - gap, fullH - len).lineTo(bleed - gap, fullH).stroke();
+  doc.moveTo(0, fullH - bleed + gap).lineTo(len, fullH - bleed + gap).stroke();
+  doc.moveTo(fullW - bleed + gap, fullH - len).lineTo(fullW - bleed + gap, fullH).stroke();
+  doc.moveTo(fullW - len, fullH - bleed + gap).lineTo(fullW, fullH - bleed + gap).stroke();
+}
+
+// ─── SVG -> PNG (sharp varsa) — TUR #112: frontend canvas conversion ─
 async function svgToPng(svgString) {
   if (!sharp) {
-    const err = new Error("PNG dönüşümü için sharp paketi gerekli (Madde 24.14 — opsiyonel). SVG indirmeyi tercih edin.");
-    err.statusCode = 503;
-    err.code = "PNG_UNAVAILABLE";
-    throw err;
+    const err = new Error("Sunucu-tarafi PNG dönüşümü için sharp gerekli. Frontend canvas conversion kullanin.");
+    err.statusCode = 503; err.code = "PNG_UNAVAILABLE"; throw err;
   }
   return await sharp(Buffer.from(svgString)).png().toBuffer();
 }
 
 module.exports = {
   generateKartvizitSVG,
+  generateKartvizitBackSVG,
+  generateKartvizitMatbaaPDF,
+  generateKartvizitDigitalPDF,
   generateBrosurSVG,
   generateReklamGorseliSVG,
   generateEmailImzasi,
@@ -234,4 +632,5 @@ module.exports = {
   svgToPng,
   hasPng: !!sharp,
   hasQR: !!qrcode,
+  hasPDF: !!PDFDocument,
 };
