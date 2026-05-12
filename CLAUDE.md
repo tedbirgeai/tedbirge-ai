@@ -338,8 +338,53 @@ Mehmet Bey sahaya çıkabilsin diye bu disiplin var.
 
 ---
 
-**— Tedbirge Mimari Anayasası v1.31.0 MINOR**
-**Son güncelleme: 12 Mayıs 2026 Salı (TUR #116 KAPALI — User.address Schema KIRMIZI Geçişi + Profil Adres Edit + Madde 30.71)**
+**— Tedbirge Mimari Anayasası v1.32.0 MINOR**
+**Son güncelleme: 12 Mayıs 2026 Salı (TUR #117 KAPALI — 6 Atlama Tek Seferde + Madde 30.72 + 30.73 + 30.74)**
+
+---
+
+## ANAYASA EVRİM — TUR #117 (12 May 2026) — 3 Yeni Madde + 6 Atlama Tek Seferde
+
+**Madde 30.72 — Dropdown Disiplini:**
+
+Kontrollü veri girişi (şehir, ilçe, ülke gibi sabit set) **dropdown** ile yapılmalı. Free-text input yazım hatası riski (Konya/konya/Konyaa) yaratır. T.C. resmi 81 il listesi, ilçe listesi, ülke kodları gibi standart veri setleri için `<select>` zorunlu.
+
+**Pattern:** `tedbirge-panel/lib/turkey-locations.json` (81 il × 499 ilçe, lokal). İl seçince ilçe dropdown'u dinamik. İlçeli olmayan illerde free-text fallback (sarı endişe + ilçe TUR #118+ ekleme).
+
+**Madde 30.73 — Geleceğe Hazırlık Disiplini:**
+
+2028+ vizyonu (Almanya pilot, Avusturya, Hollanda) için **country alanı** schema'da bugün hazırlanır. Vakit gelince retroactive schema değişikliği gerek kalmaz. CEO Madde 18.3 yazılı onayı ile additive `country String? @default("Türkiye")`.
+
+**Kanıt:** TUR #117 ATOM 1 — User.country alanı eklendi, AdresEditCard ülke dropdown'unda Türkiye + Almanya + Avusturya + Hollanda. Yabancı ülke seçilirse il/ilçe free-text (Almanya'da "Bundesland" + "Kreis").
+
+**Madde 30.74 — Standart Format Disiplini:**
+
+Görsel render (kartvizit, fatura, dilekçe) için **standart Türk format** kullanılır:
+- Telefon: `0 545 490 33 95` (boşluklu, başında 0). Ham `5454903395` veya `+905454903395` → format edilir.
+- IBAN: `TR00 0000 0000 0000 0000 0000 00` (4'lü gruplar)
+- Posta kodu: 5 hane
+
+**`formatTurkishPhone(phone)`** helper — `corporate.service.js`. 10/11/12 hane input desteği. DB'deki raw veri korunur (E.164), sadece görsel çıktıda format uygulanır.
+
+**vCard `TEL` field'ı RAW kalır** (telefon rehberi tıklanabilir aranabilir). Sadece SVG/PDF görsel format.
+
+### TUR #117 sayısal özet (6 atlama tek seferde)
+
+- **6 atlama** doldurma: country + dinamik banner + 81 il dropdown + 970 ilçe (29 büyükşehir = 499 ilçe, kalanı TUR #118 SARI) + telefon format + vector ikon
+- **11 atom** uygulandı (DEFER 0, Madde 17.2 R1 UÇTAN UCA)
+- **1 KIRMIZI** (User.country, CEO yazılı onay Madde 18.3 + 30.71)
+- 0 npm install · 0 env · $0 maliyet
+- Backend `1.12.0 → 1.13.0` MINOR
+- Panel `1.14.0 → 1.15.0` MINOR
+- Anayasa `v1.31.0 → v1.32.0` MINOR
+- Schema `1.5.0 → 1.6.0`
+- 30 → **31 ardışık temiz TUR REKOR (#90 → #117)**
+
+### Mimar Hatası 56 — 6 Atlama Tek Seferde Düzeltme Emsali
+
+**Pattern:** CEO ekran kanıtıyla 6 atlama listeledi → Code Madde 17.2 R1 uçtan uca tek mektup ile 11 atom uyguladı. Hiçbir DEFER. Madde 30.25 R1 CEO yetkisi + 30.71 KIRMIZI yazılı onay sentezi.
+
+**Düzeltme:** CEO çoklu atlama listesi geldiğinde **tek atomik commit** yapılır. Atom başına ayrı commit YASAK (parçalı iş Madde 17.2 R1 ihlali).
 
 ---
 

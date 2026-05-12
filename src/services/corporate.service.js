@@ -122,22 +122,48 @@ function wrapText(text, charsPerLine, maxLines) {
 }
 
 function buildUserAddressLine(user, brand) {
-  // TUR #116 — Adres oncelik 4 seviye (Madde 30.71 KIRMIZI gecisi, CEO yazili onay)
-  // 1. user.address (+ district + city) — TUR #116 yeni alan, tam adres
+  // TUR #116 + #117 — Adres oncelik 5 seviye (Madde 30.71 + 30.73)
+  // country yabanci (Almanya vb.) ise sonuna eklenir, "Türkiye" gizlenir (implicit)
+  // 1. user.address (+ district + city) — tam adres
   // 2. user.city (+ district) — sehir ve ilce
   // 3. user.bolge — geriye uyumluluk (Madde 4.6 TUR #115 emsali)
   // 4. brand.address.fullAddress — kurumsal fallback
+  const country = user.country && user.country.trim();
+  const foreignCountry = country && country !== "Türkiye";
+  let line = "";
   if (user.address) {
     const parts = [user.address];
     if (user.district) parts.push(user.district);
     if (user.city) parts.push(user.city);
-    return parts.join(", ");
+    line = parts.join(", ");
+  } else if (user.city) {
+    line = user.district ? `${user.district}, ${user.city}` : user.city;
+  } else if (user.bolge) {
+    line = user.bolge;
+  } else {
+    line = brand.address.fullAddress;
   }
-  if (user.city) {
-    return user.district ? `${user.district}, ${user.city}` : user.city;
+  return foreignCountry ? `${line}, ${country}` : line;
+}
+
+// TUR #117 — Turk telefon standart format helper (Madde 30.74 Standart Format Disiplini)
+// "5454903395" -> "0 545 490 33 95"
+// "05454903395" -> "0 545 490 33 95"
+// "905454903395" -> "+90 545 490 33 95"
+// "+905454903395" -> "+90 545 490 33 95"
+function formatTurkishPhone(phone) {
+  if (!phone) return "";
+  const digits = String(phone).replace(/\D/g, "");
+  if (digits.length === 10) {
+    return `0 ${digits.slice(0, 3)} ${digits.slice(3, 6)} ${digits.slice(6, 8)} ${digits.slice(8, 10)}`;
   }
-  if (user.bolge) return user.bolge;
-  return brand.address.fullAddress;
+  if (digits.length === 11 && digits.startsWith("0")) {
+    return `0 ${digits.slice(1, 4)} ${digits.slice(4, 7)} ${digits.slice(7, 9)} ${digits.slice(9, 11)}`;
+  }
+  if (digits.length === 12 && digits.startsWith("90")) {
+    return `+90 ${digits.slice(2, 5)} ${digits.slice(5, 8)} ${digits.slice(8, 10)} ${digits.slice(10, 12)}`;
+  }
+  return String(phone).trim();
 }
 
 function generateVCard(user, brand) {
@@ -222,10 +248,24 @@ async function generateKartvizitSVG(user) {
   <!-- Hairline ayirici -->
   <line x1="400" y1="232" x2="700" y2="232" stroke="#e7e7ef" stroke-width="1"/>
 
-  <!-- Iletisim (JetBrains Mono) -->
-  <text x="400" y="275" fill="#111827" font-family="'JetBrains Mono', ui-monospace, SFMono-Regular, monospace" font-size="14">${escapeXml(tel)}</text>
-  <text x="400" y="302" fill="#111827" font-family="'JetBrains Mono', ui-monospace, SFMono-Regular, monospace" font-size="14">${escapeXml(user.email || "")}</text>
-  <text x="400" y="329" fill="#111827" font-family="'JetBrains Mono', ui-monospace, SFMono-Regular, monospace" font-size="14">${escapeXml(brand.website.shortLink)}</text>
+  <!-- Iletisim — TUR #117: Lucide vector ikon (PDF uyumlu) + telefon Turk standart format (Madde 30.74) -->
+  <g transform="translate(400, 263)" stroke="#1e1e8e" stroke-width="1.4" fill="none" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z" transform="scale(0.55)"/>
+  </g>
+  <text x="425" y="275" fill="#111827" font-family="'JetBrains Mono', ui-monospace, SFMono-Regular, monospace" font-size="14">${escapeXml(formatTurkishPhone(tel))}</text>
+
+  <g transform="translate(400, 290)" stroke="#1e1e8e" stroke-width="1.4" fill="none" stroke-linecap="round" stroke-linejoin="round">
+    <rect x="1" y="2.2" width="12" height="9" rx="1.1"/>
+    <polyline points="13,3.3 7,8 1,3.3"/>
+  </g>
+  <text x="425" y="302" fill="#111827" font-family="'JetBrains Mono', ui-monospace, SFMono-Regular, monospace" font-size="14">${escapeXml(user.email || "")}</text>
+
+  <g transform="translate(400, 317)" stroke="#1e1e8e" stroke-width="1.4" fill="none" stroke-linecap="round" stroke-linejoin="round">
+    <circle cx="7" cy="7" r="6"/>
+    <line x1="1" y1="7" x2="13" y2="7"/>
+    <path d="M7 1 a8 8 0 0 1 2.5 6 a8 8 0 0 1 -2.5 6 a8 8 0 0 1 -2.5 -6 a8 8 0 0 1 2.5 -6 z"/>
+  </g>
+  <text x="425" y="329" fill="#111827" font-family="'JetBrains Mono', ui-monospace, SFMono-Regular, monospace" font-size="14">${escapeXml(brand.website.shortLink)}</text>
 
   <!-- Adres — TUR #116: address+district+city -> city -> bolge -> brand oncelik (Madde 30.71) -->
   <text x="400" y="380" fill="#6b7280" font-family="'Inter Tight', Inter, system-ui, sans-serif" font-size="11">${escapeXml(buildUserAddressLine(user, brand))}</text>
@@ -555,10 +595,11 @@ function drawCardFront(doc, ctx) {
   doc.strokeColor("#e7e7ef").lineWidth(0.3);
   doc.moveTo(rx, bleed + mm(25)).lineTo(bleed + cardW - mm(4), bleed + mm(25)).stroke();
 
-  // Iletisim (mono) — yayilmis (27/30/33 -> 30/34/38, +1mm fark 3 -> 4mm her arali)
+  // Iletisim (mono) — TUR #117: telefon Turk standart format (Madde 30.74)
+  // PDF emoji desteklemez, ikon SVG'de. Burada formatlı telefon yeterli matbaa baski icin.
   doc.fillColor("#111827");
   trySetFont(doc, "Mono", "Courier").fontSize(7);
-  doc.text(tel, rx, bleed + mm(30), { lineBreak: false });
+  doc.text(formatTurkishPhone(tel), rx, bleed + mm(30), { lineBreak: false });
   doc.text(user.email || "", rx, bleed + mm(34), { lineBreak: false });
   doc.text(brand.website.shortLink, rx, bleed + mm(38), { lineBreak: false });
 
@@ -662,6 +703,9 @@ module.exports = {
   generateEmailImzasi,
   generateVCard,
   svgToPng,
+  // TUR #117 — smoke icin export (Madde 30.74)
+  formatTurkishPhone,
+  buildUserAddressLine,
   hasPng: !!sharp,
   hasQR: !!qrcode,
   hasPDF: !!PDFDocument,

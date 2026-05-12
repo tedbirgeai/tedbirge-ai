@@ -64,6 +64,8 @@ router.get("/me", auth, async (req, res) => {
         twoFactorEnabled: true, twoFactorEnabledAt: true, twoFactorMethod: true,
         // TUR #116 — adres alanlari (Madde 30.71)
         address: true, city: true, district: true, postalCode: true,
+        // TUR #117 — country (Madde 30.73 Almanya pilot hazirlik)
+        country: true,
       },
     });
     if (!user) return res.status(404).json({ error: "Kullanici bulunamadi" });
@@ -77,9 +79,10 @@ router.patch("/me", auth, async (req, res) => {
   try {
     const prisma = require("../config/db");
     // TUR #116 — address/city/district/postalCode eklendi (Madde 30.71 KIRMIZI gecisi, CEO yazili onay)
+    // TUR #117 — country eklendi (Madde 30.73 Almanya pilot 2028+ hazirlik)
     const allowed = [
       "phone", "bolge", "iban", "vergiKimlikNo", "vergiDairesi", "preferences",
-      "address", "city", "district", "postalCode",
+      "address", "city", "district", "postalCode", "country",
     ];
     const data = {};
     for (const key of allowed) {
@@ -96,13 +99,17 @@ router.patch("/me", auth, async (req, res) => {
       const pc = data.postalCode ? String(data.postalCode).replace(/[^0-9-]/g, "").slice(0, 10) : null;
       data.postalCode = pc || null;
     }
+    // TUR #117 — country validation (max 60 char, default Türkiye)
+    if (data.country !== undefined) {
+      data.country = data.country ? String(data.country).slice(0, 60) : "Türkiye";
+    }
 
     const updated = await prisma.user.update({
       where: { id: req.user.id },
       data,
       select: {
         id: true, iban: true, vergiKimlikNo: true, vergiDairesi: true, phone: true, bolge: true,
-        address: true, city: true, district: true, postalCode: true,
+        address: true, city: true, district: true, postalCode: true, country: true,
       },
     });
 

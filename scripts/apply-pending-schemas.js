@@ -154,6 +154,11 @@ const STATEMENTS = [
   `ALTER TABLE "User" ADD COLUMN IF NOT EXISTS "city" TEXT`,
   `ALTER TABLE "User" ADD COLUMN IF NOT EXISTS "district" TEXT`,
   `ALTER TABLE "User" ADD COLUMN IF NOT EXISTS "postalCode" TEXT`,
+
+  // ─── TUR #117 — User.country (KIRMIZI cizgi, CEO yazili onay Madde 18.3 + 30.71 + 30.73) ──
+  // Almanya pilot 2028+ hazirlik (Madde 30.73 Gelecege Hazirlik Disiplini).
+  // Mevcut user'lar otomatik 'Türkiye' default alir.
+  `ALTER TABLE "User" ADD COLUMN IF NOT EXISTS "country" TEXT DEFAULT 'Türkiye'`,
 ];
 
 (async () => {

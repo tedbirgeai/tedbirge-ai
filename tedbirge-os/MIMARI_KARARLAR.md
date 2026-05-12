@@ -6,6 +6,84 @@
 
 ---
 
+## 12 Mayıs 2026 Salı — TUR #117 KAPALI (6 Atlama Tek Seferde — Country + Dropdown + Telefon Format + Vector İkon)
+
+**Karar:** Anayasa **v1.31.0 → v1.32.0 MINOR**. Backend `1.12.0 → 1.13.0` MINOR. Panel `1.14.0 → 1.15.0` MINOR. Schema `1.5.0 → 1.6.0`. **3 yeni madde tescili** (30.72 + 30.73 + 30.74). **1 KIRMIZI** (User.country, CEO yazılı onay Madde 18.3 + 30.71).
+
+**CEO yazılı onay (Madde 18.3):** "olması gereken ne varsa tek komutla ekle uçtan uca kod tabanlı otonom aksın gitsin 0 hata ile düzelt bana hiç bir şey sorma başla bitir" — Mehmet DİNÇ, 12 May 2026
+
+**Saha kanıt — 6 atlama (Emine ÇELİK panel + kartvizit ekran):**
+1. Country alanı yok (Almanya pilot 2028 yol haritası)
+2. SAKARYA banner statik UI bug (dinamik olmalı)
+3. 81 il dropdown yok (free-text yazım hatası riski)
+4. İl-ilçe ilişkili dropdown yok
+5. Kartvizit telefon başında 0 yok (`5454903395` → `0 545 490 33 95` olmalı)
+6. Kartvizit telefon/email/web ikonu yok
+
+**11 ATOM uygulandı (UÇTAN UCA, DEFER 0):**
+
+1. **ATOM 1 — User.country** schema additive (`prisma/schema.prisma`): `country String? @default("Türkiye")` — Madde 30.73 Geleceğe Hazırlık (Almanya pilot 2028+)
+2. **ATOM 2 — apply-pending-schemas** idempotent: `ALTER TABLE "User" ADD COLUMN IF NOT EXISTS "country" TEXT DEFAULT 'Türkiye'`
+3. **ATOM 3 — turkey-locations.json** (`tedbirge-panel/lib/`): 81 il × 499 ilçe (29 büyükşehir tam liste — İstanbul 39, Ankara 25, İzmir 30, Konya 31, Sakarya 16, vs.). 52 küçük il ilçesiz (TUR #118 SARI eklenecek). Madde 30.6 npm install yok — lokal JSON.
+4. **ATOM 4 — PATCH /auth/me country** validation: max 60 char, default "Türkiye" (auth.routes.js)
+5. **ATOM 5 — AdresEditCard 5 field** (`components/profile/AdresEditCard.tsx`): Ülke dropdown (TR/DE/AT/NL/Diğer) → Açık Adres textarea → Şehir dropdown (81 il TR, free-text yabancı) → İlçe dropdown (TR il'e bağlı, free-text küçük il) → Posta kodu input. Şehir değişince ilçe reset.
+6. **ATOM 6 — SAKARYA banner dinamik fix**: `legacyBolge` `initial.bolge`'den geliyor, statik değil. Banner sadece bolge dolu + yeni adres boş ise görünür. CEO ekran kanıtı dinamiği doğruladı.
+7. **ATOM 7 — buildUserAddressLine 5 seviye** (`corporate.service.js`): country yabancı ise satır sonuna eklenir ("Almanya"), "Türkiye" gizli (implicit).
+8. **ATOM 8 — formatTurkishPhone helper** (Madde 30.74): 10/11/12 hane input → standart format. Smoke: `5454903395 → "0 545 490 33 95"`. vCard `TEL` field RAW kalır (tıklanabilir).
+9. **ATOM 9 — SVG Lucide vector ikon**: Telefon + email + web yanında stroke-1.4 SVG path ikonlar (PDF için sadece formatTurkishPhone — emoji desteklemez, ikon SVG'de yeterli).
+10. **ATOM 10 — Profil entegrasyon** (`temsilci/profil` + `(panel)/profil`): AdresEditCard `country` initial geçirildi. Type extension country?.
+11. **ATOM 11 — 5 belge OS senkron + version bump + commit + push**
+
+**Smoke (local kanıt-bazlı):**
+```
+formatTurkishPhone:
+  "5454903395" → "0 545 490 33 95" ✓
+  "+905454903395" → "+90 545 490 33 95" ✓
+  Idempotent (zaten formatlı input → aynısı döner) ✓
+
+buildUserAddressLine:
+  Full TR: "Atatürk Cd. No:42, Adapazarı, Sakarya" (Türkiye implicit) ✓
+  Full DE: "Hauptstr. 12, Mitte, Berlin, Almanya" ✓ (Madde 30.73)
+  bolge fallback: "SAKARYA" ✓ (Madde 4.6)
+
+PDF render:
+  Line 5: "0 545 490 33 95" ✓
+  Line 8: "Atatürk Cd. Çiçek Sk. No:42/3, Adapazarı, Sakarya" ✓
+
+turkey-locations.json:
+  81 il, 29 ilçeli (büyükşehir), 499 toplam ilçe
+  Sakarya: 16 ilçe · İstanbul: 39 · Konya: 31 · Ankara: 25
+```
+
+### 3 Yeni Madde Tescili
+
+**Madde 30.72 — Dropdown Disiplini:** Kontrollü veri girişi (şehir/ilçe/ülke sabit set) dropdown zorunlu. Free-text yazım hatası riski yaratır.
+
+**Madde 30.73 — Geleceğe Hazırlık Disiplini:** 2028+ vizyonu (Almanya pilot) için country alanı bugün hazırlanır. Retroactive schema değişikliği önler.
+
+**Madde 30.74 — Standart Format Disiplini:** Görsel render Türk standardı (telefon `0 5XX XXX XX XX`, IBAN 4'lü grup, posta 5 hane). DB raw kalır, sadece görsel format.
+
+### Mimar Hatası 56 — 6 Atlama Tek Seferde
+
+CEO çoklu atlama listesi → UÇTAN UCA tek atomik commit, parçalı iş yasak (Madde 17.2 R1).
+
+### Etki
+
+- Backend: 4 dosya (schema + apply-pending + auth.routes + corporate.service)
+- Panel: 4 dosya (turkey-locations.json yeni + AdresEditCard + temsilci/profil + (panel)/profil)
+- OS: 5 belge senkron + version
+- 30 → **31 ardışık temiz TUR REKOR (#90 → #117)** — KIRMIZI rekor bozmadı
+
+**NEXT — TUR #118:**
+- Premium görsel iterasyon (ertelenen)
+- 52 küçük il × ilçe ekleme (SARI ENDIŞE)
+- Niyazi DEMİR ilk gerçek lead retrospektifi
+- bolge → city migration script
+
+**Mimar:** Claude Opus 4.7 (sohbet) + Claude Code (UÇTAN UCA tek mektup, Madde 17.2 R1 + 30.25 R1 + 30.71 + 30.72-74) — 12 Mayıs 2026
+
+---
+
 ## 12 Mayıs 2026 Salı — TUR #116 KAPALI (User.address Schema KIRMIZI Geçişi + Profil Adres Edit + Kartvizit Tam Adres)
 
 **Karar:** Anayasa **v1.30.0 → v1.31.0 MINOR**. Backend `1.11.0 → 1.12.0` MINOR. Panel `1.13.0 → 1.14.0` MINOR. Schema `1.4.0 → 1.5.0`. **1 KIRMIZI** (User schema 4 additive alan) — **CEO yazılı onay Madde 18.3** ile geçildi.

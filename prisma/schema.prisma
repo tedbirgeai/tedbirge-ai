@@ -402,6 +402,8 @@ model User {
   city                        String?
   district                    String?
   postalCode                  String?
+  // TUR #117 — country alani (CEO yazili onay Madde 18.3, Madde 30.71 + 30.73 Almanya pilot 2028+ hazirlik)
+  country                     String?              @default("Türkiye")
   hukukcuKomisyon             Float?               @default(20)
   primOrani                   Float?               @default(50)
   uzmanlik                    String?

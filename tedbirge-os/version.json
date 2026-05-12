@@ -1,8 +1,8 @@
 {
-  "anayasa": "1.31.0",
-  "backend": "1.12.0",
-  "panel": "1.14.0",
-  "schema": "1.5.0",
+  "anayasa": "1.32.0",
+  "backend": "1.13.0",
+  "panel": "1.15.0",
+  "schema": "1.6.0",
   "buildDate": "2026-05-12",
   "compliance": [
     {

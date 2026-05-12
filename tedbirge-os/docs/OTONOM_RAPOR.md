@@ -1,3 +1,79 @@
+# 🤖 TEDBİRGE.AI — OTONOM RAPOR (TUR #117)
+
+**Tarih:** 12 Mayıs 2026 Salı
+**TUR:** #117 ✅ KAPALI
+**Tip:** 6 Atlama Tek Seferde — Country + 81 İl + İlçe + Dinamik Banner + Telefon Format + Vector İkon
+**Anayasa:** v1.31.0 → **v1.32.0 MINOR** (Madde 30.72 + 30.73 + 30.74 yeni)
+
+## 📋 Sayısal özet
+- **11 atom** UÇTAN UCA, DEFER 0 (Madde 17.2 R1)
+- **1 KIRMIZI** (User.country CEO yazılı onaylı Madde 18.3 + 30.71)
+- 8 dosya değişiklik + 1 yeni JSON dosyası (turkey-locations)
+- 0 npm install · 0 env · $0 maliyet
+- Backend 1.12.0→1.13.0 / Panel 1.14.0→1.15.0 / Anayasa v1.31.0→v1.32.0 / Schema 1.5.0→1.6.0
+- **30 → 31 ardışık temiz TUR REKOR**
+
+## CEO yazılı onay (Madde 18.3)
+> "olması gereken ne varsa tek komutla ekle uçtan uca kod tabanlı otonom aksın gitsin 0 hata ile düzelt bana hiç bir şey sorma başla bitir" — Mehmet DİNÇ, 12 May 2026
+
+## ✅ 11 ATOM (6 atlama doldurma)
+
+- **A1** `prisma/schema.prisma` User.country additive (Almanya pilot Madde 30.73)
+- **A2** `apply-pending-schemas.js` ALTER TABLE country IF NOT EXISTS DEFAULT 'Türkiye'
+- **A3** `tedbirge-panel/lib/turkey-locations.json` yeni — 81 il × 499 ilçe (29 büyükşehir tam, 52 küçük il TUR #118 SARI)
+- **A4** `auth.routes.js` PATCH /me + GET /me country alanı (max 60, default Türkiye)
+- **A5** `AdresEditCard.tsx` 5 field: Ülke dropdown (TR/DE/AT/NL/Diğer) + Adres textarea + Şehir dropdown (TR 81 il, yabancı free-text) + İlçe dropdown (il'e bağlı, fallback free-text) + Posta kodu
+- **A6** SAKARYA banner dinamik (Madde 4.4 — `legacyBolge` user.bolge bazlı, statik değil, sadece bolge dolu + yeni adres boş ise görünür)
+- **A7** `corporate.service.js` `buildUserAddressLine` 5 seviye + country yabancı satır sonuna eklenir
+- **A8** `formatTurkishPhone` helper (Madde 30.74) — 10/11/12 hane input desteği, idempotent
+- **A9** SVG Lucide vector ikon (Phone/Mail/Globe stroke-1.4 — PDF emoji desteklemez, vector korunur)
+- **A10** Profil entegrasyon — temsilci/profil + (panel)/profil country initial pass
+- **A11** 5 belge OS senkron + version bump + commit + push
+
+## 📝 3 Yeni Madde
+
+**Madde 30.72** — Dropdown Disiplini: Kontrollü veri girişi `<select>` zorunlu, free-text yazım hatası riski yaratır.
+
+**Madde 30.73** — Geleceğe Hazırlık Disiplini: 2028+ vizyonu (Almanya pilot) için country alanı bugün hazırlanır.
+
+**Madde 30.74** — Standart Format Disiplini: Görsel render Türk standardı (telefon `0 5XX XXX XX XX`, IBAN 4'lü grup). DB raw kalır.
+
+## 📝 Mimar Hatası 56
+
+**6 Atlama Tek Seferde** — CEO çoklu atlama listesi → UÇTAN UCA tek atomik commit, parçalı iş yasak (Madde 17.2 R1).
+
+## 🔬 Smoke (local kanıt-bazlı)
+```
+formatTurkishPhone:
+  "5454903395"       → "0 545 490 33 95"     ✓ (CEO örneği)
+  "05454903395"      → "0 545 490 33 95"     ✓
+  "+905454903395"    → "+90 545 490 33 95"   ✓
+  "0 545 490 33 95"  → "0 545 490 33 95"     ✓ idempotent
+
+buildUserAddressLine (5 seviye):
+  Full TR:  "Atatürk Cd. No:42, Adapazarı, Sakarya"        ✓ (Türkiye implicit)
+  Full DE:  "Hauptstr. 12, Mitte, Berlin, Almanya"          ✓ (Madde 30.73)
+  city+dist: "Kadıköy, İstanbul"                            ✓
+  bolge:     "SAKARYA"                                       ✓ (Madde 4.6)
+  brand:     "Yunus Emre Mh. Gülşah Sk. No:20/A Meram/Konya" ✓ fallback
+
+PDF render (Emine ÇELİK):
+  Line 5: "0 545 490 33 95"                                  ✓
+  Line 8: "Atatürk Cd. Çiçek Sk. No:42/3, Adapazarı, Sakarya" ✓
+
+turkey-locations.json:
+  81 il, 29 ilçeli (büyükşehir), 499 toplam ilçe
+  İstanbul: 39 · Konya: 31 · İzmir: 30 · Ankara: 25 · Sakarya: 16
+```
+
+## 🎯 NEXT — TUR #118
+1. Premium görsel iterasyon (kartvizit estetik, ertelenen)
+2. 52 küçük il × ilçe ekleme (SARI ENDIŞE)
+3. Niyazi DEMİR ilk gerçek lead retrospektifi
+4. bolge → city migration script (manuel)
+5. DRY refactor components/kurumsal
+
+═══════════════════════════════════════════════════════════════════
 # 🤖 TEDBİRGE.AI — OTONOM RAPOR (TUR #116)
 
 **Tarih:** 12 Mayıs 2026 Salı

@@ -1,12 +1,48 @@
 # 📋 TEDBİRGE.AI — İŞ PLANI (AKTİF KESİT)
 
-**Son güncelleme:** 12 Mayıs 2026 Salı (TUR #116)
-**Anayasa:** v1.31.0 MINOR (Madde 30.65-71 — Madde 30.71 yeni: Schema KIRMIZI Geçiş Protokolü)
-**Aktif rekor:** 30 ardışık temiz TUR (#90 → #116) — schema KIRMIZI geçişi REKOR bozmadı (CEO yazılı onay disiplin)
+**Son güncelleme:** 12 Mayıs 2026 Salı (TUR #117)
+**Anayasa:** v1.32.0 MINOR (Madde 30.65-74 — **Madde 30.72 + 30.73 + 30.74 yeni**)
+**Aktif rekor:** 31 ardışık temiz TUR (#90 → #117) — 2 KIRMIZI ardışık (TUR #116 + #117) rekor bozmadı (CEO yazılı onay disiplin)
 
 ---
 
-## 🎯 NOW — TUR #116 KAPALI ✅ (User.address Schema KIRMIZI + Profil Adres Edit + Kartvizit Tam Adres)
+## 🎯 NOW — TUR #117 KAPALI ✅ (6 Atlama Tek Seferde)
+
+**Saha kanıt — 6 atlama:** country + dinamik banner + 81 il + ilçe + telefon format + vector ikon. CEO 5. ısrar emsali — UÇTAN UCA tek atomik commit.
+
+### 11 atom (UÇTAN UCA, KIRMIZI 1)
+- A1-A2 schema country + idempotent ALTER
+- A3 turkey-locations.json (81 il × 499 ilçe)
+- A4 PATCH /auth/me country validation
+- A5 AdresEditCard 5 field (Ülke + Adres + 81 il dropdown + ilçe dropdown + Posta)
+- A6 SAKARYA banner dinamik (Madde 4.4)
+- A7 buildUserAddressLine 5 seviye + country
+- A8 formatTurkishPhone helper (Madde 30.74)
+- A9 SVG Lucide vector ikon
+- A10 Profil entegrasyon
+- A11 5 belge OS senkron
+
+### 3 Yeni Madde
+- **30.72** Dropdown Disiplini
+- **30.73** Geleceğe Hazırlık Disiplini (Almanya pilot 2028+)
+- **30.74** Standart Format Disiplini (telefon `0 5XX XXX XX XX`)
+
+Backend 1.12.0→1.13.0, Panel 1.14.0→1.15.0, Anayasa v1.31.0→v1.32.0, Schema 1.5.0→1.6.0.
+
+---
+
+## ⏭️ NEXT — TUR #118
+
+**CEO seçimi:**
+1. **Premium görsel iterasyon** (TUR #112'den ertelenen)
+2. **52 küçük il ilçe ekleme** (TUR #117 SARI ENDIŞE)
+3. **Niyazi DEMİR ilk gerçek lead retrospektifi**
+4. **bolge → city migration script** (manuel sarı endişe)
+5. **DRY refactor** components/kurumsal
+
+---
+
+## 🎯 ÖNCEKİ — TUR #116 KAPALI ✅ (User.address Schema KIRMIZI + Profil Adres Edit + Kartvizit Tam Adres)
 
 **CEO YAZILI ONAY (Madde 18.3):** "TUR #116 = User.address schema eklemesi (Madde 3 KIRMIZI — CEO onaylıyor)" — Mehmet DİNÇ, 12 May 2026
 

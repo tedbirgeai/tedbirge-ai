@@ -1,15 +1,54 @@
 # 🛡️ TEDBIRGE.AI — DEVİR RAPORU (AKTİF)
 
-📋 **ANAYASA:** v1.31.0 MINOR (Madde 30.65-71 — TUR #112-116, **Madde 30.71 yeni: Schema KIRMIZI Geçiş Protokolü**)
-📂 **🚀 USER.ADDRESS SCHEMA + PROFİL ADRES EDİT + KARTVİZİT TAM ADRES 🚀**
-📅 **SON GÜNCELLEME:** 12 Mayıs 2026 Salı (TUR #116 KAPALI)
-👤 **CEO Onay:** Mehmet DİNÇ — Madde 18.3 YAZILI onay (schema KIRMIZI geçişi) + 17.2 R1
-🤖 **Mimar:** Claude Opus 4.7 (sohbet) + Claude Code (6 atom uçtan uca, KIRMIZI 1 yazılı onay)
-🌟 **Tarih:** 12 Mayıs 2026 — 30 ARDIŞIK TEMİZ TUR REKOR (#90 → #116)
+📋 **ANAYASA:** v1.32.0 MINOR (Madde 30.65-74 — TUR #112-117, **Madde 30.72 + 30.73 + 30.74 yeni**)
+📂 **🚀 6 ATLAMA TEK SEFERDE: country + 81 il dropdown + ilçe + dinamik banner + telefon format + vector ikon 🚀**
+📅 **SON GÜNCELLEME:** 12 Mayıs 2026 Salı (TUR #117 KAPALI)
+👤 **CEO Onay:** Mehmet DİNÇ — Madde 18.3 YAZILI onay (country KIRMIZI) + 17.2 R1 UÇTAN UCA
+🤖 **Mimar:** Claude Opus 4.7 (sohbet) + Claude Code (11 atom uçtan uca, KIRMIZI 1 yazılı onay)
+🌟 **Tarih:** 12 Mayıs 2026 — 31 ARDIŞIK TEMİZ TUR REKOR (#90 → #117)
 
 ---
 
-## 🎯 BUGÜN — TUR #116 KAPALI (User.address Schema + Profil Adres Edit + Kartvizit Tam Adres)
+## 🎯 BUGÜN — TUR #117 KAPALI (6 Atlama Tek Seferde — Country + 81 İl + Telefon Format + Vector İkon)
+
+**Saha kanıt (6 atlama):** country yok + SAKARYA banner statik + 81 il dropdown yok + il-ilçe ilişkili yok + telefon format yok + ikon yok.
+
+**Sürüm:** Backend 1.12.0 → **1.13.0** MINOR, Panel 1.14.0 → **1.15.0** MINOR, Anayasa v1.31.0 → **v1.32.0** MINOR, Schema 1.5.0 → **1.6.0**
+
+### Uygulanan 11 atom (UÇTAN UCA, DEFER 0, KIRMIZI 1)
+
+- **A1** User.country additive (Almanya pilot 2028+ Madde 30.73)
+- **A2** apply-pending-schemas idempotent ALTER TABLE
+- **A3** turkey-locations.json (81 il × 499 ilçe, 29 büyükşehir tam, 52 küçük il SARI TUR #118)
+- **A4** PATCH /auth/me country validation
+- **A5** AdresEditCard 5 field (Ülke dropdown + Adres textarea + Şehir dropdown 81 il + İlçe dropdown il'e bağlı + Posta kodu)
+- **A6** SAKARYA banner dinamik (Madde 4.4 — `legacyBolge` user.bolge bazlı, statik değil)
+- **A7** buildUserAddressLine 5 seviye (country yabancı ise satır sonu, "Türkiye" implicit)
+- **A8** formatTurkishPhone helper (Madde 30.74 — 10/11/12 hane → "0 545 490 33 95")
+- **A9** SVG Lucide vector ikon (phone/mail/globe stroke 1.4)
+- **A10** Profil entegrasyon (temsilci/profil + (panel)/profil country pass)
+- **A11** 5 belge OS senkron + commit + push
+
+### 3 Yeni Madde
+
+- **30.72** Dropdown Disiplini (kontrollü veri girişi)
+- **30.73** Geleceğe Hazırlık Disiplini (Almanya pilot 2028+)
+- **30.74** Standart Format Disiplini (telefon/IBAN/posta görsel)
+
+### Mimar Hatası 56 — 6 Atlama Tek Seferde
+
+CEO çoklu atlama → UÇTAN UCA tek atomik commit (Madde 17.2 R1).
+
+### Smoke (local)
+```
+formatTurkishPhone: "5454903395" → "0 545 490 33 95" ✓
+PDF: line 5 "0 545 490 33 95" ✓, line 8 "Atatürk Cd... Adapazarı, Sakarya" ✓
+turkey-locations: 81 il / 499 ilçe / 29 büyükşehir tam
+```
+
+---
+
+## 🎯 ÖNCEKİ — TUR #116 KAPALI (User.address Schema + Profil Adres Edit + Kartvizit Tam Adres)
 
 **CEO yazılı onay (Madde 18.3):** "TUR #116 = User.address schema eklemesi (Madde 3 KIRMIZI — CEO onaylıyor) + Profil sayfasında adres edit + kartvizit tam adres" — Mehmet DİNÇ, 12 May 2026
 
