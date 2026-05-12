@@ -1,3 +1,118 @@
+# 🤖 TEDBİRGE.AI — OTONOM RAPOR (TUR #113)
+
+**Tarih:** 12 Mayıs 2026 Salı
+**TUR:** #113 ✅ KAPALI
+**Tip:** Temsilci Sözleşme SMS OTP — Emine ÇELİK Saha Acil Fix (SENARYO A)
+**Anayasa:** v1.28.0 sabit (Madde 30.67 yeni — Onboarding Akış Bütünlüğü Disiplini)
+
+---
+
+## 📋 SAYISAL ÖZET (TUR #113)
+
+| Metrik | Değer |
+|---|---|
+| Endpoint eklendi | 2 (`/representative/sozlesme/sms-otp` + `/imzala`) |
+| Schema değişikliği | 0 (mevcut User alanları + PhoneOtp modeli kullanıldı) |
+| Dosya değişikliği | 1 (`src/routes/representative.routes.js`) |
+| KIRMIZI nokta | 0 |
+| Yeni anayasa madde | 1 (30.67 — Onboarding Akış Bütünlüğü) |
+| Yeni Mimar Hatası emsali | 1 (MH55 — Frontend Stub Mod Production Tuzak) |
+| Backend sürüm | 1.8.3 → 1.9.0 MINOR |
+| Maliyet | $0 (mevcut SMS servisi NetGSM) |
+| npm install | 0 |
+| **Ardışık temiz TUR** | **26 → 27 (#90 → #113)** |
+
+---
+
+## ✅ TEŞHİS ZİNCİRİ (5 grep + 1 schema check, kanıt-bazlı)
+
+1. **Frontend** (`tedbirge-panel/app/(panel)/temsilci/sozlesme/page.tsx`):
+   - `apiFetch("/representative/sozlesme/sms-otp")` + `apiFetch("/representative/sozlesme/imzala")`
+   - Stub mod 404 yakalama VAR (`if (err?.message?.includes("404")) toast("stub mod")`)
+   - Yorum satırı: "Backend endpoint placeholder - production'da implementasyon Atom 8.3 backend gerektirir"
+
+2. **Backend** (`src/routes/representative.routes.js`):
+   - Sadece `/representative/leads/:id/asama` mevcut
+   - **Sözleşme endpoint'i HİÇ yazılmamış** ← root cause
+
+3. **Schema** (`prisma/schema.prisma`):
+   - User model: `platformAgreementAcceptedAt`, `platformAgreementVersion`, `kvkkAcceptedAt`, `kvkkVersion`, `sozlesmeKabulTarihi`, `sozlesmeKabulIp`, `sozlesmeMetniHash`, `sozlesmeVersiyonu` MEVCUT
+   - `PhoneOtp` modeli (phone, code, purpose, expiresAt) MEVCUT
+   - **Schema değişikliği GEREKMİYOR** (SENARYO D KIRMIZI değil — SENARYO A)
+
+4. **SMS servisi** (`src/services/sms.service.js`):
+   - `sendOtpSms(to, code, purpose)` mevcut, NetGSM Türkçe destekli
+   - Mock modu var (NETGSM env yoksa console.log)
+
+5. **Senaryo seçim:** SENARYO A — endpoint yazılmamış, mevcut altyapı yeterli.
+
+---
+
+## ✅ UYGULAMA (SENARYO A)
+
+### 1. `POST /api/representative/sozlesme/sms-otp`
+
+```js
+- Auth: REPRESENTATIVE / ADMIN
+- Body: { kvkk1, kvkk2, kvkk3 } - 3 KVKK onayı zorunlu (m.5/2 + m.7 + SCC m.9)
+- Eski OTP'leri temizle (idempotent yeniden gönderim)
+- 6 haneli random OTP (10 dakika geçerli)
+- PhoneOtp.create({ phone, code, purpose: "REPRESENTATIVE_CONTRACT", expiresAt })
+- sendOtpSms(user.phone, code, "temsilci sozlesme") - NetGSM veya mock
+- ActivityLog audit (REPRESENTATIVE_CONTRACT_OTP_SENT) - KVKK m.10
+- Response: { success, expiresIn: 600, mock }
+```
+
+### 2. `POST /api/representative/sozlesme/imzala`
+
+```js
+- Auth: REPRESENTATIVE / ADMIN
+- Body: { kod } - 6 haneli OTP
+- PhoneOtp findFirst (phone + code + purpose + expiresAt > now)
+- Match yoksa: 400 OTP_MISMATCH
+- User update: platformAgreementAcceptedAt + platformAgreementVersion + kvkkAcceptedAt + kvkkVersion + sozlesmeKabulTarihi + sozlesmeKabulIp + sozlesmeVersiyonu
+- PhoneOtp.delete (kullanıldı)
+- ActivityLog audit (REPRESENTATIVE_CONTRACT_SIGNED) - KVKK m.10
+- Response: { success, signedAt, version: "v1.0-temsilci" }
+```
+
+### Sanity-check (local syntax + route mount)
+
+```
+SYNTAX OK
+Mounted routes:
+  POST   /representative/leads/:id/asama
+  POST   /representative/sozlesme/sms-otp     ✓ YENİ
+  POST   /representative/sozlesme/imzala       ✓ YENİ
+```
+
+---
+
+## 📝 MADDE 30.67 YENİ — Onboarding Akış Bütünlüğü Disiplini
+
+1. **Frontend stub mod production yasağı** — `if (404) toast(stub)` ile production deploy YASAK. CEO yazılı onay zorunlu, GitHub issue + 7 gün takip.
+2. **Onboarding her ekran zorunlu** — sözleşme imzasız diğer butonlar disabled, ham 404 mesajı gizli olmamalı.
+3. **Frontend 404 → anlaşılır mesaj** — `"Bu özellik henüz devrede değil"` yerine `"Route bulunamadı"` YASAK.
+4. **Schema mevcut alanlar önce kontrol** — yeni model EKLEME KIRMIZI; mevcut alan yetiyorsa kullan (TUR #113 emsali: User.platformAgreementAcceptedAt yeterliydi).
+
+## 📝 Mimar Hatası 55 — Frontend Stub Mod Production Tuzak
+
+Frontend `if 404 toast(stub mod); setStep(next)` koyup backend yazılmamış endpoint'lerle production'a gönderilir. Kullanıcıdan gizlenir, **saha kullanıcısı (Emine ÇELİK) ekrana hata mesajı görür**, akış tıkanır. Madde 30.67 ihlali.
+
+**Düzeltme:** Frontend stub mod kaldırma + backend endpoint zorunlu yazma. Stub commit message + GitHub issue + 7 gün içinde gerçek implementation. Stub commit'i ile production deploy YASAK.
+
+---
+
+## 🎯 NEXT — TUR #114
+
+CEO seçimi (Madde 17.5):
+1. **Premium kartvizit görsel iterasyon** (TUR #112'de planlanan, TUR #113 ile geciken)
+2. **Niyazi/Emine sahaya çıkış retrospektifi** — ilk REPRESENTATIVE sözleşmeleri sonrası akış kanıtı
+3. **financialFlowGuard** — ilk 5 komisyon havalesi sonrası DEFER registry
+
+---
+
+═══════════════════════════════════════════════════════════════════
 # 🤖 TEDBİRGE.AI — OTONOM RAPOR (TUR #112)
 
 **Tarih:** 12 Mayıs 2026 Salı

@@ -339,7 +339,37 @@ Mehmet Bey sahaya çıkabilsin diye bu disiplin var.
 ---
 
 **— Tedbirge Mimari Anayasası v1.28.0 MINOR**
-**Son güncelleme: 12 Mayıs 2026 Salı (TUR #112 KAPALI + 3 mikro hotfix iterasyonu — Premium Kartvizit + VF Türkçe)**
+**Son güncelleme: 12 Mayıs 2026 Salı (TUR #113 KAPALI — Temsilci Sözleşme SMS OTP Saha Acil Fix + Madde 30.67)**
+
+---
+
+## ANAYASA EVRİM — TUR #113 (12 May 2026) — Onboarding Akış Bütünlüğü
+
+**Yeni Madde 30.67 — Onboarding Akış Bütünlüğü Disiplini:**
+
+Frontend stub endpoint bekliyor + backend endpoint hiç yazılmamış pattern (**Emine ÇELİK saha kanıtı** — TUR #113): "SMS gönderilemedi: Route bulunamadı". REPRESENTATIVE onboarding tıkalı, kartvizit/broşür/reklam butonları çalışmıyor (sözleşme imzasız).
+
+**Kural:**
+1. Frontend stub mod (`if (err?.message?.includes("404")) toast("Stub mod")`) production'a gönderilmez. CEO yazılı onayı olmadan stub-only deploy YASAK.
+2. Onboarding akışında **her ekran zorunlu** — sözleşme imzalanmamışsa diğer butonlar **disabled** veya **uyarı bandı** zorunlu. Backend reddi UX gizli kalmamalı.
+3. Frontend `apiFetch` 404 → kullanıcı için anlaşılır mesaj (`"Bu özellik henüz devrede değil"`) — `"Route bulunamadı"` ham mesaj YASAK.
+4. Schema'da mevcut alanlar (`platformAgreementAcceptedAt`, `kvkkAcceptedAt`, `sozlesmeKabulIp`, `PhoneOtp` modeli) önce kontrol — yeni model EKLEME ihtiyacı kanıt-bazlı olmadan kapalı (Madde 3 KIRMIZI).
+
+**Emine ÇELİK saha milestone:** İlk gerçek REPRESENTATIVE temsilci, ilk gerçek sözleşme akışı bulgusu, ilk gerçek onboarding hatası. TUR #113 KAPALI sonrası saha akışı işler.
+
+### TUR #113 sayısal özet
+- 1 dosya değişiklik (`src/routes/representative.routes.js` — 2 yeni endpoint)
+- 0 KIRMIZI · 0 schema · 0 npm install · 0 env değişiklik · $0 maliyet
+- Backend `1.8.3 → 1.9.0` MINOR (yeni endpoint)
+- Şema değişikliği YOK — mevcut User alanları (platformAgreementAcceptedAt + kvkkAcceptedAt + sozlesmeKabulIp + sozlesmeVersiyonu) + PhoneOtp modeli kullanıldı
+- SMS servisi `sendOtpSms` (NetGSM Türkçe destekli) mevcut paket — npm install yok
+- 26 → **27 ardışık temiz TUR REKOR (#90 → #113)**
+
+### Mimar Hatası 55 — Frontend Stub Mod Production Tuzak (TUR #113 emsali)
+
+**Pattern:** Frontend `if (404 || Cannot) { toast.success("stub mod"); setStep("next") }` koyup backend yazılmamış endpoint'lerle production'a gönderilir. Kullanıcıdan gizlenir, **saha kullanıcısı (Emine ÇELİK)** ekrana hata mesajı görür, akış tıkanır. **Madde 30.67 ihlali.**
+
+**Düzeltme:** Frontend stub modu kaldırma + backend endpoint zorunlu yazma. Stub commit message + GitHub issue + 7 gün içinde gerçek implementation. Stub commit'i ile production deploy YASAK.
 
 ---
 

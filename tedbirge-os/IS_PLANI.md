@@ -1,12 +1,39 @@
 # 📋 TEDBİRGE.AI — İŞ PLANI (AKTİF KESİT)
 
-**Son güncelleme:** 12 Mayıs 2026 Salı
-**Anayasa:** v1.28.0 MINOR
-**Aktif rekor:** 25 ardışık temiz TUR (#90 → #112)
+**Son güncelleme:** 12 Mayıs 2026 Salı (TUR #113)
+**Anayasa:** v1.28.0 (Madde 30.65 + 30.66 + 30.67)
+**Aktif rekor:** 27 ardışık temiz TUR (#90 → #113)
 
 ---
 
-## 🎯 NOW — TUR #112 KAPALI ✅ (Premium Kartvizit + 5 Format + Font Embed + Türkçe Fix)
+## 🎯 NOW — TUR #113 KAPALI ✅ (Temsilci Sözleşme SMS OTP — Emine ÇELİK Saha Acil)
+
+**Saha kanıt:** Emine ÇELİK (gerçek REPRESENTATIVE) `/temsilci/sozlesme` "SMS gönderilemedi: Route bulunamadı" hatası — onboarding tıkalı, kartvizit/broşür/reklam butonları çalışmıyor (sözleşme kilidi).
+
+**Sonuç:** 2 yeni endpoint (sms-otp + imzala), schema değişikliği YOK (mevcut User alanları + PhoneOtp), Backend 1.8.3 → 1.9.0 MINOR.
+
+**Madde 30.67 yeni** — Onboarding Akış Bütünlüğü Disiplini:
+1. Frontend stub mod production yasağı (CEO yazılı onay zorunlu)
+2. Onboarding her ekran zorunlu (sözleşme imzasız butonlar disabled)
+3. Frontend 404 → anlaşılır mesaj
+4. Schema mevcut alanlar önce kontrol
+
+**Mimar Hatası 55** — Frontend Stub Mod Production Tuzak (Emine ÇELİK emsali).
+
+---
+
+## ⏭️ NEXT — TUR #114 (Premium Görsel İterasyonu)
+
+TUR #112'de planlanan görsel kaliteyi yükseltme — saha akış (TUR #113) ile gecikti, şimdi öncelik.
+
+### Öneri yön (CEO seçimi — Madde 17.5):
+1. **Premium kartvizit görsel iterasyon** — kişi fotoğrafı slot + diyagonal pattern + pdfkit upgrade (variable font wght axis)
+2. **Niyazi sahaya çıkış retrospektifi** — Emine ÇELİK + diğer REP'lerin ilk lead'leri
+3. **financialFlowGuard** — ilk 5 komisyon havalesi sonrası DEFER registry
+
+---
+
+## 🗄️ ÖNCEKİ — TUR #112 KAPALI ✅ (Premium Kartvizit + 5 Format + Font Embed + Türkçe Fix)
 
 **Tip:** Premium kartvizit uçtan uca tasarım — Madde 17.2 R1 emsali (parçalı iş yasak)
 **Sonuc:** 10/10 atom uygulandı (CEO uçtan uca direktifi — Mimar Hatası 52 pratik tescil)

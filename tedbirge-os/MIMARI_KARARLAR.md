@@ -6,6 +6,50 @@
 
 ---
 
+## 12 Mayıs 2026 Salı — TUR #113 KAPALI (Temsilci Sözleşme SMS OTP — Emine ÇELİK Saha Acil Fix)
+
+**Karar:** Anayasa **v1.28.0 sabit** (sadece Madde 30.67 yeni). Backend `1.8.3 → 1.9.0` MINOR. 0 KIRMIZI, 0 schema değişikliği (mevcut User alanları + PhoneOtp modeli kullanıldı), 0 npm install. 27 ardışık temiz TUR REKOR.
+
+**Saha kanıt:** Emine ÇELİK (REPRESENTATIVE rolü, gerçek kullanıcı) `/temsilci/sozlesme` sayfasında "SMS gönderilemedi: Route bulunamadı" hatası — onboarding tıkalı, kartvizit/broşür/reklam butonları çalışmıyor (sözleşme imzasız akış kilidi). İlk gerçek REPRESENTATIVE sözleşme milestone'u — TUR #113 KAPALI sonrası saha akışı işler.
+
+**Teşhis (5 grep, kanıt-bazlı):**
+- Frontend (`tedbirge-panel/app/(panel)/temsilci/sozlesme/page.tsx`): `apiFetch("/representative/sozlesme/sms-otp")` + `apiFetch("/representative/sozlesme/imzala")` — stub mod 404 yakalama var (`if (err?.message?.includes("404")) toast("stub mod")`).
+- Backend (`src/routes/representative.routes.js`): Sadece `/representative/leads/:id/asama` mevcut. **Sözleşme endpoint'i HİÇ yazılmamış.**
+- Schema: `platformAgreementAcceptedAt`, `kvkkAcceptedAt`, `sozlesmeKabulIp`, `sozlesmeVersiyonu` User'da MEVCUT. `PhoneOtp` modeli OTP saklama için MEVCUT. Schema değişikliği GEREKMİYOR.
+- SMS servisi: `sendOtpSms(to, code, purpose)` — NetGSM Türkçe destekli, mevcut paket.
+
+**Senaryo seçim:** SENARYO A (endpoint yazılmamış, schema değişikliği yok). Madde 3 KIRMIZI çizgi YOK.
+
+**Uygulama (`src/routes/representative.routes.js` — 2 yeni endpoint):**
+
+1. `POST /api/representative/sozlesme/sms-otp`
+   - Auth: REPRESENTATIVE / ADMIN
+   - Body: `{ kvkk1, kvkk2, kvkk3 }` — 3 KVKK onayı zorunlu (m.5/2 + m.7 silme + SCC m.9)
+   - 6 haneli random OTP üret + `PhoneOtp.create(phone, code, purpose: "REPRESENTATIVE_CONTRACT", expiresAt: now+10min)`
+   - `sendOtpSms(user.phone, code, "temsilci sozlesme")` — NetGSM gerçek veya mock modda console.log
+   - ActivityLog audit (KVKK m.10)
+   - Eski OTP'leri temizle (idempotent yeniden gönderim)
+
+2. `POST /api/representative/sozlesme/imzala`
+   - Auth: REPRESENTATIVE / ADMIN
+   - Body: `{ kod }` — 6 haneli OTP
+   - PhoneOtp findFirst + expiresAt check + delete (kullanıldı)
+   - User update: `platformAgreementAcceptedAt`, `platformAgreementVersion: "v1.0-temsilci"`, `kvkkAcceptedAt`, `kvkkVersion: "v1.0"`, `sozlesmeKabulTarihi`, `sozlesmeKabulIp`, `sozlesmeVersiyonu`
+   - ActivityLog audit (KVKK m.10)
+   - Response: `{ success, signedAt, version }`
+
+**Madde 30.67 yeni — Onboarding Akış Bütünlüğü Disiplini:**
+1. Frontend stub mod (`if 404 toast(stub)`) production'a gönderilmez — CEO yazılı onayı zorunlu
+2. Onboarding her ekran zorunlu — sözleşme imzasız diğer butonlar disabled
+3. Frontend 404 → kullanıcı için anlaşılır mesaj, ham "Route bulunamadı" YASAK
+4. Schema'da mevcut alanlar önce kontrol — yeni model KIRMIZI
+
+**Mimar Hatası 55 — Frontend Stub Mod Production Tuzak:** Frontend stub commit + production deploy = saha hatası. TUR #113 Emine ÇELİK birebir emsali. Düzeltme: stub commit zorunlu issue + 7 gün takip + commit message'da etiket.
+
+### Karar
+
+---
+
 ## 12 Mayıs 2026 Salı — TUR #112 KAPALI + 3 MIKRO HOTFIX ITERASYONU (Premium Kartvizit Uçtan Uca + Türkçe Variable Font + PDF Spacing)
 
 ### 3 Mikro Iterasyon Zinciri (commit hash'ler)

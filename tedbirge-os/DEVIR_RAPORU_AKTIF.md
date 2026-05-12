@@ -1,15 +1,39 @@
 # 🛡️ TEDBIRGE.AI — DEVİR RAPORU (AKTİF)
 
-📋 **ANAYASA:** v1.28.0 MINOR (Madde 30.65 yeni — TUR #112: Premium Kartvizit Disiplini)
-📂 **🚀 PREMIUM KARTVİZİT 5 FORMAT AKTİF — FONT EMBED + TÜRKÇE FİX + MATBAA PDF 🚀**
-📅 **SON GÜNCELLEME:** 12 Mayıs 2026 Salı (TUR #112 KAPALI)
-👤 **CEO Onay:** Mehmet DİNÇ — Madde 17.2 R1 + 30.25 R1 sentezi (uçtan uca direktifi, Mimar Hatası 52 pratik tescil)
-🤖 **Mimar:** Claude Opus 4.7 (sohbet) + Claude Code (10/10 atom uygulandı, parçalı iş yasağı)
-🌟 **Tarih:** 12 Mayıs 2026 — 25 ARDIŞIK TEMİZ TUR REKOR (#90 → #112)
+📋 **ANAYASA:** v1.28.0 (Madde 30.65 + 30.66 + 30.67 yeni — TUR #112+113)
+📂 **🚀 EMİNE ÇELİK SAHA SÖZLEŞME AKIŞI AKTİF — REPRESENTATIVE ONBOARDING FİX 🚀**
+📅 **SON GÜNCELLEME:** 12 Mayıs 2026 Salı (TUR #113 KAPALI — Emine ÇELİK saha milestone)
+👤 **CEO Onay:** Mehmet DİNÇ — Madde 17.2 R1 + 30.25 R1 (uçtan uca direktifi, saha öncelik)
+🤖 **Mimar:** Claude Opus 4.7 (sohbet) + Claude Code (SENARYO A teşhis + endpoint yazımı, schema değişikliği yok)
+🌟 **Tarih:** 12 Mayıs 2026 — 27 ARDIŞIK TEMİZ TUR REKOR (#90 → #113)
 
 ---
 
-## 🎯 BUGÜN — TUR #112 KAPALI (Premium Kartvizit Uçtan Uca)
+## 🎯 BUGÜN — TUR #113 KAPALI (Temsilci Sözleşme SMS OTP — Saha Acil)
+
+**Saha kanıt:** Emine ÇELİK (REPRESENTATIVE, gerçek kullanıcı) `/temsilci/sozlesme` sayfasında "SMS gönderilemedi: Route bulunamadı". Onboarding tıkalı, kartvizit/broşür/reklam butonları çalışmıyor (sözleşme kilidi).
+
+**Sürüm:** Backend 1.8.3 → **1.9.0** MINOR (yeni endpoint), Panel 1.11.0 sabit, Anayasa v1.28.0 (Madde 30.67 + MH55 yeni).
+
+### Uygulanan (SENARYO A — endpoint yazılmamış, schema değişikliği yok)
+- **2 yeni endpoint** (`src/routes/representative.routes.js`):
+  - `POST /api/representative/sozlesme/sms-otp` — REP/ADMIN auth, 3 KVKK onay, 6 haneli OTP PhoneOtp kayıt, sendOtpSms gönderim, ActivityLog audit
+  - `POST /api/representative/sozlesme/imzala` — REP/ADMIN auth, 6 haneli OTP doğrulama + User platformAgreementAcceptedAt/kvkkAcceptedAt/sozlesmeKabulIp/sozlesmeVersiyonu güncelle + ActivityLog audit (KVKK m.10)
+- **Schema değişikliği YOK** — mevcut User alanları + PhoneOtp modeli kullanıldı
+- **SMS servisi** mevcut `sendOtpSms` (NetGSM Türkçe destekli, mock modda console.log)
+
+### Madde 30.67 yeni — Onboarding Akış Bütünlüğü Disiplini
+1. Frontend stub mod production'a gönderilmez (CEO yazılı onay zorunlu)
+2. Onboarding her ekran zorunlu (sözleşme imzasız butonlar disabled)
+3. Frontend 404 → anlaşılır mesaj, ham "Route bulunamadı" YASAK
+4. Schema mevcut alanlar önce kontrol — yeni model KIRMIZI
+
+### Mimar Hatası 55 — Frontend Stub Mod Production Tuzak
+Frontend stub commit + production deploy = saha hatası. Emine ÇELİK emsali. Düzeltme: stub commit zorunlu issue + 7 gün takip.
+
+---
+
+## 🎯 ÖNCEKİ — TUR #112 KAPALI (Premium Kartvizit Uçtan Uca)
 
 **Sürüm:** Backend 1.7.0 → **1.8.3** (3 PATCH hotfix), Panel 1.10.0 → **1.11.0**, Anayasa v1.27.0 → **v1.28.0 MINOR**
 
