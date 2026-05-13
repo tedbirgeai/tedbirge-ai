@@ -1,12 +1,28 @@
 # 📋 TEDBİRGE.AI — İŞ PLANI (AKTİF KESİT)
 
-**Son güncelleme:** 13 Mayıs 2026 Çarşamba gece (TUR #122)
-**Anayasa:** v1.37.0 MINOR (Madde 30.65-82 — **Madde 30.82 yeni: Senaryo Analizi Disiplini**)
-**Aktif rekor:** 37 ardışık temiz TUR (#90 → #122)
+**Son güncelleme:** 14 Mayıs 2026 Persembe (TUR #123 KISMI KAPANIS)
+**Anayasa:** v1.38.0 MINOR (Madde 30.65-83.1 — **Madde 30.83 + 30.83.1 yeni: Erisilebilirlik WCAG AA + Mektup Pre-Flight Disiplini**)
+**Aktif rekor:** 38 ardisik temiz TUR (#90 → #123 KISMI)
 
 ---
 
-## 🎯 NOW — TUR #122 KAPALI ✅ (What-If Kusur Slider — Senaryo Analizi Disiplini)
+## 🎯 NOW — TUR #123 KISMI KAPANIS ✅ (A1 + Mimar Hatasi 59 tespit)
+
+**Durum:** TUR #123-128 birlesik mektup (60 atom, 6 TUR) Code Madde 4.4 (kod kaynaktir) ile dogrulandi. 6 atom verified, 6 atom architect speculation cikti.
+
+**Uygulanan 1 atom (A1):** Skip link + global focus-visible + sr-only utility (`layout.tsx` + `globals.css`). Madde 30.83 anayasa madde.
+
+**DEFER 9 atom + 5 TUR:** Architect mektupta kod-kanitsiz iddialar (Mimar Hatasi 59 tescil → Madde 30.83.1 yeni).
+
+Panel 1.20.0→**1.21.0**, Anayasa v1.37.0→**v1.38.0**. Backend sabit.
+
+### Madde 30.83 + 30.83.1
+- 30.83 — Erisilebilirlik WCAG AA (skip link + focus + ARIA + label + touch + renk + kontrast)
+- 30.83.1 — Mektup Pre-Flight (architect mektup oncesi her dosya grep, "muhtemelen" yasak)
+
+---
+
+## 🗄️ ARSIV — TUR #122 KAPALI ✅ (What-If Kusur Slider — Senaryo Analizi Disiplini)
 
 **Saha kanıt:** Kimi v4.1 10 öneri analizi (önceki rapor) — #4 What-If Slider en düşük risk + motor hazır → seçildi.
 

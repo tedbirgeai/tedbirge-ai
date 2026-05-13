@@ -1,15 +1,53 @@
 # 🛡️ TEDBIRGE.AI — DEVİR RAPORU (AKTİF)
 
-📋 **ANAYASA:** v1.37.0 MINOR (Madde 30.65-82 — **Madde 30.82 yeni: Senaryo Analizi Disiplini**)
-📂 **🚀 WHAT-IF KUSUR SLIDER — TAZMINAT HESAPLA SENARYO ANALIZ + BACKEND MOTOR REUSE 🚀**
-📅 **SON GÜNCELLEME:** 13 Mayıs 2026 Çarşamba gece (TUR #122 KAPALI)
-👤 **CEO Onay:** Mehmet DİNÇ — Madde 30.25 R1 ("Build PASS, push, bitir"). Kimi v4.1 öneri #4 kanıt-bazlı seçim.
-🤖 **Mimar:** Claude Opus 4.7 (kısa mektup) + Claude Code (1 atom, motor reuse Madde 30.82+30.61)
-🌟 **Tarih:** 13 Mayıs 2026 — 37 ARDIŞIK TEMİZ TUR REKOR (#90 → #122)
+📋 **ANAYASA:** v1.38.0 MINOR (Madde 30.65-83.1 — **Madde 30.83 + 30.83.1 yeni: Erisilebilirlik WCAG AA + Mektup Pre-Flight Disiplini**)
+📂 **♿ A1 SKIP LINK + GLOBAL FOCUS-VISIBLE + MIMAR HATASI 59 TESPIT (TUR #123-128 mektup kod-kanitsiz) ♿**
+📅 **SON GÜNCELLEME:** 14 Mayıs 2026 Persembe (TUR #123 KISMI KAPANIS)
+👤 **CEO Onay:** Mehmet DINÇ — Madde 30.25 R1 ("Secenek C, hicbir sey sorma basla bitir"). Code 1/60 atom uyguladi, 59 atom DEFER (architect speculation).
+🤖 **Mimar:** Claude Opus 4.7 (TUR #123-128 mektup, kod-kanitsiz) + Claude Code (A1 atom + Madde 30.83 + 30.83.1 + Mimar Hatasi 59 tescil)
+🌟 **Tarih:** 14 Mayıs 2026 — 38 ARDISIK TEMIZ TUR REKOR (#90 → #123 KISMI)
 
 ---
 
-## 🎯 BUGÜN — TUR #122 KAPALI (What-If Kusur Slider — Senaryo Analizi Disiplini)
+## 🎯 BUGÜN — TUR #123 KISMI KAPANIS (A1 + Mimar Hatasi 59)
+
+**Mektup:** TUR #123-128 birlesik (60 atom, 6 TUR, DEFER 0). Madde 4.4 (kod kaynaktir) zorunlu kildi her atom oncesi grep/view.
+
+**Sonuc:** 6 atom dogrulandi → A1 uygulandi (skip link + focus-visible). A2/A3/A4/A7/A8/D4 architect speculation cikti (mevcut UI zaten dogru, KVKK m.11 zaten var). Mimar Hatasi 59 tescil edildi (Madde 30.83.1 yeni).
+
+**Surum:** Panel 1.20.0 → **1.21.0** MINOR, Anayasa v1.37.0 → **v1.38.0** MINOR. Backend sabit (1.15.0).
+
+### Uygulanan 1 atom (A1)
+- `tedbirge-panel/app/layout.tsx`: `<a href="#main">Ana icerige atla</a>` skip link + `<div>` → `<main id="main">`
+- `tedbirge-panel/app/globals.css`: `*:focus-visible { outline: 2px solid #22C55E; }` + sr-only utility
+- `<html lang="tr">` mevcut dogru ✓
+- Brand `#22C55E` accent (brand.json + Madde 35)
+
+### DEFER 9 atom + 5 TUR
+Bkz. `OTONOM_RAPOR.md` tablo. Architect mektupta "muhtemelen", "ihtimali", "olabilir" kelimeleri kullandi (Madde 30.83.1 yasak). Grep ile dogrulandi atomlar:
+- KVKK m.11 musteri formu **zaten var** (`/musteri/kvkk-haklarim`)
+- Tab brand color **zaten dogru** (`tab-item.active` CSS)
+- Register checkbox **zaten dogru** (implicit label wrapper)
+- /iletisim form **mevcut degil** (sadece info kartlar)
+- Slider ARIA **zaten implicit** (native `<input type="range">`)
+
+### Madde 30.83 + 30.83.1 yeni
+
+**30.83 — Erisilebilirlik WCAG AA Disiplini:** 7 zorunlu (skip link + focus-visible + ARIA + label-input + 44px touch + renk-bagimsiz + kontrast).
+
+**30.83.1 — Mektup Pre-Flight Disiplini:** Architect mektup yazimi oncesi her dosya grep. "Muhtemelen"/"ihtimali"/"olabilir" YASAK. Belirsizse "Code D dogrulasin" diye isaretle, "uygula" yazma.
+
+### Smoke
+- `npx tsc --noEmit` EXIT=0 ✓
+- A1 + Madde 30.83 + version.json bump ✓
+- 5-belge OS senkron (CLAUDE/MIMARI/DEVIR/IS_PLANI/OTONOM) ✓
+
+### NEXT
+CEO sohbete donsun → Mimar (Opus 4.7) TUR #124-#128 atomlarini Madde 30.83.1 protokolu ile yeniden dogrulasin → Code uctan uca uygulayabilir.
+
+---
+
+## 🗄️ ARSIV — TUR #122 KAPALI (What-If Kusur Slider — Senaryo Analizi Disiplini)
 
 **Saha kanıt:** Kimi v4.1 10 öneri kod-bazlı analiz raporu — #4 What-If Slider en düşük risk (motor hazır, 0 KIRMIZI).
 

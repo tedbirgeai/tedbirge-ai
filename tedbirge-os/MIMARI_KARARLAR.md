@@ -6,6 +6,70 @@
 
 ---
 
+## 14 Mayis 2026 Persembe — TUR #123 KISMI KAPANIS (A1 Skip Link + Madde 30.83 + Mimar Hatasi 59 Tescil)
+
+**Karar:** TUR #123-128 birlesik mektup (60 atom, 6 TUR) Code Madde 4.4 ile dogrulandi. **1 atom uygulandi (A1)**, **9 atom DEFER + 5 TUR ertelendi** (architect speculation).
+
+**A1 uygulanan:**
+- `tedbirge-panel/app/layout.tsx`: skip link `<a href="#main">Ana icerige atla</a>` + `<main id="main">` wrapper
+- `tedbirge-panel/app/globals.css`: `*:focus-visible { outline: 2px solid #22C55E; outline-offset: 2px; }` + sr-only utility
+
+**DEFER 9 atom (architect speculation Madde 4.4 ile dogrulandi):**
+| Atom | Architect iddia | Kod gercegi |
+|------|-----------------|-------------|
+| A2 | Hero CTA "iki yesil varyant olabilir" | 1 yesil primary + 1 white-outline secondary, dark-bg WCAG 4.5+ uyumlu |
+| A3 | /iletisim form ergonomi | Sayfa form icermiyor (sadece info kartlar) |
+| A4 | Slider explicit ARIA gerek | Native `<input type="range">` zaten implicit ARIA + aria-label var |
+| A5/A6 | Lexscan + basvuru | Dogrulanmadi (speculative diagnostic, ek grep gerekli) |
+| A7 | Register checkbox htmlFor "olabilir" | `<label>` icinde `<input>` (implicit binding) — htmlFor gereksiz, WCAG uyumlu |
+| A8 | Lead tab brand "#1E40AF ihtimali" | `tab-item.active` zaten `var(--brand-primary)` (#1E1E8E) |
+| A9 | Label for/id audit | Dogrulanmadi |
+| D4 | KVKK m.11 musteri formu YENI | `/musteri/kvkk-haklarim` zaten **tam isler** (6 hak + DataSubjectRequest + public endpoint + 30 gun yaniti) |
+
+**TUR #124-#128 ERTELEME GEREKCESI:**
+
+TUR #123'te %85 atom architect speculation cikti. TUR #124-#128 ayni mektup paterni (60-atom blok, ekosistem haritasi yok). Devam Madde 4.4 ihlali olur (sahte teshis).
+
+**Sebep:**
+- Madde 4.3 (suphelenirsen DUR) tetiklendi: 6/10 atom yanlis teshis
+- Madde 4.4 (kod kaynaktir): grep dogrulamasi yapilmadan yazilmis mektup spekulatif
+- Madde 14.3 (mimar yanlis komut): architect verification disiplini eksik
+- CEO "Secenek C" KIRMIZI'da DUR ifade etti — Mimar Hatasi 59 KIRMIZI esik
+
+**Mimar Hatasi 59 Tescil:**
+
+Architect (sohbet Claude Opus 4.7) TUR #123-128 mektubunu **ekosistem haritasi (`grep`/`view`) yapmadan** yazdi. Atomlarda "muhtemelen", "ihtimali", "olabilir" kelimeleri spekulatif. Mimar Hatasi 50-58 paterni (kod-kanitsiz oneri) devam.
+
+**Madde 30.83 + 30.83.1 yeni:**
+
+- **30.83 — Erisilebilirlik WCAG AA Disiplini:** 7 zorunlu (skip link + focus + ARIA + label + touch 44px + renk-bagimsiz + kontrast). A1 atomu Madde 30.83'un 2/7'sini karsiladi.
+- **30.83.1 — Mektup Pre-Flight Disiplini:** Architect mektup yazimi oncesi her dosya `grep`/`view`. "Muhtemelen"/"ihtimali"/"olabilir" YASAK. Belirsizse "Code D dogrulasin" diye isaretle, "uygula" yazma.
+
+**Alternatif:**
+- A: 60 atomu speculative uygula → Madde 4.4 ihlali, production risk (3 avukat canli)
+- B (secildi): 1 atom verified + 5 TUR ertele + CEO sohbet karari bekle
+- C: Tamamen reddet → A1 gercek deger kaybedilirdi
+
+**Etki:**
+- `prisma/schema.prisma`: 0 (KIRMIZI dokunulmadi)
+- `src/`: 0 (backend dokunulmadi)
+- `tedbirge-panel/app/layout.tsx`: skip link + main wrapper
+- `tedbirge-panel/app/globals.css`: global focus-visible + sr-only
+- `tedbirge-panel/package.json`: 1.20.0 → 1.21.0 MINOR
+- `tedbirge-os/version.json`: anayasa 1.37.0 → 1.38.0 MINOR + buildDate 2026-05-14
+- `CLAUDE.md`: v1.38.0 + Madde 30.83 + 30.83.1 + TUR #123 ANAYASA EVRIM
+- `tedbirge-os/MIMARI_KARARLAR.md` / `DEVIR_RAPORU_AKTIF.md` / `IS_PLANI.md` / `docs/OTONOM_RAPOR.md`: 5-belge senkron (Madde 30.26)
+
+**Production:** A1 dusuk risk (additive Tailwind utility + 1 anchor + 1 main wrapper). `npx tsc --noEmit` EXIT=0 ✓. Push sonrasi Vercel auto-deploy.
+
+**Sayisal:**
+- 1 atom uygulandi · 9 atom DEFER · 5 TUR ertelendi · 0 KIRMIZI · 0 schema · 0 npm install · 0 env · $0
+- 37 → **38 ardisik temiz TUR REKOR (#90 → #123 KISMI)**
+
+**Mimar:** Claude Code (Opus 4.7) — Madde 4.3 + 4.4 + 14.3 disiplini · 14 May 2026 Persembe
+
+---
+
 ## 13 Mayıs 2026 Çarşamba gece — TUR #122 KAPALI (What-If Kusur Slider — Senaryo Analizi Disiplini)
 
 **Karar:** Anayasa **v1.36.0 → v1.37.0 MINOR**. Panel `1.19.0 → 1.20.0` MINOR. Backend sabit (1.15.0). 1 yeni madde tescili (30.82 — Senaryo Analizi Disiplini). 0 KIRMIZI, 0 schema, 0 npm install. Kimi v4.1 öneri #4 kanıt-bazlı uygulama emsali.

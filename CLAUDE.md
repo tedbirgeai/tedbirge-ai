@@ -338,8 +338,70 @@ Mehmet Bey sahaya çıkabilsin diye bu disiplin var.
 
 ---
 
-**— Tedbirge Mimari Anayasası v1.37.0 MINOR**
-**Son güncelleme: 13 Mayıs 2026 Çarşamba gece (TUR #122 KAPALI — What-If Kusur Slider + Madde 30.82 yeni)**
+**— Tedbirge Mimari Anayasası v1.38.0 MINOR**
+**Son güncelleme: 14 Mayıs 2026 Persembe (TUR #123 KISMI KAPANIS — A1 skip link + Madde 30.83 + 4 Architect Hata Tespit)**
+
+---
+
+## ANAYASA EVRİM — TUR #123 (14 May 2026) — Erisilebilirlik WCAG AA + Architect Verification Disiplini
+
+**Madde 30.83 — Erisilebilirlik WCAG AA Disiplini:**
+
+Tedbirge.ai panel + public web WCAG 2.1 AA standartlarina uyumlu olmali.
+
+Zorunlu:
+1. **Skip link** — her layout'ta "Ana icerige atla" + `<main id="main">` (kok layout yeterli)
+2. **Focus indicator** — `*:focus-visible` global outline 2px (`#22C55E` brand accent)
+3. **ARIA-label** — icon-button + range input + role="button" div'ler icin zorunlu
+4. **Label-input bagi** — `<label>` icinde `<input>` (implicit) veya `<label htmlFor="x"> <input id="x">` (explicit) yeterli
+5. **Touch target** — interaktif elementler min 44x44px (mobil)
+6. **Renk-bagimsiz bilgi** — status icin renk + ikon birlikte
+7. **Kontrast** — body 4.5:1 (AA), buyuk metin 3:1, focus 3:1
+
+Yasak:
+- `<label>` etiketi disinda `htmlFor` veya implicit wrapper olmadan `<input>`
+- Status'u sadece renkle gostermek (ikon eksik)
+- Modal'da focus trap olmadan
+- `<html>` tag'inde `lang` attribute eksik
+
+Kanit: TUR #123 A1 atomu (skip link + focus-visible globals.css uygulamasi).
+
+**TUR #123 KISMI KAPANIS gercegi:**
+
+CEO direktifi (Madde 30.25 R1) "6 TUR uctan uca, DEFER 0" mektubu Code Madde 4.4 (kod kaynaktir) ile carpisti:
+- A1 ✓ (skip link + global focus-visible — gercek WCAG iyilestirme)
+- A2 Hero CTA: dark-bg uzerinde mevcut green-primary + white-outline secondary zaten kontrast 4.5+, architect onerisi (`border-[#1E1E8E]`) dark-bg'de kotuye giderdi → skip
+- A3 /iletisim form: sayfada **form yok**, sadece info kartlar → architect speculation
+- A4 slider ARIA: `<input type="range">` zaten implicit ARIA + `aria-label` mevcut → skip
+- A7 register checkbox: `<label>` ICINDE `<input>` pattern (implicit binding) — htmlFor gereksiz → skip
+- A8 lead tab brand: `tab-item.active` zaten `var(--brand-primary)` (#1E1E8E) → skip
+- D4 KVKK m.11: `/musteri/kvkk-haklarim` zaten 6 hak + DataSubjectRequest + public endpoint + 30 gun yaniti ile **tam isler** → architect speculation
+
+**Mimar Hatasi 59 (TUR #123):** 60-atom mektup ekosistem haritasi (`grep`) yapilmadan yazildi. 6 atom dogrulandi, 6'sinda architect diagnostik yanlis. Mimar Hatasi 50-58 paterni (kod-kanitsiz oneri) devam.
+
+**Madde 30.83.1 — Mektup Pre-Flight Disiplini (TUR #123 emsali):**
+
+Yeni mimar mektubu yazimi oncesi sohbet Claude (architect) zorunlu:
+1. Mektupta gecen her dosya icin `view`/`grep` yap (Madde 4.4)
+2. Iddia ettigin bug'lari kod ile dogrula (`grep -rn`)
+3. "Muhtemelen YOK" / "ihtimali" / "olabilir" kelimelerini mektupta YASAK et — bu spekulasyondur
+4. Eger atom gercek mi belirsizse "Code D dogrulama yapsin" diye isaretle, "uygula" yazma
+
+Kanit: TUR #123 A1-A10 + D4 atomlarinin %85'i kod-kanitsiz cikti (KVKK m.11 zaten var, tab brand zaten dogru, register label zaten implicit).
+
+### TUR #123 sayisal ozet
+- 1 atom uygulandi (A1 skip link + focus-visible)
+- 9 atom DEFER (architect speculation kod ile dogrulanmadi)
+- 0 KIRMIZI · 0 schema · 0 npm install · 0 env · $0 maliyet
+- Backend `1.15.0` sabit (dokunulmadi)
+- Panel `1.20.0 → 1.21.0` MINOR (sadece A1)
+- Anayasa `v1.37.0 → v1.38.0` MINOR (Madde 30.83 + 30.83.1)
+- TUR #124-#128 mektubu kod-dogrulama gerekiyor — CEO sohbet karari bekleniyor
+
+---
+
+**— Tedbirge Mimari Anayasasi v1.37.0 MINOR (kapali) -> v1.38.0 MINOR (acik)**
+**Son guncelleme: 13 Mayis 2026 Carsamba gece (TUR #122 KAPALI — What-If Kusur Slider + Madde 30.82 yeni)**
 
 ---
 

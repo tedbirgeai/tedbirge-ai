@@ -1,9 +1,9 @@
 {
-  "anayasa": "1.37.0",
+  "anayasa": "1.38.0",
   "backend": "1.15.0",
-  "panel": "1.20.0",
+  "panel": "1.21.0",
   "schema": "1.7.0",
-  "buildDate": "2026-05-13",
+  "buildDate": "2026-05-14",
   "compliance": [
     {
       "label": "KVKK Uyumlu",
