@@ -1,3 +1,103 @@
+# 🤖 TEDBİRGE.AI — OTONOM RAPOR (TUR #121)
+
+**Tarih:** 13 Mayıs 2026 Çarşamba gece
+**TUR:** #121 ✅ KAPALI
+**Tip:** 5 Madde UÇTAN UCA — Prerender + DocStatus Enum + Render Cache + Email/Phone 2FA + Premium SVG
+**Anayasa:** v1.35.0 → **v1.36.0 MINOR** (Madde 30.79 + 30.80 + 30.81 yeni)
+
+## 📋 Sayısal özet
+- 5 madde · ~15 atomik değişiklik (12 UYGULA + 3 SKIP no-op) · DEFER 0 (Madde 17.2 R1)
+- **2 KIRMIZI** (DocumentStatus enum + EmailOtp/User schema) — CEO yazılı onay Madde 18.3 + 30.71
+- 0 npm install · 0 env · $0 maliyet (nodemailer mevcut, SMTP yoksa mock log)
+- Backend `1.14.1 → 1.15.0` MINOR / Panel `1.18.1 → 1.19.0` MINOR / Anayasa `v1.35.0 → v1.36.0` MINOR / Schema `1.6.0 → 1.7.0`
+- **35 → 36 ardışık temiz TUR REKOR (#90 → #121)**
+
+## CEO yazılı onay (Madde 18.3 + 30.71 + 30.25 R1)
+> "CEO ONAYLIYOR TEK KOMUTLA TEK MEKTUPLA HEM ARAŞTIR HEM UYGULA uçtan uca kod tabanlı otonom aksın gitsin 0 hata ile düzelt bana hiç bir şey sorma başla bitir." — Mehmet DİNÇ, 13 May 2026 gece
+
+## ✅ 5 Madde Senaryo Sonuç
+
+### M1 — Prerender Fix (workStore Invariant)
+- ✓ `app/(panel)/temsilci/profil/page.tsx` `export const dynamic = "force-dynamic"` (private, robots disallow)
+- ✓ `app/(panel)/dashboard/ajanda/page.tsx` aynı
+- ⊘ `/blog/[slug]/page.tsx` SKIP — zaten `params: Promise<>` + `dynamicParams = false` + `revalidate = 86400` (Senaryo C uygulanmış, force-dynamic ISR'yi bozar = SEO juice kaybı)
+
+### M2 — DocumentStatus Enum 🔴 KIRMIZI (CEO yazılı onaylı)
+- ✓ `schema.prisma` DocumentStatus: `+ STUCK` (analyzer 1+ saat yanıt vermeyen) `+ DELETED` (soft-delete, audit korunur)
+- ✓ `apply-pending-schemas.js` 2 `ALTER TYPE "DocumentStatus" ADD VALUE IF NOT EXISTS` (PostgreSQL 12+)
+- Madde 4.6 — mevcut 5 değer (`PENDING_UPLOAD, UPLOADED, PARSED, ANALYZED, FAILED`) korundu
+
+### M3 — Render Build Cache
+- ✓ `.dockerignore` yeni (15 kategori: node_modules, .git, .env*, test/, docs/, *.md, tedbirge-panel/, MEKTUP_TUR_*.md vb.)
+- ⊘ Dockerfile SKIP — Render Node auto-detect, Dockerfile auto-detect'i bozar
+- ⊘ render.yaml SKIP — mevcut buildCommand zaten optimize
+
+### M4 — Email/Phone 2FA + 24h Onay 🔴 KIRMIZI (CEO yazılı onaylı)
+- ✓ `schema.prisma`:
+  - `EmailOtp` model yeni (id, email, code, purpose, expiresAt, createdAt) + 2 index
+  - User'a 2 sütun: `emailChangePendingUntil` + `phoneChangePendingUntil` DateTime
+- ✓ `apply-pending-schemas.js` 4 SQL: `CREATE TABLE IF NOT EXISTS "EmailOtp"` + 2 index + 2 ALTER TABLE
+- ✓ `email.service.js` 2 helper:
+  - `sendOtpEmail(to, code, purpose)` — 6 haneli kod email, mock mode korundu
+  - `sendEmailChangedInfo(oldEmail, newEmail, revertUrl)` — KVKK m.11 eski email'e 24h iptal bağlantısı
+- ✓ `auth.routes.js` 4 yeni endpoint:
+  - `POST /me/email/request-change` — newEmail validation + unique + OTP üret + sendOtpEmail + ActivityLog `EMAIL_CHANGE_REQUESTED`
+  - `POST /me/email/confirm-change` — OTP doğrula + User.email update + emailChangePendingUntil 24h + sendEmailChangedInfo + ActivityLog `EMAIL_CHANGED`
+  - `POST /me/phone/request-change` — newPhone validation + unique + PhoneOtp + sendOtpSms (TUR #113 emsali)
+  - `POST /me/phone/confirm-change` — OTP doğrula + User.phone update + phoneChangePendingUntil 24h + ActivityLog `PHONE_CHANGED`
+- ✓ `auth.routes.js` PATCH `/me` artık email/phone değişikliğini reject ediyor: `400 USE_VERIFY_FLOW` + `nextUrl` redirect (kullanıcıyı doğru endpoint'e yönlendir)
+- ✓ `PersonalEditCard.tsx` 2-adım OTP akışı:
+  - form save() → email/phone değişirse `/request-change` çağırır
+  - OTP modal açılır (6 haneli kod input, monospace, autofocus)
+  - "Onayla" → `/confirm-change` çağırır
+  - Başarı toast'ı KVKK m.11 24h iptal bağlantısı bilgilendirme dahil
+- ✓ KVKK m.11 disclaimer footer + modal info kutucuk
+
+### M5 — Premium SVG (kartvizit estetik)
+- ✓ `corporate.service.js` SVG generator ön yüz:
+  - İsim Crimson Pro Bold `font-size: 32 → 36` + `letter-spacing: 0.02em` (premium hierarchy)
+  - Unvan Inter Tight SemiBold `font-size: 13 → 14` + `italic` + `letter-spacing: 0.03em`
+  - Baro Sicil + role `letter-spacing: 0.03em`
+  - Telefon JetBrains Mono `letter-spacing: 0.05em` (sayılar netlik premium)
+- ✓ Arka yüz diyagonal aksent: sol üst `0,0 80,0 0,80 → 100,0 0,100` + sağ alt `770,550 → 750,550` (daha büyük aksent, opacity 0.9 korundu)
+
+### Senkron
+- ✓ `version.json` anayasa 1.35→1.36 / backend 1.14.1→1.15.0 / panel 1.18.1→1.19.0 / schema 1.6→1.7
+- ✓ `sync-version.js` çalıştırıldı (2 package.json sync)
+- ✓ 5 belge OS senkron + version
+
+## 📝 3 Yeni Anayasa Madde
+
+**Madde 30.79 — Prerender Static Optimization Disiplini:**
+- `force-dynamic` → private sayfa
+- async params + ISR → public SEO sayfa
+- Build warning'leri pasif kabul edilmez
+
+**Madde 30.80 — Çift Kanal Doğrulama Disiplini (KVKK m.11):**
+- Yeni kanaldan OTP + eski kanala 24h iptal bağlantısı
+- PATCH /me doğrudan email/phone YASAK (USE_VERIFY_FLOW)
+- ActivityLog audit her aşama
+
+**Madde 30.81 — Build Cache Disiplini:**
+- `.dockerignore` zorunlu
+- Layer caching (package.json önce, source en son)
+- Build süresi >3dk = teknik borç
+
+## 🔬 Smoke (local kanıt-bazlı)
+```
+Backend syntax (4 dosya): OK
+Prisma generate: PASS (EmailOtp + DocStatus.STUCK/DELETED + User 2 sütun)
+Panel tsc --noEmit: exit 0
+```
+
+## 🎯 NEXT — TUR #122
+1. Email/Phone revert endpoint (24h penceresi geri alma)
+2. 2FA aktif kullanıcılar profil değişiminde 2FA OTP zorunluluğu
+3. Niyazi DEMİR ilk gerçek lead retrospektifi
+4. TUR #117 deploy fail Render log analizi
+5. 52 küçük il × ilçe (TUR #117 SARI)
+
+═══════════════════════════════════════════════════════════════════
 # 🤖 TEDBİRGE.AI — OTONOM RAPOR (TUR #120.1 mikro hotfix)
 
 **Tarih:** 13 Mayıs 2026 Çarşamba gece

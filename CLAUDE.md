@@ -338,8 +338,54 @@ Mehmet Bey sahaya çıkabilsin diye bu disiplin var.
 
 ---
 
-**— Tedbirge Mimari Anayasası v1.35.0 MINOR**
-**Son güncelleme: 13 Mayıs 2026 Çarşamba gece (TUR #120.1 hotfix — Madde 30.78 yeni: Framework Major Version Disiplini)**
+**— Tedbirge Mimari Anayasası v1.36.0 MINOR**
+**Son güncelleme: 13 Mayıs 2026 Çarşamba gece (TUR #121 KAPALI — 5 madde + Madde 30.79+30.80+30.81 yeni)**
+
+---
+
+## ANAYASA EVRİM — TUR #121 (13 May 2026) — 3 Yeni Madde + 5 Madde UÇTAN UCA
+
+**Madde 30.79 — Prerender Static Optimization Disiplini:**
+
+Next.js 16 prerender hatası `workStore Invariant` durumunda 2 çözüm:
+1. `export const dynamic = 'force-dynamic'` — dinamik sayfa explicit declare (private sayfalar tercih edilir)
+2. Next.js 16 async pattern (`const { slug } = await params`) — public SEO sayfalar tercih edilir
+
+Build warning'leri pasif kabul edilmez. Public sayfalarda `force-dynamic` SEO juice'i bozar (ISR ile bağdaşmaz), private sayfalarda sorun değil. Karar matrisi:
+- `/temsilci/profil`, `/dashboard/ajanda` (private, robots disallow) → `force-dynamic` ✓
+- `/blog/[slug]` (public, ISR aktif) → async params pattern ✓ (zaten doğru)
+
+**Madde 30.80 — Çift Kanal Doğrulama Disiplini (KVKK m.11):**
+
+Kullanıcının kritik kimlik verisi (email, telefon) değişiminde:
+1. **Yeni kanaldan OTP** — `EmailOtp` / `PhoneOtp` 6 haneli kod, 10 dk geçerli
+2. **Eski kanala bilgilendirme** + 24h geri alma penceresi (`emailChangePendingUntil`, `phoneChangePendingUntil`)
+3. **ActivityLog audit** her aşama (`EMAIL_CHANGE_REQUESTED` → `EMAIL_CHANGED` → opsiyonel `EMAIL_CHANGE_REVERTED`)
+
+**Yasak:** `PATCH /auth/me` doğrudan email/phone değişim. Endpoint'ler reject eder (400 `USE_VERIFY_FLOW` + `nextUrl` redirect). Ad Soyad doğrudan değiştirilebilir (kritik kimlik değil).
+
+**Madde 30.81 — Build Cache Disiplini:**
+
+Production build (Render, Vercel) cache optimizasyonu:
+1. **`.dockerignore` zorunlu** — node_modules + .git + .env* + test/ + docs/ + *.md hariç (build context küçük = hızlı upload)
+2. **Layer caching** (varsa Dockerfile) — package.json önce, source en son
+3. **Build süresi >3dk = teknik borç** (Madde 28 emsali izlenir)
+
+**Yasak:** Dockerfile auto-detect bozma (Render Node auto-detect varken Dockerfile EKLEME, sadece `.dockerignore`).
+
+### TUR #121 sayısal özet
+- 5 madde uçtan uca (M1-M5) · UÇTAN UCA tek mektup, DEFER 0
+- ~15 atomik değişiklik · 3 yeni anayasa madde · 2 yeni model/enum value
+- **2 KIRMIZI** (DocumentStatus STUCK+DELETED + EmailOtp tablosu + User 2 sütun) — CEO yazılı onay Madde 18.3 + 30.71
+- 0 npm install · 0 env · $0 maliyet (nodemailer mevcut, mock mode korundu)
+- Backend `1.14.1 → 1.15.0` MINOR / Panel `1.18.1 → 1.19.0` MINOR / Anayasa `v1.35.0 → v1.36.0` MINOR / Schema `1.6.0 → 1.7.0`
+- 35 → **36 ardışık temiz TUR REKOR (#90 → #121)**
+
+### Madde 30.79-81 öncesi 3 SKIP no-op (kanıt-bazlı, Mimar Hatası 50 önleme)
+
+- `/blog/[slug]` force-dynamic SKIP — zaten async params + ISR doğru (Senaryo C)
+- Dockerfile EKLE SKIP — Render Node auto-detect bozulur (sadece `.dockerignore`)
+- email.service.js sendOtpEmail mock-only fallback — nodemailer mevcut, SMTP yoksa console.log
 
 ---
 

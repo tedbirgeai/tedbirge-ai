@@ -159,6 +159,32 @@ const STATEMENTS = [
   // Almanya pilot 2028+ hazirlik (Madde 30.73 Gelecege Hazirlik Disiplini).
   // Mevcut user'lar otomatik 'Türkiye' default alir.
   `ALTER TABLE "User" ADD COLUMN IF NOT EXISTS "country" TEXT DEFAULT 'Türkiye'`,
+
+  // ─── TUR #121 M2 — DocumentStatus enum + STUCK + DELETED (KIRMIZI, CEO yazili onay Madde 18.3 + 30.71) ──
+  // PostgreSQL'de ALTER TYPE ADD VALUE IF NOT EXISTS — PG 12+ destekler (Supabase >= 14).
+  // CONCURRENT VALUE limit: yeni enum value transaction icinde commit edilemez,
+  // ama IF NOT EXISTS idempotent. AUTOCOMMIT mode prisma.$executeRawUnsafe ile.
+  `ALTER TYPE "DocumentStatus" ADD VALUE IF NOT EXISTS 'STUCK'`,
+  `ALTER TYPE "DocumentStatus" ADD VALUE IF NOT EXISTS 'DELETED'`,
+
+  // ─── TUR #121 M4 — EmailOtp table + User email/phone change pending columns ──
+  // CEO yazili onay (Madde 18.3 + 30.71 KIRMIZI Gecis Protokolu + 30.80 Cift Kanal Dogrulama).
+  // PhoneOtp emsali (TUR #113 + #116), email kanali icin idempotent CREATE.
+  `CREATE TABLE IF NOT EXISTS "EmailOtp" (
+     "id" TEXT NOT NULL,
+     "email" TEXT NOT NULL,
+     "code" TEXT NOT NULL,
+     "purpose" TEXT NOT NULL,
+     "expiresAt" TIMESTAMP(3) NOT NULL,
+     "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+     CONSTRAINT "EmailOtp_pkey" PRIMARY KEY ("id")
+   )`,
+  `CREATE INDEX IF NOT EXISTS "EmailOtp_email_purpose_idx" ON "EmailOtp"("email", "purpose")`,
+  `CREATE INDEX IF NOT EXISTS "EmailOtp_expiresAt_idx" ON "EmailOtp"("expiresAt")`,
+
+  // User 24h onay penceresi alanlari (KVKK m.11 hak)
+  `ALTER TABLE "User" ADD COLUMN IF NOT EXISTS "emailChangePendingUntil" TIMESTAMP(3)`,
+  `ALTER TABLE "User" ADD COLUMN IF NOT EXISTS "phoneChangePendingUntil" TIMESTAMP(3)`,
 ];
 
 (async () => {

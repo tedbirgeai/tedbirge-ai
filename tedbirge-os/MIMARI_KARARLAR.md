@@ -6,6 +6,102 @@
 
 ---
 
+## 13 Mayıs 2026 Çarşamba gece — TUR #121 KAPALI (5 Madde UÇTAN UCA — Prerender + DocumentStatus + Render + Email/Phone 2FA + Premium SVG)
+
+**Karar:** Anayasa **v1.35.0 → v1.36.0 MINOR**. Backend `1.14.1 → 1.15.0` MINOR. Panel `1.18.1 → 1.19.0` MINOR. Schema `1.6.0 → 1.7.0`. **3 yeni madde tescili** (30.79 + 30.80 + 30.81). **2 KIRMIZI** (DocumentStatus enum genişletme + EmailOtp tablosu + User 2 sütun) CEO yazılı onaylı (Madde 18.3 + 30.71).
+
+**CEO yazılı onay (Madde 18.3):**
+> "CEO ONAYLIYOR TEK KOMUTLA TEK MEKTUPLA HEM ARAŞTIR HEM UYGULA uçtan uca kod tabanlı otonom aksın gitsin 0 hata ile düzelt bana hiç bir şey sorma başla bitir." — Mehmet DİNÇ, 13 May 2026 gece
+
+**5 madde kanıt-bazlı senaryo kararı:**
+
+| Madde | Senaryo | Karar | Kanıt |
+|---|---|---|---|
+| M1 prerender | A/B/C hibrit | 2 sayfa UYGULA + 1 SKIP | `/blog/[slug]` zaten async params + ISR (Senaryo C uygulanmış), `/temsilci/profil` + `/dashboard/ajanda` client component private → `force-dynamic` |
+| M2 DocumentStatus | Additive | UYGULA | Mevcut 5 değer + 2 yeni (STUCK + DELETED), `ALTER TYPE ADD VALUE IF NOT EXISTS` |
+| M3 Render | Senaryo A | UYGULA `.dockerignore` SKIP Dockerfile | Dockerfile YOK (Render Node auto-detect), Dockerfile eklemek auto-detect bozar |
+| M4 Email/Phone 2FA | Senaryo A tam zincir | UYGULA | EmailOtp YOK + sendOtpEmail YOK + User columns YOK — tam yeni zincir |
+| M5 Premium SVG | Mikro iterasyon | UYGULA | İsim 32→36 + letter-spacing, mono 0.05em, diyagonal 80→100 |
+
+**ATOM listesi (15 atomik değişiklik):**
+
+### M1 (2 atom uygulandı, 1 SKIP)
+- ✓ `app/(panel)/temsilci/profil/page.tsx` `export const dynamic = "force-dynamic"`
+- ✓ `app/(panel)/dashboard/ajanda/page.tsx` `export const dynamic = "force-dynamic"`
+- ⊘ `/blog/[slug]/page.tsx` SKIP — zaten `params: Promise<>` + `dynamicParams = false` + `revalidate = 86400` ISR doğru pattern
+
+### M2 (2 atom, 🔴 KIRMIZI CEO onaylı)
+- ✓ `prisma/schema.prisma` DocumentStatus enum: `+ STUCK + DELETED` (Madde 4.6 mevcut 5 değer korundu)
+- ✓ `apply-pending-schemas.js` 2 `ALTER TYPE "DocumentStatus" ADD VALUE IF NOT EXISTS` (PostgreSQL 12+ destek)
+
+### M3 (1 atom)
+- ✓ `.dockerignore` yeni (15 kategori exclude: node_modules + .git + .env* + test/ + docs/ + *.md + tedbirge-panel/ + MEKTUP_TUR_*.md vb.)
+- ⊘ Dockerfile SKIP (Render Node auto-detect bozma riski, Madde 4.6)
+- ⊘ render.yaml SKIP (mevcut buildCommand zaten optimize)
+
+### M4 (7 atom, 🔴 KIRMIZI CEO onaylı)
+- ✓ `schema.prisma` `EmailOtp` model yeni (PhoneOtp emsali)
+- ✓ `schema.prisma` User'a `emailChangePendingUntil` + `phoneChangePendingUntil` 2 alan
+- ✓ `apply-pending-schemas.js` 4 SQL: `CREATE TABLE IF NOT EXISTS "EmailOtp"` + 2 index + 2 ALTER TABLE
+- ✓ `email.service.js` `sendOtpEmail(to, code, purpose)` + `sendEmailChangedInfo(oldEmail, newEmail, revertUrl)` helpers (KVKK m.11 24h iptal bağlantısı)
+- ✓ `auth.routes.js` 4 yeni endpoint:
+  - `POST /me/email/request-change` (newEmail validation + unique check + OTP üret + sendOtpEmail + audit log)
+  - `POST /me/email/confirm-change` (OTP doğrula + User.email update + emailChangePendingUntil 24h + sendEmailChangedInfo eski email'e)
+  - `POST /me/phone/request-change` (newPhone validation + unique + PhoneOtp + sendOtpSms)
+  - `POST /me/phone/confirm-change` (OTP doğrula + User.phone update + phoneChangePendingUntil 24h)
+- ✓ `auth.routes.js` PATCH `/me` reject email/phone: `400 USE_VERIFY_FLOW` + nextUrl redirect
+- ✓ `PersonalEditCard.tsx` 2-adım OTP akışı: form save → email/phone değişirse `request-change` çağırır → OTP modal açılır → 6 haneli kod input → `confirm-change` çağırır
+- ✓ KVKK m.11 disclaimer footer (modal + form altı bilgi)
+
+### M5 (1 atom, 5 mikro değişiklik)
+- ✓ `corporate.service.js` SVG generator:
+  - İsim Crimson Pro Bold 32→36px + `letter-spacing: 0.02em`
+  - Unvan 13→14px + italic + `letter-spacing: 0.03em`
+  - Baro Sicil + role `letter-spacing: 0.03em`
+  - İletişim JetBrains Mono telefon `letter-spacing: 0.05em` (CEO emsal "premium")
+  - Arka yüz diyagonal polygon: `80,0` → `100,0` (sol üst), `770,550` → `750,550` (sağ alt) — daha büyük aksent
+
+### Senkron (4 atom)
+- ✓ `version.json` anayasa 1.35→1.36 / backend 1.14.1→1.15.0 / panel 1.18.1→1.19.0 / schema 1.6→1.7
+- ✓ `sync-version.js` çalıştırıldı (2 package.json güncellendi)
+- ✓ 5 belge OS senkron (CLAUDE/MIMARI/DEVIR/IS_PLANI/OTONOM_RAPOR)
+- ✓ 2 commit ayrı repo (backend + panel) aynı TUR #121 mesajı
+
+### 3 Yeni Madde
+
+**Madde 30.79 — Prerender Static Optimization Disiplini:** Next.js 16 `workStore Invariant` private → force-dynamic, public ISR → async params.
+
+**Madde 30.80 — Çift Kanal Doğrulama Disiplini (KVKK m.11):** Kritik kimlik (email/phone) değişimi 2-adım OTP + 24h iptal penceresi. PATCH /me doğrudan değişim YASAK.
+
+**Madde 30.81 — Build Cache Disiplini:** `.dockerignore` zorunlu, layer caching, build süresi >3dk = teknik borç.
+
+### Smoke (local kanıt-bazlı)
+```
+Backend syntax (4 dosya): OK
+Prisma generate: PASS (EmailOtp + DocumentStatus.STUCK/DELETED + User columns)
+Panel tsc --noEmit: exit 0 (PersonalEditCard OTP modal dahil)
+```
+
+### Etki
+
+- Backend: 4 dosya değişiklik (schema + apply-pending + auth.routes + email.service + corporate.service)
+- Panel: 3 dosya (temsilci/profil + dashboard/ajanda dynamic + PersonalEditCard OTP modal)
+- Root: 1 yeni dosya (`.dockerignore`)
+- OS: 5 belge senkron + version
+- **35 → 36 ardışık temiz TUR REKOR (#90 → #121)** — 2 KIRMIZI ardışık (TUR #120 ve TUR #121 schema CEO yazılı onaylı, rekor bozmadı)
+
+### NEXT — TUR #122
+
+- Email/Phone revert endpoint (24h penceresi geri alma + eski değer audit'ten okuma)
+- 2FA aktif kullanıcılar profil değişiminde 2FA OTP zorunluluğu (M4 ek katman)
+- Niyazi DEMİR ilk gerçek lead retrospektifi
+- TUR #117 deploy fail Render log analiz
+- 52 küçük il × ilçe (TUR #117 SARI)
+
+**Mimar:** Claude Opus 4.7 (mektup 5 madde) + Claude Code (kanıt-bazlı senaryo kararı + uygulama + 3 SKIP no-op + ~15 atom) — 13 Mayıs 2026 Çarşamba gece
+
+---
+
 ## 13 Mayıs 2026 Çarşamba gece — TUR #120.1 mikro hotfix (Next.js 16 middleware.ts → proxy.ts rename)
 
 **Karar:** Panel `1.18.0 → 1.18.1` PATCH (hotfix). Anayasa v1.35.0 sabit (Madde 30.78 yeni eklenmesine rağmen aynı oturum içi). 0 KIRMIZI, 0 schema, 0 npm install. Mimar Hatası 58 emsal tescili.

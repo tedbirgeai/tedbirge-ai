@@ -370,6 +370,20 @@ model PhoneOtp {
   createdAt DateTime @default(now())
 }
 
+// TUR #121 M4 — Email OTP (CEO yazili onay Madde 18.3 + 30.71 + 30.80 Cift Kanal Dogrulama)
+// PhoneOtp emsali, email kanali icin. Email/phone degisiminde KVKK m.11 onay penceresi.
+model EmailOtp {
+  id        String   @id @default(cuid())
+  email     String
+  code      String
+  purpose   String   // EMAIL_CHANGE_VERIFY, EMAIL_2FA_LOGIN, REGISTRATION_VERIFY
+  expiresAt DateTime
+  createdAt DateTime @default(now())
+
+  @@index([email, purpose])
+  @@index([expiresAt])
+}
+
 model PushSubscription {
   id        String   @id @default(cuid())
   userId    String
@@ -404,6 +418,9 @@ model User {
   postalCode                  String?
   // TUR #117 — country alani (CEO yazili onay Madde 18.3, Madde 30.71 + 30.73 Almanya pilot 2028+ hazirlik)
   country                     String?              @default("Türkiye")
+  // TUR #121 M4 — Email/Phone degisim 24h onay penceresi (Madde 30.71 + 30.80 KVKK m.11 hak)
+  emailChangePendingUntil     DateTime?
+  phoneChangePendingUntil     DateTime?
   hukukcuKomisyon             Float?               @default(20)
   primOrani                   Float?               @default(50)
   uzmanlik                    String?
@@ -518,6 +535,9 @@ enum DocumentStatus {
   PARSED
   ANALYZED
   FAILED
+  // TUR #121 M2 — CEO yazili onay (Madde 18.3 + 30.71 KIRMIZI Gecis Protokolu)
+  STUCK    // analyzer 1+ saat yanit vermeyen
+  DELETED  // soft-delete (audit korunur, gorunmez)
 }
 
 enum DocumentType {

@@ -1,12 +1,44 @@
 # 📋 TEDBİRGE.AI — İŞ PLANI (AKTİF KESİT)
 
-**Son güncelleme:** 13 Mayıs 2026 Çarşamba gece (TUR #120.1 mikro hotfix)
-**Anayasa:** v1.35.0 MINOR (Madde 30.65-78 — **Madde 30.78 yeni: Framework Major Version Disiplini**)
-**Aktif rekor:** 35 ardışık temiz TUR (#90 → #120.1)
+**Son güncelleme:** 13 Mayıs 2026 Çarşamba gece (TUR #121)
+**Anayasa:** v1.36.0 MINOR (Madde 30.65-81 — **Madde 30.79+30.80+30.81 yeni**)
+**Aktif rekor:** 36 ardışık temiz TUR (#90 → #121)
 
 ---
 
-## 🎯 NOW — TUR #120.1 mikro hotfix ✅ (Next.js 16 middleware.ts → proxy.ts rename)
+## 🎯 NOW — TUR #121 KAPALI ✅ (5 Madde UÇTAN UCA)
+
+**CEO yazılı onay:** 2 KIRMIZI schema değişikliği + ~15 atom uçtan uca tek mektup.
+
+### 5 madde sonuç
+- **M1** Prerender fix — 2 UYGULA (force-dynamic private) + 1 SKIP (blog/[slug] async params zaten doğru)
+- **M2** DocumentStatus enum +STUCK +DELETED — KIRMIZI CEO onaylı
+- **M3** `.dockerignore` (15 kategori) — Dockerfile SKIP (Render Node auto-detect)
+- **M4** Email/Phone 2FA tam zincir — EmailOtp model + User 2 sütun + 4 endpoint + UI OTP modal + KVKK m.11
+- **M5** Premium SVG typography + diyagonal aksent (mikro iterasyon)
+
+### 3 Yeni Madde
+- **30.79** Prerender Static Optimization
+- **30.80** Çift Kanal Doğrulama (KVKK m.11)
+- **30.81** Build Cache
+
+Backend 1.14.1→1.15.0, Panel 1.18.1→1.19.0, Anayasa v1.35.0→v1.36.0, Schema 1.6.0→1.7.0.
+
+---
+
+## ⏭️ NEXT — TUR #122
+
+**CEO seçimi:**
+1. Email/Phone revert endpoint (24h penceresi geri alma — M4 ek katman)
+2. 2FA aktif kullanıcılar profil değişiminde 2FA OTP zorunluluğu
+3. Niyazi DEMİR ilk gerçek lead retrospektifi
+4. TUR #117 deploy fail Render log analizi
+5. 52 küçük il × ilçe (TUR #117 SARI)
+6. Premium görsel kullanıcı test (M5 sonrası CEO görsel feedback)
+
+---
+
+## 🎯 ÖNCEKİ — TUR #120.1 mikro hotfix ✅ (Next.js 16 middleware.ts → proxy.ts rename)
 
 **Saha kanıt:** Vercel build "Both middleware file and proxy file are detected" — TUR #119 middleware.ts ile mevcut proxy.ts çakıştı.
 

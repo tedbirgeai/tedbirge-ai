@@ -235,14 +235,14 @@ async function generateKartvizitSVG(user) {
   <!-- Sag panel: kullanici -->
   <rect x="360" y="0" width="490" height="550" fill="white"/>
 
-  <!-- Isim -->
-  <text x="400" y="155" fill="${primary}" font-family="'Crimson Pro', Georgia, serif" font-weight="700" font-size="32">${escapeXml(name)}</text>
+  <!-- Isim — TUR #121 M5 premium tipografi: 32->36, letter-spacing 0.02em -->
+  <text x="400" y="155" fill="${primary}" font-family="'Crimson Pro', Georgia, serif" font-weight="700" font-size="36" letter-spacing="0.02em">${escapeXml(name)}</text>
 
-  <!-- Rol -->
+  <!-- Rol — TUR #121 M5: 13->14 italic, letter-spacing 0.03em -->
   ${isLawyer
-    ? `<text x="400" y="185" fill="#6b7280" font-family="'Inter Tight', Inter, system-ui, sans-serif" font-weight="600" font-size="13">Tedbirge.ai Uye Avukati</text>
-       <text x="400" y="208" fill="#9ca3af" font-family="'Inter Tight', Inter, system-ui, sans-serif" font-size="11">Baro Sicil: ${escapeXml(user.baroSicilNo || "—")}</text>`
-    : `<text x="400" y="185" fill="#6b7280" font-family="'Inter Tight', Inter, system-ui, sans-serif" font-weight="600" font-size="13">${escapeXml(getRoleTitle(user.role))}</text>`
+    ? `<text x="400" y="188" fill="#6b7280" font-family="'Inter Tight', Inter, system-ui, sans-serif" font-weight="600" font-size="14" font-style="italic" letter-spacing="0.03em">Tedbirge.ai Uye Avukati</text>
+       <text x="400" y="212" fill="#9ca3af" font-family="'Inter Tight', Inter, system-ui, sans-serif" font-size="11" letter-spacing="0.03em">Baro Sicil: ${escapeXml(user.baroSicilNo || "—")}</text>`
+    : `<text x="400" y="188" fill="#6b7280" font-family="'Inter Tight', Inter, system-ui, sans-serif" font-weight="600" font-size="14" font-style="italic" letter-spacing="0.03em">${escapeXml(getRoleTitle(user.role))}</text>`
   }
 
   <!-- Hairline ayirici -->
@@ -252,7 +252,7 @@ async function generateKartvizitSVG(user) {
   <g transform="translate(400, 263)" stroke="#1e1e8e" stroke-width="1.4" fill="none" stroke-linecap="round" stroke-linejoin="round">
     <path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z" transform="scale(0.55)"/>
   </g>
-  <text x="425" y="275" fill="#111827" font-family="'JetBrains Mono', ui-monospace, SFMono-Regular, monospace" font-size="14">${escapeXml(formatTurkishPhone(tel))}</text>
+  <text x="425" y="275" fill="#111827" font-family="'JetBrains Mono', ui-monospace, SFMono-Regular, monospace" font-size="14" letter-spacing="0.05em">${escapeXml(formatTurkishPhone(tel))}</text>
 
   <g transform="translate(400, 290)" stroke="#1e1e8e" stroke-width="1.4" fill="none" stroke-linecap="round" stroke-linejoin="round">
     <rect x="1" y="2.2" width="12" height="9" rx="1.1"/>
@@ -312,10 +312,10 @@ async function generateKartvizitBackSVG(user, adContent) {
   <!-- Full bleed lacivert -->
   <rect x="0" y="0" width="850" height="550" fill="${primary}"/>
 
-  <!-- Diyagonal yesil aksent cubuklar -->
+  <!-- Diyagonal yesil aksent cubuklar — TUR #121 M5 premium: 80->100 buyutuldu, opacity korundu -->
   <g opacity="0.9">
-    <polygon points="0,0 80,0 0,80" fill="${accent}"/>
-    <polygon points="850,550 770,550 850,470" fill="${accent}"/>
+    <polygon points="0,0 100,0 0,100" fill="${accent}"/>
+    <polygon points="850,550 750,550 850,450" fill="${accent}"/>
   </g>
 
   <!-- Merkez buyuk logo + slogan — TUR #112 mikro hotfix #2: spacing yayildi -->

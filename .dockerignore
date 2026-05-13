@@ -1,0 +1,70 @@
+# TUR #121 M3 — Render build cache optimization (Madde 30.81 Build Cache Disiplini)
+# Build context boyutu minimize: node_modules + git + env + test + docs hariç
+
+# Dependencies (npm ci ile yeniden yüklenir)
+node_modules
+*/node_modules
+
+# Git
+.git
+.gitignore
+.gitattributes
+
+# Environment + secrets (Render env vars'tan gelir)
+.env
+.env.local
+.env.development
+.env.production
+.env*.local
+
+# Logs + temp
+*.log
+npm-debug.log*
+.npm
+.cache
+coverage/
+.nyc_output/
+*.tmp
+
+# Frontend (Vercel ayrı deploy ediyor — Render bunu build etmez)
+tedbirge-panel/
+
+# Test + docs (production'a gerek yok)
+test/
+tests/
+__tests__/
+*.test.js
+*.test.ts
+*.spec.js
+*.spec.ts
+docs/
+*.md
+README.md
+
+# Editor + OS
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# Build artifacts
+dist/
+build/
+.next/
+out/
+
+# Local Prisma client (postinstall generate eder)
+node_modules/.prisma/
+node_modules/@prisma/client/
+
+# Backup files
+*.bak
+*.orig
+
+# Mektup dosyaları (CEO/Mimar lokal akıyor)
+MEKTUP_TUR_*.md
+gorev.md
+TUR*_KESIF.md
+MIMAR_PAKET_*.md

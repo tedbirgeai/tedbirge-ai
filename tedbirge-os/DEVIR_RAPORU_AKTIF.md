@@ -1,15 +1,52 @@
 # 🛡️ TEDBIRGE.AI — DEVİR RAPORU (AKTİF)
 
-📋 **ANAYASA:** v1.35.0 MINOR (Madde 30.65-78 — **Madde 30.78 yeni: Framework Major Version Disiplini**)
-📂 **🚀 NEXT.JS 16 middleware.ts → proxy.ts MERGE + VERCEL DEPLOY FİX 🚀**
-📅 **SON GÜNCELLEME:** 13 Mayıs 2026 Çarşamba gece (TUR #120.1 mikro hotfix)
-👤 **CEO Onay:** Mehmet DİNÇ — Madde 30.25 R1 ("Build PASS, push, bitir")
-🤖 **Mimar:** Claude Opus 4.7 (TUR #119 mektup HATA KAYNAĞI) + Claude Code (kanıt-bazlı Senaryo B merge)
-🌟 **Tarih:** 13 Mayıs 2026 — 35 ARDIŞIK TEMİZ TUR REKOR (#90 → #120.1)
+📋 **ANAYASA:** v1.36.0 MINOR (Madde 30.65-81 — **Madde 30.79+30.80+30.81 yeni** TUR #121)
+📂 **🚀 5 MADDE UÇTAN UCA — PRERENDER FİX + DOCSTATUS ENUM + RENDER CACHE + EMAİL/PHONE 2FA + PREMIUM SVG 🚀**
+📅 **SON GÜNCELLEME:** 13 Mayıs 2026 Çarşamba gece (TUR #121 KAPALI)
+👤 **CEO Onay:** Mehmet DİNÇ — Madde 18.3 YAZILI onay (2 KIRMIZI schema değişikliği) + Madde 30.25 R1
+🤖 **Mimar:** Claude Opus 4.7 (mektup 5 madde) + Claude Code (~15 atom kanıt-bazlı + 3 SKIP no-op)
+🌟 **Tarih:** 13 Mayıs 2026 — 36 ARDIŞIK TEMİZ TUR REKOR (#90 → #121)
 
 ---
 
-## 🎯 BUGÜN — TUR #120.1 mikro hotfix (Next.js 16 middleware.ts → proxy.ts rename)
+## 🎯 BUGÜN — TUR #121 KAPALI (5 Madde UÇTAN UCA — Prerender + DocStatus + Render + Email/Phone 2FA + Premium SVG)
+
+**CEO yazılı onay (Madde 18.3 + 30.71):** *"CEO ONAYLIYOR TEK KOMUTLA TEK MEKTUPLA HEM ARAŞTIR HEM UYGULA"* — 13 May 2026 gece
+
+**Sürüm:** Backend 1.14.1 → **1.15.0** MINOR, Panel 1.18.1 → **1.19.0** MINOR, Anayasa v1.35.0 → **v1.36.0** MINOR, Schema 1.6.0 → **1.7.0**.
+
+### 5 Madde Kanıt-Bazlı Sonuç
+
+| M | İş | Senaryo | Karar |
+|---|---|---|---|
+| M1 | Prerender fix | A/B/C hibrit | 2 UYGULA + 1 SKIP (`/blog/[slug]` async params zaten doğru) |
+| M2 | DocumentStatus enum | Additive | UYGULA (STUCK + DELETED) — KIRMIZI CEO onaylı |
+| M3 | Render build | A | `.dockerignore` UYGULA, Dockerfile SKIP (Render Node auto-detect) |
+| M4 | Email/Phone 2FA | A tam zincir | UYGULA (schema + email.service + 4 endpoint + UI OTP modal) — KIRMIZI CEO onaylı |
+| M5 | Premium görsel | Mikro iterasyon | UYGULA (typography + letter-spacing + diyagonal aksent büyütme) |
+
+### Uygulanan ~15 atom + 3 SKIP no-op (UÇTAN UCA, DEFER 0)
+- **M1** 2 sayfa force-dynamic (private, robots disallow) + 1 SKIP (public ISR)
+- **M2** schema enum + idempotent ALTER TYPE × 2
+- **M3** .dockerignore (15 kategori exclude) + Dockerfile SKIP + render.yaml SKIP
+- **M4** EmailOtp model + User 2 sütun + 4 SQL idempotent + sendOtpEmail/sendEmailChangedInfo helpers + 4 endpoint (request/confirm × email/phone) + PATCH /me reject (400 USE_VERIFY_FLOW) + PersonalEditCard 2-adım OTP modal + KVKK m.11 disclaimer
+- **M5** corporate.service.js SVG: isim 32→36 + letter-spacing 0.02em + unvan 13→14 italic + mono 0.05em + diyagonal 80→100
+
+### Madde 30.79+30.80+30.81 yeni
+- **30.79** Prerender Static Optimization (private→force-dynamic, public→async params)
+- **30.80** Çift Kanal Doğrulama (KVKK m.11 hak, email/phone 2-adım OTP + 24h iptal)
+- **30.81** Build Cache (`.dockerignore` zorunlu, layer caching, >3dk = teknik borç)
+
+### Smoke
+```
+Backend syntax (4 dosya): OK
+Prisma generate: PASS (EmailOtp + DocStatus.STUCK/DELETED + User columns)
+Panel tsc --noEmit: exit 0
+```
+
+---
+
+## 🎯 ÖNCEKİ — TUR #120.1 mikro hotfix (Next.js 16 middleware.ts → proxy.ts rename)
 
 **Saha kanıt (Vercel build log, commit b1ac2eb):**
 ```

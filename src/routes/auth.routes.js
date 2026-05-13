@@ -75,6 +75,211 @@ router.get("/me", auth, async (req, res) => {
   }
 });
 
+// ─── TUR #121 M4 — Email/Phone Change 2FA + 24h Onay Penceresi ──────────────
+// Madde 30.80 Cift Kanal Dogrulama Disiplini + KVKK m.11 Veri Sahibi Hakki
+// PhoneOtp (TUR #113) + EmailOtp (TUR #121) emsalleri
+
+function generateOtp() {
+  return String(Math.floor(100000 + Math.random() * 900000));
+}
+
+// POST /api/auth/me/email/request-change
+// Body: { newEmail } - Yeni email'e OTP gönderir
+router.post("/me/email/request-change", auth, async (req, res) => {
+  try {
+    const prisma = require("../config/db");
+    const { sendOtpEmail } = require("../services/email.service");
+    const { newEmail } = req.body || {};
+    if (!newEmail || typeof newEmail !== "string") {
+      return res.status(400).json({ error: "newEmail zorunlu" });
+    }
+    const trimmed = String(newEmail).trim().toLowerCase().slice(0, 100);
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(trimmed)) {
+      return res.status(400).json({ error: "Gecersiz email formati" });
+    }
+    // Unique check (başka user kullanıyor mu)
+    const existing = await prisma.user.findUnique({ where: { email: trimmed }, select: { id: true } });
+    if (existing && existing.id !== req.user.id) {
+      return res.status(409).json({ error: "Bu email zaten kayitli" });
+    }
+    // Eski OTP'leri temizle
+    await prisma.emailOtp.deleteMany({
+      where: { email: trimmed, purpose: "EMAIL_CHANGE_VERIFY" },
+    });
+    const code = generateOtp();
+    const expiresAt = new Date(Date.now() + 10 * 60 * 1000);
+    await prisma.emailOtp.create({
+      data: { email: trimmed, code, purpose: "EMAIL_CHANGE_VERIFY", expiresAt },
+    });
+    let result = { success: true };
+    try {
+      result = await sendOtpEmail(trimmed, code, "e-posta degisikligi");
+    } catch (e) {
+      console.error("[EMAIL_OTP] send error:", e.message);
+    }
+    try {
+      await prisma.activityLog.create({
+        data: {
+          action: "EMAIL_CHANGE_REQUESTED",
+          detail: `userId:${req.user.id} oldEmail:${req.user.email || "-"} newEmail:${trimmed} mock:${!!result?.mock}`,
+        },
+      });
+    } catch (_) {}
+    res.json({ success: true, expiresIn: 600, mock: !!result?.mock });
+  } catch (e) {
+    res.status(500).json({ error: e.message });
+  }
+});
+
+// POST /api/auth/me/email/confirm-change
+// Body: { newEmail, code } - OTP doğrula + email güncelle + eski email'e bilgilendirme
+router.post("/me/email/confirm-change", auth, async (req, res) => {
+  try {
+    const prisma = require("../config/db");
+    const { sendEmailChangedInfo } = require("../services/email.service");
+    const { newEmail, code } = req.body || {};
+    if (!newEmail || !code || !/^\d{6}$/.test(String(code).trim())) {
+      return res.status(400).json({ error: "newEmail ve 6 haneli kod zorunlu" });
+    }
+    const trimmedEmail = String(newEmail).trim().toLowerCase().slice(0, 100);
+    const user = await prisma.user.findUnique({ where: { id: req.user.id }, select: { id: true, email: true } });
+    if (!user) return res.status(404).json({ error: "Kullanici bulunamadi" });
+    const otp = await prisma.emailOtp.findFirst({
+      where: {
+        email: trimmedEmail,
+        code: String(code).trim(),
+        purpose: "EMAIL_CHANGE_VERIFY",
+        expiresAt: { gt: new Date() },
+      },
+      orderBy: { createdAt: "desc" },
+    });
+    if (!otp) {
+      return res.status(400).json({ error: "Kod hatali veya suresi doldu", code: "OTP_MISMATCH" });
+    }
+    const oldEmail = user.email;
+    const now = new Date();
+    const pendingUntil = new Date(now.getTime() + 24 * 60 * 60 * 1000); // 24h
+    await prisma.user.update({
+      where: { id: req.user.id },
+      data: { email: trimmedEmail, emailChangePendingUntil: pendingUntil },
+    });
+    await prisma.emailOtp.delete({ where: { id: otp.id } }).catch(() => {});
+    // Eski email'e KVKK m.11 bilgilendirme (revert link — gelecek TUR detayli endpoint)
+    try {
+      const revertUrl = `https://www.tedbirge.ai/auth/email-revert?token=${otp.id}`;
+      await sendEmailChangedInfo(oldEmail, trimmedEmail, revertUrl);
+    } catch (_) {}
+    try {
+      await prisma.activityLog.create({
+        data: {
+          action: "EMAIL_CHANGED",
+          detail: `userId:${req.user.id} old:${oldEmail} new:${trimmedEmail} pendingUntil:${pendingUntil.toISOString()}`,
+        },
+      });
+    } catch (_) {}
+    res.json({ success: true, changedAt: now.toISOString(), pendingUntil: pendingUntil.toISOString() });
+  } catch (e) {
+    if (e && e.code === "P2002") {
+      return res.status(409).json({ error: "Bu email zaten kayitli (unique kisit)" });
+    }
+    res.status(500).json({ error: e.message });
+  }
+});
+
+// POST /api/auth/me/phone/request-change
+// Body: { newPhone } - Yeni telefona SMS OTP gönderir
+router.post("/me/phone/request-change", auth, async (req, res) => {
+  try {
+    const prisma = require("../config/db");
+    const { sendOtpSms } = require("../services/sms.service");
+    const { newPhone } = req.body || {};
+    if (!newPhone) return res.status(400).json({ error: "newPhone zorunlu" });
+    const trimmed = String(newPhone).slice(0, 20);
+    const digits = trimmed.replace(/\D/g, "");
+    if (digits.length < 10 || digits.length > 12) {
+      return res.status(400).json({ error: "Telefon 10-12 haneli olmali" });
+    }
+    const existing = await prisma.user.findFirst({
+      where: { phone: trimmed, id: { not: req.user.id } },
+      select: { id: true },
+    });
+    if (existing) {
+      return res.status(409).json({ error: "Bu telefon zaten kayitli" });
+    }
+    await prisma.phoneOtp.deleteMany({
+      where: { phone: trimmed, purpose: "PHONE_CHANGE_VERIFY" },
+    });
+    const code = generateOtp();
+    const expiresAt = new Date(Date.now() + 10 * 60 * 1000);
+    await prisma.phoneOtp.create({
+      data: { phone: trimmed, code, purpose: "PHONE_CHANGE_VERIFY", expiresAt },
+    });
+    let result = { success: true };
+    try {
+      result = await sendOtpSms(trimmed, code, "telefon degisikligi");
+    } catch (e) {
+      console.error("[PHONE_OTP] send error:", e.message);
+    }
+    try {
+      await prisma.activityLog.create({
+        data: {
+          action: "PHONE_CHANGE_REQUESTED",
+          detail: `userId:${req.user.id} newPhone:${trimmed.slice(0, 4)}***${trimmed.slice(-2)} mock:${!!result?.mock}`,
+        },
+      });
+    } catch (_) {}
+    res.json({ success: true, expiresIn: 600, mock: !!result?.mock });
+  } catch (e) {
+    res.status(500).json({ error: e.message });
+  }
+});
+
+// POST /api/auth/me/phone/confirm-change
+// Body: { newPhone, code }
+router.post("/me/phone/confirm-change", auth, async (req, res) => {
+  try {
+    const prisma = require("../config/db");
+    const { newPhone, code } = req.body || {};
+    if (!newPhone || !code || !/^\d{6}$/.test(String(code).trim())) {
+      return res.status(400).json({ error: "newPhone ve 6 haneli kod zorunlu" });
+    }
+    const trimmed = String(newPhone).slice(0, 20);
+    const user = await prisma.user.findUnique({ where: { id: req.user.id }, select: { id: true, phone: true } });
+    if (!user) return res.status(404).json({ error: "Kullanici bulunamadi" });
+    const otp = await prisma.phoneOtp.findFirst({
+      where: {
+        phone: trimmed,
+        code: String(code).trim(),
+        purpose: "PHONE_CHANGE_VERIFY",
+        expiresAt: { gt: new Date() },
+      },
+      orderBy: { createdAt: "desc" },
+    });
+    if (!otp) {
+      return res.status(400).json({ error: "Kod hatali veya suresi doldu", code: "OTP_MISMATCH" });
+    }
+    const oldPhone = user.phone;
+    const now = new Date();
+    const pendingUntil = new Date(now.getTime() + 24 * 60 * 60 * 1000);
+    await prisma.user.update({
+      where: { id: req.user.id },
+      data: { phone: trimmed, phoneChangePendingUntil: pendingUntil },
+    });
+    await prisma.phoneOtp.delete({ where: { id: otp.id } }).catch(() => {});
+    try {
+      await prisma.activityLog.create({
+        data: {
+          action: "PHONE_CHANGED",
+          detail: `userId:${req.user.id} old:${oldPhone || "-"} new:${trimmed.slice(0, 4)}***${trimmed.slice(-2)} pendingUntil:${pendingUntil.toISOString()}`,
+        },
+      });
+    } catch (_) {}
+    res.json({ success: true, changedAt: now.toISOString(), pendingUntil: pendingUntil.toISOString() });
+  } catch (e) {
+    res.status(500).json({ error: e.message });
+  }
+});
+
 router.patch("/me", auth, async (req, res) => {
   try {
     const prisma = require("../config/db");
@@ -127,46 +332,24 @@ router.patch("/me", auth, async (req, res) => {
       }
     }
 
-    if (data.email !== undefined) {
-      const trimmed = String(data.email).trim().toLowerCase().slice(0, 100);
-      const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-      if (!emailRegex.test(trimmed)) {
-        return res.status(400).json({ error: "Gecersiz email formati" });
-      }
-      data.email = trimmed;
-      if (trimmed !== current.email) {
-        // Unique check (DB-level unique constraint var ama explicit kontrol daha temiz hata mesaji)
-        const existing = await prisma.user.findUnique({ where: { email: trimmed }, select: { id: true } });
-        if (existing && existing.id !== req.user.id) {
-          return res.status(409).json({ error: "Bu email zaten kayitli" });
-        }
-        auditChanges.push({ field: "email", old: current.email, new: trimmed });
-      }
+    // TUR #121 M4 — Email/phone PATCH /me'den REDDEDILIR, çift kanal doğrulama akışı zorunlu (Madde 30.80)
+    if (data.email !== undefined && data.email !== current.email) {
+      return res.status(400).json({
+        error: "Email değişikliği için /auth/me/email/request-change endpoint'ini kullanın",
+        code: "USE_VERIFY_FLOW",
+        nextUrl: "/auth/me/email/request-change",
+      });
     }
-
-    if (data.phone !== undefined) {
-      // Telefon: rakam + boslara/tire/plus izinli, max 20 char
-      const trimmed = data.phone ? String(data.phone).slice(0, 20) : null;
-      // Normalize (sadece rakam) + Turkiye 10/11 digit check
-      if (trimmed) {
-        const digits = trimmed.replace(/\D/g, "");
-        if (digits.length < 10 || digits.length > 12) {
-          return res.status(400).json({ error: "Telefon 10-12 haneli olmali (orn: 5454903395 veya +905454903395)" });
-        }
-        if (trimmed !== current.phone) {
-          // Unique check (DB'de unique constraint phone'da yok ama denetim icin)
-          const existing = await prisma.user.findFirst({
-            where: { phone: trimmed, id: { not: req.user.id } },
-            select: { id: true },
-          });
-          if (existing) {
-            return res.status(409).json({ error: "Bu telefon numarasi baska bir kullanicida kayitli" });
-          }
-          auditChanges.push({ field: "phone", old: current.phone, new: trimmed });
-        }
-      }
-      data.phone = trimmed || null;
+    if (data.phone !== undefined && data.phone !== current.phone) {
+      return res.status(400).json({
+        error: "Telefon değişikliği için /auth/me/phone/request-change endpoint'ini kullanın",
+        code: "USE_VERIFY_FLOW",
+        nextUrl: "/auth/me/phone/request-change",
+      });
     }
+    // Email/phone aynı kalırsa veya undefined ise atla (no-op, audit yok)
+    delete data.email;
+    delete data.phone;
 
     const updated = await prisma.user.update({
       where: { id: req.user.id },

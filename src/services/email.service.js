@@ -378,6 +378,55 @@ async function sendCareerApplicationNotification(application) {
   return sendEmail({ to: adminEmail, subject, html });
 }
 
+// ─── TUR #121 M4 — OTP Email + Info Email (Madde 30.80 Cift Kanal Dogrulama) ──
+// Email/Phone degisim akisinda yeni kanaldan OTP + eski kanala bilgilendirme.
+// Mock mod: SMTP yoksa console.log (TUR #113 SMS emsali).
+
+async function sendOtpEmail(to, code, purpose = "dogrulama") {
+  const subject = `Tedbirge ${purpose} kodunuz: ${code}`;
+  const html = wrapHtml(
+    "Doğrulama Kodu",
+    `
+    <p style="font-size: 16px; color: #0A1628;">
+      Tedbirge.ai üzerinde <strong>${purpose}</strong> işlemi için doğrulama kodunuz:
+    </p>
+    <div style="background: #F1F5F9; padding: 24px; text-align: center; margin: 24px 0; border-radius: 12px;">
+      <span style="font-size: 36px; font-weight: 700; letter-spacing: 0.2em; color: #1E1E8E; font-family: monospace;">${code}</span>
+    </div>
+    <p style="color: #64748b; font-size: 14px;">
+      Bu kod <strong>10 dakika</strong> geçerlidir. Kodu kimseyle paylaşmayın.
+    </p>
+    <p style="color: #DC2626; font-size: 13px; margin-top: 24px;">
+      ⚠️ Eğer bu işlemi siz başlatmadıysanız, derhal hesabınızı kontrol edin ve şifrenizi değiştirin.
+    </p>
+    `
+  );
+  return sendEmail({ to, subject, html });
+}
+
+async function sendEmailChangedInfo(oldEmail, newEmail, revertTokenUrl) {
+  // KVKK m.11 — eski email'e bilgilendirme + 24h revert linki
+  const subject = "Tedbirge.ai — E-posta adresiniz değiştirildi";
+  const html = wrapHtml(
+    "E-posta Değişikliği Bildirimi",
+    `
+    <p style="font-size: 16px; color: #0A1628;">
+      Tedbirge.ai hesabınızın e-posta adresi <strong>${newEmail}</strong> olarak değiştirildi.
+    </p>
+    <p style="color: #64748b; font-size: 14px;">
+      Eğer bu değişikliği <strong>siz yapmadıysanız</strong>, aşağıdaki bağlantı ile 24 saat içinde geri alabilirsiniz:
+    </p>
+    <div style="margin: 24px 0; text-align: center;">
+      <a href="${revertTokenUrl}" style="background: #DC2626; color: white; padding: 14px 32px; border-radius: 8px; text-decoration: none; font-weight: 700; display: inline-block;">Değişikliği Geri Al</a>
+    </div>
+    <p style="color: #64748b; font-size: 13px;">
+      KVKK m.11 (Veri Sahibinin Hakları) — Bu bildirim verilerinizin değişimini sizin onaylamanız için zorunludur.
+    </p>
+    `
+  );
+  return sendEmail({ to: oldEmail, subject, html });
+}
+
 module.exports = {
   sendEmail,
   verifyConnection,
@@ -386,4 +435,7 @@ module.exports = {
   sendContractCreatedEmail,
   sendStatuteLimitWarningEmail,
   sendCareerApplicationNotification,
+  // TUR #121 M4 — Email OTP + KVKK m.11 cift kanal
+  sendOtpEmail,
+  sendEmailChangedInfo,
 };
