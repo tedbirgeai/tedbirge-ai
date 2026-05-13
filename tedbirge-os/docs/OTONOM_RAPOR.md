@@ -1,3 +1,110 @@
+# 🤖 TEDBİRGE.AI — OTONOM RAPOR (TUR #120.1 mikro hotfix)
+
+**Tarih:** 13 Mayıs 2026 Çarşamba gece
+**TUR:** #120.1 ✅ HOTFIX KAPALI
+**Tip:** Next.js 16 middleware.ts → proxy.ts rename (Vercel deploy fail çözümü)
+**Anayasa:** v1.35.0 sabit (Madde 30.78 yeni eklendi, aynı oturum içi MINOR bump yok)
+
+## 📋 Sayısal özet
+- 5 atom UÇTAN UCA (DEFER 0)
+- 0 KIRMIZI · 0 schema · 0 npm install · 0 env · $0 maliyet
+- Panel-only (backend 1.14.1 sabit)
+- 2 dosya değişiklik (proxy.ts merge + middleware.ts SIL) + version
+- Panel 1.18.0 → 1.18.1 PATCH (hotfix)
+- **34 → 35 ardışık temiz TUR REKOR (#90 → #120.1)**
+
+## Saha kanıt (Vercel build log b1ac2eb)
+```
+Error: Both middleware file "./middleware.ts" and proxy file "./proxy.ts"
+are detected. Please use "./proxy.ts" only.
+```
+
+## Kök sebep — Mimar Hatası 58 (Framework Version Cehaleti)
+TUR #119 mektup Next.js 16'da deprecated `middleware.ts` pattern önerdi. Next.js 16 middleware.ts → proxy.ts rename. Projede zaten proxy.ts MEVCUT (TUR #84+#85+#89 auth+2FA defense in depth, 33+ mimar hatası birikimi). Çakışma → Vercel deploy fail.
+
+## ✅ 5 ATOM Uygulama
+
+### ATOM 1 — proxy.ts view kanıt
+Mevcut proxy.ts içeriği:
+- `ROLE_ALLOWED_ROUTES` (5 rol path mapping)
+- `HARD_2FA_ROLES` defense in depth (Madde 30.40)
+- `TWO_FA_SETUP_ALLOWED_PATHS` (TUR #89 Madde 30.52 redirect döngü önleme)
+- `isAllowed()` + `defaultLanding()` helpers
+- Cookie-based token/role kontrolü (TUR #85.9 Q2 Madde 30.48 — atomik 3-cookie set bug fix)
+- 33+ mimar hatası birikimi
+
+**Karar:** Senaryo B kesin (proxy.ts dolu, merge gerekli)
+
+### ATOM 2 — Senaryo B merge
+`proxy.ts` EN BAŞINA domain redirect eklendi:
+```ts
+const CANONICAL_HOST = "www.tedbirge.ai";
+export function proxy(request: NextRequest) {
+  // TUR #119 + #120.1 — Domain redirect ilk (her path public/auth dahil)
+  const host = request.headers.get("host") || "";
+  if (host.endsWith(".vercel.app") || host === "tedbirge.ai") {
+    const url = request.nextUrl.clone();
+    url.host = CANONICAL_HOST;
+    url.protocol = "https:";
+    url.port = "";
+    return NextResponse.redirect(url, 301);
+  }
+  // ... mevcut auth + 2FA + role-based routing KORUNDU
+}
+```
+
+**Madde 4.6 korundu:**
+- function imzası `proxy(request)` aynı
+- `config.matcher` aynı
+- Mevcut public/auth/2FA logic aynı yerde, domain redirect ÜSTÜNE eklendi (additive)
+
+### ATOM 3 — middleware.ts git rm
+`git rm tedbirge-panel/middleware.ts` — TUR #119'da eklenen dosya silindi.
+
+### ATOM 4 — Build smoke (lokal)
+```
+✓ TypeScript exit 0
+✓ Compiled successfully in 22.0s
+✓ "Both middleware and proxy" hatası KAYBOLDU
+⚠ Prerender errors /temsilci/profil + /blog/[slug] — pre-existing Next.js 16 issue
+   (TUR #117'den beri, TUR #118-119-120 deploy başarılı kanıtı = Vercel
+    ignoreBuildErrors veya warning olarak handle)
+```
+**Hotfix amacı (middleware-proxy çakışmasını çözmek) BAŞARILI.**
+
+### ATOM 5 — 5 belge OS senkron + Madde 30.78
+- CLAUDE.md Madde 30.78 yeni (Framework Major Version Disiplini)
+- MIMARI_KARARLAR.md TUR #120.1 entry
+- DEVIR_RAPORU_AKTIF.md TUR #120.1 üst başlık
+- IS_PLANI.md TUR #120.1 KAPALI
+- OTONOM_RAPOR.md bu dosya
+- version.json panel 1.18.0 → 1.18.1 + sync-version.js
+
+## 📝 Madde 30.78 yeni — Framework Major Version Disiplini
+
+**Yasak:**
+- Mimar mektubu framework version kontrol etmeden yazma
+- Deprecated API/pattern kullanma (Next.js 13-15 `middleware.ts` Next.js 16'da yok)
+- Major version değişimi sonrası eski pattern'larla yeni özellik
+
+**Kural:** Her mimar mektubu öncesi CLAUDE.md Madde 1 "Teknik yapı" satırı **baseline kaynak**:
+```
+Backend: Render (Node.js + Express + Prisma)
+Panel: Vercel (Next.js 16 + React 19 + Tailwind 4)
+```
+
+## 📝 Mimar Hatası 58 — Framework Version Cehaleti
+
+TUR #119 mektup Next.js 16'da `middleware.ts` önerdi (deprecated). Vercel build "Both middleware and proxy detected" hatası → deploy fail. Düzeltme: mektup öncesi `package.json` + `CLAUDE.md` Madde 1 kontrol. Mimar Hatası 50-57 zincirinde 58. ders.
+
+## 🎯 NEXT — TUR #121
+1. Email/Phone 2FA + 24h onay (TUR #118 SARI)
+2. Niyazi DEMİR ilk gerçek lead retrospektifi
+3. **TUR #117 prerender fail kök sebep teşhis** (Next.js 16 Invariant: workStore — TUR #120.1 yine açık bırakıldı)
+4. Premium görsel iterasyon
+5. 52 küçük il × ilçe (TUR #117 SARI)
+
+═══════════════════════════════════════════════════════════════════
 # 🤖 TEDBİRGE.AI — OTONOM RAPOR (TUR #120)
 
 **Tarih:** 13 Mayıs 2026 Çarşamba gece

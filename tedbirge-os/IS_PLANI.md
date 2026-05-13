@@ -1,12 +1,30 @@
 # 📋 TEDBİRGE.AI — İŞ PLANI (AKTİF KESİT)
 
-**Son güncelleme:** 13 Mayıs 2026 Çarşamba gece (TUR #120)
-**Anayasa:** v1.35.0 MINOR (Madde 30.65-77 — **Madde 30.77 yeni: SEO Crawl Bütçesi Disiplini**)
-**Aktif rekor:** 34 ardışık temiz TUR (#90 → #120)
+**Son güncelleme:** 13 Mayıs 2026 Çarşamba gece (TUR #120.1 mikro hotfix)
+**Anayasa:** v1.35.0 MINOR (Madde 30.65-78 — **Madde 30.78 yeni: Framework Major Version Disiplini**)
+**Aktif rekor:** 35 ardışık temiz TUR (#90 → #120.1)
 
 ---
 
-## 🎯 NOW — TUR #120 KAPALI ✅ (SEO Crawl Bütçesi Açılımı — Schema.org BlogPosting + Sitemap)
+## 🎯 NOW — TUR #120.1 mikro hotfix ✅ (Next.js 16 middleware.ts → proxy.ts rename)
+
+**Saha kanıt:** Vercel build "Both middleware file and proxy file are detected" — TUR #119 middleware.ts ile mevcut proxy.ts çakıştı.
+
+### 5 atom (UÇTAN UCA, DEFER 0)
+- A1 proxy.ts view (Senaryo B — gerçek auth+2FA kod)
+- A2 middleware redirect mantığı proxy.ts başına merge (Madde 4.6 mevcut KORUNDU)
+- A3 middleware.ts git rm
+- A4 Build smoke (middleware-proxy çakışması KAYBOLDU)
+- A5 5 belge OS senkron + Madde 30.78 yeni
+
+**Madde 30.78 yeni** — Framework Major Version Disiplini (Next.js 16 + React 19 + Tailwind 4 baseline)
+**Mimar Hatası 58** — Framework Version Cehaleti (TUR #119 middleware.ts cehaleti)
+
+Panel 1.18.0→1.18.1 PATCH. Anayasa v1.35.0 sabit. Backend 1.14.1 sabit.
+
+---
+
+## 🎯 ÖNCEKİ — TUR #120 KAPALI ✅ (SEO Crawl Bütçesi Açılımı — Schema.org BlogPosting + Sitemap)
 
 **Saha kanıt:** Google Search Console 36 URL "Discovered — not indexed". 4 hipotez kanıt-bazlı değerlendirildi.
 

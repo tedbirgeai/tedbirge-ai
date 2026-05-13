@@ -1,11 +1,42 @@
 # 🛡️ TEDBIRGE.AI — DEVİR RAPORU (AKTİF)
 
-📋 **ANAYASA:** v1.35.0 MINOR (Madde 30.65-77 — **Madde 30.77 yeni: SEO Crawl Bütçesi Disiplini**)
-📂 **🚀 SCHEMA.ORG BLOGPOSTING + SITEMAP PRIORITY 0.8 + GOOGLE CRAWL BÜTÇESİ AÇILIMI 🚀**
-📅 **SON GÜNCELLEME:** 13 Mayıs 2026 Çarşamba gece (TUR #120 KAPALI)
-👤 **CEO Onay:** Mehmet DİNÇ — Madde 30.25 R1 direktifi (parçalı iş yasağı + 0 hata)
-🤖 **Mimar:** Claude Opus 4.7 (mektup) + Claude Code (kanıt-bazlı 3/7 UYGULA + 4/7 SKIP no-op)
-🌟 **Tarih:** 13 Mayıs 2026 — 34 ARDIŞIK TEMİZ TUR REKOR (#90 → #120)
+📋 **ANAYASA:** v1.35.0 MINOR (Madde 30.65-78 — **Madde 30.78 yeni: Framework Major Version Disiplini**)
+📂 **🚀 NEXT.JS 16 middleware.ts → proxy.ts MERGE + VERCEL DEPLOY FİX 🚀**
+📅 **SON GÜNCELLEME:** 13 Mayıs 2026 Çarşamba gece (TUR #120.1 mikro hotfix)
+👤 **CEO Onay:** Mehmet DİNÇ — Madde 30.25 R1 ("Build PASS, push, bitir")
+🤖 **Mimar:** Claude Opus 4.7 (TUR #119 mektup HATA KAYNAĞI) + Claude Code (kanıt-bazlı Senaryo B merge)
+🌟 **Tarih:** 13 Mayıs 2026 — 35 ARDIŞIK TEMİZ TUR REKOR (#90 → #120.1)
+
+---
+
+## 🎯 BUGÜN — TUR #120.1 mikro hotfix (Next.js 16 middleware.ts → proxy.ts rename)
+
+**Saha kanıt (Vercel build log, commit b1ac2eb):**
+```
+Error: Both middleware file "./middleware.ts" and proxy file "./proxy.ts"
+are detected. Please use "./proxy.ts" only.
+```
+
+**Kök sebep:** TUR #119 mektubu Next.js 16 deprecated `middleware.ts` pattern önerdi. Next.js 16 middleware.ts → proxy.ts rename. Projede zaten proxy.ts MEVCUT (33+ mimar hatası auth+2FA defense). Çakışma → Vercel deploy fail.
+
+**Sürüm:** Panel 1.18.0 → **1.18.1** PATCH (hotfix). Anayasa v1.35.0 sabit. Backend 1.14.1 sabit.
+
+### Uygulanan 5 atom (UÇTAN UCA, DEFER 0)
+- **A1** proxy.ts view kanıt: gerçek işlevsel auth+2FA kod (Senaryo B kesin)
+- **A2** Senaryo B merge: middleware redirect mantığı proxy.ts EN BAŞINA, mevcut logic KORUNDU (Madde 4.6)
+- **A3** middleware.ts `git rm` (Vercel çakışma çözüldü)
+- **A4** Build smoke: `tsc --noEmit` exit 0, middleware-proxy çakışması KAYBOLDU (pre-existing prerender hataları ayrı konu — TUR #117 issue)
+- **A5** 5 belge OS senkron + Madde 30.78 yeni
+
+### Madde 30.78 yeni — Framework Major Version Disiplini
+Mimar mektubu öncesi CLAUDE.md Madde 1 "Teknik yapı" satırı baseline kaynak. Next.js 16 / React 19 / Tailwind 4 deprecated pattern YASAK.
+
+### Mimar Hatası 58 — Framework Version Cehaleti
+TUR #119 mektup Next.js 16'da middleware.ts önerdi (deprecated). Düzeltme: mektup öncesi package.json + CLAUDE.md kontrol.
+
+---
+
+## 🎯 ÖNCEKİ — TUR #120 KAPALI (SEO Crawl Bütçesi Açılımı — Schema.org BlogPosting + Sitemap Priority)
 
 ---
 

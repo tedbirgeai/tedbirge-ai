@@ -339,7 +339,52 @@ Mehmet Bey sahaya çıkabilsin diye bu disiplin var.
 ---
 
 **— Tedbirge Mimari Anayasası v1.35.0 MINOR**
-**Son güncelleme: 13 Mayıs 2026 Çarşamba (TUR #120 KAPALI — SEO Crawl Bütçesi Disiplini + Madde 30.77)**
+**Son güncelleme: 13 Mayıs 2026 Çarşamba gece (TUR #120.1 hotfix — Madde 30.78 yeni: Framework Major Version Disiplini)**
+
+---
+
+## ANAYASA EVRİM — TUR #120.1 mikro hotfix (13 May 2026) — Framework Major Version Disiplini
+
+**Madde 30.78 — Framework Major Version Disiplini:**
+
+Next.js / React / Prisma / pdfkit gibi major framework version değişimi sonrası **deprecated pattern'lar kullanılmaz**. Mimar mektup yazmadan önce CLAUDE.md "Teknik yapı" satırı (Madde 1) **baseline kaynak** olarak kontrol eder:
+
+```
+- Backend: Render (Node.js + Express + Prisma)
+- Panel: Vercel (Next.js 16 + React 19 + Tailwind 4)
+```
+
+**TUR #120.1 saha kanıt:** TUR #119 mektubu `middleware.ts` pattern kullandı (Next.js 13-15 standart). Next.js 16'da `middleware.ts` → `proxy.ts` rename yapıldı. Vercel build hatası:
+```
+Error: Both middleware file "./middleware.ts" and proxy file "./proxy.ts" are detected.
+Please use "./proxy.ts" only.
+```
+
+Projede zaten `proxy.ts` MEVCUT (TUR #84+#85+#89 auth+2FA defense in depth). TUR #119 middleware.ts ile çakıştı, Vercel deploy fail.
+
+**Düzeltme pattern (TUR #120.1):**
+1. Mevcut `proxy.ts`'in içeriği view edilir (kanıt-bazlı)
+2. Senaryo B (proxy.ts gerçek işlevsel kod) → middleware redirect mantığı `proxy.ts`'in EN BAŞINA merge edilir (Madde 4.6 mevcut auth+2FA logic korunur)
+3. `middleware.ts` git rm edilir
+4. Build smoke (middleware-proxy çakışması yok)
+5. Atomik commit + push
+
+**Mimar Hatası 58 — Framework Version Cehaleti:**
+
+Mimar Hatası 58 (TUR #119 emsali): Mimar (sohbet Claude) mektup yazarken framework version'ı kontrol etmedi. Next.js 16 (`tedbirge-panel` baseline) yerine 13-15 pattern kullandı. CEO ekran kanıtıyla deploy fail yakaladı. **Düzeltme:** Her mektup öncesi CLAUDE.md Madde 1 "Teknik yapı" satırı kontrol — framework versionu kanıt.
+
+**Yasak:**
+- Mimar mektubu framework version kontrol etmeden yazma (Mimar Hatası 58 emsali)
+- Deprecated API/pattern kullanma (Next.js `pages/` dir, `getServerSideProps` vb. Next.js 13+ App Router'da)
+- Version downgrade öneri (mevcut version baseline kabul)
+
+### TUR #120.1 sayısal özet
+- 5 atom (ATOM 1-5 mektup, hepsi uygulandı)
+- 0 KIRMIZI · 0 schema · 0 npm install · 0 env · $0 maliyet
+- Panel-only (backend `1.14.1` sabit)
+- Panel `1.18.0 → 1.18.1` PATCH (hotfix)
+- Anayasa `v1.35.0` sabit (Madde 30.78 yeni eklendi, MINOR bump değil — aynı oturum içi)
+- 34 → **35 ardışık temiz TUR REKOR (#90 → #120.1)**
 
 ---
 

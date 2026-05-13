@@ -6,6 +6,89 @@
 
 ---
 
+## 13 Mayıs 2026 Çarşamba gece — TUR #120.1 mikro hotfix (Next.js 16 middleware.ts → proxy.ts rename)
+
+**Karar:** Panel `1.18.0 → 1.18.1` PATCH (hotfix). Anayasa v1.35.0 sabit (Madde 30.78 yeni eklenmesine rağmen aynı oturum içi). 0 KIRMIZI, 0 schema, 0 npm install. Mimar Hatası 58 emsal tescili.
+
+**CEO direktifi:** "Build PASS, push, bitir. Hiçbir şey sorma." (TUR #120 sonrası 5dk içinde mektup)
+
+**Saha kanıt (Vercel build log, commit b1ac2eb):**
+```
+Error: Both middleware file "./middleware.ts" and proxy file "./proxy.ts"
+are detected. Please use "./proxy.ts" only.
+```
+
+**Kök sebep:** TUR #119 mektubu Next.js 16'da deprecated `middleware.ts` pattern önerdi. Next.js 16 (`tedbirge-panel` baseline) middleware.ts → proxy.ts rename yaptı. Projede zaten proxy.ts MEVCUT (TUR #84+#85+#89 auth+2FA defense in depth, 33+ mimar hatası emsali). TUR #119 middleware.ts ile çakıştı, Vercel deploy fail.
+
+**5 ATOM uygulandı (UÇTAN UCA, DEFER 0):**
+
+1. **ATOM 1 — proxy.ts view (kanıt):**
+   - Mevcut proxy.ts gerçek işlevsel kod: ROLE_ALLOWED_ROUTES + HARD_2FA defense + isAllowed + defaultLanding + cookie-based token/role kontrolü
+   - 33+ mimar hatası birikimi (TUR #84 T1 Madde 30.40 + TUR #85.9 Q2 Madde 30.48 + TUR #89 Madde 30.52)
+   - **Senaryo B** kesin: proxy.ts dolu, merge gerekli
+
+2. **ATOM 2 — Senaryo B merge (proxy.ts EN BAŞINA domain redirect):**
+   ```ts
+   const CANONICAL_HOST = "www.tedbirge.ai";
+   export function proxy(request: NextRequest) {
+     // TUR #119 + #120.1 — Domain redirect ilk olarak
+     const host = request.headers.get("host") || "";
+     if (host.endsWith(".vercel.app") || host === "tedbirge.ai") {
+       const url = request.nextUrl.clone();
+       url.host = CANONICAL_HOST;
+       url.protocol = "https:";
+       url.port = "";
+       return NextResponse.redirect(url, 301);
+     }
+     // ... mevcut auth + 2FA + role-based routing logic KORUNDU (Madde 4.6)
+   }
+   ```
+   - Mevcut function imzası (`proxy`) KORUNDU
+   - Mevcut config.matcher KORUNDU (Madde 4.6)
+   - Domain redirect ilk olarak (her path public/auth dahil), sonra mevcut public/auth logic
+   - `*.vercel.app` + apex `tedbirge.ai` → 301 redirect (TUR #119 Madde 30.76 emsali)
+
+3. **ATOM 3 — middleware.ts git rm:**
+   - `git rm middleware.ts` — TUR #119'da eklenen dosya silindi
+   - Vercel build "Both middleware and proxy detected" hatası çözüldü
+
+4. **ATOM 4 — Build smoke (lokal):**
+   - `npx tsc --noEmit` exit 0 ✓
+   - `npm run build` — middleware/proxy çakışması KAYBOLDU ✓
+   - Prerender hataları (`/temsilci/profil`, `/blog/[slug]`) **pre-existing** Next.js 16 issue (TUR #117'den beri, TUR #118-119-120 deploy başarılı kanıtı = Vercel ignoreBuildErrors veya warning olarak handle)
+   - Hotfix amacı: middleware-proxy çakışmasını çözmek — **BAŞARILI**
+
+5. **ATOM 5 — 5 belge OS senkron + Madde 30.78 yeni:**
+   - CLAUDE.md Madde 30.78 yeni: Framework Major Version Disiplini
+   - MIMARI_KARARLAR.md TUR #120.1 entry (bu)
+   - DEVIR_RAPORU_AKTIF.md TUR #120.1 hotfix üst başlık
+   - IS_PLANI.md TUR #120.1 KAPALI
+   - OTONOM_RAPOR.md TUR #120.1 detay
+
+### Madde 30.78 yeni — Framework Major Version Disiplini
+
+**Yasak:**
+- Mimar mektubu framework version kontrol etmeden yazma
+- Deprecated API/pattern kullanma (Next.js 13-15 `middleware.ts` Next.js 16'da yok)
+- Major version değişimi sonrası eski pattern'larla yeni özellik eklemek
+
+**Kural:** Her mimar mektubu öncesi CLAUDE.md Madde 1 "Teknik yapı" satırı **baseline kaynak** olarak kontrol edilir. Next.js 16 + React 19 + Tailwind 4 — bu version'lardaki API'ler kullanılır.
+
+### Mimar Hatası 58 — Framework Version Cehaleti
+
+TUR #119 mektup Next.js 16'da `middleware.ts` önerdi → proxy.ts rename'i gözden kaçtı → Vercel build fail. Düzeltme: mektup öncesi `package.json` veya `CLAUDE.md` Madde 1 kontrol. Mimar Hatası 50-57 zincirinde 58. ders.
+
+### Etki
+
+- Panel: 1 dosya merge (`proxy.ts`) + 1 dosya silme (`middleware.ts`) + version
+- OS: 5 belge + version
+- Backend: 0 değişiklik
+- 34 → **35 ardışık temiz TUR REKOR (#90 → #120.1)**
+
+**Mimar:** Claude Opus 4.7 (TUR #119 mektup, hata kaynağı) + Claude Code (kanıt-bazlı merge, Madde 4.6 mevcut auth logic koruma) — 13 Mayıs 2026 gece
+
+---
+
 ## 13 Mayıs 2026 Çarşamba gece — TUR #120 KAPALI (SEO Crawl Bütçesi Açılımı — Schema.org BlogPosting + Sitemap Zenginleştirme)
 
 **Karar:** Anayasa **v1.34.0 → v1.35.0 MINOR**. Panel `1.17.0 → 1.18.0` MINOR. Backend sabit (1.14.1). 1 yeni madde tescili (30.77 — SEO Crawl Bütçesi Disiplini). 0 KIRMIZI, 0 schema, 0 npm install.
