@@ -338,8 +338,46 @@ Mehmet Bey sahaya çıkabilsin diye bu disiplin var.
 
 ---
 
-**— Tedbirge Mimari Anayasası v1.36.0 MINOR**
-**Son güncelleme: 13 Mayıs 2026 Çarşamba gece (TUR #121 KAPALI — 5 madde + Madde 30.79+30.80+30.81 yeni)**
+**— Tedbirge Mimari Anayasası v1.37.0 MINOR**
+**Son güncelleme: 13 Mayıs 2026 Çarşamba gece (TUR #122 KAPALI — What-If Kusur Slider + Madde 30.82 yeni)**
+
+---
+
+## ANAYASA EVRİM — TUR #122 (13 May 2026) — Senaryo Analizi Disiplini
+
+**Madde 30.82 — Senaryo Analizi Disiplini:**
+
+Tazminat hesaplama UI'sında **what-if senaryolar** kullanıcıya görsel karşılaştırma sunar (kusur oranı, maluliyet vb.). Backend motor reuse **zorunlu** — paralel hesaplama formülü YASAK (Madde 30.61 tek-kaynak disiplini sentezi).
+
+**Pattern (TUR #122 emsali):**
+```tsx
+const senaryolar = useMemo(() => {
+  const kusurDegerleri = [0, 25, 50, whatIf];
+  return kusurDegerleri.map(k =>
+    hesaplaYaralanmaTazminati({ ...baseInput, kusur: k })  // ← MEVCUT motor reuse
+  );
+}, [baseInput, whatIf]);
+```
+
+**Yasak:**
+- Frontend'de paralel hesaplama formülü yazma (motor duplikasyon = Madde 30.61 ihlali)
+- What-if değerlerinin localStorage'a yazılması (geçici state, kalıcı veri değil)
+- Senaryo sonuçlarının backend'e POST edilmesi (frontend-only what-if, server kaynak israfı)
+
+**Marka renk zorunluluğu:** Senaryo görseli `brand.json` paleti kullanır (Madde 35). `#1E1E8E` primary + `#22C55E` accent. Diğer HEX (Kimi v4.1 `#2E1A5E`/`#7CB342` uydurma renkler) YASAK.
+
+### TUR #122 sayısal özet
+- 1 atom (SenaryoAnaliziYaralanma component, panel-only)
+- 0 KIRMIZI · 0 schema · 0 npm install · 0 env · $0 maliyet
+- Backend `1.15.0` sabit (motor reuse, schema dokunulmadı)
+- Panel `1.19.0 → 1.20.0` MINOR
+- Anayasa `v1.36.0 → v1.37.0` MINOR
+- 36 → **37 ardışık temiz TUR REKOR (#90 → #122)**
+
+### Saha kanıtı (Kimi v4.1 analizi TUR #122 öncesi)
+10 öneri kod-bazlı değerlendirildi (önceki sohbet raporu):
+- **#4 What-If Slider** = "en düşük risk" + "motor zaten var" + "2-3 atom" → UYGULA seçildi
+- Kalan 9 öneri Madde 28 kanıt eşiği bekliyor (saha tetiği yok)
 
 ---
 

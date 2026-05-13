@@ -1,3 +1,85 @@
+# 🤖 TEDBİRGE.AI — OTONOM RAPOR (TUR #122)
+
+**Tarih:** 13 Mayıs 2026 Çarşamba gece
+**TUR:** #122 ✅ KAPALI
+**Tip:** What-If Kusur Slider — Senaryo Analizi Disiplini (Madde 30.82)
+**Anayasa:** v1.36.0 → **v1.37.0 MINOR**
+
+## 📋 Sayısal özet
+- 1 atom (panel-only, motor reuse) · DEFER 0
+- 0 KIRMIZI · 0 schema · 0 npm install · 0 env · $0 maliyet
+- 1 dosya değişiklik (`(public)/tazminat-hesapla/page.tsx` — useMemo + component + Step3 mount)
+- Panel `1.19.0 → 1.20.0` MINOR / Anayasa `v1.36.0 → v1.37.0` MINOR
+- Backend `1.15.0` sabit (motor reuse, schema dokunulmadı)
+- **36 → 37 ardışık temiz TUR REKOR (#90 → #122)**
+
+## CEO direktifi (Madde 30.25 R1)
+> "Build PASS, push, bitir. Hiçbir şey sorma. Bitirince TUR #122 KAPALI raporu yaz."
+
+## Saha kanıt (Kimi v4.1 öneri #4 seçimi)
+10 öneri kod-bazlı analiz raporu — #4 What-If Slider:
+- Motor `hesaplaYaralanmaTazminati` MEVCUT (`lib/yaralanmaHesap.ts`)
+- Schema `Lead.faultRate` + `Lead.kusurOrani` MEVCUT
+- UI eksik (slider component YOK)
+- En düşük risk + 2-3 atom + 0 KIRMIZI
+
+## ✅ ATOM 1 — SenaryoAnaliziYaralanma component
+
+**Yer:** `tedbirge-panel/app/(public)/tazminat-hesapla/page.tsx` (Step3 öncesi yeni component, Step3 içinde Hesap Detayı sonrası mount)
+
+**Props:** `{ baseInput: {yas, aylikMaas, maluliyet}, currentKusur: number }`
+
+**Logic:**
+```tsx
+const [whatIf, setWhatIf] = useState(currentKusur);
+
+const senaryolar = useMemo(() => {
+  const kusurDegerleri = [0, 25, 50, whatIf];
+  return kusurDegerleri.map(k => hesaplaYaralanmaTazminati({ ...baseInput, kusur: k }));
+}, [baseInput, whatIf]);
+```
+
+**UI:**
+- HTML5 native `<input type="range" min={0} max={99}>` slider (npm install YOK)
+- 4 satır bar chart `<div>` width % (en yüksek base = 100%)
+- "MEVCUT" badge `#22C55E` accent yeşil (kullanıcının girdiği kusur)
+- "TEST" badge `#1E1E8E` primary lacivert (slider whatIf değeri)
+- Aralık alt yazı `formatTL(aralikMin) — formatTL(aralikMax)` ±%15 (Madde 31.14)
+- Footer: Madde 30.82 + 30.61 referans
+
+**Step3 mount:**
+- `!fullKusurFault` koşullu render (kullanıcı %100 kusur girdiyse mantıksız, mevcut UX guard ile uyumlu)
+- Hesap Detayı SONRASI, Uyarı/CTA ÖNCESİ (Madde 4.6 — mevcut UI dokunulmadı)
+
+## 📝 Madde 30.82 yeni — Senaryo Analizi Disiplini
+
+**Pattern (TUR #122 emsali):**
+What-if senaryolar için **backend motor reuse zorunlu**. Frontend'de paralel hesaplama formülü YASAK (Madde 30.61 tek-kaynak sentezi).
+
+**Brand renk zorunluluğu (Madde 35):**
+`brand.json` paleti: `#1E1E8E` primary + `#22C55E` accent. Kimi v4.1 uydurma renkler `#2E1A5E`/`#7CB342` YASAK.
+
+**Yasak:**
+- Frontend paralel formül (motor duplikasyon)
+- localStorage what-if değer (geçici state)
+- Backend POST senaryo sonuçları (frontend-only what-if)
+
+## 🔬 Smoke (local kanıt-bazlı)
+- `npx tsc --noEmit` exit 0 ✓
+- `useMemo` import eklendi
+- Madde 4.6 — mevcut Step3 (yaralanmaSonuc + Hesap Detayı + Uyarı + CTA + Geri) **DOKUNULMADI**
+- Motor reuse — yaralanmaHesap.ts'e dokunulmadı
+
+## 🎯 NEXT — TUR #123
+1. Email/Phone revert endpoint (TUR #121 M4 ek katman)
+2. 2FA aktif kullanıcılar profil değişiminde 2FA OTP
+3. Niyazi/Emine ilk gerçek lead retrospektifi
+4. TUR #117 deploy fail Render log analizi
+5. Vefat hesabı için what-if (TUR #122 emsali genişletme)
+6. Premium görsel CEO görsel feedback (TUR #121 M5)
+7. 52 küçük il × ilçe (TUR #117 SARI)
+
+═══════════════════════════════════════════════════════════════════
 # 🤖 TEDBİRGE.AI — OTONOM RAPOR (TUR #121)
 
 **Tarih:** 13 Mayıs 2026 Çarşamba gece

@@ -1,15 +1,40 @@
 # 🛡️ TEDBIRGE.AI — DEVİR RAPORU (AKTİF)
 
-📋 **ANAYASA:** v1.36.0 MINOR (Madde 30.65-81 — **Madde 30.79+30.80+30.81 yeni** TUR #121)
-📂 **🚀 5 MADDE UÇTAN UCA — PRERENDER FİX + DOCSTATUS ENUM + RENDER CACHE + EMAİL/PHONE 2FA + PREMIUM SVG 🚀**
-📅 **SON GÜNCELLEME:** 13 Mayıs 2026 Çarşamba gece (TUR #121 KAPALI)
-👤 **CEO Onay:** Mehmet DİNÇ — Madde 18.3 YAZILI onay (2 KIRMIZI schema değişikliği) + Madde 30.25 R1
-🤖 **Mimar:** Claude Opus 4.7 (mektup 5 madde) + Claude Code (~15 atom kanıt-bazlı + 3 SKIP no-op)
-🌟 **Tarih:** 13 Mayıs 2026 — 36 ARDIŞIK TEMİZ TUR REKOR (#90 → #121)
+📋 **ANAYASA:** v1.37.0 MINOR (Madde 30.65-82 — **Madde 30.82 yeni: Senaryo Analizi Disiplini**)
+📂 **🚀 WHAT-IF KUSUR SLIDER — TAZMINAT HESAPLA SENARYO ANALIZ + BACKEND MOTOR REUSE 🚀**
+📅 **SON GÜNCELLEME:** 13 Mayıs 2026 Çarşamba gece (TUR #122 KAPALI)
+👤 **CEO Onay:** Mehmet DİNÇ — Madde 30.25 R1 ("Build PASS, push, bitir"). Kimi v4.1 öneri #4 kanıt-bazlı seçim.
+🤖 **Mimar:** Claude Opus 4.7 (kısa mektup) + Claude Code (1 atom, motor reuse Madde 30.82+30.61)
+🌟 **Tarih:** 13 Mayıs 2026 — 37 ARDIŞIK TEMİZ TUR REKOR (#90 → #122)
 
 ---
 
-## 🎯 BUGÜN — TUR #121 KAPALI (5 Madde UÇTAN UCA — Prerender + DocStatus + Render + Email/Phone 2FA + Premium SVG)
+## 🎯 BUGÜN — TUR #122 KAPALI (What-If Kusur Slider — Senaryo Analizi Disiplini)
+
+**Saha kanıt:** Kimi v4.1 10 öneri kod-bazlı analiz raporu — #4 What-If Slider en düşük risk (motor hazır, 0 KIRMIZI).
+
+**Sürüm:** Panel 1.19.0 → **1.20.0** MINOR, Anayasa v1.36.0 → **v1.37.0** MINOR. Backend sabit (1.15.0).
+
+### Uygulanan 1 atom (UÇTAN UCA, DEFER 0)
+- **A1** `SenaryoAnaliziYaralanma` component (`tazminat-hesapla/page.tsx`) + Step3 mount (`!fullKusurFault` koşullu)
+  - HTML5 native `<input type="range">` 0-99 (npm install YOK)
+  - `useMemo` ile 4 senaryo (kusur 0/25/50/whatIf), motor `hesaplaYaralanmaTazminati` reuse
+  - Bar chart `<div>` width % (npm install YOK)
+  - Brand renkler: `#1E1E8E` primary + `#22C55E` accent (Madde 35)
+  - Madde 4.6 — mevcut Step3 yaralanmaSonuc + Hesap Detayı + Uyarı + CTA dokunulmadı
+
+### Madde 30.82 yeni — Senaryo Analizi Disiplini
+Backend motor reuse zorunlu. Paralel hesaplama formülü YASAK (Madde 30.61 tek-kaynak sentezi). Brand.json renkleri zorunlu (Madde 35).
+
+### Smoke
+```
+Panel tsc --noEmit: exit 0
+useMemo import eklendi, mevcut Step3 yapısı korundu
+```
+
+---
+
+## 🎯 ÖNCEKİ — TUR #121 KAPALI (5 Madde UÇTAN UCA — Prerender + DocStatus + Render + Email/Phone 2FA + Premium SVG)
 
 **CEO yazılı onay (Madde 18.3 + 30.71):** *"CEO ONAYLIYOR TEK KOMUTLA TEK MEKTUPLA HEM ARAŞTIR HEM UYGULA"* — 13 May 2026 gece
 

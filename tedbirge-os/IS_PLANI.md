@@ -1,12 +1,38 @@
 # 📋 TEDBİRGE.AI — İŞ PLANI (AKTİF KESİT)
 
-**Son güncelleme:** 13 Mayıs 2026 Çarşamba gece (TUR #121)
-**Anayasa:** v1.36.0 MINOR (Madde 30.65-81 — **Madde 30.79+30.80+30.81 yeni**)
-**Aktif rekor:** 36 ardışık temiz TUR (#90 → #121)
+**Son güncelleme:** 13 Mayıs 2026 Çarşamba gece (TUR #122)
+**Anayasa:** v1.37.0 MINOR (Madde 30.65-82 — **Madde 30.82 yeni: Senaryo Analizi Disiplini**)
+**Aktif rekor:** 37 ardışık temiz TUR (#90 → #122)
 
 ---
 
-## 🎯 NOW — TUR #121 KAPALI ✅ (5 Madde UÇTAN UCA)
+## 🎯 NOW — TUR #122 KAPALI ✅ (What-If Kusur Slider — Senaryo Analizi Disiplini)
+
+**Saha kanıt:** Kimi v4.1 10 öneri analizi (önceki rapor) — #4 What-If Slider en düşük risk + motor hazır → seçildi.
+
+### 1 atom (UÇTAN UCA, DEFER 0)
+- A1 `SenaryoAnaliziYaralanma` component + Step3 mount (motor reuse, Madde 30.82+30.61+35)
+
+**Madde 30.82 yeni** — Senaryo Analizi Disiplini (backend motor reuse zorunlu, paralel formül YASAK, brand renk Madde 35)
+
+Panel 1.19.0→1.20.0, Anayasa v1.36.0→v1.37.0. Backend sabit.
+
+---
+
+## ⏭️ NEXT — TUR #123
+
+**CEO seçimi:**
+1. Email/Phone revert endpoint (TUR #121 M4 ek katman)
+2. 2FA aktif kullanıcılar profil değişiminde 2FA OTP
+3. Niyazi DEMİR ilk gerçek lead retrospektifi
+4. TUR #117 deploy fail Render log analizi
+5. Premium görsel CEO görsel feedback (TUR #121 M5 sonrası)
+6. 52 küçük il × ilçe (TUR #117 SARI)
+7. Vefat hesabı için what-if (Kimi #4 emsali genişletme — `hesaplaVefatTazminati` motor zaten var)
+
+---
+
+## 🎯 ÖNCEKİ — TUR #121 KAPALI ✅ (5 Madde UÇTAN UCA)
 
 **CEO yazılı onay:** 2 KIRMIZI schema değişikliği + ~15 atom uçtan uca tek mektup.
 

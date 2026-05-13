@@ -6,6 +6,98 @@
 
 ---
 
+## 13 Mayıs 2026 Çarşamba gece — TUR #122 KAPALI (What-If Kusur Slider — Senaryo Analizi Disiplini)
+
+**Karar:** Anayasa **v1.36.0 → v1.37.0 MINOR**. Panel `1.19.0 → 1.20.0` MINOR. Backend sabit (1.15.0). 1 yeni madde tescili (30.82 — Senaryo Analizi Disiplini). 0 KIRMIZI, 0 schema, 0 npm install. Kimi v4.1 öneri #4 kanıt-bazlı uygulama emsali.
+
+**CEO direktifi (Madde 30.25 R1):** "Build PASS, push, bitir. Hiçbir şey sorma." TUR #122 öncesi Kimi v4.1 10 öneri analiz raporu — #4 What-If Slider en düşük risk + motor hazır → seçildi.
+
+**Saha kanıt:**
+- Schema `Lead.faultRate Float?` (line 237) + `Lead.kusurOrani Float?` (line 251) MEVCUT
+- `tedbirge-panel/lib/yaralanmaHesap.ts` motor MEVCUT (TUR #107 emsali, 50 satır, Yargıtay 17. HD içtihat + TRH-2010 PMF)
+- `tedbirge-panel/app/(public)/tazminat-hesapla/page.tsx` 1013 satır UI MEVCUT
+- Slider/senaryo component **YOK** — sadece UI eksik
+
+**1 ATOM uygulandı (UÇTAN UCA, DEFER 0):**
+
+**ATOM 1 — `SenaryoAnaliziYaralanma` component + Step3 mount:**
+
+Yeni component (`tazminat-hesapla/page.tsx`):
+- Props: `{ baseInput: {yas, aylikMaas, maluliyet}, currentKusur: number }`
+- State: `useState(currentKusur)` — slider değeri
+- `useMemo` ile 4 senaryo hesabı: kusur `[0, 25, 50, whatIf]`
+- Motor reuse: `hesaplaYaralanmaTazminati({ ...baseInput, kusur: k })` × 4 (Madde 30.82 + 30.61 tek-kaynak)
+- HTML5 `<input type="range" min={0} max={99}>` native slider (npm install YOK)
+- 4 satır bar chart — `<div>` ile, `width: (base / maxBase) * 100%`
+- "MEVCUT" badge accent yeşil (#22C55E), "TEST" badge primary lacivert (#1E1E8E) — Madde 35 brand.json renkleri zorunlu
+- Aralık alt yazı: `formatTL(aralikMin) — formatTL(aralikMax)` ±%15 (Madde 31.14)
+- Footer: Madde 30.82 + 30.61 referans
+
+Step3 entegrasyonu:
+- Hesap Detayı kartı SONRASI, Uyarı/CTA ÖNCESİ (Madde 4.6 mevcut UI korundu)
+- `!fullKusurFault` koşullu render (kullanıcı %100 kusur girdiyse mantıksız)
+- import `useMemo` from "react" (yeni hook)
+
+**Madde 30.82 yeni — Senaryo Analizi Disiplini:**
+
+Tazminat UI what-if senaryoları için **backend motor reuse zorunlu**. Paralel formül YASAK (Madde 30.61 tek-kaynak sentezi). Kullanıcı slider ile farklı kusur oranlarını anlık görsel karşılaştırır, hiçbir backend kaynağı tüketilmez.
+
+**Pattern emsali:**
+```tsx
+const senaryolar = useMemo(
+  () => kusurDegerleri.map(k => hesaplaYaralanmaTazminati({ ...baseInput, kusur: k })),
+  [baseInput, whatIf]
+);
+```
+
+**Yasak:**
+- Frontend paralel formül (motor duplikasyon)
+- localStorage what-if değer (geçici state)
+- Backend POST senaryo sonuçları (frontend-only what-if)
+
+**Madde 35 zorunluluğu:**
+
+Senaryo görseli **brand.json paleti** kullanır:
+- `#1E1E8E` primary (TEST badge + slider accent + test bar)
+- `#22C55E` accent (MEVCUT badge + standart senaryo bar)
+
+Kimi v4.1 uydurma renkler `#2E1A5E`/`#7CB342` YASAK (önceki analiz raporunda kanıt-bazlı reddedildi).
+
+### Smoke (local kanıt-bazlı)
+- `npx tsc --noEmit` exit 0 ✓
+- `useMemo` import eklendi
+- Madde 4.6 — mevcut Step3 yapısı (yaralanmaSonuc + Hesap Detayı + Uyarı + CTA + Geri) DOKUNULMADI
+
+### Etki
+
+- 1 dosya değişiklik (`(public)/tazminat-hesapla/page.tsx` — useMemo import + ~100 satır component + 7 satır Step3 mount)
+- OS: 5 belge senkron + version
+- Backend: 0 değişiklik (motor reuse, schema sabit)
+- **36 → 37 ardışık temiz TUR REKOR (#90 → #122)**
+
+### Kimi v4.1 öneri #4 emsali (Madde 28 kanıt eşiği uygulaması)
+
+10 öneriden #4 seçildi çünkü:
+1. Kod-kanıt: motor (`yaralanmaHesap.ts`) MEVCUT
+2. Anayasa ihlali: **0** (sadece UI, schema dokunulmaz)
+3. Atom: 2-3 (en düşük risk)
+4. Kullanıcı değer: anlık görsel "ya %0 kusursam?" sorusu — saha temsilcisi tazminat hesabı dönüşüm aracı
+
+Kalan 9 öneri (B2G, Blockchain, SGK, White-Label, vb.) Madde 28 kanıt eşiği YOK — DEFER.
+
+### NEXT — TUR #123
+
+- Email/Phone revert endpoint (TUR #121 M4 ek katman)
+- 2FA aktif kullanıcılar profil değişiminde 2FA OTP
+- Niyazi DEMİR ilk gerçek lead retrospektifi
+- TUR #117 deploy fail Render log analizi
+- Premium görsel CEO görsel feedback (TUR #121 M5 sonrası)
+- 52 küçük il × ilçe (TUR #117 SARI)
+
+**Mimar:** Claude Opus 4.7 (TUR #122 mektubu kanıt-bazlı kısa) + Claude Code (1 atom UYGULA, motor reuse Madde 30.82 + 30.61) — 13 Mayıs 2026 gece
+
+---
+
 ## 13 Mayıs 2026 Çarşamba gece — TUR #121 KAPALI (5 Madde UÇTAN UCA — Prerender + DocumentStatus + Render + Email/Phone 2FA + Premium SVG)
 
 **Karar:** Anayasa **v1.35.0 → v1.36.0 MINOR**. Backend `1.14.1 → 1.15.0` MINOR. Panel `1.18.1 → 1.19.0` MINOR. Schema `1.6.0 → 1.7.0`. **3 yeni madde tescili** (30.79 + 30.80 + 30.81). **2 KIRMIZI** (DocumentStatus enum genişletme + EmailOtp tablosu + User 2 sütun) CEO yazılı onaylı (Madde 18.3 + 30.71).
