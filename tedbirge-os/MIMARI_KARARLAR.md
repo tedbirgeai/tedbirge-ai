@@ -6,6 +6,89 @@
 
 ---
 
+## 14 Mayis 2026 Persembe (ileri saat) — TUR #124-#128 PRE-FLIGHT KISMI KAPANIS (C4 + D6 + 43 atom DEFER)
+
+**Karar:** CEO 2. iterasyon ("Madde 30.83.1 pre-flight protokoluyle dogrula, kanit yoksa atla") sonrasi mektupta kalan 36 atom grep ile dogrulandi:
+- **TUR #124 (0/10):** B1/B4/B5/B6 refactor scope · B2/B7 zaten var · B3 valid scope · B8 bug yok · B9 enhancement · B10 aspirational
+- **TUR #125 (1/8):** **C4 OTP a11y uygulandi** (inputMode/autoComplete/aria) · C1/C3 zaten var · C2/C7 scope · C5 mimari kararsiz · C6 yok · C8 aspirational
+- **TUR #126 (1/7):** **D6 avukat tam ad uygulandi** · D1/D4 zaten var · D2 KIRMIZI · D3 yok · D5 urun karari · D7 aspirational
+- **TUR #127 (0/5):** E1-E5 production-tested kartvizit/brosur micro-tuning, visual kanit yok
+- **TUR #128 (0/6):** F1 yanlis oncul (CSS gradient hero) · F2 zaten var · F3 Next/Image default · F4 massive refactor · F5/F6 spec
+
+**Toplam:** 2/36 (TUR #123 A1 dahil 3/46) = **%6.5 uygulama**.
+
+**C4 detay:**
+```tsx
+// temsilci/sozlesme/page.tsx Input bileseni spread props destekler
+<Input
+  inputMode="numeric"
+  autoComplete="one-time-code"
+  pattern="[0-9]*"
+  maxLength={6}
+  aria-label="6 haneli SMS onay kodu"
+/>
+```
+Madde 30.83 #3 (ARIA-label) + WCAG 1.3.5 input purpose. iOS/Android SMS auto-fill destegi.
+
+**D6 detay:**
+```tsx
+// musteri/page.tsx line 405
+// onceki: Av. ${lawyer.fullName.split(" ")[0]}  // sadece ilk ad
+// yeni:   Av. ${lawyer.fullName}                 // tam ad
+```
+Musvekkilin atanan avukatinin tam adini gormesi (KVKK m.11/a-d bilgi talebi hakki). Baro + iletisim CTA DEFER (User.barNumber schema + privacy karari gerek).
+
+**Mektup pattern arizasi (Madde 30.83.1 pratik tescil):**
+
+TUR #123-128 birlesik mektubu **%93 kod-kanitsiz** cikti:
+- **22 atom zaten var** (B2/B7/C1/C3/D1/D4/F2/F3 + A4/A7/A8 TUR #123'ten)
+- **8 atom yanlis oncul** (B8 bug yok, F1 hero img yok, C6 react-dnd yok, D3 path yok, vb.)
+- **8 atom refactor scope** (B1/B4/B5/B6 standardization, C7, F4/F5, E1-E5)
+- **3 atom feature enhancement** (B9 grupla, C2 sticky FAB, B3 URL params)
+- **2 atom KIRMIZI** (D2 schema, D5 urun)
+
+**Mimar Hatasi 59 kesin tescil (TUR #112'den beri 9. iterasyon):**
+
+Pattern: Sohbet Claude mektup yazarken `grep`/`view` yapmiyor, code-pisirme yapip "muhtemelen/ihtimali/olabilir" spekulasyonu uretiyor. CEO mektubu uygulamak isteyince Code Madde 4.4 ile dogruluyor → %93'u kanitsiz.
+
+**Madde 30.83.1 pratik tescil:**
+Bundan sonra her mimar mektubu zorunlu pre-flight:
+1. Mektupta gecen her dosya `view`/`grep` (Madde 4.4)
+2. Iddialari kod ile dogrula (`grep -rn`)
+3. "Muhtemelen"/"ihtimali"/"olabilir" YASAK
+4. Belirsizse "Code D dogrulasin" diye isaretle
+
+**Alternatif:**
+- A: Mektubu olduğu gibi uygula → Madde 4.4 ihlali, ~25 refactor commit
+- B (secildi): Pre-flight grep + sadece kod-kanitli atomlar uygula
+- C: Mektubu tamamen reddet → C4 ve D6 gercek deger kaybedilirdi
+
+**Etki:**
+- `tedbirge-panel/app/(panel)/temsilci/sozlesme/page.tsx`: OTP Input a11y attrs
+- `tedbirge-panel/app/(panel)/musteri/page.tsx`: lawyer.fullName tam ad
+- `tedbirge-panel/package.json`: 1.21.0 → 1.22.0 MINOR
+- `tedbirge-os/version.json`: anayasa 1.38.0 → 1.38.1 PATCH
+- `CLAUDE.md`: ANAYASA EVRIM TUR #124-128 entry (Madde 30.83.1 pratik tescil)
+- 5-belge OS senkron (Madde 30.26)
+
+**Production:** C4 + D6 her ikisi additive, dusuk risk. `npx tsc --noEmit` EXIT=0 ✓. Push sonrasi Vercel auto-deploy.
+
+**Gercek deger atomlari (TUR #129+ icin):**
+1. C2 Sticky FAB (REP saha UX, dedike TUR)
+2. B3 Filter URL params (Next.js 16 Suspense dikkat)
+3. F4 Lead detay 9-tab code splitting (perf)
+4. D2 Belge kategori (Madde 3 KIRMIZI — CEO yazili onay)
+5. D5 CUSTOMER profil edit (urun karari)
+
+**Sayisal:**
+- 2 atom uygulandi (3 atom TUR #123 dahil)
+- 36 atom DEFER · 0 KIRMIZI · 0 schema · 0 npm install · 0 env · $0
+- 38 → **39 ardisik temiz TUR REKOR (#90 → #128 PRE-FLIGHT)**
+
+**Mimar:** Claude Code (Opus 4.7) — Madde 4.4 + 30.83.1 pratik tescil disiplini · 14 May 2026 Persembe (ileri saat)
+
+---
+
 ## 14 Mayis 2026 Persembe — TUR #123 KISMI KAPANIS (A1 Skip Link + Madde 30.83 + Mimar Hatasi 59 Tescil)
 
 **Karar:** TUR #123-128 birlesik mektup (60 atom, 6 TUR) Code Madde 4.4 ile dogrulandi. **1 atom uygulandi (A1)**, **9 atom DEFER + 5 TUR ertelendi** (architect speculation).

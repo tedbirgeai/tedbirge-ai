@@ -1,15 +1,34 @@
 # 🛡️ TEDBIRGE.AI — DEVİR RAPORU (AKTİF)
 
-📋 **ANAYASA:** v1.38.0 MINOR (Madde 30.65-83.1 — **Madde 30.83 + 30.83.1 yeni: Erisilebilirlik WCAG AA + Mektup Pre-Flight Disiplini**)
-📂 **♿ A1 SKIP LINK + GLOBAL FOCUS-VISIBLE + MIMAR HATASI 59 TESPIT (TUR #123-128 mektup kod-kanitsiz) ♿**
-📅 **SON GÜNCELLEME:** 14 Mayıs 2026 Persembe (TUR #123 KISMI KAPANIS)
-👤 **CEO Onay:** Mehmet DINÇ — Madde 30.25 R1 ("Secenek C, hicbir sey sorma basla bitir"). Code 1/60 atom uyguladi, 59 atom DEFER (architect speculation).
-🤖 **Mimar:** Claude Opus 4.7 (TUR #123-128 mektup, kod-kanitsiz) + Claude Code (A1 atom + Madde 30.83 + 30.83.1 + Mimar Hatasi 59 tescil)
-🌟 **Tarih:** 14 Mayıs 2026 — 38 ARDISIK TEMIZ TUR REKOR (#90 → #123 KISMI)
+📋 **ANAYASA:** v1.38.1 PATCH (Madde 30.65-83.1 — Pre-Flight pratik tescil, yeni madde yok)
+📂 **♿ TUR #123-128 PRE-FLIGHT: 3/46 ATOM (A1 + C4 + D6) + 43 DEFER + MIMAR HATASI 59 KESIN TESCIL ♿**
+📅 **SON GÜNCELLEME:** 14 Mayıs 2026 Persembe (TUR #124-#128 KISMI KAPANIS — 2. iterasyon)
+👤 **CEO Onay:** Mehmet DINÇ — 2 iterasyon. 1) "Secenek C uctan uca" (1/10 atom). 2) "Pre-flight grep ile dogrula, kanit yoksa atla" (2/36 atom). Toplam 3/46 = %6.5 uygulama.
+🤖 **Mimar:** Claude Opus 4.7 (TUR #123-128 mektup, %93 kod-kanitsiz) + Claude Code (A1 + C4 + D6 + Madde 30.83.1 pratik tescil)
+🌟 **Tarih:** 14 Mayıs 2026 — 39 ARDISIK TEMIZ TUR REKOR (#90 → #128 PRE-FLIGHT)
 
 ---
 
-## 🎯 BUGÜN — TUR #123 KISMI KAPANIS (A1 + Mimar Hatasi 59)
+## 🎯 BUGÜN — TUR #124-#128 KISMI KAPANIS (Pre-Flight 43 atom DEFER + C4 + D6)
+
+**2. iterasyon (TUR #123 sonrasi):** CEO "TUR #124-128 mektubundaki atomlari Madde 30.83.1 pre-flight protokoluyle tek tek grep'le dogrula. Belirsiz iddialar YASAK — kanit yoksa atla."
+
+**Sonuc:** 46 atom grep ile dogrulandi.
+- **TUR #124:** 0/10 (3 zaten var, 6 refactor/spec, 1 B8 bug yanlis teshis)
+- **TUR #125:** 1/8 — **C4 OTP a11y** (inputMode/autoComplete/aria — SMS auto-fill destegi)
+- **TUR #126:** 1/7 — **D6 avukat tam ad** (fullName.split[0] → fullName, KVKK m.11 bilgi hakki)
+- **TUR #127:** 0/5 (production-tested kartvizit/brosur micro-tuning, visual kanit yok)
+- **TUR #128:** 0/6 (F2 zaten var, F1 yanlis oncul, F3 default)
+
+**Toplam:** 3/46 (%6.5) uygulama. Mektup pattern revize gerek (TUR #129+).
+
+**Surum:** Panel `1.21.0 → 1.22.0` MINOR, Anayasa `v1.38.0 → v1.38.1` PATCH (Madde 30.83.1 pratik tescil).
+
+Bkz. `OTONOM_RAPOR.md` — 46-atom kesin grep tablo.
+
+---
+
+## 🗄️ ARSIV — TUR #123 KISMI KAPANIS (A1 + Mimar Hatasi 59)
 
 **Mektup:** TUR #123-128 birlesik (60 atom, 6 TUR, DEFER 0). Madde 4.4 (kod kaynaktir) zorunlu kildi her atom oncesi grep/view.
 

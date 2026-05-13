@@ -1,12 +1,33 @@
 # 📋 TEDBİRGE.AI — İŞ PLANI (AKTİF KESİT)
 
-**Son güncelleme:** 14 Mayıs 2026 Persembe (TUR #123 KISMI KAPANIS)
-**Anayasa:** v1.38.0 MINOR (Madde 30.65-83.1 — **Madde 30.83 + 30.83.1 yeni: Erisilebilirlik WCAG AA + Mektup Pre-Flight Disiplini**)
-**Aktif rekor:** 38 ardisik temiz TUR (#90 → #123 KISMI)
+**Son güncelleme:** 14 Mayıs 2026 Persembe (TUR #124-#128 PRE-FLIGHT KISMI KAPANIS)
+**Anayasa:** v1.38.1 PATCH (Madde 30.83.1 pratik tescil)
+**Aktif rekor:** 39 ardisik temiz TUR (#90 → #128 PRE-FLIGHT)
 
 ---
 
-## 🎯 NOW — TUR #123 KISMI KAPANIS ✅ (A1 + Mimar Hatasi 59 tespit)
+## 🎯 NOW — TUR #124-#128 PRE-FLIGHT KISMI KAPANIS ✅ (C4 + D6 + 43 DEFER)
+
+**2. iterasyon (TUR #123 sonrasi CEO talep):** Madde 30.83.1 pre-flight, kanit yoksa atla.
+
+**Sonuc:** 46 atom grep dogrulandi → 3 uygulandi (A1 TUR #123 + C4 TUR #125 + D6 TUR #126) + 43 DEFER. Mektup %93 kod-kanitsiz cikti.
+
+**Uygulanan:**
+- **C4** — OTP Input a11y (inputMode/autoComplete/pattern/maxLength/aria-label) `temsilci/sozlesme/page.tsx`
+- **D6** — Avukat tam ad CUSTOMER UI (`musteri/page.tsx` line 405)
+
+**Gercek deger atom (TUR #129+ icin mimar yeniden tasarlamali):**
+1. C2 Sticky FAB (REP saha UX, layout.tsx yeni gerek)
+2. B3 Filter URL params (UX persistance, Next.js 16 Suspense)
+3. F4 Lead detay 9-tab code splitting (perf, massive refactor)
+4. D2 Belge kategori (Madde 3 KIRMIZI — CEO yazili onay)
+5. D5 CUSTOMER profil edit (urun karari)
+
+Panel `1.21.0 → 1.22.0` MINOR, Anayasa `v1.38.0 → v1.38.1` PATCH.
+
+---
+
+## 🗄️ ARSIV — TUR #123 KISMI KAPANIS ✅ (A1 + Mimar Hatasi 59 tespit)
 
 **Durum:** TUR #123-128 birlesik mektup (60 atom, 6 TUR) Code Madde 4.4 (kod kaynaktir) ile dogrulandi. 6 atom verified, 6 atom architect speculation cikti.
 

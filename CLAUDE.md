@@ -338,8 +338,53 @@ Mehmet Bey sahaya çıkabilsin diye bu disiplin var.
 
 ---
 
-**— Tedbirge Mimari Anayasası v1.38.0 MINOR**
-**Son güncelleme: 14 Mayıs 2026 Persembe (TUR #123 KISMI KAPANIS — A1 skip link + Madde 30.83 + 4 Architect Hata Tespit)**
+**— Tedbirge Mimari Anayasası v1.38.1 PATCH**
+**Son güncelleme: 14 Mayıs 2026 Persembe (TUR #124-#128 KISMI KAPANIS — C4 + D6 + 43 atom DEFER Madde 30.83.1 pre-flight tescil)**
+
+---
+
+## ANAYASA EVRIM — TUR #124-128 (14 May 2026 ileri saat) — Pre-Flight Protokol Tescil (Madde 30.83.1 uygulamasi)
+
+**Pattern (TUR #123-128 mektup uctan uca 2. iterasyon):**
+
+CEO TUR #123 KISMI sonrasi 2. iterasyon talep etti: "TUR #124-128 mektubundaki atomlari Madde 30.83.1 pre-flight protokoluyle tek tek grep'le dogrula. Belirsiz iddialar YASAK — kanit yoksa atla."
+
+**Code Madde 4.4 (kod kaynaktir) grep uygulamasi sonucu:**
+
+| TUR | Uygulanan | DEFER | Cikan Pattern |
+|-----|-----------|-------|---------------|
+| #124 | 0/10 | 10 | 3 zaten var, 6 refactor/spec, 1 bug yok (B8 isActive yanlis teshis) |
+| #125 | 1/8 (C4 OTP a11y) | 7 | 5 zaten var/spec, 2 refactor |
+| #126 | 1/7 (D6 avukat tam ad) | 6 | D1 zaten var, D2 KIRMIZI, D4 zaten var, D3 yol yok |
+| #127 | 0/5 | 5 | Production-tested koda micro-tuning, visual kanit yok |
+| #128 | 0/6 | 6 | F2 zaten var, F1 yanlis oncul (hero CSS gradient), F3 default |
+
+**Toplam: 2 atom uygulandi / 36 atom DEFER (TUR #123 A1 dahil 3 atom / 46 atom)** = %93 DEFER.
+
+**C4 — OTP A11y attrs uygulamasi (Madde 30.83 WCAG):**
+`Input` DS bileseni spread props destekliyor → `inputMode="numeric"` + `autoComplete="one-time-code"` + `pattern="[0-9]*"` + `maxLength={6}` + `aria-label`. Mobil iOS/Android SMS auto-fill destegi.
+
+**D6 — Avukat tam ad (CUSTOMER UI):**
+musteri/page.tsx line 405 `${lawyer.fullName.split(" ")[0]}` → `${lawyer.fullName}`. Musvekkilin atanan avukatinin tam adini gormesi (KVKK m.11/a-d bilgi talebi mesru hak). Baro + iletisim DEFER (privacy + schema kararsiz).
+
+**Mimar Hatasi 59 paternin teyit:**
+TUR #124-#128'de mektubun **%93'u** kod-kanitsiz (zaten var, yanlis oncul, refactor scope, feature ekleme). Madde 30.83.1 (Mektup Pre-Flight Disiplini) **tescil edildi pratikte** — architect mektup yazimi oncesi her dosya grep zorunlu, "muhtemelen"/"ihtimali"/"olabilir" YASAK.
+
+**Gercek deger atomlari (yeniden mimarlanmali — TUR #129+):**
+1. C2 Sticky FAB (REP saha UX, dedike TUR)
+2. B3 Filter URL params (UX persistance, Next.js 16 Suspense dikkat)
+3. F4 Lead detay code splitting (perf, massive refactor)
+4. D2 Belge kategori (Madde 3 KIRMIZI — CEO yazili onay gerek)
+5. D5 CUSTOMER profil edit (urun karari)
+
+### TUR #124-128 sayisal ozet
+- 2 atom uygulandi (C4 OTP a11y + D6 avukat tam ad)
+- 36 atom DEFER (architect speculation kod ile dogrulanmadi)
+- 0 KIRMIZI · 0 schema · 0 npm install · 0 env · $0 maliyet
+- Backend `1.15.0` sabit · Schema `1.7.0` sabit
+- Panel `1.21.0 → 1.22.0` MINOR
+- Anayasa `v1.38.0 → v1.38.1` PATCH (Madde 30.83.1 pratik tescil, yeni madde yok)
+- 38 → **39 ardisik temiz TUR REKOR (#90 → #128 PRE-FLIGHT)**
 
 ---
 
