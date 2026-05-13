@@ -338,8 +338,51 @@ Mehmet Bey sahaya çıkabilsin diye bu disiplin var.
 
 ---
 
-**— Tedbirge Mimari Anayasası v1.34.0 MINOR**
-**Son güncelleme: 13 Mayıs 2026 Çarşamba (TUR #119 KAPALI — Marka Domain Disiplini + Madde 30.76)**
+**— Tedbirge Mimari Anayasası v1.35.0 MINOR**
+**Son güncelleme: 13 Mayıs 2026 Çarşamba (TUR #120 KAPALI — SEO Crawl Bütçesi Disiplini + Madde 30.77)**
+
+---
+
+## ANAYASA EVRİM — TUR #120 (13 May 2026) — SEO Crawl Bütçesi Disiplini
+
+**Madde 30.77 — SEO Crawl Bütçesi Disiplini:**
+
+Google Search Console "Discovered — currently not indexed" durumu pasif kabul edilmez. 4 katmanlı defensive:
+
+1. **robots.txt prefix bug check** — Disallow path'i unintended URL'leri yakalamamalı (TUR #119 emsali). Her yeni `Disallow` eklenmesinde alt path'leri kontrol et.
+2. **Sitemap zenginleştirme** — `lastmod` + `changefreq` + `priority` 3 sinyal zorunlu. Yüksek değer SEO içerik (blog rehber) için `priority >= 0.8`.
+3. **JSON-LD structured data** — Blog post (`BlogPosting`, `Article` değil) + Ana sayfa (`Organization`/`LegalService`) E-E-A-T. `mainEntityOfPage` eklenmesi Google "primary content" tanıması için kritik.
+4. **Hub-spoke iç link grafı** — ana sayfa "Son Yazılar/Hukuki Rehberler" → blog post'lara 1-hop link akışı. 2-hop derinlik = düşük PageRank = düşük crawl bütçesi.
+
+**Yasak:**
+- Sitemap'te `lastmod` olmayan URL (Google "stale" sayar)
+- Blog post'ta JSON-LD eksik (Google "low trust" sayar)
+- Ana sayfa içerik bölümlerinden link almayan derin sayfa (Google crawl bütçe ayırmaz)
+- robots.txt prefix match yan etkisi (TUR #119 emsali `/basvuru` prefix riski)
+
+**TUR #120 saha kanıt:** Google Search Console 36 URL "Discovered — not indexed" (Coverage drilldown, 13 May 2026). 26'sı blog, 4'ü statik public, 3 araç. Son tarama `1970-01-01` (Unix epoch = hiç crawl edilmemiş).
+
+**Kanıt-bazlı uygulama (TUR #120):**
+- ATOM 1 SKIP — `/basvuru` robots.ts'te yok, prefix bug yok
+- ATOM 2 UYGULA — blog priority 0.6 → 0.8 (`sitemap.ts`)
+- ATOM 3 UYGULA — `articleSchema` `Article` → `BlogPosting` + `mainEntityOfPage` (`JsonLd.tsx`)
+- ATOM 4 SKIP — `BlogSection` MEVCUT (HomePageClient:405 `getFeaturedPosts(3)`)
+- ATOM 5 SKIP — `organizationSchema()` + `websiteSchema()` MEVCUT (layout.tsx:97)
+
+### TUR #120 sayısal özet
+- 7 atom · 3 UYGULA + 4 SKIP no-op (DEFER 0 — Mimar Hatası 50 önleme, kanıt-bazlı)
+- 0 KIRMIZI · 0 schema · 0 npm install · 0 env · $0 maliyet
+- Panel-only (backend `1.14.1` sabit)
+- Panel `1.17.0 → 1.18.0` MINOR
+- Anayasa `v1.34.0 → v1.35.0` MINOR
+- 33 → **34 ardışık temiz TUR REKOR (#90 → #120)**
+
+### Manual iş (CEO 5 dk, deploy sonrası)
+
+Google Search Console:
+1. Sitemaps → `sitemap.xml` → "Yeniden gönder"
+2. URL Inspection → 5 kritik blog URL → "Request Indexing"
+3. Coverage → 3-7 gün sonra "Discovered - not indexed" 36 → <10 hedef
 
 ---
 

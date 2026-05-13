@@ -1,3 +1,119 @@
+# 🤖 TEDBİRGE.AI — OTONOM RAPOR (TUR #120)
+
+**Tarih:** 13 Mayıs 2026 Çarşamba gece
+**TUR:** #120 ✅ KAPALI
+**Tip:** SEO Crawl Bütçesi Açılımı — Schema.org BlogPosting + Sitemap Priority Zenginleştirme
+**Anayasa:** v1.34.0 → **v1.35.0 MINOR** (Madde 30.77 yeni — SEO Crawl Bütçesi Disiplini)
+
+## 📋 Sayısal özet
+- 7 atom · 3 UYGULA + 4 SKIP no-op (kanıt-bazlı, Mimar Hatası 50 önleme)
+- 0 KIRMIZI · 0 schema · 0 npm install · 0 env · $0 maliyet
+- Panel-only (backend `1.14.1` sabit)
+- 3 dosya değişiklik (sitemap.ts + JsonLd.tsx + version.json+package.json)
+- Panel `1.17.0 → 1.18.0` MINOR / Anayasa `v1.34.0 → v1.35.0` MINOR
+- **33 → 34 ardışık temiz TUR REKOR (#90 → #120)**
+
+## CEO direktifi (Madde 30.25 R1)
+> "ANAYASANIN PARÇALI İŞ YASAĞINI İHLAL ETMEDEN uçtan uca kod tabanlı otonom aksın gitsin 0 hata ile düzelt bana hiç bir şey sorma başla bitir" — Mehmet DİNÇ, 13 May 2026
+
+## 📊 Saha kanıtı
+
+Google Search Console Coverage Drilldown (13 May 2026):
+- 36 URL "Discovered — currently not indexed"
+- Son tarama `1970-01-01` (Unix epoch = hiç crawl edilmemiş)
+- 26 blog post + 4 statik public + 3 araç + 2 indeks + 1 form
+
+## ✅ 4 Hipotez Kanıt-Bazlı Sonuç
+
+| H | Hipotez | Kanıt | Karar |
+|---|---|---|---|
+| H1 | `/basvuru` robots prefix bug | robots.ts'te `/basvuru` YOK (sadece `/api,/dashboard,/admin,/musteri,/temsilci,/hukukcu,/leads,/profil,/login,/2fa-secim,/lawyer-dashboard,/register`) | **H1 yanlış** — ATOM 1 SKIP |
+| H2 | Sitemap priority zayıf | Blog post `priority: 0.6 as const` (zayıf sinyal yüksek değer içerik için) | **H2 doğru** — ATOM 2 UYGULA → 0.8 |
+| H3 | İç link grafı zayıf | `HomePageClient.tsx:404 BlogSection` MEVCUT `getFeaturedPosts(3)` hub-spoke aktif | **H3 yanlış** — ATOM 4 SKIP |
+| H4 | BlogPosting JSON-LD eksik | Blog [slug]/page.tsx `articleSchema` MEVCUT ama `@type: "Article"` (genel) | **H4 kısmen doğru** — ATOM 3 UYGULA → `BlogPosting` + `mainEntityOfPage` |
+
+## ✅ 7 ATOM Uygulama
+
+### ATOM 1 ⊘ SKIP (Senaryo B, Madde 4.4 + 14.5)
+`/basvuru` robots.ts'te yok. `/basvuru-sorgula` zaten allow. H1 hipotezi kod-kanıtla yanlış. Sahte fix Mimar Hatası 50 emsali olur.
+
+### ATOM 2 ✓ UYGULA
+`tedbirge-panel/app/sitemap.ts`:
+- `/blog` indeks `priority: 0.7 → 0.8`
+- Blog post mapping `priority: 0.6 as const → 0.8 as const`
+- 3 sinyal (lastModified + changeFrequency + priority) korundu (Madde 4.6)
+- Diğer 18 statik URL dokunulmadı
+
+### ATOM 3 ✓ UYGULA
+`tedbirge-panel/components/JsonLd.tsx` `articleSchema`:
+- `@type: "Article" → "BlogPosting"` (Schema.org daha spesifik, Google "blog makalesi" yapısal sinyal)
+- `mainEntityOfPage: { @type: "WebPage", @id: params.url }` eklendi (E-E-A-T "primary content" tanıması)
+- Fonksiyon imzası ve TypeScript params interface KORUNDU (Madde 4.6 — callers etkilenmez)
+
+### ATOM 4 ⊘ SKIP (Senaryo A, Madde 4.6)
+`HomePageClient.tsx:404 BlogSection`:
+```tsx
+const posts = getFeaturedPosts(3);
+// ... 3 kart render + "Tümünü Gör →" Link to /blog
+```
+Hub-spoke ZATEN aktif. Mevcut UI'ya dokunmak Madde 4.6 ihlali.
+
+### ATOM 5 ⊘ SKIP (Senaryo A, Madde 4.6)
+`layout.tsx:97`:
+```tsx
+<JsonLd data={[organizationSchema(), websiteSchema()]} />
+```
+`organizationSchema` zaten `@type: "Organization"` + name/legalName/url/logo/description/sameAs. `websiteSchema` zaten `@type: "WebSite"` + publisher. E-E-A-T sinyalleri MEVCUT.
+
+### ATOM 6 ✓ UYGULA
+- `version.json`: anayasa 1.34.0 → 1.35.0, panel 1.17.0 → 1.18.0, backend `1.14.1` sabit
+- `sync-version.js` çalıştırıldı (panel package.json otomatik 1.18.0)
+- 5 belge OS senkron (CLAUDE.md Madde 30.77 + MIMARI/DEVIR/IS_PLANI/OTONOM_RAPOR)
+
+### ATOM 7 ✓ UYGULA (devamında)
+Build + TypeScript + atomik commit + push.
+
+## 📝 Madde 30.77 yeni — SEO Crawl Bütçesi Disiplini
+
+4 katmanlı defensive (TUR #120 saha-kanıtlı pattern):
+
+1. **robots.txt prefix bug check** — Disallow path'i unintended URL'leri yakalamamalı (TUR #119 emsali)
+2. **Sitemap zenginleştirme** — `lastmod` + `changefreq` + `priority` 3 sinyal zorunlu, yüksek değer SEO içerik için `priority >= 0.8`
+3. **JSON-LD structured data** — Blog post (`BlogPosting`, `Article` değil) + Ana sayfa (`Organization`/`LegalService`) + `mainEntityOfPage` (E-E-A-T)
+4. **Hub-spoke iç link grafı** — ana sayfa → blog post'lara 1-hop link akışı zorunlu
+
+## 🔬 Smoke (deploy sonrası — CEO doğrulayacak)
+
+```bash
+curl -s https://www.tedbirge.ai/robots.txt | grep -iE "basvuru|allow"
+# Beklenti: /basvuru-sorgula disallow YOK
+
+curl -s https://www.tedbirge.ai/sitemap.xml | head -50
+# Beklenti: <priority>0.8</priority> blog post'lar için
+
+curl -s https://www.tedbirge.ai/blog/<slug> | grep -oE 'application/ld\+json[^<]+BlogPosting' | head -1
+# Beklenti: 1 hit (BlogPosting schema)
+
+curl -s https://www.tedbirge.ai/ | grep -cE "Organization|WebSite|Hukuki Rehberler"
+# Beklenti: >=3 (organizationSchema + websiteSchema + BlogSection)
+```
+
+## 📌 Manuel iş — CEO (5 dk, deploy sonrası)
+
+1. `search.google.com/search-console` → tedbirge.ai
+2. Sitemaps → `sitemap.xml` → "Yeniden gönder"
+3. URL Inspection → 5 kritik blog URL "Request Indexing"
+4. 3-7 gün sonra Coverage → "Discovered — not indexed" 36 → <10 hedef
+
+## 🎯 NEXT — TUR #121
+1. Email/Phone 2FA + 24h onay (TUR #118 SARI)
+2. Niyazi DEMİR ilk gerçek lead retrospektifi
+3. TUR #117 deploy fail kök sebep teşhis
+4. Premium görsel iterasyon
+5. DocumentStatus enum eksik
+6. 52 küçük il × ilçe (TUR #117 SARI)
+
+═══════════════════════════════════════════════════════════════════
 # 🤖 TEDBİRGE.AI — OTONOM RAPOR (TUR #119)
 
 **Tarih:** 13 Mayıs 2026 Çarşamba

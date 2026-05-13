@@ -6,6 +6,79 @@
 
 ---
 
+## 13 Mayıs 2026 Çarşamba gece — TUR #120 KAPALI (SEO Crawl Bütçesi Açılımı — Schema.org BlogPosting + Sitemap Zenginleştirme)
+
+**Karar:** Anayasa **v1.34.0 → v1.35.0 MINOR**. Panel `1.17.0 → 1.18.0` MINOR. Backend sabit (1.14.1). 1 yeni madde tescili (30.77 — SEO Crawl Bütçesi Disiplini). 0 KIRMIZI, 0 schema, 0 npm install.
+
+**CEO direktifi (Madde 30.25 R1):**
+> "ANAYASANIN PARÇALI İŞ YASAĞINI İHLAL ETMEDEN uçtan uca kod tabanlı otonom aksın gitsin 0 hata ile düzelt bana hiç bir şey sorma başla bitir." — Mehmet DİNÇ, 13 May 2026
+
+**Saha kanıt (Google Search Console Coverage Drilldown, 13 May 2026):**
+- 36 URL "Discovered — currently not indexed"
+- Son tarama `1970-01-01` (Unix epoch = hiç crawl edilmemiş)
+- 26 blog post + 4 statik public + 3 araç + 2 indeks + 1 form
+
+**4 Hipotez kanıt-bazlı değerlendirme:**
+
+| Hipotez | Kanıt | Karar |
+|---|---|---|
+| H1 `/basvuru` prefix bug (TUR #119 yan etki) | robots.ts'te `/basvuru` YOK (sadece `/api,/dashboard,/admin,/musteri,/temsilci,/hukukcu,/leads,/profil,/login,/2fa-secim,/lawyer-dashboard,/register`) | **H1 yanlış** — ATOM 1 SKIP |
+| H2 Sitemap sinyal eksik | Sitemap zaten 3 sinyal var ama blog priority `0.6` zayıf | **H2 doğru** — ATOM 2 UYGULA (0.6→0.8) |
+| H3 İç link grafı zayıf | HomePageClient:405 `BlogSection` MEVCUT `getFeaturedPosts(3)` | **H3 yanlış** — ATOM 4 SKIP |
+| H4 BlogPosting JSON-LD yok | Blog [slug]/page.tsx zaten `articleSchema` JSON-LD ediyor (`@type: "Article"`) | **H4 kısmen doğru** — ATOM 3 UYGULA (Article → BlogPosting + mainEntityOfPage) |
+
+**7 ATOM uygulandı (3 UYGULA + 4 SKIP no-op, UÇTAN UCA DEFER 0):**
+
+1. **ATOM 1 ⊘ SKIP** — `/basvuru` prefix bug yok (kanıt-bazlı), H1 yanlış. Madde 4.4 + 14.5 mimar hatası önleme (kod-kanıtsız uygulama YASAK).
+
+2. **ATOM 2 ✓ UYGULA** — `tedbirge-panel/app/sitemap.ts`:
+   - Blog post `priority: 0.6 as const` → `0.8 as const`
+   - `/blog` indeks `priority: 0.7` → `0.8`
+   - 3 sinyal (lastModified + changeFrequency + priority) korundu, yalnızca priority artırıldı.
+   - Madde 4.6 — diğer URL'ler dokunulmadı.
+
+3. **ATOM 3 ✓ UYGULA** — `tedbirge-panel/components/JsonLd.tsx`:
+   - `articleSchema` `@type: "Article"` → `"BlogPosting"` (Schema.org daha spesifik, Google "blog makalesi" yapısal sinyal)
+   - `mainEntityOfPage: { @type: "WebPage", @id: params.url }` eklendi (E-E-A-T "primary content" tanıması)
+   - Diğer fields (headline/author/publisher/image/inLanguage/datePublished/dateModified) korundu.
+   - Madde 4.6 — fonksiyon imzası ve callers dokunulmadı (TypeScript signature aynı).
+
+4. **ATOM 4 ⊘ SKIP** — `BlogSection` HomePageClient.tsx:404'de MEVCUT, `getFeaturedPosts(3)` ile 3 yazı + "Tümünü Gör →" link. Hub-spoke aktif. Madde 4.6 (mevcut UI'ya dokunma).
+
+5. **ATOM 5 ⊘ SKIP** — `layout.tsx:97` `<JsonLd data={[organizationSchema(), websiteSchema()]} />` MEVCUT. `organizationSchema` zaten `@type: "Organization"` + name/legalName/url/logo/description/sameAs. Madde 4.6.
+
+6. **ATOM 6 ✓ UYGULA** — version.json: `anayasa 1.34.0 → 1.35.0` + `panel 1.17.0 → 1.18.0`. backend `1.14.1` sabit (panel-only). sync-version.js çalıştırıldı. 5 belge OS senkron (CLAUDE/MIMARI/DEVIR/IS_PLANI/OTONOM_RAPOR).
+
+7. **ATOM 7 ✓ UYGULA** — Build + TypeScript + atomik commit + push (panel + backend repo 5 belge).
+
+### Madde 30.77 yeni — SEO Crawl Bütçesi Disiplini
+
+4 katmanlı defensive: robots.txt prefix bug check + sitemap 3 sinyal zorunlu + JSON-LD structured data + hub-spoke iç link grafı.
+
+### Etki
+
+- Panel: 2 değişiklik (`sitemap.ts`, `JsonLd.tsx`) + version bump
+- OS: 5 belge + version
+- Backend: 0 değişiklik (Madde 4.6 — panel-only kapsam)
+- 33 → **34 ardışık temiz TUR REKOR (#90 → #120)**
+
+### Manuel iş — CEO (5 dk, deploy sonrası)
+
+1. `search.google.com/search-console` → Sitemaps → "Yeniden gönder"
+2. URL Inspection → 5 kritik blog URL → "Request Indexing"
+3. 3-7 gün sonra Coverage → "Discovered — not indexed" 36 → <10 hedef
+
+### NEXT — TUR #121
+
+- Email/Phone 2FA + 24h onay (TUR #118 sarı endişe)
+- Niyazi DEMİR ilk gerçek lead retrospektifi
+- TUR #117 deploy fail kök sebep teşhis (Render log)
+- Premium görsel iterasyon
+
+**Mimar:** Claude Opus 4.7 (sohbet mektup) + Claude Code (kanıt-bazlı 3/7 UYGULA + 4/7 SKIP no-op, Mimar Hatası 50 önleme) — 13 Mayıs 2026 gece
+
+---
+
 ## 13 Mayıs 2026 Çarşamba — TUR #119 KAPALI (Vercel Domain Redirect + SEO Temizliği — Marka Domain Disiplini)
 
 **Karar:** Anayasa **v1.33.0 → v1.34.0 MINOR**. Panel `1.16.0 → 1.17.0` MINOR. Backend sabit (1.14.1). 1 yeni madde tescili (30.76 — Marka Domain Disiplini). 0 KIRMIZI, 0 schema, 0 npm install.

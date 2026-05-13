@@ -1,15 +1,47 @@
 # 🛡️ TEDBIRGE.AI — DEVİR RAPORU (AKTİF)
 
-📋 **ANAYASA:** v1.34.0 MINOR (Madde 30.65-76 — **Madde 30.76 yeni: Marka Domain Disiplini**)
-📂 **🚀 VERCEL → www.tedbirge.ai 301 REDIRECT + SEO TEMİZLİĞİ (canonical metadata + robots disallow) 🚀**
-📅 **SON GÜNCELLEME:** 13 Mayıs 2026 Çarşamba (TUR #119 KAPALI)
-👤 **CEO Onay:** Mehmet DİNÇ — Madde 30.25 R1 direktifi (Vercel URL redirect tek seferde)
-🤖 **Mimar:** Claude Opus 4.7 (sohbet) + Claude Code (5 atom uçtan uca, DEFER 0)
-🌟 **Tarih:** 13 Mayıs 2026 — 33 ARDIŞIK TEMİZ TUR REKOR (#90 → #119)
+📋 **ANAYASA:** v1.35.0 MINOR (Madde 30.65-77 — **Madde 30.77 yeni: SEO Crawl Bütçesi Disiplini**)
+📂 **🚀 SCHEMA.ORG BLOGPOSTING + SITEMAP PRIORITY 0.8 + GOOGLE CRAWL BÜTÇESİ AÇILIMI 🚀**
+📅 **SON GÜNCELLEME:** 13 Mayıs 2026 Çarşamba gece (TUR #120 KAPALI)
+👤 **CEO Onay:** Mehmet DİNÇ — Madde 30.25 R1 direktifi (parçalı iş yasağı + 0 hata)
+🤖 **Mimar:** Claude Opus 4.7 (mektup) + Claude Code (kanıt-bazlı 3/7 UYGULA + 4/7 SKIP no-op)
+🌟 **Tarih:** 13 Mayıs 2026 — 34 ARDIŞIK TEMİZ TUR REKOR (#90 → #120)
 
 ---
 
-## 🎯 BUGÜN — TUR #119 KAPALI (Vercel Domain Redirect + SEO Temizliği — Marka Domain Disiplini)
+## 🎯 BUGÜN — TUR #120 KAPALI (SEO Crawl Bütçesi Açılımı — Schema.org BlogPosting + Sitemap Priority)
+
+**Saha kanıt (Google Search Console):** 36 URL "Discovered — currently not indexed", son tarama `1970-01-01` (Unix epoch = hiç crawl edilmemiş). 26 blog post + 4 statik + 3 araç + 2 indeks + 1 form.
+
+**Sürüm:** Panel 1.17.0 → **1.18.0** MINOR, Anayasa v1.34.0 → **v1.35.0** MINOR. Backend sabit (1.14.1).
+
+### 4 Hipotez kanıt-bazlı sonuç
+
+| Hipotez | Kanıt | Karar |
+|---|---|---|
+| H1 `/basvuru` prefix bug | robots.ts'te YOK | ⊘ SKIP |
+| H2 Sitemap priority zayıf | blog `0.6 as const` | ✓ UYGULA → 0.8 |
+| H3 İç link grafı zayıf | HomePageClient BlogSection MEVCUT | ⊘ SKIP |
+| H4 BlogPosting JSON-LD eksik | `Article` schema mevcut ama spesifik değil | ✓ UYGULA → BlogPosting + mainEntityOfPage |
+
+### Uygulanan 3 atom + 4 SKIP no-op (UÇTAN UCA, DEFER 0)
+- **A1 ⊘** `/basvuru` prefix bug yok (Mimar Hatası 50 önleme — kod-kanıtsız uygulama YASAK)
+- **A2 ✓** sitemap.ts blog priority 0.6 → 0.8 (Madde 30.77 #2)
+- **A3 ✓** articleSchema `@type: Article → BlogPosting` + `mainEntityOfPage` (Madde 30.77 #3)
+- **A4 ⊘** BlogSection MEVCUT (HomePageClient:405 `getFeaturedPosts(3)` hub-spoke aktif)
+- **A5 ⊘** organizationSchema + websiteSchema MEVCUT (layout.tsx:97)
+- **A6 ✓** version bump + 5 belge senkron
+- **A7 ✓** Build + commit + push
+
+### Madde 30.77 yeni — SEO Crawl Bütçesi Disiplini
+4 katmanlı defensive: robots.txt prefix bug check + sitemap 3 sinyal zorunlu + JSON-LD structured data (BlogPosting + Organization) + hub-spoke iç link grafı.
+
+### Manuel iş (CEO 5 dk, deploy sonrası)
+Google Search Console → Sitemaps "Yeniden gönder" → 5 kritik blog URL "Request Indexing" → 3-7 gün sonra "Discovered" 36 → <10 hedef.
+
+---
+
+## 🎯 ÖNCEKİ — TUR #119 KAPALI (Vercel Domain Redirect + SEO Temizliği — Marka Domain Disiplini)
 
 **Saha kanıt (Bing arama):** `tedbirge-panel.vercel.app/haberler` + `/basvuru` Google'a index olmuş. SEO duplicate content + marka karmaşası.
 

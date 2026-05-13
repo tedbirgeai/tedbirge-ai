@@ -1,12 +1,46 @@
 # 📋 TEDBİRGE.AI — İŞ PLANI (AKTİF KESİT)
 
-**Son güncelleme:** 13 Mayıs 2026 Çarşamba (TUR #119)
-**Anayasa:** v1.34.0 MINOR (Madde 30.65-76 — **Madde 30.76 yeni: Marka Domain Disiplini**)
-**Aktif rekor:** 33 ardışık temiz TUR (#90 → #119)
+**Son güncelleme:** 13 Mayıs 2026 Çarşamba gece (TUR #120)
+**Anayasa:** v1.35.0 MINOR (Madde 30.65-77 — **Madde 30.77 yeni: SEO Crawl Bütçesi Disiplini**)
+**Aktif rekor:** 34 ardışık temiz TUR (#90 → #120)
 
 ---
 
-## 🎯 NOW — TUR #119 KAPALI ✅ (Vercel Domain Redirect + SEO Temizliği)
+## 🎯 NOW — TUR #120 KAPALI ✅ (SEO Crawl Bütçesi Açılımı — Schema.org BlogPosting + Sitemap)
+
+**Saha kanıt:** Google Search Console 36 URL "Discovered — not indexed". 4 hipotez kanıt-bazlı değerlendirildi.
+
+### 7 atom (3 UYGULA + 4 SKIP no-op, DEFER 0)
+- A1 ⊘ /basvuru prefix bug yok (robots.ts kanıtı)
+- A2 ✓ sitemap blog priority 0.6→0.8
+- A3 ✓ articleSchema Article→BlogPosting + mainEntityOfPage
+- A4 ⊘ BlogSection MEVCUT (HomePageClient:405)
+- A5 ⊘ organizationSchema+websiteSchema MEVCUT (layout.tsx:97)
+- A6 ✓ version + 5 belge senkron
+- A7 ✓ build + commit + push
+
+**Madde 30.77 yeni** — SEO Crawl Bütçesi Disiplini (4 katmanlı defensive)
+
+Panel 1.17.0→1.18.0, Anayasa v1.34.0→v1.35.0. Backend sabit.
+
+### Manuel iş (CEO 5 dk)
+Search Console: Sitemap yeniden gönder + 5 kritik blog URL Request Indexing → 3-7g sonra "Discovered" 36→<10 hedef.
+
+---
+
+## ⏭️ NEXT — TUR #121
+
+**CEO seçimi:**
+1. Email/Phone 2FA + 24h onay (TUR #118 sarı endişe, KVKK m.11)
+2. Niyazi DEMİR ilk gerçek lead retrospektifi
+3. TUR #117 deploy fail kök sebep teşhis (Render log)
+4. Premium görsel iterasyon (kartvizit estetik)
+5. DocumentStatus enum eksik
+6. 52 küçük il × ilçe ekleme (TUR #117 sarı endişe)
+
+---
+
+## 🎯 ÖNCEKİ — TUR #119 KAPALI ✅ (Vercel Domain Redirect + SEO Temizliği)
 
 **Saha kanıt:** Bing'de `tedbirge-panel.vercel.app/haberler+/basvuru` index olmuş — marka karmaşası + SEO duplicate. CEO 13 May 01:10 direktifi.
 
