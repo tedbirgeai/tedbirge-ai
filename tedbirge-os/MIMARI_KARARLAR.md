@@ -6,6 +6,87 @@
 
 ---
 
+## 14 Mayis 2026 Persembe gece — TUR #129 KAPALI (3 Verified Atom UCTAN UCA — Madde 30.83.1 emsal mektup)
+
+**Karar:** TUR #129 mektup ilk kez Madde 30.83.1 (Mektup Pre-Flight Disiplini) **kod-kanit zinciri ile** yazildi. Mimar (Opus 4.7) atomlari TUR #114 + #110 emsal'i ile dogruladi. Code grep pre-flight → 3 atom UYGULANDI, 0 DEFER, 0 KIRMIZI.
+
+**Uygulanan 3 atom:**
+
+### ATOM 1 — C2 REPRESENTATIVE Mobil FAB (Madde 30.85 yeni)
+
+**Yer:**
+- `tedbirge-panel/components/temsilci/MobilFAB.tsx` (yeni 46 satir)
+- `tedbirge-panel/components/layout/AppLayout.tsx` import + mount
+
+**Yapilan:**
+- 3 CTA bottom-bar: Yeni Lead (`#22C55E` yesil) + Kartvizit (`#1E1E8E` lacivert) + Sozlesme (`#1E1E8E` lacivert)
+- `fixed bottom-0 inset-x-0 md:hidden` (mobil-only)
+- `min-h-[56px]` touch target (WCAG 2.5.5 > 44px)
+- `safe-area-inset-bottom` iOS notch + Android nav bar
+- `getStoredUser` ile role kontrol (CUSTOMER/LAWYER icin null return)
+- Existing QuickActionsButton corner FAB ile coexist (z-40, mobile bottom-bar altta + corner FAB ust sag)
+- AppLayout main padding `pb-[72px] md:pb-6` (FAB altta icerik ezilmesin)
+
+### ATOM 2 — B3 Filter URL Params (Madde 30.86 yeni)
+
+**Yer:** `tedbirge-panel/app/(panel)/dashboard/sozlesmeler/page.tsx`
+
+**Yapilan:**
+- `useSearchParams` + `useRouter` import (Next.js navigation)
+- State init: `useState(() => searchParams.get("role") || "")`
+- useEffect filter sync → `router.replace(qs ? '?'+qs : pathname, { scroll: false })`
+- Suspense boundary export pattern: `<Suspense><Content/></Suspense>` (Next.js 16 zorunlu, leads/[id] emsal)
+- Sayfa yenile → filter korunur · link paylasilabilir
+
+### ATOM 3 — F4 Lead Detay Code Splitting (Madde 30.87 yeni)
+
+**Yer:**
+- `tedbirge-panel/app/(panel)/leads/[id]/page.tsx` (DocumentList + UploadForm dynamic)
+- `tedbirge-panel/components/common/TabSkeleton.tsx` (yeni 14 satir)
+
+**Yapilan:**
+- `import dynamic from "next/dynamic"` eklendi
+- `DocumentList` + `UploadForm` static import → `dynamic(() => import(...), { loading: () => <TabSkeleton/>, ssr: false })`
+- TabSkeleton: animate-pulse + ARIA role=status (CLS onleyici)
+- Belgeler tab acilinca lazy load → ilk yukleme bundle dusus
+- LeadTimeline + diger karelaktar statik kaldi (default tab "genel" icin gerekli)
+
+**3 yeni anayasa madde:**
+
+- **30.85 Mobil-First (REPRESENTATIVE)** — md:hidden FAB + 44px touch + safe-area + 3 CTA
+- **30.86 Filter URL Persistance** — useSearchParams + Suspense + router.replace + history.replace
+- **30.87 Core Web Vitals** — Code splitting + skeleton + image priority + font swap (LCP <2.5s + CLS <0.1)
+
+**Madde 30.83.1 emsal mektup (Mimar Hatasi 59 paterni kirildi):**
+
+TUR #123-128 mektubu %93 kod-kanitsiz (Mimar Hatasi 59 tescil). TUR #129 mektubu **%100 kod-kanitli** (her atom TUR #114/#110 emsal referansi). Pre-flight pattern ilk emsal: bundan sonra her mektup boyle olacak.
+
+**Alternatif:**
+- A: Mektubu olduğu gibi uygula (3 atom) → secildi
+- B: Sadece 1-2 atom kismi → DEFER 0 hedefi karsilanmazdi
+- C: Mektubu reddet → 40 ardisik temiz TUR rekor bozulurdu
+
+**Etki:**
+- `tedbirge-panel/components/temsilci/MobilFAB.tsx`: yeni
+- `tedbirge-panel/components/common/TabSkeleton.tsx`: yeni
+- `tedbirge-panel/components/layout/AppLayout.tsx`: MobilFAB mount + main padding
+- `tedbirge-panel/app/(panel)/dashboard/sozlesmeler/page.tsx`: URL params + Suspense
+- `tedbirge-panel/app/(panel)/leads/[id]/page.tsx`: dynamic imports
+- `tedbirge-panel/package.json`: 1.22.0 → 1.23.0 MINOR
+- `tedbirge-os/version.json`: anayasa 1.38.1 → 1.39.0 MINOR
+- `CLAUDE.md`: ANAYASA EVRIM TUR #129 + 3 yeni madde
+- 5-belge OS senkron (Madde 30.26)
+
+**Production:** 3 atom additive · `npx tsc --noEmit` EXIT=0 ✓ · Vercel auto-deploy panel · Backend dokunulmadi · Render redeploy gereksiz.
+
+**Sayisal:**
+- 3 atom uygulandi · 0 DEFER · 0 KIRMIZI · 0 schema · 0 npm install · 0 env · $0
+- 39 → **40 ardisik temiz TUR REKOR (#90 → #129)**
+
+**Mimar:** Claude Opus 4.7 (kod-kanit mektup) + Claude Code (pre-flight grep + uygulama) — Madde 30.83.1 + Madde 17.2 R1 disiplini · 14 May 2026 Persembe gece
+
+---
+
 ## 14 Mayis 2026 Persembe (ileri saat) — TUR #124-#128 PRE-FLIGHT KISMI KAPANIS (C4 + D6 + 43 atom DEFER)
 
 **Karar:** CEO 2. iterasyon ("Madde 30.83.1 pre-flight protokoluyle dogrula, kanit yoksa atla") sonrasi mektupta kalan 36 atom grep ile dogrulandi:

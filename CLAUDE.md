@@ -338,8 +338,112 @@ Mehmet Bey sahaya çıkabilsin diye bu disiplin var.
 
 ---
 
-**— Tedbirge Mimari Anayasası v1.38.1 PATCH**
-**Son güncelleme: 14 Mayıs 2026 Persembe (TUR #124-#128 KISMI KAPANIS — C4 + D6 + 43 atom DEFER Madde 30.83.1 pre-flight tescil)**
+**— Tedbirge Mimari Anayasası v1.39.0 MINOR**
+**Son güncelleme: 14 Mayıs 2026 Persembe gece (TUR #129 KAPALI — 3 verified atom (Mobil FAB + Filter URL + Lead Tab Code Splitting) + Madde 30.85 + 30.87 yeni)**
+
+---
+
+## ANAYASA EVRIM — TUR #129 (14 May 2026 gece) — 3 Verified Atom + Madde 30.85 + 30.87 Yeni (Pre-Flight Emsal Mektup)
+
+**Madde 30.85 — Mobil-First Disiplini (REPRESENTATIVE):**
+
+REPRESENTATIVE rolü saha kullanır — mobil-first zorunlu:
+1. REPRESENTATIVE özel UI (FAB, kartvizit, lead listesi) `md:hidden` desktop'ta gizlenir, mobil görünür
+2. Touch target min 44x44px (WCAG 2.5.5)
+3. Bottom nav `safe-area-inset-bottom` desteği (iOS notch + Android navigation bar)
+4. Hızlı aksiyon: 3 kritik CTA (Yeni Lead + Kartvizit + Sözleşme)
+5. Brand renkler: `#22C55E` accent (CTA primary) + `#1E1E8E` primary (kurumsal)
+
+**Yasak:**
+- REPRESENTATIVE icin desktop-only navigation (saha kullanici kaybolur)
+- Touch target < 44px (WCAG ihlal)
+- `safe-area` olmadan bottom nav (iOS notch ile cakisma)
+
+**Kanit:** TUR #129 ATOM 1 — `components/temsilci/MobilFAB.tsx` + AppLayout mount + `pb-[72px] md:pb-6` content padding.
+
+**Madde 30.86 — Filter URL Persistance Disiplini:**
+
+Admin tablolar (sozlesmeler, leads, audit-log) filter state'i URL'e yansir. Sayfa yenilenince filter korunur, link paylasilabilir.
+
+**Pattern (`useSearchParams` + `useRouter.replace`):**
+```tsx
+const searchParams = useSearchParams();
+const router = useRouter();
+const [filterRole, setFilterRole] = useState(() => searchParams.get("role") || "");
+
+useEffect(() => {
+  const params = new URLSearchParams();
+  if (filterRole) params.set("role", filterRole);
+  const qs = params.toString();
+  router.replace(qs ? `?${qs}` : window.location.pathname, { scroll: false });
+}, [filterRole, router]);
+```
+
+**Next.js 16 Suspense zorunlu:**
+- `useSearchParams` Suspense boundary gerek (Madde 30.78 framework version)
+- Pattern: outer `export default function Page()` Suspense wrap, inner `function Content()` actual logic
+- Emsal: `app/(panel)/leads/[id]/page.tsx` LeadDetailContent
+
+**Yasak:**
+- `useSearchParams` Suspense boundary olmadan (Next.js 16 build error)
+- `router.push` (history kalın olur) — `router.replace` zorunlu
+- `useEffect` dependency array eksik
+
+**Kanit:** TUR #129 ATOM 2 — `dashboard/sozlesmeler/page.tsx` URL filter sync.
+
+**Madde 30.87 — Core Web Vitals Disiplini:**
+
+Hedefler:
+1. LCP (Largest Contentful Paint) <2.5s
+2. CLS (Cumulative Layout Shift) <0.1
+3. FID (First Input Delay) <100ms
+4. TTFB (Time to First Byte) <600ms
+
+**Zorunlu:**
+- **Code splitting** — büyük tab içerikleri `dynamic()` import (`ssr: false` panel sayfalari icin)
+- **Skeleton loaders** — `<TabSkeleton />` spinner yerine layout shift onleyici
+- **Image priority** — hero image `next/image priority` (sadece above-the-fold)
+- **Font display swap** — `display: "swap"` zorunlu (next/font auto)
+
+**Pattern:**
+```tsx
+import dynamic from "next/dynamic";
+import TabSkeleton from "@/components/common/TabSkeleton";
+
+const HeavyComponent = dynamic(() => import("@/components/HeavyComponent"), {
+  loading: () => <TabSkeleton />,
+  ssr: false,
+});
+```
+
+**Yasak:**
+- Statik import buyuk tab içerigi (bundle sisme, LCP gecikme)
+- Spinner only (CLS siçrama)
+- Hero image lazy (LCP gecikme)
+- Font swap olmadan custom font (CLS siçrama)
+
+**Kanit:** TUR #129 ATOM 3 — `app/(panel)/leads/[id]/page.tsx` DocumentList + UploadForm dynamic import + `components/common/TabSkeleton.tsx` yeni.
+
+### TUR #129 Pre-Flight Emsal Mektup (Madde 30.83.1 KESIN UYUM)
+
+Mimar Opus 4.7 TUR #129 mektubunu **kod-kanit zinciri ile** yazdi:
+- ATOM 1 C2 kanit: TUR #114 ATOM 2 AppLayout REPRESENTATIVE NAV_GROUPS + TUR #100 H6 QuickActionsButton emsal
+- ATOM 2 B3 kanit: TUR #114 ATOM 4 sozlesmeler filter state (rol+search+tarih) MEVCUT
+- ATOM 3 F4 kanit: TUR #110 C1 LeadTabNav 9 sekme emsal
+
+Code grep dogrulamasi sonucu **3 atom uygulandi, 0 DEFER**:
+- ATOM 1 ✓ (MobilFAB.tsx yeni + AppLayout mount + pb-[72px] padding)
+- ATOM 2 ✓ (sozlesmeler URL sync + Suspense + searchParams init)
+- ATOM 3 ✓ (DocumentList + UploadForm dynamic + TabSkeleton.tsx yeni)
+
+Mimar Hatasi 59 paterni **TUR #129'da kirildi** — TUR #123-128 mektubu %93 kanitsiz, TUR #129 mektubu %100 kanitli. Madde 30.83.1 disiplini emsal.
+
+### TUR #129 sayisal ozet
+- 3 atom uygulandi · 0 DEFER · 0 KIRMIZI · 0 schema · 0 npm install · 0 env · $0 maliyet
+- Backend `1.15.0` sabit · Schema `1.7.0` sabit
+- Panel `1.22.0 → 1.23.0` MINOR
+- Anayasa `v1.38.1 → v1.39.0` MINOR (3 yeni madde: 30.85 + 30.86 + 30.87)
+- 39 → **40 ardisik temiz TUR REKOR (#90 → #129)**
 
 ---
 

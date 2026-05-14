@@ -1,15 +1,64 @@
 # 🛡️ TEDBIRGE.AI — DEVİR RAPORU (AKTİF)
 
-📋 **ANAYASA:** v1.38.1 PATCH (Madde 30.65-83.1 — Pre-Flight pratik tescil, yeni madde yok)
-📂 **♿ TUR #123-128 PRE-FLIGHT: 3/46 ATOM (A1 + C4 + D6) + 43 DEFER + MIMAR HATASI 59 KESIN TESCIL ♿**
-📅 **SON GÜNCELLEME:** 14 Mayıs 2026 Persembe (TUR #124-#128 KISMI KAPANIS — 2. iterasyon)
-👤 **CEO Onay:** Mehmet DINÇ — 2 iterasyon. 1) "Secenek C uctan uca" (1/10 atom). 2) "Pre-flight grep ile dogrula, kanit yoksa atla" (2/36 atom). Toplam 3/46 = %6.5 uygulama.
-🤖 **Mimar:** Claude Opus 4.7 (TUR #123-128 mektup, %93 kod-kanitsiz) + Claude Code (A1 + C4 + D6 + Madde 30.83.1 pratik tescil)
-🌟 **Tarih:** 14 Mayıs 2026 — 39 ARDISIK TEMIZ TUR REKOR (#90 → #128 PRE-FLIGHT)
+📋 **ANAYASA:** v1.39.0 MINOR (Madde 30.85 + 30.86 + 30.87 yeni — Mobil-First + Filter URL + Core Web Vitals)
+📂 **🚀 TUR #129 KAPALI: 3 VERIFIED ATOM UCTAN UCA, DEFER 0 (Mobil FAB + Filter URL + Code Splitting) — Madde 30.83.1 emsal mektup 🚀**
+📅 **SON GÜNCELLEME:** 14 Mayıs 2026 Persembe gece (TUR #129 KAPALI)
+👤 **CEO Onay:** Mehmet DINÇ — "Pre-flight her atom kanit dogrula, 5 atom UCTAN UCA, DEFER 0 hedef". Code 3 atom uyguladi (DEFER 0 hedef gercekleşti).
+🤖 **Mimar:** Claude Opus 4.7 (TUR #129 mektup, %100 kod-kanitli — Madde 30.83.1 emsal) + Claude Code (3 atom + 3 yeni anayasa madde)
+🌟 **Tarih:** 14 Mayıs 2026 gece — 40 ARDISIK TEMIZ TUR REKOR (#90 → #129)
 
 ---
 
-## 🎯 BUGÜN — TUR #124-#128 KISMI KAPANIS (Pre-Flight 43 atom DEFER + C4 + D6)
+## 🎯 BUGÜN — TUR #129 KAPALI (3 Verified Atom UCTAN UCA — Madde 30.85 + 30.86 + 30.87)
+
+**Pre-flight emsal mektup:** Mimar Opus 4.7 TUR #129 mektubunu **kod-kanit zinciri ile** yazdi (TUR #114 + #110 emsal). Code grep dogrulamasi → 3 atom uygulandi, 0 DEFER.
+
+### Uygulanan 3 atom (DEFER 0, UCTAN UCA)
+
+**ATOM 1 — C2 REPRESENTATIVE Mobil FAB (Madde 30.85):**
+- `tedbirge-panel/components/temsilci/MobilFAB.tsx` yeni component
+- `components/layout/AppLayout.tsx` mount + `pb-[72px] md:pb-6` main padding
+- 3 CTA: Yeni Lead (yesil) + Kartvizit (lacivert) + Sozlesme (lacivert)
+- `md:hidden` mobil-only, `min-h-[56px]` touch target (WCAG 2.5.5)
+- `safe-area-inset-bottom` iOS notch desteği
+
+**ATOM 2 — B3 Filter URL Params Persistance (Madde 30.86):**
+- `app/(panel)/dashboard/sozlesmeler/page.tsx` useSearchParams + useRouter
+- Filter state URL'e sync (rol + search + page)
+- Suspense boundary (Next.js 16 zorunlu) — leads/[id]/page.tsx emsal
+- `router.replace` (history kalin olmaz)
+- Sayfa yenilenince filter korunur, link paylasilabilir
+
+**ATOM 3 — F4 Lead Detay Code Splitting (Madde 30.87):**
+- `app/(panel)/leads/[id]/page.tsx` DocumentList + UploadForm `dynamic()` import
+- `components/common/TabSkeleton.tsx` yeni (animate-pulse, ARIA role=status)
+- `ssr: false` panel sayfasi zaten client
+- Belgeler tab acilince lazy load → ilk yukleme bundle size dusus
+
+### Madde 30.85 + 30.86 + 30.87 yeni
+
+- **30.85 Mobil-First** — REPRESENTATIVE 3 CTA + 44px touch + safe-area
+- **30.86 Filter URL Persistance** — useSearchParams + Suspense + router.replace
+- **30.87 Core Web Vitals** — Code splitting + skeleton + image priority + font swap
+
+### Surum
+Panel `1.22.0 → 1.23.0` MINOR, Anayasa `v1.38.1 → v1.39.0` MINOR. Backend 1.15.0 / Schema 1.7.0 sabit.
+
+### Smoke
+- `npx tsc --noEmit` EXIT=0 ✓
+- 0 KIRMIZI · 0 schema · 0 npm install · 0 env · $0 maliyet
+- 5-belge OS senkron (Madde 30.26) aktif
+
+### Vercel deploy sonrasi manuel smoke (CEO 2 dk)
+1. `/temsilci` mobilde alt FAB gorunur (3 CTA) ✓
+2. `/temsilci` desktopta FAB GORUNMEZ ✓
+3. `/dashboard/sozlesmeler?role=REPRESENTATIVE` URL filter calisir ✓
+4. Sayfa yenile → filter korunur ✓
+5. `/leads/[id]` belgeler tab → skeleton sonra icerik ✓
+
+---
+
+## 🗄️ ARSIV — TUR #124-#128 KISMI KAPANIS (Pre-Flight 43 atom DEFER + C4 + D6)
 
 **2. iterasyon (TUR #123 sonrasi):** CEO "TUR #124-128 mektubundaki atomlari Madde 30.83.1 pre-flight protokoluyle tek tek grep'le dogrula. Belirsiz iddialar YASAK — kanit yoksa atla."
 

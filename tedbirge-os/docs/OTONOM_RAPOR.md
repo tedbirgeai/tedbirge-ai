@@ -1,125 +1,200 @@
-# 🤖 TEDBİRGE.AI — OTONOM RAPOR (TUR #123-128 Pre-Flight)
+# 🤖 TEDBİRGE.AI — OTONOM RAPOR (TUR #129)
 
-**Tarih:** 14 Mayıs 2026 Persembe
-**TUR:** #124-#128 KISMI KAPANIS (Madde 30.83.1 pre-flight protokolu — kod-bazli dogrulama)
-**Tip:** TUR #123-128 mektubunun 46 atomunun Madde 4.4 grep dogrulamasi
-**Anayasa:** v1.38.0 → **v1.38.1 PATCH** (pre-flight kanit eki — yeni madde yok)
+**Tarih:** 14 Mayıs 2026 Persembe gece
+**TUR:** #129 ✅ KAPALI
+**Tip:** 3 Verified Atom UCTAN UCA — Mobil FAB + Filter URL + Lead Tab Code Splitting (Madde 30.83.1 emsal mektup)
+**Anayasa:** v1.38.1 → **v1.39.0 MINOR** (Madde 30.85 + 30.86 + 30.87 yeni)
 
 ## 📋 Sayisal ozet
-- **3 atom uygulandi** toplam (A1 + C4 partial + D6 partial)
-- **~43 atom DEFER** (5 TUR pre-flight grep ile dogrulandi)
-- Panel `1.21.0 → 1.22.0` MINOR (C4 + D6) · Anayasa `v1.38.0 → v1.38.1` PATCH
+- **3 atom uygulandi** (ATOM 1 + ATOM 2 + ATOM 3)
+- **0 DEFER** (DEFER 0 hedefi karsilandi)
+- **3 yeni anayasa madde** (30.85 Mobil-First + 30.86 Filter URL + 30.87 Core Web Vitals)
+- Panel `1.22.0 → 1.23.0` MINOR · Anayasa `v1.38.1 → v1.39.0` MINOR
 - Backend `1.15.0` sabit · Schema `1.7.0` sabit
 - 0 KIRMIZI · 0 schema · 0 npm install · 0 env · $0 maliyet
-- 38 → **39 ardisik temiz TUR REKOR (#90 → #128 PRE-FLIGHT)**
+- 39 → **40 ardisik temiz TUR REKOR (#90 → #129)**
 
-## CEO direktifi (2. iterasyon)
-> "TUR #124-128 mektubundaki atomlarini Madde 30.83.1 pre-flight protokoluyle tek tek grep'le dogrula... Belirsiz iddialar YASAK — kanit yoksa atla... Hicbir sey sorma, kanit-bazli akis. Basla bitir."
+## CEO direktifi (3. iterasyon)
+> "Mehmet, Downloads/TUR_129_MIMAR_MEKTUBU_KANITLI.md oku ve uygula. Madde 30.83.1 pre-flight: her atom için önce grep doğrula (mektupta yazılı grep komutları), iddia gerçek mi kontrol et, kanıt varsa uygula, yoksa DEFER + raporla. 5 atom UÇTAN UCA, DEFER 0 hedef."
 
-## ✅ Uygulanan 2 atom (TUR #123 A1 disinda)
+## Pre-Flight Emsal Mektup (Madde 30.83.1 ILK KEZ TAM UYUMLU)
 
-### C4 — OTP Input A11y Attrs (`tedbirge-panel/app/(panel)/temsilci/sozlesme/page.tsx`)
+Mimar Opus 4.7 mektubu **kod-kanit zinciri ile** yazdi. Her atom icin TUR emsal + dosya referansi mektupta. Code grep dogrulamasi sonucu:
+
+| Atom | Mimar iddia | Code grep dogrulama | Karar |
+|------|-------------|---------------------|-------|
+| C2 | AppLayout REPRESENTATIVE NAV + mobil FAB YOK | AppLayout line 54+92-110 REPRESENTATIVE NAV mevcut, QuickActionsButton corner FAB var ama bottom-bar pattern YOK | **UYGULA** (yeni component) |
+| B3 | sozlesmeler filter MEVCUT, URL YOK | line 62-68 useState filter (rol+search+page), useSearchParams import yok | **UYGULA** (useSearchParams + Suspense) |
+| F4 | leads/[id] 9 tab static import | DocumentList + UploadForm static (line 9-10), dynamic yok | **UYGULA** (dynamic + TabSkeleton) |
+
+**Mimar Hatasi 59 paterni KIRILDI:** TUR #123-128 %93 kanitsiz, TUR #129 %100 kanitli. Pre-flight pattern emsal.
+
+## ✅ ATOM 1 — C2 REPRESENTATIVE Mobil FAB (Madde 30.85)
+
+**Yeni dosya:** `tedbirge-panel/components/temsilci/MobilFAB.tsx` (46 satir)
+
 ```tsx
-<Input
-  ...
-  inputMode="numeric"
-  autoComplete="one-time-code"
-  pattern="[0-9]*"
-  maxLength={6}
-  aria-label="6 haneli SMS onay kodu"
-/>
-```
-**Etki:** Mobil cihazlar otomatik sayisal klavye + iOS/Android SMS auto-fill destegi. WCAG 4.1.2 + WCAG 1.3.5.
+"use client";
+import { useEffect, useState } from "react";
+import Link from "next/link";
+import { Plus, IdCard, FileSignature } from "lucide-react";
+import { getStoredUser } from "@/lib/auth";
 
-### D6 — Avukat Tam Ad (`tedbirge-panel/app/(panel)/musteri/page.tsx`)
+export default function MobilFAB() {
+  const [role, setRole] = useState<string | null>(null);
+  useEffect(() => { setRole(getStoredUser()?.role || null); }, []);
+  if (role !== "REPRESENTATIVE") return null;
+  return (
+    <nav role="navigation" aria-label="Hizli aksiyonlar"
+      className="fixed bottom-0 inset-x-0 md:hidden bg-white border-t border-slate-200 grid grid-cols-3 z-40"
+      style={{ paddingBottom: "env(safe-area-inset-bottom, 0px)" }}>
+      <Link href="/temsilci/yeni-muvekkil" className="...">
+        <Plus size={20} className="text-[#22C55E]" /> Yeni Lead
+      </Link>
+      <Link href="/temsilci/kurumsal?tab=kartvizit" className="...">
+        <IdCard size={20} className="text-[#1E1E8E]" /> Kartvizit
+      </Link>
+      <Link href="/temsilci/sozlesme" className="...">
+        <FileSignature size={20} className="text-[#1E1E8E]" /> Sozlesme
+      </Link>
+    </nav>
+  );
+}
+```
+
+**AppLayout entegrasyon:**
+- Import: `import MobilFAB from "@/components/temsilci/MobilFAB";`
+- Mount: layout sonunda `<MobilFAB />` (QuickActionsButton'dan sonra)
+- Main padding: `pb-[72px] md:pb-6` (FAB altta icerigi ezmesin)
+
+**WCAG/Brand uyum:**
+- Touch target `min-h-[56px]` (WCAG 2.5.5 > 44px)
+- `aria-label="Hizli aksiyonlar"` (Madde 30.83 ARIA)
+- `#22C55E` yesil + `#1E1E8E` lacivert (brand.json + Madde 35)
+- Mobile-only (`md:hidden`) — desktop'ta gizli, mobil yatay nav
+
+## ✅ ATOM 2 — B3 Filter URL Params (Madde 30.86)
+
+**Hedef:** `tedbirge-panel/app/(panel)/dashboard/sozlesmeler/page.tsx`
+
+**Yapilan:**
+1. `import { useSearchParams, useRouter } from "next/navigation"` + `Suspense` (react)
+2. State init URL'den okur:
+   ```tsx
+   const [filterRole, setFilterRole] = useState<string>(() => searchParams.get("role") || "");
+   const [search, setSearch] = useState<string>(() => searchParams.get("search") || "");
+   const [page, setPage] = useState(() => parseInt(searchParams.get("page") || "1", 10) || 1);
+   ```
+3. useEffect URL sync:
+   ```tsx
+   useEffect(() => {
+     const params = new URLSearchParams();
+     if (filterRole) params.set("role", filterRole);
+     if (search) params.set("search", search);
+     if (page > 1) params.set("page", String(page));
+     const qs = params.toString();
+     router.replace(qs ? `?${qs}` : window.location.pathname, { scroll: false });
+   }, [filterRole, search, page, router]);
+   ```
+4. Suspense boundary export (Next.js 16 zorunlu):
+   ```tsx
+   export default function AdminSozlesmelerPage() {
+     return (
+       <Suspense fallback={<div className="p-6 text-sm text-slate-500">Yukleniyor...</div>}>
+         <AdminSozlesmelerContent />
+       </Suspense>
+     );
+   }
+   ```
+
+**Etki:** Sayfa yenilenince filter korunur · Link paylasilabilir (`?role=REPRESENTATIVE&search=Niyazi`) · Browser back/forward history dolmuyor (`router.replace`).
+
+## ✅ ATOM 3 — F4 Lead Detay Code Splitting (Madde 30.87)
+
+**Yeni dosya:** `tedbirge-panel/components/common/TabSkeleton.tsx` (14 satir)
+
 ```tsx
-// onceki: Av. ${lawyer.fullName.split(" ")[0]}  -- sadece ilk ad
-// yeni:   Av. ${lawyer.fullName}                -- tam ad
+export default function TabSkeleton() {
+  return (
+    <div className="space-y-3 p-4" aria-label="Icerik yukleniyor" role="status">
+      <div className="animate-pulse bg-slate-200 h-6 w-1/3 rounded" />
+      <div className="animate-pulse bg-slate-200 h-4 w-full rounded" />
+      <div className="animate-pulse bg-slate-200 h-4 w-5/6 rounded" />
+      <div className="animate-pulse bg-slate-200 h-32 w-full rounded mt-4" />
+      <span className="sr-only">Yukleniyor</span>
+    </div>
+  );
+}
 ```
-**Etki:** Musvekkilin atanan avukatinin tam adini gormesi (mesru yasal hak — KVKK m.11/a-d "bilgi talebi" emsali). Baro + iletisim DEFER (privacy + schema).
 
-## 🛑 TUR #124-#128 DEFER Tablosu (43 atom kod-bazli kanit)
+**Hedef:** `tedbirge-panel/app/(panel)/leads/[id]/page.tsx`
 
-### TUR #124 — Admin Tablo (0/10)
+**Yapilan:**
+```tsx
+import dynamic from "next/dynamic";
+import TabSkeleton from "@/components/common/TabSkeleton";
 
-| Atom | Iddia | Kod gercegi | Karar |
-|------|-------|-------------|-------|
-| B1 | Lead tablo h-11 even:bg standart | /leads Kanban+LeadRow (table yok) · sozlesmeler px-3 py-2 mevcut + empty state mevcut | DEFER (refactor scope, no bug) |
-| B2 | Lead tab mobil scroll | `overflow-x-auto` (line 826) + `white-space: nowrap` (globals.css) zaten var | DEFER (mevcut) |
-| B3 | Filter URL params | useSearchParams yok — gercek eksik AMA 7+ filtre Suspense Next.js 16 risk + breaking change | DEFER (dedike TUR) |
-| B4 | Modal overlay bg-black/75 | 10 modal dosya farkli opacity — refactor scope, no bug | DEFER |
-| B5 | Empty state ikon+CTA | 14 sayfa "Kayit bulunamadi" text mevcut — refactor scope, no bug | DEFER |
-| B6 | Skeleton loader | 14+ sayfa text spinner — refactor scope, no bug | DEFER |
-| B7 | Bulk action lead | `BulkActionBar` + select all checkbox + bulkMsg state mevcut | DEFER (zaten var) |
-| B8 | temsilci-onay isActive bug | Sayfada "isActive"/"Aktif" string YOK — `temsilciOnayDurumu` dogru kullanilmis | DEFER (bug yok) |
-| B9 | Yetki Matrisi gruplari | Feature enhancement (collapsible/search/sticky) no bug | DEFER (dedike TUR) |
-| B10 | Madde 30.84 yeni | TUR #124'te 0 atom kod uygulamasi → aspirational | DEFER |
+const DocumentList = dynamic(() => import("@/components/documents/DocumentList"), {
+  loading: () => <TabSkeleton />,
+  ssr: false,
+});
+const UploadForm = dynamic(() => import("@/components/documents/UploadForm"), {
+  loading: () => <TabSkeleton />,
+  ssr: false,
+});
+```
 
-### TUR #125 — Temsilci Mobil (1/8 — C4)
+**Etki:**
+- Belgeler tab acilinca DocumentList + UploadForm chunk async load
+- Ilk yukleme bundle size azalir (genel tab default, belgeler lazy)
+- CLS onleyici skeleton (spinner yerine yapisal placeholder)
+- `ssr: false` panel sayfasi zaten "use client" — minimal degisiklik
 
-| Atom | Iddia | Kod gercegi | Karar |
-|------|-------|-------------|-------|
-| C1 | /temsilci/dashboard mobil grid | /temsilci/page.tsx `sm:grid-cols-3` + `lg:grid-cols-[2fr_1fr]` mevcut responsive | DEFER (mevcut) |
-| C2 | Sticky bottom FAB mobil | Gercek eksik AMA temsilci/layout.tsx yok + 8 sayfa scope + footer conflict riski | DEFER (dedike TUR) |
-| C3 | Hakedis mono align | `font-mono text-right` mevcut numeric kolon | DEFER (mevcut) |
-| C4 | Sozlesme OTP a11y | Input DS spread props destekler → **inputMode/autoComplete/aria-label** uygulandi ✓ | **UYGULA** |
-| C5 | REP leads komisyon kolon | REP-specific leads sayfasi belirsiz (shared /leads kullanir) | DEFER (mimari kararsiz) |
-| C6 | Pipeline touch DnD | react-dnd import YOK pipeline'da — architect varsayim yanlis | DEFER (yok) |
-| C7 | Kurumsal refactor DRY | TUR #115 dedike refactor — scope büyük | DEFER (dedike TUR) |
-| C8 | Madde 30.85 yeni | C atomlari %88 DEFER → aspirational | DEFER |
+## ✅ ATOM 4 — Madde 30.85 + 30.86 + 30.87 Anayasa Tescil
 
-### TUR #126 — Musteri KVKK + UX (1/7 — D6)
+- **30.85 Mobil-First (REPRESENTATIVE):** md:hidden FAB + 44px touch + safe-area + 3 CTA + brand renkler
+- **30.86 Filter URL Persistance:** useSearchParams + Suspense + router.replace + history korumasi
+- **30.87 Core Web Vitals:** Code splitting + skeleton + image priority + font swap (LCP <2.5s + CLS <0.1 hedef)
 
-| Atom | Iddia | Kod gercegi | Karar |
-|------|-------|-------------|-------|
-| D1 | Status Turkce + Timeline | musteri/page.tsx STATUS_TR + DOC_STATUS_TR + CustomerTimeline + AnimatedTimeline mevcut | DEFER (zaten var) |
-| D2 | Belge kategori dropdown | Document.category schema gerek = **KIRMIZI Madde 3** | DEFER (KIRMIZI) |
-| D3 | /musteri/dosyam hukuki sozluk | /musteri/dosyam sayfa **mevcut degil** | DEFER (yol yok) |
-| D4 | KVKK m.11 musteri formu | /musteri/kvkk-haklarim **tam isler** (6 hak + DataSubjectRequest + public endpoint + 30 gun) — TUR #123 KISMI'de tescil | DEFER (zaten var) |
-| D5 | CUSTOMER profil edit | ProfileLayout import etmiyor — CUSTOMER edit urun karari (legal audit etkileri) | DEFER (urun karari) |
-| D6 | Avukat bilgisi musteri UI | Sadece ilk ad goruluyor (`fullName.split(" ")[0]`) → **tam ad** uygulandi ✓ Baro+iletisim DEFER (privacy+schema) | **UYGULA partial** |
-| D7 | Madde 30.86 yeni | D atomlari %86 DEFER → aspirational | DEFER |
+## ✅ ATOM 5 — 5 Belge OS Senkron (Madde 30.26)
 
-### TUR #127 — Kurumsal Materyal (0/5)
+1. **CLAUDE.md** — v1.38.1 → v1.39.0 + 3 yeni madde + TUR #129 ANAYASA EVRIM
+2. **MIMARI_KARARLAR.md** — TUR #129 KAPALI giris (3 atom + 3 madde detay)
+3. **DEVIR_RAPORU_AKTIF.md** — TUR #129 ust baslik + arsiv TUR #124-128
+4. **IS_PLANI.md** — TUR #129 NOW + TUR #130+ saha kanit bekleme
+5. **OTONOM_RAPOR.md** — bu rapor
 
-E1-E5 hepsi production-tested kartvizit/brosur/reklam koduna micro-tuning veya feature ekleme. Visual kanit yok. TUR #112+#118+#121 heavyly iterated. Regression riski yuksek. **TUM 5 DEFER**.
+**version.json:** anayasa 1.38.1 → 1.39.0 MINOR
+**panel package.json:** 1.22.0 → 1.23.0 MINOR
 
-### TUR #128 — Performans (0/6)
-
-| Atom | Iddia | Kod gercegi | Karar |
-|------|-------|-------------|-------|
-| F1 | Hero image priority | Hero CSS `tedbirge-hero-bg` gradient — `<img>`/`<Image>` YOK | DEFER (yanlis oncul) |
-| F2 | Font display swap | layout.tsx 3 font `display: "swap"` zaten var | DEFER (mevcut) |
-| F3 | Image lazy loading | Next/Image default lazy ✓ | DEFER (default) |
-| F4 | Lead detay 9 tab dynamic | leads/[id]/page.tsx 2000+ satir — massive refactor scope | DEFER (dedike TUR) |
-| F5 | Skeleton loaders 3 sayfa | B6 ile ayni — refactor scope no bug | DEFER |
-| F6 | Madde 30.87 yeni | F atomlari 0/6 → aspirational | DEFER |
-
-## 🚦 Smoke kontrol
+## 🚦 Smoke kontrol (8 madde + manuel)
 
 | # | Madde | Sonuc |
 |---|-------|-------|
-| 1 | `npx tsc --noEmit` (C4 + D6 sonrasi) | EXIT=0 ✓ |
-| 2 | C4 OTP Input attrs | inputMode + autoComplete + pattern + maxLength + aria-label ✓ |
-| 3 | D6 Avukat tam ad | musteri/page.tsx line 405 fullName tam ✓ |
-| 4 | Madde 30.83 + 30.83.1 (TUR #123) | Anayasa v1.38.0 ✓ |
-| 5 | Pre-flight protokol uygulandi | Tum 46 atom Madde 4.4 grep ✓ |
-| 6 | version.json bump | 1.38.0 → 1.38.1 PATCH ✓ |
-| 7 | panel package.json bump | 1.21.0 → 1.22.0 MINOR ✓ |
-| 8 | Backend dokunulmadi | Sabit 1.15.0 ✓ |
-| 9 | 5-belge OS senkron | Aktif ✓ |
-| 10 | 0 KIRMIZI · 0 schema · 0 npm install | ✓ |
+| 1 | `npx tsc --noEmit` (3 atom sonrasi) | EXIT=0 ✓ |
+| 2 | MobilFAB.tsx yeni dosya | 46 satir, role guard, 3 CTA ✓ |
+| 3 | AppLayout mount + main padding | import + `<MobilFAB />` + `pb-[72px] md:pb-6` ✓ |
+| 4 | sozlesmeler useSearchParams + Suspense | URL sync + Suspense boundary ✓ |
+| 5 | leads/[id] dynamic DocumentList + UploadForm | static → dynamic + TabSkeleton loading ✓ |
+| 6 | TabSkeleton.tsx yeni | animate-pulse + ARIA role=status ✓ |
+| 7 | Madde 30.85 + 30.86 + 30.87 CLAUDE.md | Eklendi ✓ |
+| 8 | version.json + package.json bump | 1.38.1→1.39.0 + 1.22.0→1.23.0 ✓ |
 
-## NEXT (gercek deger atomlari yeniden mimarlanmali)
+**Vercel deploy sonrasi manuel smoke (CEO 2 dk):**
+1. `/temsilci` mobilde alt FAB gorunur (3 CTA: Yeni Lead/Kartvizit/Sozlesme)
+2. `/temsilci` desktopta FAB GORUNMEZ (`md:hidden` ✓)
+3. `/dashboard/sozlesmeler?role=REPRESENTATIVE` URL filter calisir, list filtreli
+4. Sayfa yenile → filter korunur (URL params persist)
+5. `/leads/[id]` belgeler tab → TabSkeleton sonra DocumentList icerik (dynamic chunk load)
+6. Network tab: DocumentList chunk ayri request (code splitting kanit)
 
-Bu pre-flight tabloya gore, mektubun **gercek deger atomu olmayan** kismi %93 (43/46). Mektup yapisina mimar (sohbet) tekrar bakmali:
+## NEXT TUR #130+
 
-1. **C2 Sticky FAB** — gercek REP saha UX eksigi, dedike TUR
-2. **B3 Filter URL params** — gercek UX eksigi, Next.js 16 dikkat
-3. **F4 Lead detay code splitting** — gercek perf eksigi, massive refactor
-4. **D2 Belge kategori** — KIRMIZI (schema gerek, CEO yazili onay)
-5. **D5 CUSTOMER profil edit** — urun karari
+Saha kanit bekliyor (Madde 28 esigi):
+- Niyazi DEMIR + Emine CELIK MobilFAB kullanim metriği
+- Filter URL link paylasim (ADMIN/LAWYER feedback)
+- Lead detay tab bundle metriği (Lighthouse before/after)
 
-Diger 38 atomda ya zaten var, ya yanlis premise, ya feature enhancement (bug degil). Mektup pattern revize gerek.
+Saha tetigi varsa kanit-bazli yeni mektup (Madde 30.83.1 pattern devam).
 
-— Claude Code (Opus 4.7) · TUR #124-#128 pre-flight · 14 May 2026
+— Claude Code (Opus 4.7) · TUR #129 · 14 May 2026 gece

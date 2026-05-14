@@ -1,12 +1,36 @@
 # 📋 TEDBİRGE.AI — İŞ PLANI (AKTİF KESİT)
 
-**Son güncelleme:** 14 Mayıs 2026 Persembe (TUR #124-#128 PRE-FLIGHT KISMI KAPANIS)
-**Anayasa:** v1.38.1 PATCH (Madde 30.83.1 pratik tescil)
-**Aktif rekor:** 39 ardisik temiz TUR (#90 → #128 PRE-FLIGHT)
+**Son güncelleme:** 14 Mayıs 2026 Persembe gece (TUR #129 KAPALI)
+**Anayasa:** v1.39.0 MINOR (Madde 30.85 + 30.86 + 30.87 yeni)
+**Aktif rekor:** 40 ardisik temiz TUR (#90 → #129)
 
 ---
 
-## 🎯 NOW — TUR #124-#128 PRE-FLIGHT KISMI KAPANIS ✅ (C4 + D6 + 43 DEFER)
+## 🎯 NOW — TUR #129 KAPALI ✅ (3 Verified Atom UCTAN UCA — Madde 30.85 + 30.86 + 30.87)
+
+**Pre-flight emsal:** Mimar Opus 4.7 kod-kanit zinciri ile mektup (TUR #114 + #110 emsal). Madde 30.83.1 disiplinini ilk kez ihlal etmeden uygulanan mektup.
+
+**Uygulanan 3 atom (DEFER 0):**
+- **ATOM 1** Mobil FAB REPRESENTATIVE (3 CTA, mobile-only, safe-area)
+- **ATOM 2** Filter URL params (sozlesmeler, Suspense boundary)
+- **ATOM 3** Lead detay code splitting (DocumentList + UploadForm dynamic + TabSkeleton)
+
+Panel `1.22.0 → 1.23.0` MINOR, Anayasa `v1.38.1 → v1.39.0` MINOR.
+
+---
+
+## ⏭️ NEXT — TUR #130+ Sahaya Cikis Bekliyor
+
+Niyazi DEMIR + Emine CELIK gercek REPRESENTATIVE saha kullanim kaniti bekleniyor (Madde 28 esigi):
+- Mobil FAB kullanim metriği
+- Filter URL link paylasim
+- Lead detay tab bundle metriği (Lighthouse)
+
+Saha tetigi varsa kanit-bazli yeni mektup.
+
+---
+
+## 🗄️ ARSIV — TUR #124-#128 PRE-FLIGHT KISMI KAPANIS ✅ (C4 + D6 + 43 DEFER)
 
 **2. iterasyon (TUR #123 sonrasi CEO talep):** Madde 30.83.1 pre-flight, kanit yoksa atla.
 
