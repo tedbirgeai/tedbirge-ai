@@ -1,15 +1,47 @@
 # 🛡️ TEDBIRGE.AI — DEVİR RAPORU (AKTİF)
 
-📋 **ANAYASA:** v1.40.0 MINOR (Madde 30.88 yeni — Teknik Borç Temizliği Disiplini)
-📂 **🚀 TUR #130 KAPALI: 4 İŞ TEK ATOMİK COMMIT — DRY KurumsalPage + 52 il ilçesi + Deploy Yol B + WCAG kontrast (DEFER 0) 🚀**
-📅 **SON GÜNCELLEME:** 14 Mayıs 2026 Persembe gece ileri (TUR #130 KAPALI)
-👤 **CEO Onay:** Mehmet DINÇ — "Hepsini tek mektupta uçtan uca, parçalı iş yasak". Code 11 atom uyguladı (DEFER 0).
-🤖 **Mimar:** Claude Opus 4.7 (TUR #130 mektup, %100 kod-kanıtlı + 16/13/10 TUR'dur açık teknik borçlar) + Claude Code (11 atom + Madde 30.88)
-🌟 **Tarih:** 14 Mayıs 2026 gece — 41 ARDISIK TEMIZ TUR REKOR (#90 → #130)
+📋 **ANAYASA:** v1.41.0 MINOR (Madde 30.89 yeni — SEO/CRO Kanit-Bazli Optimizasyon)
+📂 **🚀 TUR #131 KAPALI: SEO/CRO 9 ATOM GSC KANIT-BAZLI (DEFER 0) — 70 tiklama 0 basvuru sorunu 🚀**
+📅 **SON GÜNCELLEME:** 14 Mayıs 2026 Persembe gece (TUR #131 KAPALI)
+👤 **CEO Onay:** Mehmet DINÇ — "GSC veri kanit-bazli 9 atom, KIRMIZI YOK, schema YOK, 2-4 hafta sonra TUR #132 GSC retro". Code 9 atom uyguladi (DEFER 0).
+🤖 **Mimar:** Claude Opus 4.7 (TUR #131 mektup, GSC veri kanit + rakip benchmark) + Claude Code (9 atom + Madde 30.89)
+🌟 **Tarih:** 14 Mayıs 2026 gece — 42 ARDISIK TEMIZ TUR REKOR (#90 → #131)
 
 ---
 
-## 🎯 BUGÜN — TUR #130 KAPALI (4 İŞ Tek Atomik — Teknik Borç Temizliği + WCAG Kontrast)
+## 🎯 BUGÜN — TUR #131 KAPALI (SEO/CRO 9 Atom GSC Kanit-Bazli)
+
+**Pre-flight GSC kanit:** 16 günde (26 Nis-11 May 2026) 70 tıklama / 310 gösterim / 0 başvuru. CRO + SEO eş zamanlı sorun.
+
+### Uygulanan 9 atom (DEFER 0)
+- **ATOM 1** `/basvuru/layout.tsx` YENI metadata (CTR %5.19 → %15+ hedef) + H1 lead-intent + 4 güven sinyali + CTA #15803D
+- **ATOM 2** `/trafik-kazasi-tazminat` title+meta (Hesaplama 2026 + Yargıtay 17. HD + araç değer kaybı keywords)
+- **ATOM 3** `/blog/zmms-teminat-limitleri-2026` title genişletme (61 imp 0% CTR → SEDDK 2026 limitleri net)
+- **ATOM 4** `/blog/hayvana-carpma-trafik-kazasi-sorumluluk` title + lead CTA inline (116 imp lead'e çevir)
+- **ATOM 5** 7 blog post toplu meta audit (TBB tarife, SGK 3 gün, ölümlü destek, vb.)
+- **ATOM 6** Anasayfa hero CTA `#5CB85C` → `#15803D` + "Ucretsiz Hak Sorgulama (3 dk)" + 3 güven sinyali
+- **ATOM 7** `/tazminat-hesapla` JSON-LD FAQPage (6 FAQ, Google rich result)
+- **ATOM 8** BlogPostClient.tsx bottom CTA `/` → `/basvuru` + brand renk + lead-intent (1 yerde değişiklik tüm 50+ blog post etkiler)
+- **ATOM 9** Madde 30.89 + 5 belge senkron
+
+### Madde 30.89 yeni — SEO/CRO Kanit-Bazli Optimizasyon Disiplini
+GSC veri zorunlu kanıt. CTR hedef matrisi (poz 1→%30+, poz 5→%10+, poz 10→%3+). JSON-LD FAQPage tazminat sayfaları. Blog post → /basvuru CTA. 2-4 hafta retro zorunlu.
+
+### Sürüm
+Panel `1.24.0 → 1.25.0` MINOR · Anayasa `v1.40.0 → v1.41.0` MINOR. Backend 1.15.0 / Schema 1.7.0 sabit.
+
+### NEXT TUR #132 — GSC Retro (2-4 hafta sonra)
+Hedefler:
+- /basvuru CTR %5.19 → %15+
+- /trafik-kazasi-tazminat CTR %2.08 → %8+
+- Blog toplu CTR %0 → %2-3
+- İlk gerçek başvuru: ~1-2/hafta
+
+Kanıt tutmazsa atomları revize/geri al.
+
+---
+
+## 🗄️ ARSIV — TUR #130 KAPALI (4 İŞ Tek Atomik — Teknik Borç Temizliği + WCAG Kontrast)
 
 **4 iş tek atomik commit (Madde 17.2 R1 + Madde 30.88 yeni):**
 

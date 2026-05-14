@@ -6,6 +6,116 @@
 
 ---
 
+## 14 Mayis 2026 Persembe gece — TUR #131 KAPALI (SEO/CRO 9 Atom GSC Kanit-Bazli — Madde 30.89 yeni)
+
+**Karar:** TUR #131 mektup GSC verisi (16 gun 70 tiklama, 0 basvuru) kanit-bazli yazildi. Code Madde 30.83.1 pre-flight (her atomda mektupta yazili grep komutlarini calistirdi) + 9 atom UYGULA, DEFER 0.
+
+**GSC veri kanit:**
+- 16 gun (26 Nis - 11 May 2026): 70 tiklama / 310 gosterim / poz 8.94 / TO %22.58
+- **70 tiklama, 0 basvuru** (CRO sorunu)
+- Marka aramalari calisiyor (anasayfa poz 2.19, TO %68)
+- Lead intent aramalarda Tedbirge yok veya CTR cok dusuk
+
+**9 atom detay:**
+
+### ATOM 1 — /basvuru SEO + CRO
+- `app/(public)/basvuru/layout.tsx` YENI (sayfa "use client" → metadata layout pattern, Next.js 16)
+- Title: "Ücretsiz Hak Sorgulama — 3 Dakikada Tazminat Hakkinizi Ogrenin"
+- H1: "Ücretsiz Tazminat Hak Sorgulamasi" + "3 dakikada hakkinizi ogrenin"
+- 4 guven sinyali (Ucretsiz / 3 dakika / KVKK / Avukat secimi bize)
+- CTA bg `#5CB85C` → `#15803D` (TUR #130 emerald-dark, 5.02:1 PASS AA)
+- Label "Ücretsiz On Inceleme Baslat" → "Ücretsiz Hak Sorgulamasini Baslat"
+
+### ATOM 2 — /trafik-kazasi-tazminat
+- Title: "Trafik Kazasi Tazminati Hesaplama (2026) — Bedensel + Vefat + Arac Deger Kaybi"
+- Keywords: maluliyet tazminati, destekten yoksun kalma, arac deger kaybi, ZMSS limit 2026
+- Description: Yargitay 17. HD ictihat referansi, 2026 ZMSS limitleri
+- canonical eklendi
+- FAQ schema ZATEN MEVCUT (line 106 faqPageSchema), korundu
+
+### ATOM 3 — /blog/zmms-teminat-limitleri-2026
+- Title: "ZMSS Teminat Limitleri 2026 — Olum 1.540.000 TL, Sakatlik 924.000 TL Tavan Asilirsa?"
+- Excerpt: "Tavan asilirsa kalan tutar surucuden veya isletenden tahsil edilir — ucretsiz hak sorgulayin"
+
+### ATOM 4 — /blog/hayvana-carpma-trafik-kazasi-sorumluluk
+- Title: "Hayvana Carpma Trafik Kazasi — Hukuki Sorumluluk + Tazminat Haklari (2026)"
+- Excerpt lead-intent: "Hayvan sahibi tazminati reddediyorsa ucretsiz hak sorgulayin"
+- Yeni H2 + lead CTA inline: "Hayvan Sahibi Tazminati Reddediyor mu?" + /basvuru link
+
+### ATOM 5 — 7 blog post toplu meta audit
+sigorta-odendi-ek-talep + sgk-is-kazasi-bildirimi + olumlu-is-kazasi-destek + isveren-kusursuz + sigorta-sirketi-tazminat-reddederse + guvence-hesabi + trafik-kazasi-avukat-ucreti — her birine "(2026)" + lead-intent + "ucretsiz hak sorgulayin" pattern.
+
+### ATOM 6 — Anasayfa hero CRO
+- Hero primary CTA `var(--pub-secondary)` (#5CB85C) → `#15803D` (WCAG AA)
+- Label "Ucretsiz Basvur" → "Ucretsiz Hak Sorgulama (3 dk)"
+- Hero alti 3 guven sinyali strip (Ucretsiz / KVKK / Avukat secimi bize)
+
+### ATOM 7 — /tazminat-hesapla JSON-LD FAQPage
+- `JsonLd` + `faqPageSchema` import (zaten /trafik-kazasi-tazminat'ta var pattern)
+- 6 FAQ Q&A (tazminat nasil hesaplanir, is kazasi, maluliyet, kim oder, baglayici mi, zamanasimi)
+- Client component'te `<JsonLd data={faqPageSchema(FAQ)} />` JSX'e ekledi
+- Google rich result CTR boost (+%20-30 pattern)
+
+### ATOM 8 — BlogPostClient bottom CTA
+- `app/(public)/blog/[slug]/BlogPostClient.tsx` bottom CTA `/` → `/basvuru`
+- Renk `#185fa5` → `#15803D` (brand + WCAG AA)
+- Metin "Surecinizi Tedbirge ile takip edin / Daha fazla bilgi" → "Hak ettiginiz tazminati alabilir misiniz? / Ucretsiz Hak Sorgulama (3 dk)"
+- **1 yerde degisiklik tum 50+ blog post etkilenir** (Madde 30.61 tek-kaynak emsali)
+
+### ATOM 9 — Madde 30.89 yeni + 5 belge senkron
+
+**Madde 30.89 — SEO/CRO Kanit-Bazli Optimizasyon Disiplini:**
+
+- GSC veri zorunlu kanit (Sayfa CSV + Sorgular CSV)
+- Title/meta degisikligi mevcut baseline olcusu (Madde 4.4)
+- CTR hedef: poz 1→%30+, poz 5→%10+, poz 10→%3+
+- FAQ schema tazminat sayfalari
+- Internal linking — her blog post → /basvuru CTA
+- Retro 2-4 hafta sonra zorunlu (CTR tutmazsa revize)
+
+**Yasak:**
+- GSC verisi olmadan SEO atom
+- Generic meta description
+- Blog post sonunda /basvuru CTA olmamasi
+- `#22C55E`/`#5CB85C` BG + beyaz metin (WCAG FAIL, `#15803D` kullan)
+
+**Alternatif:**
+- A: Sadece title/meta degisikligi → CRO eksik kalirdi
+- B (secildi): SEO (title+meta+FAQ) + CRO (CTA+guven sinyali+lead funnel) es zamanli
+- C: Schema KIRMIZI ile yeni model → KIRMIZI cizgi (CEO yazili onay bekleyemez)
+
+**Etki:**
+- `tedbirge-panel/app/(public)/basvuru/layout.tsx` YENI
+- `tedbirge-panel/app/(public)/basvuru/page.tsx` H1+guven sinyali+CTA
+- `tedbirge-panel/app/(public)/trafik-kazasi-tazminat/page.tsx` metadata
+- `tedbirge-panel/lib/blog-posts/sigorta-genel.ts` 2 post title (zmms + sigorta-odendi)
+- `tedbirge-panel/lib/blog-posts/trafik.ts` 4 post (hayvana + sigorta-red + guvence + avukat-ucreti)
+- `tedbirge-panel/lib/blog-posts/is-kazasi.ts` 3 post (sgk + olumlu-destek + isveren-kusursuz)
+- `tedbirge-panel/app/(public)/HomePageClient.tsx` hero CTA + guven sinyali
+- `tedbirge-panel/app/(public)/tazminat-hesapla/page.tsx` JsonLd FAQ
+- `tedbirge-panel/app/(public)/blog/[slug]/BlogPostClient.tsx` bottom CTA
+- `tedbirge-panel/package.json` 1.24.0 → 1.25.0 MINOR
+- `tedbirge-os/version.json` anayasa 1.40.0 → 1.41.0 MINOR
+- `CLAUDE.md` ANAYASA EVRIM TUR #131 + Madde 30.89
+- 5-belge OS senkron (Madde 30.26)
+
+**Production:** Tum degisiklikler additive · `npx tsc --noEmit` EXIT=0 · Vercel auto-deploy panel · Backend dokunulmadi.
+
+**Sayisal:**
+- 9 atom uygulandi · 0 DEFER · 0 KIRMIZI · 0 schema · 0 npm install · 0 env · $0
+- 41 → **42 ardisik temiz TUR REKOR (#90 → #131)**
+
+**NEXT TUR #132 — GSC Retro (2-4 hafta sonra):**
+- /basvuru CTR %5.19 → %15+ hedef
+- /trafik-kazasi-tazminat CTR %2.08 → %8+ hedef
+- Blog toplu CTR %0 → %2-3 hedef
+- Ilk gercek basvuru: ~1-2/hafta hedef
+- Tutmazsa atom revize veya geri al (Madde 30.89 retro)
+
+**Mimar:** Claude Opus 4.7 (TUR #131 mektup GSC veri + rakip benchmark kanit-bazli) + Claude Code (9 atom pre-flight grep + Madde 30.89 + 5 belge senkron) — Madde 30.83.1 + 17.2 R1 + 30.89 disiplini · 14 May 2026 gece
+
+---
+
 ## 14 Mayis 2026 Persembe gece ileri — TUR #130 KAPALI (4 Is Tek Atomik — Teknik Borc Temizligi + WCAG Kontrast)
 
 **Karar:** TUR #130 mektup Madde 30.83.1 pre-flight ile yazildi (TUR #114/#117/#123 emsal). Code 11 atom UYGULA, 0 DEFER. **3 teknik borc tek atomik commit'te temizlendi** (Madde 30.88 yeni).

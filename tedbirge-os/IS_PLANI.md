@@ -1,12 +1,41 @@
 # 📋 TEDBİRGE.AI — İŞ PLANI (AKTİF KESİT)
 
-**Son güncelleme:** 14 Mayıs 2026 Persembe gece ileri (TUR #130 KAPALI)
-**Anayasa:** v1.40.0 MINOR (Madde 30.88 yeni — Teknik Borç Temizliği)
-**Aktif rekor:** 41 ardisik temiz TUR (#90 → #130)
+**Son güncelleme:** 14 Mayıs 2026 Persembe gece (TUR #131 KAPALI)
+**Anayasa:** v1.41.0 MINOR (Madde 30.89 yeni — SEO/CRO Kanit-Bazli Optimizasyon)
+**Aktif rekor:** 42 ardisik temiz TUR (#90 → #131)
 
 ---
 
-## 🎯 NOW — TUR #130 KAPALI ✅ (4 İŞ Tek Atomik — Teknik Borç Temizliği + WCAG)
+## 🎯 NOW — TUR #131 KAPALI ✅ (SEO/CRO 9 Atom GSC Kanit-Bazli)
+
+**9 atom uygulandı (DEFER 0):**
+- /basvuru layout.tsx YENI + H1 + 4 güven sinyali + CTA #15803D
+- /trafik-kazasi-tazminat title+meta lead-intent
+- /blog/zmms-teminat-limitleri-2026 title (61 imp 0% CTR fix)
+- /blog/hayvana-carpma title + lead CTA (116 imp lead'e çevir)
+- 7 blog post toplu meta audit
+- Anasayfa hero CTA #15803D + "3 dk" + 3 güven sinyali
+- /tazminat-hesapla JSON-LD FAQPage (6 FAQ)
+- BlogPostClient bottom CTA / → /basvuru (50+ post etkilenir)
+- Madde 30.89 + 5 belge senkron
+
+Panel `1.24.0 → 1.25.0` MINOR, Anayasa `v1.40.0 → v1.41.0` MINOR.
+
+---
+
+## ⏭️ NEXT — TUR #132 GSC Retro (2-4 hafta sonra)
+
+**Retro zorunlu olduğu için:**
+- 2-4 hafta sonra GSC verisi karşılaştır
+- /basvuru CTR %5.19 → %15+ tutuyor mu?
+- Blog toplu CTR %0 → %2-3 tutuyor mu?
+- İlk gerçek başvuru geldi mi?
+
+Tutmazsa: atomları revize veya geri al (Madde 30.31 R1 + Madde 30.89 retro).
+
+---
+
+## 🗄️ ARSIV — TUR #130 KAPALI ✅ (4 İŞ Tek Atomik — Teknik Borç Temizliği + WCAG)
 
 **11 atom uygulandı (DEFER 0):**
 - İŞ 1 (3 atom): DRY KurumsalPage — 1122 → 579 satır, 543 duplicate silindi

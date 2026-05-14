@@ -338,8 +338,76 @@ Mehmet Bey sahaya çıkabilsin diye bu disiplin var.
 
 ---
 
-**— Tedbirge Mimari Anayasası v1.40.0 MINOR**
-**Son güncelleme: 14 Mayıs 2026 Persembe gece (TUR #130 KAPALI — 4 is uctan uca: DRY KurumsalPage + 52 il ilcesi + Deploy Yol B + WCAG kontrast + Madde 30.88 yeni)**
+**— Tedbirge Mimari Anayasası v1.41.0 MINOR**
+**Son güncelleme: 14 Mayıs 2026 Persembe gece (TUR #131 KAPALI — SEO/CRO 9 atom GSC kanit-bazli + Madde 30.89 yeni)**
+
+---
+
+## ANAYASA EVRIM — TUR #131 (14 May 2026 gece) — SEO/CRO Kanit-Bazli Optimizasyon (Madde 30.89 yeni)
+
+**Madde 30.89 — SEO/CRO Kanit-Bazli Optimizasyon Disiplini:**
+
+Sayfa SEO + conversion optimizasyonu **Google Search Console verisi** zorunlu kanit. Varsayim YASAK.
+
+**Kural:**
+1. SEO atom icin **GSC veri kanitli** olmali (gosterim, pozisyon, CTR — Sayfa CSV + Sorgular CSV)
+2. Title/meta degisikligi icin **mevcut baseline** olcusu (Madde 4.4 — kod kaynaktir)
+3. CTR hedef matrisi: poz 1 → %30+, poz 5 → %10+, poz 10 → %3+
+4. JSON-LD FAQPage schema → tazminat/hesaplama sayfalari (Google rich result CTR +20-30%)
+5. Internal linking — her blog post sonunda **lead CTA (/basvuru)** zorunlu
+6. Hero CTA kontrast WCAG AA (TUR #130 emerald-dark #15803D 5.02:1)
+
+**Yasak:**
+- GSC verisi olmadan SEO atom (varsayim)
+- Generic meta description ("Tedbirge.ai hizmet sunar")
+- Blog post sonunda /basvuru CTA olmamasi (lead funnel ihlali)
+- `#5CB85C` / `#22C55E` accent BG + beyaz metin (WCAG FAIL — TUR #130 emsali, `#15803D` kullan)
+
+**Retro disiplin:**
+- 2-4 hafta sonra GSC verisi karsilastirma zorunlu
+- CTR hedef tutmazsa atom revize veya geri al
+- Lead intent CTR vs poz analizi pattern olarak kaydedilir
+
+**Kanit:** TUR #131 — 16 gunde 70 tiklama, 0 basvuru, CTR ortalama %22.58 ama lead intent 0 → CRO + SEO esit aci ile optimize.
+
+### TUR #131 GSC Veri Kaynagi (Pre-Flight)
+
+| Metrik | Deger |
+|--------|-------|
+| 16 gun (26 Nis - 11 May 2026) | 70 tiklama / 310 gosterim / poz 8.94 / TO %22.58 |
+| /basvuru | poz 4.12, 77 imp, 4 click, CTR %5.19, **0 basvuru** |
+| /trafik-kazasi-tazminat | poz 5.48, 48 imp, 1 click, CTR %2.08 |
+| /blog/zmms-teminat-limitleri-2026 | poz 9.62, 61 imp, **0% CTR** |
+| /blog/hayvana-carpma-trafik-kazasi-sorumluluk | poz 10.36, **116 imp**, CTR 1.72% |
+
+**9 atom uygulandi (DEFER 0):**
+- ATOM 1: `/basvuru/layout.tsx` YENI metadata + H1 lead-intent + 4 guven sinyali + CTA #15803D
+- ATOM 2: `/trafik-kazasi-tazminat` title+meta lead-intent (Hesaplama 2026 + Yargitay 17. HD)
+- ATOM 3: ZMSS blog title genisletme (61 imp 0% CTR → SEDDK 2026 limitler net)
+- ATOM 4: Hayvana carpma title rewrite + lead CTA inline (TBK m.67 + KTK m.85)
+- ATOM 5: 7 blog post toplu meta audit (sigorta-odendi-ek-talep + sgk-bildirimi + olumlu-is-kazasi-destek + isveren-kusursuz + sigorta-red + guvence-hesabi + trafik-avukat-ucreti)
+- ATOM 6: Anasayfa hero CTA `#5CB85C` → `#15803D` + "Ucretsiz Hak Sorgulama (3 dk)" + 3 guven sinyali
+- ATOM 7: `/tazminat-hesapla` JSON-LD FAQPage (6 FAQ) — rich result CTR boost
+- ATOM 8: BlogPostClient.tsx bottom CTA `/` → `/basvuru` + brand renk + lead-intent metin
+- ATOM 9: Madde 30.89 + 5 belge senkron
+
+### TUR #131 sayisal ozet
+- 9 atom uygulandi · 0 DEFER · 0 KIRMIZI · 0 schema · 0 npm install · 0 env · $0 maliyet
+- Backend `1.15.0` sabit · Schema `1.7.0` sabit
+- Panel `1.24.0 → 1.25.0` MINOR
+- Anayasa `v1.40.0 → v1.41.0` MINOR (Madde 30.89 yeni)
+- 41 → **42 ardisik temiz TUR REKOR (#90 → #131)**
+
+### NEXT TUR #132 — GSC Retro (2-4 hafta sonra)
+
+Beklenen GSC degisim:
+- `/basvuru` CTR %5.19 → **%15+** (pozisyon 4 beklenen)
+- `/trafik-kazasi-tazminat` CTR %2.08 → **%8+**
+- Blog post toplu CTR %0 → **%2-3** (FAQ rich result + meta)
+- Toplam gosterim 310/16gun → **500-700/16gun**
+- Ilk gercek basvuru hedef: **~1-2/hafta** (saha temsilcisi olmadan)
+
+Kanit yoksa atomlari revize veya geri al.
 
 ---
 
