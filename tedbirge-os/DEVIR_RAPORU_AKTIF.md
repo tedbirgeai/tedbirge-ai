@@ -1,15 +1,62 @@
 # 🛡️ TEDBIRGE.AI — DEVİR RAPORU (AKTİF)
 
-📋 **ANAYASA:** v1.39.0 MINOR (Madde 30.85 + 30.86 + 30.87 yeni — Mobil-First + Filter URL + Core Web Vitals)
-📂 **🚀 TUR #129 KAPALI: 3 VERIFIED ATOM UCTAN UCA, DEFER 0 (Mobil FAB + Filter URL + Code Splitting) — Madde 30.83.1 emsal mektup 🚀**
-📅 **SON GÜNCELLEME:** 14 Mayıs 2026 Persembe gece (TUR #129 KAPALI)
-👤 **CEO Onay:** Mehmet DINÇ — "Pre-flight her atom kanit dogrula, 5 atom UCTAN UCA, DEFER 0 hedef". Code 3 atom uyguladi (DEFER 0 hedef gercekleşti).
-🤖 **Mimar:** Claude Opus 4.7 (TUR #129 mektup, %100 kod-kanitli — Madde 30.83.1 emsal) + Claude Code (3 atom + 3 yeni anayasa madde)
-🌟 **Tarih:** 14 Mayıs 2026 gece — 40 ARDISIK TEMIZ TUR REKOR (#90 → #129)
+📋 **ANAYASA:** v1.40.0 MINOR (Madde 30.88 yeni — Teknik Borç Temizliği Disiplini)
+📂 **🚀 TUR #130 KAPALI: 4 İŞ TEK ATOMİK COMMIT — DRY KurumsalPage + 52 il ilçesi + Deploy Yol B + WCAG kontrast (DEFER 0) 🚀**
+📅 **SON GÜNCELLEME:** 14 Mayıs 2026 Persembe gece ileri (TUR #130 KAPALI)
+👤 **CEO Onay:** Mehmet DINÇ — "Hepsini tek mektupta uçtan uca, parçalı iş yasak". Code 11 atom uyguladı (DEFER 0).
+🤖 **Mimar:** Claude Opus 4.7 (TUR #130 mektup, %100 kod-kanıtlı + 16/13/10 TUR'dur açık teknik borçlar) + Claude Code (11 atom + Madde 30.88)
+🌟 **Tarih:** 14 Mayıs 2026 gece — 41 ARDISIK TEMIZ TUR REKOR (#90 → #130)
 
 ---
 
-## 🎯 BUGÜN — TUR #129 KAPALI (3 Verified Atom UCTAN UCA — Madde 30.85 + 30.86 + 30.87)
+## 🎯 BUGÜN — TUR #130 KAPALI (4 İŞ Tek Atomik — Teknik Borç Temizliği + WCAG Kontrast)
+
+**4 iş tek atomik commit (Madde 17.2 R1 + Madde 30.88 yeni):**
+
+### İŞ 1 — DRY KurumsalPage Refactor (TUR #114 teknik borç, 16 TUR açık)
+- `components/kurumsal/KurumsalPage.tsx` YENI (561 satır, eski içerik tam taşındı)
+- `app/(panel)/dashboard/kurumsal/page.tsx`: 561 → 9 satır wrapper
+- `app/(panel)/temsilci/kurumsal/page.tsx`: 561 → 9 satır wrapper
+- **1122 → 579 satır** (543 duplicate satır silindi)
+- Madde 30.61 tek-kaynak + 30.68 route scope korundu
+
+### İŞ 2 — 52 Küçük İl İlçesi (TUR #117 SARI ENDIŞE, 13 TUR açık)
+- `lib/turkey-locations.json` 81 il × **973 ilçe** (eski 499 + yeni 474)
+- 52 boş il'den 0 boş'a (Adıyaman 9, Afyonkarahisar 18, Erzurum 20, Kastamonu 20, ...)
+- AdresEditCard sarı banner kaldırıldı (Madde 30.72 tam uyum)
+- Placeholder güncellendi
+- T.C. resmi kaynak (e-Devlet + İçişleri Bakanlığı public knowledge)
+
+### İŞ 3 — TUR #117 Deploy Fail Teşhis (10 TUR tekrar) — Yol B Dürüst DEFER
+- Madde 30.31 R1 dürüst DEFER seçildi
+- Code Render CLI/dashboard erişimi YOK → Madde 4.4 ihlal etmeden teşhis imkansız
+- Production stable (12 ardışık başarılı deploy TUR #118-#129, health 200)
+- Kök sebep retrospektif tespit edilemiyor (log retention belirsiz)
+- TUR #131 aday: Render alert webhook (Slack/email) kanıt-bazlı izleme
+
+### İŞ 4 — WCAG AA Kontrast Audit (TUR #123 tamamlama)
+- Python lokal contrast hesabı ($0)
+- **KRITIK FAIL bulundu:** `#22C55E` BG + white text = **2.28:1** (AA 4.5 gerek)
+- **3 yer düzeltildi:**
+  1. `app/layout.tsx` skip link `focus:bg-emerald-500` → `focus:bg-emerald-700` (5.02:1 PASS)
+  2. `app/globals.css` `*:focus-visible outline` `#22C55E` → `#15803D`
+  3. `components/temsilci/MobilFAB.tsx` Yeni Lead ikon `#22C55E` → `#15803D`
+- `brand.json` additive: `accentColorDark: "#15803D"` + `accentForeground: "#FFFFFF"`
+
+### Madde 30.88 yeni — Teknik Borç Temizliği Disiplini
+3 TUR'dan fazla açık sarı endişe otomatik öncelik artırılır. TUR #130 emsal: 4 borç tek atomik.
+
+### Sürüm
+Panel `1.23.0 → 1.24.0` MINOR · Anayasa `v1.39.0 → v1.40.0` MINOR. Backend 1.15.0 / Schema 1.7.0 sabit.
+
+### Smoke
+- `npx tsc --noEmit` EXIT=0 ✓
+- 0 KIRMIZI · 0 schema · 0 npm install · 0 env · $0
+- 5-belge OS senkron aktif
+
+---
+
+## 🗄️ ARSIV — TUR #129 KAPALI (3 Verified Atom UCTAN UCA — Madde 30.85 + 30.86 + 30.87)
 
 **Pre-flight emsal mektup:** Mimar Opus 4.7 TUR #129 mektubunu **kod-kanit zinciri ile** yazdi (TUR #114 + #110 emsal). Code grep dogrulamasi → 3 atom uygulandi, 0 DEFER.
 

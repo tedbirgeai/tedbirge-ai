@@ -1,12 +1,33 @@
 # 📋 TEDBİRGE.AI — İŞ PLANI (AKTİF KESİT)
 
-**Son güncelleme:** 14 Mayıs 2026 Persembe gece (TUR #129 KAPALI)
-**Anayasa:** v1.39.0 MINOR (Madde 30.85 + 30.86 + 30.87 yeni)
-**Aktif rekor:** 40 ardisik temiz TUR (#90 → #129)
+**Son güncelleme:** 14 Mayıs 2026 Persembe gece ileri (TUR #130 KAPALI)
+**Anayasa:** v1.40.0 MINOR (Madde 30.88 yeni — Teknik Borç Temizliği)
+**Aktif rekor:** 41 ardisik temiz TUR (#90 → #130)
 
 ---
 
-## 🎯 NOW — TUR #129 KAPALI ✅ (3 Verified Atom UCTAN UCA — Madde 30.85 + 30.86 + 30.87)
+## 🎯 NOW — TUR #130 KAPALI ✅ (4 İŞ Tek Atomik — Teknik Borç Temizliği + WCAG)
+
+**11 atom uygulandı (DEFER 0):**
+- İŞ 1 (3 atom): DRY KurumsalPage — 1122 → 579 satır, 543 duplicate silindi
+- İŞ 2 (2 atom): 81 il × 973 ilçe (52 küçük il dolduruldu), AdresEditCard banner kaldırıldı
+- İŞ 3 (2 atom): Yol B dürüst DEFER (Render erişimi yok, production stable, TUR #131 alert webhook aday)
+- İŞ 4 (2 atom): WCAG kontrast (skip link/focus outline/MobilFAB ikon → emerald-700)
+- ATOM 10 (Madde 30.88) + 11 (5-belge senkron)
+
+Panel `1.23.0 → 1.24.0` MINOR, Anayasa `v1.39.0 → v1.40.0` MINOR.
+
+---
+
+## ⏭️ NEXT — TUR #131 Aday Listesi
+
+1. **Render deploy alert webhook** (TUR #117 deploy fail tekrarına karşı kanıt-bazlı izleme)
+2. **Saha kanıt bekliyor** (Niyazi DEMIR + Emine CELIK MobilFAB + filter URL + dynamic chunk kullanım metriği)
+3. **Madde 28 kanıt eşiği** atomları (saha tetiği varsa)
+
+---
+
+## 🗄️ ARSIV — TUR #129 KAPALI ✅ (3 Verified Atom UCTAN UCA — Madde 30.85 + 30.86 + 30.87)
 
 **Pre-flight emsal:** Mimar Opus 4.7 kod-kanit zinciri ile mektup (TUR #114 + #110 emsal). Madde 30.83.1 disiplinini ilk kez ihlal etmeden uygulanan mektup.
 

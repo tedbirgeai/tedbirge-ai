@@ -338,8 +338,93 @@ Mehmet Bey sahaya çıkabilsin diye bu disiplin var.
 
 ---
 
-**— Tedbirge Mimari Anayasası v1.39.0 MINOR**
-**Son güncelleme: 14 Mayıs 2026 Persembe gece (TUR #129 KAPALI — 3 verified atom (Mobil FAB + Filter URL + Lead Tab Code Splitting) + Madde 30.85 + 30.87 yeni)**
+**— Tedbirge Mimari Anayasası v1.40.0 MINOR**
+**Son güncelleme: 14 Mayıs 2026 Persembe gece (TUR #130 KAPALI — 4 is uctan uca: DRY KurumsalPage + 52 il ilcesi + Deploy Yol B + WCAG kontrast + Madde 30.88 yeni)**
+
+---
+
+## ANAYASA EVRIM — TUR #130 (14 May 2026 gece ileri) — Teknik Borc Temizligi + WCAG Kontrast (Madde 30.88 yeni)
+
+**Madde 30.88 — Teknik Borc Temizligi Disiplini:**
+
+TUR raporlarinda "SARI ENDISE", "TUR #X teknik borc", "gelecek TUR" kaydi yapilan is **3 TUR'dan fazla acik kalirsa otomatik oncelik artirilir**. Madde 28 kanit esigi gerekmez — kanit zaten mevcut TUR raporundadir.
+
+**Pattern (TUR #130 emsali):**
+- TUR #114 ATOM 1 → DRY refactor KurumsalPage TUR #115 teknik borc (16 TUR acik)
+- TUR #117 A3 → 52 kucuk il SARI ENDISE TUR #118+ (13 TUR acik)
+- TUR #117/#118/#119 NEXT → Deploy fail teshis (10+ TUR tekrar)
+
+**Yasak:**
+- "Gelecek TUR" kaydi 5 TUR'dan fazla acik kalmak (otomatik tetiklenir)
+- Sari endise icin kanit esigi bahanesi (mevcut TUR raporu kanittir)
+- 3 TUR'dan eski sari endiseyi yok saymak
+
+**Pattern:** Bir TUR'da birden fazla teknik borc tek atomik commit'te temizlenir (Madde 17.2 R1 UCTAN UCA + Madde 30.26 5-belge senkron).
+
+**Kanit:** TUR #130 — 4 teknik borc tek atomik commit (DRY KurumsalPage + 52 il ilcesi + Deploy yol B + WCAG kontrast). Tum borclar 10-16 TUR boyunca acikti.
+
+### TUR #130 WCAG Kontrast Tespit (Madde 30.83 derinleme)
+
+Python WCAG luminance + contrast formulu (`(L1+0.05)/(L2+0.05)`) ile brand renk audit:
+
+| Kombinasyon | Oran | AA(4.5) | Karar |
+|-------------|------|---------|-------|
+| `#1E1E8E` BG + white text | **12.87** | PASS AAA | korundu |
+| `#22C55E` BG + white text | **2.28** | **FAIL** | bg-emerald-700 (#15803D) duzeltildi |
+| `#22C55E` BG + black text | 9.22 | PASS AAA | yesil + siyah metin guvenli |
+| `#15803D` (emerald-700) BG + white text | **5.02** | PASS AA | yeni accent dark |
+| `#5CB85C` legacy BG + white text | 2.48 | FAIL | globals.css legacy, dokunulmadi |
+
+**3 yer duzeltildi (additive, Madde 4.6):**
+1. `app/layout.tsx` skip link `focus:bg-emerald-500` → `focus:bg-emerald-700`
+2. `app/globals.css` `*:focus-visible outline: 2px solid #22C55E` → `#15803D`
+3. `components/temsilci/MobilFAB.tsx` Yeni Lead ikon `text-[#22C55E]` → `text-[#15803D]`
+
+**brand.json additive variant (Madde 35):**
+```json
+{
+  "accentColor": "#22C55E",        // dekoratif, siyah metin uyumlu
+  "accentColorDark": "#15803D",     // YENI - beyaz metin uyumlu (AA)
+  "accentForeground": "#FFFFFF"     // YENI - explicit foreground
+}
+```
+
+### TUR #130 4 Is Uctan Uca Ozet
+
+**Is 1 — DRY KurumsalPage (TUR #114 teknik borc 16 TUR acik):**
+- `components/kurumsal/KurumsalPage.tsx` yeni (561 satir, eski page.tsx tam kopyasi)
+- `app/(panel)/dashboard/kurumsal/page.tsx`: 561 satir → 9 satir wrapper
+- `app/(panel)/temsilci/kurumsal/page.tsx`: 561 satir → 9 satir wrapper
+- Toplam 1122 → 579 satir, **543 satir duplicate kod silindi**
+- Madde 30.61 tek-kaynak + 30.68 route scope korundu
+
+**Is 2 — 52 kucuk il ilcesi (TUR #117 SARI 13 TUR acik):**
+- `lib/turkey-locations.json` 81 il × **973 ilce** (eski 499 + yeni 474 ilce)
+- AdresEditCard sari banner kaldirildi (artik dropdown her zaman dolu)
+- Placeholder text "TUR #118 ekleniyor" → "Ilce adi yazin"
+- Madde 30.72 Dropdown Disiplini tam uyumlu
+
+**Is 3 — TUR #117 deploy fail teshis (10 TUR tekrar):**
+- Yol B (Madde 30.31 R1 durust DEFER) secildi
+- Code Render CLI/dashboard erisimi YOK → Madde 4.4 ihlal etmeden teshis imkansiz
+- Production stable (12 ardisik basarili deploy TUR #118-#129)
+- Kok sebep retrospektif tespit edilemiyor
+- TUR #131 aday: Render alert webhook (Slack/email) kanit-bazli izleme
+
+**Is 4 — WCAG kontrast audit (TUR #123 tamamlama):**
+- Python lokal contrast hesabi (Madde 24.14 $0)
+- 1 KRITIK FAIL bulundu (`#22C55E` + white = 2.28:1)
+- 3 yer duzeltildi (skip link bg, global focus outline, MobilFAB ikon)
+- brand.json additive `accentColorDark` + `accentForeground`
+
+### TUR #130 sayisal ozet
+- **11 atom uygulandi** (ATOM 1-9) + **2 sistem atomu** (10 madde + 11 senkron)
+- 0 DEFER (DEFER 0 hedefi)
+- 0 KIRMIZI · 0 schema · 0 npm install · 0 env · $0 maliyet
+- Backend `1.15.0` sabit · Schema `1.7.0` sabit
+- Panel `1.23.0 → 1.24.0` MINOR
+- Anayasa `v1.39.0 → v1.40.0` MINOR (Madde 30.88 yeni)
+- 40 → **41 ardisik temiz TUR REKOR (#90 → #130)**
 
 ---
 

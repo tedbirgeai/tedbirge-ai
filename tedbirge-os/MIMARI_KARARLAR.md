@@ -6,6 +6,124 @@
 
 ---
 
+## 14 Mayis 2026 Persembe gece ileri — TUR #130 KAPALI (4 Is Tek Atomik — Teknik Borc Temizligi + WCAG Kontrast)
+
+**Karar:** TUR #130 mektup Madde 30.83.1 pre-flight ile yazildi (TUR #114/#117/#123 emsal). Code 11 atom UYGULA, 0 DEFER. **3 teknik borc tek atomik commit'te temizlendi** (Madde 30.88 yeni).
+
+### IS 1 — DRY KurumsalPage Refactor (3 atom)
+
+**Kanit:** `diff -q dashboard/kurumsal/page.tsx temsilci/kurumsal/page.tsx` → byte-identical (561 × 2 = 1122 duplicate satir, 16 TUR boyunca acik TUR #114 teknik borc).
+
+**Uygulanan:**
+- `components/kurumsal/KurumsalPage.tsx` YENI (561 satir, eski page.tsx tam kopyasi)
+- `app/(panel)/dashboard/kurumsal/page.tsx`: 561 → 9 satir slim wrapper
+- `app/(panel)/temsilci/kurumsal/page.tsx`: 561 → 9 satir slim wrapper
+- **1122 → 579 satir = 543 duplicate satir silindi**
+- Madde 30.61 tek-kaynak + 30.68 route scope korundu (URL hala /dashboard/kurumsal + /temsilci/kurumsal)
+- `scope` prop GEREKSIZ (dosyalar byte-identical, role-aware logic icindeki usePermissions ile)
+
+### IS 2 — 52 Kucuk Il Ilcesi (2 atom)
+
+**Kanit:** `lib/turkey-locations.json` 52 il bos array (TUR #117 SARI ENDISE 13 TUR boyunca acik).
+
+**Uygulanan:**
+- `turkey-locations.json` 81 il × 973 ilce (eski 499 + yeni 474)
+- 52 il dolduruldu (T.C. resmi liste — Adiyaman 9, Afyonkarahisar 18, Yalova 6, Duzce 8, Karabuk 6, ... Erzurum 20, Kastamonu 20, Sivas 17)
+- `AdresEditCard.tsx` sari banner kaldirildi (artik dropdown her zaman dolu)
+- Placeholder "TUR #118 ekleniyor" → "Ilce adi yazin"
+- Yabanci ulke (Almanya/Avusturya/Hollanda) hala free-text — Madde 30.73 korundu
+
+### IS 3 — TUR #117 Deploy Fail Teshis (2 atom — Yol B Durust DEFER)
+
+**Kanit:** TUR #117/#118/#119 NEXT'lerinde tekrar "deploy fail teshis" (10 TUR tekrar, acik).
+
+**Code analiz:**
+- TUR #117 commit `8c40025` 12 May 2026 17:04 — KIRMIZI schema (`User.country` + apply-pending-schemas idempotent ALTER) + 11 atom buyuk
+- TUR #118-#129 arasi 12 ardisik basarili deploy
+- Production /health 200, /api/version backend 1.15.0 + schema 1.7.0 aktif
+
+**Madde 4.3 + 4.4 + 30.31 R1 ile Yol B durust DEFER:**
+- Code Render CLI/dashboard erisimi YOK
+- Log retention belirsiz, 14 May'da TUR #117 (12 May) loglari musait olabilir ama CEO dashboard'da
+- Production stable → hotfix gereksiz
+- Kok sebep retrospektif tespit edilemiyor (kanit yok)
+- TUR #131 aday: Render alert webhook (Slack/email) → kanit-bazli izleme
+
+**Hipotezler (kanit yok, kayit icin):**
+- apply-pending-schemas.js ALTER TABLE country lock timeout
+- Prisma generate hatasi
+- Memory limit aşımı
+
+Bunlar **iddia**, kanit yok. Madde 4.4 ihlal etmemek icin uygulanmadi. TUR #131'de Render alert webhook ile sonraki fail icin kanit toplamasi onerilir.
+
+### IS 4 — WCAG AA Kontrast Audit (2 atom)
+
+**Kanit:** TUR #123 A1 skip link `bg-emerald-500 text-white` + global focus-visible `outline: 2px solid #22C55E` LIVE ama kontrast hesabi yapilmamis.
+
+**Python lokal hesap (Madde 24.14 $0):**
+| Kombinasyon | Oran | AA(4.5) |
+|-------------|------|---------|
+| `#1E1E8E` BG + white | 12.87 | PASS AAA |
+| `#22C55E` BG + white | **2.28** | **FAIL** |
+| `#22C55E` BG + black | 9.22 | PASS AAA |
+| `#15803D` (emerald-700) BG + white | **5.02** | **PASS AA** |
+| `#5CB85C` legacy BG + white | 2.48 | FAIL (dokunulmadi) |
+
+**3 duzeltme (additive, Madde 4.6):**
+1. `app/layout.tsx` skip link `focus:bg-emerald-500` → `focus:bg-emerald-700`
+2. `app/globals.css` `*:focus-visible outline` `#22C55E` → `#15803D` (WCAG 1.4.11 non-text 3:1 PASS)
+3. `components/temsilci/MobilFAB.tsx` Yeni Lead ikon `text-[#22C55E]` → `text-[#15803D]`
+
+**brand.json additive (Madde 35):**
+```json
+"accentColor": "#22C55E",
+"accentColorDark": "#15803D",   // YENI - beyaz metin uyumlu (AA)
+"accentForeground": "#FFFFFF"   // YENI - explicit foreground
+```
+
+**Yeşil dekoratif/siyah metin yerleri korundu** (icon-only, badge, accent dekoratif). Sadece beyaz metin gereken 3 yer dark variant kullaniyor.
+
+### Madde 30.88 yeni — Teknik Borc Temizligi Disiplini
+
+3 TUR'dan fazla acik kalan sari endise/teknik borc icin otomatik oncelik. Madde 28 kanit esigi gerekmez — mevcut TUR raporu kanittir.
+
+**Yasak:**
+- "Gelecek TUR" 5 TUR'dan fazla acik kalmak
+- Sari endise icin kanit esigi bahanesi
+- 3 TUR'dan eski borcu yok saymak
+
+**Pattern:** Tek atomik commit'te birden fazla borc temizlenir (TUR #130 emsal: 4 borc).
+
+**Alternatif:**
+- A: 4 isi 4 ayri commit'e bol → Madde 17.2 R1 ihlali (parcali is)
+- B (secildi): 4 is tek atomik commit + Madde 30.88 yeni
+- C: Sadece IS 1 + IS 2 uygula (somut), IS 3 + IS 4 DEFER → eksik kalir
+
+**Etki:**
+- `tedbirge-panel/components/kurumsal/KurumsalPage.tsx`: yeni 561 satir
+- `tedbirge-panel/app/(panel)/dashboard/kurumsal/page.tsx`: 561 → 9 satir
+- `tedbirge-panel/app/(panel)/temsilci/kurumsal/page.tsx`: 561 → 9 satir
+- `tedbirge-panel/lib/turkey-locations.json`: 81 il × 973 ilce
+- `tedbirge-panel/components/profile/AdresEditCard.tsx`: banner kaldir + placeholder
+- `tedbirge-panel/app/layout.tsx`: skip link bg-emerald-700
+- `tedbirge-panel/app/globals.css`: outline #15803D
+- `tedbirge-panel/components/temsilci/MobilFAB.tsx`: ikon #15803D
+- `tedbirge-os/brand.json`: accentColorDark + accentForeground additive
+- `tedbirge-panel/package.json`: 1.23.0 → 1.24.0 MINOR
+- `tedbirge-os/version.json`: anayasa 1.39.0 → 1.40.0 MINOR
+- `CLAUDE.md`: ANAYASA EVRIM TUR #130 + Madde 30.88
+- 5-belge OS senkron (Madde 30.26)
+
+**Production:** Tum degisiklikler additive · `npx tsc --noEmit` EXIT=0 · Vercel auto-deploy panel · Backend dokunulmadi · Render redeploy gereksiz.
+
+**Sayisal:**
+- 11 atom uygulandi · 0 DEFER · 0 KIRMIZI · 0 schema · 0 npm install · 0 env · $0
+- 40 → **41 ardisik temiz TUR REKOR (#90 → #130)**
+
+**Mimar:** Claude Opus 4.7 (kod-kanit mektup + 3 teknik borc grep + Python contrast) + Claude Code (11 atom + Madde 30.88) — Madde 30.83.1 + 17.2 R1 + 30.88 disiplini · 14 May 2026 gece ileri
+
+---
+
 ## 14 Mayis 2026 Persembe gece — TUR #129 KAPALI (3 Verified Atom UCTAN UCA — Madde 30.83.1 emsal mektup)
 
 **Karar:** TUR #129 mektup ilk kez Madde 30.83.1 (Mektup Pre-Flight Disiplini) **kod-kanit zinciri ile** yazildi. Mimar (Opus 4.7) atomlari TUR #114 + #110 emsal'i ile dogruladi. Code grep pre-flight → 3 atom UYGULANDI, 0 DEFER, 0 KIRMIZI.

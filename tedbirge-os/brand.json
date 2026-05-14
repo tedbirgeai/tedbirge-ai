@@ -8,6 +8,8 @@
     "primaryColor": "#1E1E8E",
     "primaryColorHover": "#18187a",
     "accentColor": "#22C55E",
+    "accentColorDark": "#15803D",
+    "accentForeground": "#FFFFFF",
     "darkColor": "#0A1628",
     "lightColor": "#F8FAFC",
     "logoLight": "/logo.png",
