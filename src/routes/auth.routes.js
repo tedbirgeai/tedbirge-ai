@@ -66,6 +66,8 @@ router.get("/me", auth, async (req, res) => {
         address: true, city: true, district: true, postalCode: true,
         // TUR #117 — country (Madde 30.73 Almanya pilot hazirlik)
         country: true,
+        // TUR #132 M1 — KVKK m.6 acik riza (Madde 30.91)
+        kvkkM6ConsentAt: true,
       },
     });
     if (!user) return res.status(404).json({ error: "Kullanici bulunamadi" });

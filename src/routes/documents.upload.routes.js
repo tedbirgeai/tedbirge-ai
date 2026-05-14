@@ -293,6 +293,7 @@ router.post(
     // TUR #66 — AI Analiz arka plan tetikleyici (Madde 32.10)
     // Lead'e bağlı belgeler (lead/public-lead/sozlesme/tahsilat/bilirkisi/dava/ihtarname) için
     // setImmediate ile fire-and-forget — finalize response'u bekletmez (kullanıcı hızlı görür).
+    // TUR #132 M1 (Madde 30.90 + 30.91): AI Cekirdek TAC yapisal JSON cikarimi MERGE edildi.
     if (doc.leadId) {
       setImmediate(async () => {
         try {
@@ -307,6 +308,65 @@ router.post(
             ? result.analysis.qualificationScore
             : (Number.isInteger(result?.analysis?.score) ? result.analysis.score : null);
 
+          // TUR #132 M1 — AI Cekirdek (TAC) yapisal JSON cikarim
+          // Madde 30.90 saha vaadi: kaza turu / sigorta sirketi / maluliyet / kusur otomatik tespit
+          // Madde 30.91 KVKK m.6: saglik verisi VEYA dusuk confidence → needsManualReview
+          let m1Fields = {
+            aiAnalysisJson: null,
+            aiConfidence: null,
+            aiAnalyzedAt: null,
+            aiModelVersion: null,
+            needsManualReview: false,
+            manualReviewReason: null,
+          };
+          try {
+            const { analyzeDocument: tacAnalyze, CURRENT_MODEL } = require("../services/ai-analyzer.service");
+            const { logAiCost } = require("../services/ai-cost-tracker.service");
+
+            const parsedText = result?.parsedText || "";
+            if (parsedText.trim().length >= 20) {
+              const tac = await tacAnalyze(parsedText, {
+                userId: doc.uploadedById || null,
+                leadId: doc.leadId,
+                fileName: updated.originalName,
+                mimeType: updated.mimeType,
+              });
+
+              const conf = Number(tac.raw?.overallConfidence) || 0;
+              const docType = tac.raw?.documentType || null;
+              const maluliyet = tac.raw?.extractedData?.maluliyetOrani;
+              const isSaglikVeri =
+                docType === "epikriz" || docType === "sgk-raporu" || maluliyet != null;
+              const needsManualReview = conf < 0.85 || isSaglikVeri;
+              const manualReviewReason = !needsManualReview
+                ? null
+                : conf < 0.85
+                ? `Guven skoru dusuk (${conf.toFixed(2)})`
+                : "Saglik verisi — KVKK m.6 avukat manuel onayi";
+
+              m1Fields = {
+                aiAnalysisJson: tac.raw,
+                aiConfidence: conf,
+                aiAnalyzedAt: new Date(),
+                aiModelVersion: tac.modelVersion,
+                needsManualReview,
+                manualReviewReason,
+              };
+
+              // Madde 24.14 — maliyet izleme (aylik $100 limit ADMIN_FEED)
+              logAiCost({
+                documentId,
+                leadId: doc.leadId,
+                modelVersion: tac.modelVersion,
+                promptTokens: tac.promptTokens,
+                completionTokens: tac.completionTokens,
+              }).catch((e) => console.warn("[TAC M1] logAiCost fail:", e.message));
+            }
+          } catch (m1Err) {
+            console.warn(`[TAC M1] ${documentId} TAC analiz fail: ${m1Err.message}`);
+            // M1 fail mevcut analiz akisini bozmaz (Madde 4.6 geriye uyumluluk)
+          }
+
           await prisma.document.update({
             where: { id: documentId },
             data: {
@@ -317,8 +377,41 @@ router.post(
                 extractionMethod: result?.extractionMethod,
               }),
               extractedJson: JSON.stringify(result?.analysis || {}),
+              ...m1Fields,
             },
           });
+
+          // Madde 30.75 KVKK m.10 audit zinciri — TAC M1 cikti detayi
+          if (m1Fields.aiAnalysisJson) {
+            await prisma.activityLog
+              .create({
+                data: {
+                  leadId: doc.leadId,
+                  action: "DOCUMENT_AI_ANALYZED",
+                  detail: `documentId:${documentId} confidence:${(m1Fields.aiConfidence || 0).toFixed(2)} type:${m1Fields.aiAnalysisJson?.documentType || "n/a"} needsReview:${m1Fields.needsManualReview}`,
+                },
+              })
+              .catch(() => {});
+
+            // Madde 24.11 — needsManualReview true ise ADMIN_FEED bildirim
+            if (m1Fields.needsManualReview) {
+              await prisma.realtimeEvent
+                .create({
+                  data: {
+                    channel: "ADMIN_FEED",
+                    eventType: "AI_REVIEW_REQUIRED",
+                    payload: {
+                      documentId,
+                      leadId: doc.leadId,
+                      fileName: updated.originalName,
+                      reason: m1Fields.manualReviewReason,
+                      confidence: m1Fields.aiConfidence,
+                    },
+                  },
+                })
+                .catch((e) => console.warn("[TAC M1] ADMIN_FEED fail:", e.message));
+            }
+          }
 
           await prisma.lead.update({
             where: { id: doc.leadId },

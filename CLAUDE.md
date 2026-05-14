@@ -338,8 +338,82 @@ Mehmet Bey sahaya çıkabilsin diye bu disiplin var.
 
 ---
 
-**— Tedbirge Mimari Anayasası v1.41.0 MINOR**
-**Son güncelleme: 14 Mayıs 2026 Persembe gece (TUR #131 KAPALI — SEO/CRO 9 atom GSC kanit-bazli + Madde 30.89 yeni)**
+**— Tedbirge Mimari Anayasası v1.42.0 MINOR**
+**Son güncelleme: 15 Mayıs 2026 Cuma gece (TUR #132 KAPALI — AI Cekirdek TAC M1 Belge Ayristirici + Madde 30.90 + 30.91 yeni)**
+
+---
+
+## ANAYASA EVRIM — TUR #132 (15 May 2026 gece) — AI Cekirdek (TAC) M1 Belge Ayristirici (Madde 30.90 + 30.91 yeni)
+
+**Madde 30.90 — Saha Vaadi Disiplini:**
+
+Mimar fizibilite raporlarinda **musvekkil vaadi** ile **teknik durumu** karsilastirir. "Risk dusuk" denmez, "musvekkil ne goruyor" sorulur. Anayasa risk matrisleri saha vaadi karsisinda ikincil.
+
+**Kural:**
+1. Yeni ozellik / modul fizibilitesi sirasinda **CEO'nun beyan ettigi musvekkil vaadi** zorunlu kaynak
+2. Vaat ile mevcut sistem arasinda **gap analizi** zorunlu
+3. Gap kapanmadikca "✅ Yeterli" demek YASAK
+4. MH50 + 51 + 59 + 60 emsali — kod-kanitsiz "risk yuksek" gerekcesi vaadi ertelemek icin kullanilamaz
+
+**Yasak:**
+- MVP yaklasimi saha vaadinin temel parcasini ertelemek (lansman vurgusuyla)
+- "Risk yuksek" diyerek musvekkil deneyim acigini kapatmamak
+- Mimar fizibilite raporu vaadi karsilastirmadan tamamlandi sayilir
+
+**Kanit:** TUR #131.2 raporu MH60 emsali. CEO 15 May 2026 gece duzeltme.
+
+**Madde 30.91 — Ozel Nitelikli Veri Disiplini (KVKK m.6):**
+
+Saglik + biyometrik + ceza mahkumiyeti + cinsel hayat + dini-felsefi inanc verisi icin **3 katmanli disiplin**:
+1. **Acik riza ekrani zorunlu** — belge yuklemeden ONCE musvekkilin onayi (KVKK m.6/2)
+2. **Sifreli storage** — Supabase encryption-at-rest aktif (mevcut, sabit)
+3. **AI ciktisi localize** — Anthropic Standard tier (PII hash + backend-only, browser-access yasak). Enterprise ZDR orta vadeli teknik borc (TUR #150+)
+
+**Yasak:**
+- Acik riza ekrani OLMADAN belge yukleme (KVKK m.6 ihlali)
+- AI Analyzer ciktisi sifresiz storage
+- Hassas veri 3. taraf eğitime girmesi (Anthropic Standard tier metadata + PII hash)
+
+**Kanit:** TUR #132 ATOM 9-12 — AcikRizaModal + POST /kvkk/acik-riza-document-upload + User.kvkkM6Consent* alanlari + GET /me select.
+
+### TUR #132 ATOM Ozet (18 atom — DEFER 0)
+
+**Pre-flight (Madde 30.83.1) ile karar:**
+- ATOM 2 SKIP — `@anthropic-ai/sdk@^0.89.0` mevcut (Madde 4.6)
+- ATOM 3 SKIP (manuel iş) — ANTHROPIC_API_KEY mevcut servisler tarafından zaten kullanılıyor, kod null check eklendi
+
+**Uygulanan atomlar:**
+1. Pre-flight grep raporu OTONOM_RAPOR.md
+4. `src/services/ai-analyzer.service.js` YENI (Claude Opus 4.7 + 14 alan JSON cikarim)
+5-6. `src/routes/documents.upload.routes.js` MERGE — finalize-upload setImmediate'a TAC M1 alanlari + cost tracker + ADMIN_FEED bildirim
+7. `prisma/schema.prisma` Document 6 yeni alan + User 3 yeni alan additive
+8. `scripts/apply-pending-schemas.js` 9 yeni ALTER (idempotent)
+9. `tedbirge-panel/components/customer/AcikRizaModal.tsx` YENI
+10. `src/routes/kvkk.routes.js` POST `/kvkk/acik-riza-document-upload` + audit
+11. `tedbirge-panel/components/customer/BelgeYukleme.tsx` MERGE — consent gate
+12. `src/routes/auth.routes.js` /me select `kvkkM6ConsentAt`
+13. `tedbirge-panel/components/documents/DocumentList.tsx` MERGE — needsManualReview + aiConfidence badge
+14. `src/os/modules/healer.js` MERGE — old_failed_documents `deleteMany` → setImmediate retry
+15. `src/services/ai-cost-tracker.service.js` YENI (aylik $100 limit ADMIN_FEED)
+16. ai-analyzer.service.js defaultHeaders + dokumantasyon
+17. 5 belge OS senkron + version.json + 2 package.json
+18. Smoke + prisma generate + tsc --noEmit + commit + push
+
+**KIRMIZI 1 (CEO yazili onay Madde 18.3 + 30.71):** Document + User schema additive — direktif: "uctan uca kod tabanli otonom aksin gitsin 0 hata ile [...] bana hic bir sey sorma basla bitir".
+
+### TUR #132 sayisal ozet
+- 16 atom uygulandi (ATOM 2 + 3 manuel SKIP, dürüst Madde 30.31 R1) · 0 DEFER (saha vaadi disiplini)
+- 1 KIRMIZI 1 (CEO yazili onayli — schema additive)
+- 0 npm install (SDK mevcut) · 0 env manuel iş (ANTHROPIC_API_KEY mevcut) · ~$5-15/ay AI maliyet (cost tracker korumali)
+- Backend `1.15.0 → 1.16.0` MINOR
+- Panel `1.25.0 → 1.26.0` MINOR
+- Schema `1.7.0 → 1.8.0` (Document 6 + User 3 yeni alan)
+- Anayasa `v1.41.0 → v1.42.0` MINOR (Madde 30.90 + 30.91 yeni)
+- 42 → **43 ardisik temiz TUR REKOR (#90 → #132)**
+
+### Mimar Hatasi 60 tescil (TUR #131.2 emsali)
+
+**Saha Vaadi Cehaleti:** Mimar fizibilite raporlarinda musvekkil vaadi ile teknik durumu karsilastirmadi. "AI riski yuksek" deyip vaadi erteledi. CEO 15 May 2026 gece duzeltme — "uctan uca kod tabanli otonom" direktif + Madde 30.90 yeni.
 
 ---
 

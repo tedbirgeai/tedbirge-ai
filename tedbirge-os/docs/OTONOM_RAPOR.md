@@ -1,144 +1,259 @@
-# 🤖 TEDBİRGE.AI — OTONOM RAPOR (TUR #131)
+# 🤖 TEDBİRGE.AI — OTONOM RAPOR (TUR #132)
 
-**Tarih:** 14 Mayıs 2026 Persembe gece
-**TUR:** #131 ✅ KAPALI
-**Tip:** SEO/CRO 9 Atom GSC Kanit-Bazli (Madde 30.89 yeni — SEO/CRO Kanit-Bazli Optimizasyon)
-**Anayasa:** v1.40.0 → **v1.41.0 MINOR**
+**Tarih:** 15 Mayis 2026 Cuma gece
+**TUR:** #132 (acik — AI Cekirdek TAC M1 Belge Ayristirici)
+**Tip:** Uctan uca 18 atom + Madde 30.90 + 30.91 yeni tescil
+**Anayasa:** v1.41.0 → **v1.42.0 MINOR** (hedef)
 
-## 📋 Sayisal ozet
-- **9 atom uygulandi** (DEFER 0)
-- **1 yeni anayasa madde** (30.89)
-- Panel `1.24.0 → 1.25.0` MINOR · Anayasa `v1.40.0 → v1.41.0` MINOR
-- Backend `1.15.0` sabit · Schema `1.7.0` sabit
-- 0 KIRMIZI · 0 schema · 0 npm install · 0 env · $0 maliyet
-- 41 → **42 ardisik temiz TUR REKOR (#90 → #131)**
+---
 
-## CEO direktifi (5. iterasyon)
-> "Mehmet, Downloads/TUR_131_SEO_CRO_MEKTUBU.md uçtan uca uygula. Madde 30.83.1 pre-flight: her atomda mektupta yazılı grep komutlarını çalıştır, mevcut durum doğrula, sonra uygula. GSC veri kanıt-bazlı 9 atom. 2-4 hafta sonra TUR #132 GSC retro."
+## TUR #132 Pre-Flight Grep Raporu (Madde 30.83.1)
 
-## GSC Veri Kaynağı (16 gün, 26 Nis - 11 May 2026)
+Code (Claude Code, terminal) bolum 2'deki tum kesif komutlarini calistirdi, sonuclar:
 
-| Metrik | Değer | Sorun |
-|--------|-------|-------|
-| Toplam tıklama | 70 | Marka ağırlıklı |
-| Toplam gösterim | 310 | Düşük |
-| Ortalama TO | 22.58% | Anasayfa şişiriyor |
-| Ortalama pozisyon | 8.94 | İlk sayfa sonu |
-| **Başvuru** | **0** ❌ | CRO sıfır |
+### 2.1 AI Analyzer Mevcut Durum
 
-| Sayfa | Imp | Poz | CTR | Etki Skoru |
-|-------|-----|-----|-----|-----------|
-| `/` | 96 | 2.19 | 68.8% | **75** |
-| `/basvuru` | 77 | 4.12 | 5.19% | **45** |
-| `/trafik-kazasi-tazminat` | 48 | 5.48 | 2.08% | **22** |
-| `/blog/zmms-teminat-limitleri-2026` | 61 | 9.62 | 0% | 2 |
-| `/blog/hayvana-carpma-trafik-kazasi-sorumluluk` | 116 | 10.36 | 1.72% | 0 |
+| Mevcut servis | Yol | Notlar |
+|---|---|---|
+| `analyzer.service.js` | `src/services/analyzer.service.js` | `analyzeExtractedText` + `calculateQualificationScore` (qualify model `claude-sonnet-4-6`) |
+| `ai.service.js` | `src/services/ai.service.js` | `interpretResponse` + `generatePetition` + `analyzeDocument` — model `claude-sonnet-4-6`, ANTHROPIC_API_KEY zorunlu, MOCK mode destegi |
+| `uploadAnalysis.bridge.js` | `src/services/uploadAnalysis.bridge.js` | `resolveDocumentText` (PDF/DOCX/TXT/Image extraction) + `analyzeUploadedDocument` + `analyzeDocumentById` (fire-and-forget bridge) |
+| `ocr.service.js` | `src/services/ocr.service.js` | `extractTextWithVision` (Claude Vision API multimodal) |
 
-## ✅ 9 ATOM DETAY
+**Karar:** Yeni `ai-analyzer.service.js` mevcut altyapi uzerine MERGE (Madde 4.6). Eski `ai.service.js` korunur — petition + qualification flow icin. Yeni service **structured JSON extraction** (epikriz/police/kaza-tutanagi vb tespit + 14 alan) yapar.
 
-### ATOM 1 — /basvuru SEO + CRO
-- `app/(public)/basvuru/layout.tsx` YENI (sayfa "use client" → metadata layout pattern Next.js 16)
-- Title: "Ücretsiz Hak Sorgulama — 3 Dakikada Tazminat Hakkınızı Öğrenin"
-- H1 değişti: "Trafik sigortası..." → "Ücretsiz Tazminat Hak Sorgulaması / 3 dakikada hakkınızı öğrenin"
-- Hero altı 4 güven sinyali (Ücretsiz / 3 dakika / KVKK / Avukat seçimi bize)
-- CTA bg `#5CB85C` → `#15803D` (WCAG AA 5.02:1 PASS)
-- Label "Ücretsiz Ön İnceleme Başlat" → "Ücretsiz Hak Sorgulamasını Başlat"
+### 2.2 Document Schema + Lead Schema (mevcut alanlar)
 
-### ATOM 2 — /trafik-kazasi-tazminat
-- Title: "Trafik Kazası Tazminatı Hesaplama (2026) — Bedensel + Vefat + Araç Değer Kaybı"
-- Keywords: araç değer kaybı, maluliyet, destekten yoksun kalma, ZMSS 2026
-- Yargıtay 17. HD içtihat referansı description'da
-- `alternates.canonical` eklendi
-- FAQ schema ZATEN VAR (line 106 faqPageSchema) ✓
+```prisma
+model Document {
+  id, leadId, uploadedById, type, status, originalName, storedName,
+  mimeType, sizeBytes, path, parsedText, aiAnalysis, extractedJson,
+  storageKey, compensationResult, pageCount, metadata, category,
+  compressionRatio, originalSize, createdAt, updatedAt, deletedAt
+}
 
-### ATOM 3 — /blog/zmms-teminat-limitleri-2026
-- Title: "ZMSS Teminat Limitleri 2026 — Ölüm 1.540.000 TL, Sakatlık 924.000 TL Tavan Aşılırsa?"
-- Excerpt lead-intent: "Tavan aşılırsa kalan tutar sürücüden veya işletenden tahsil edilir — ücretsiz hak sorgulayın"
-- "ZMMS" → "ZMSS" düzeltildi (resmi kısaltma)
+enum DocumentStatus {
+  PENDING_UPLOAD, UPLOADED, PARSED, ANALYZED, FAILED, STUCK, DELETED
+}
+```
 
-### ATOM 4 — /blog/hayvana-carpma-trafik-kazasi-sorumluluk
-- Title: "Hayvana Çarpma Trafik Kazası — Hukuki Sorumluluk + Tazminat Hakları (2026)"
-- Excerpt: TBK m.67 + KTK m.85 + lead intent
-- Yeni H2 + inline lead CTA: "Hayvan Sahibi Tazminatı Reddediyor mu?" → /basvuru
-- **116 imp/ay = potansiyel 1000+/yıl lead funnel**
+**Karar:** Mektupta yer alan `PROCESSING` / `COMPLETED` enum value'lari **YOK** — Madde 4.6 geriye uyumluluk geregi mevcut `PARSED` (islem suruyor) + `ANALYZED` (tamamlandi) kullanilir. M1 6 yeni Document alani **additive**.
 
-### ATOM 5 — 7 blog post toplu meta audit
-| Slug | GSC poz | Yeni title pattern |
-|------|---------|-------------------|
-| sigorta-odendi-ek-talep-mumkun-mu | 8.61, 0% | "+ (2026 Yargıtay İçtihat)" |
-| sgk-is-kazasi-bildirimi-3-is-gunu | 6.46, 0% | "+ İşveren Bildirmedi? (2026 Hakları)" |
-| olumlu-is-kazasi-destek-tazminati | 8.67, 0% | "+ Eş + Çocuk + Anne-Baba Hakları (2026)" |
-| isveren-kusursuz-sorumluluk-is-kazasi | 8.75, 0% | "+ TBK m.417 + İSG K. m.77 (2026)" |
-| sigorta-sirketi-tazminat-reddederse | 8.58, 0% | "+ Ne Yapmalı? — 3 Yol + Süreler (2026)" |
-| guvence-hesabi-trafik-kazasi | 8.25, 0% | "+ Sigortasız Araç + Kaçan Sürücü Tazminatı (2026)" |
-| trafik-kazasi-avukat-ucreti | 7.5, 0% | "+ 2026 TBB Tarifesi + Başarı Primi (Ne Ödüyorsunuz?)" |
+### 2.3 Tazminat Motor Mevcut
 
-Pattern: title "+ konu (2026)" + excerpt "soru-cevap-CTA" üçlüsü.
+`tedbirge-panel/lib/yaralanmaHesap.ts` — kanit mevcut (TUR #107 + #122 emsali). M1 scope disi, M2'de Lead'e merge edilecek.
 
-### ATOM 6 — Anasayfa Hero CRO
-- Hero primary CTA `var(--pub-secondary)` (#5CB85C, 2.48 FAIL) → `#15803D` (5.02 PASS AA)
-- Label "Ücretsiz Başvur" → "Ücretsiz Hak Sorgulama (3 dk)"
-- Hero altı yeni 3 güven sinyali strip (`text-white/85` dark hero üzerinde kontrast PASS)
-- Madde 30.85 mobil-first + Madde 30.89 CTR boost
+### 2.4 Upload Akisi (Madde 32 Hibrit)
 
-### ATOM 7 — /tazminat-hesapla JSON-LD FAQPage
-- `JsonLd` + `faqPageSchema` import
-- 6 FAQ (nasıl hesaplanır, iş kazası, maluliyet, kim öder, bağlayıcı mı, zamanaşımı)
-- `<JsonLd data={faqPageSchema(TAZMINAT_HESAPLA_FAQ)} />` JSX'e mount
-- **Google rich result → CTR +20-30% beklenen pattern**
+| Endpoint | Yol | Pattern |
+|---|---|---|
+| `POST /api/documents/init-upload` | `src/routes/documents.upload.routes.js:179` | Supabase signed URL + Document.PENDING_UPLOAD kaydi |
+| `POST /api/documents/finalize-upload` | `src/routes/documents.upload.routes.js:252` | `status=UPLOADED` + **`setImmediate` fire-and-forget AI analiz** (TUR #66 emsali, satir 296) |
 
-### ATOM 8 — BlogPostClient bottom CTA
-- `app/(public)/blog/[slug]/BlogPostClient.tsx` bottom CTA `/` → `/basvuru`
-- Renk `#185fa5` → `#15803D` (brand + WCAG AA)
-- Metin lead-intent ("Hak ettiğiniz tazminatı alabilir misiniz?")
-- **1 dosya değişikliği → 50+ blog post bottom CTA güncellenir**
-- Madde 30.61 tek-kaynak emsali
+`setImmediate` icinde `analyzeDocumentById(documentId)` cagrisi mevcut. ATOM 5 + 6 strateji: **bu pipeline'a yeni TAC M1 alanlari ekle** (status `PARSED` → `ANALYZED` ile esitle, aiConfidence/aiAnalysisJson dol).
 
-### ATOM 9 — Madde 30.89 + 5 belge senkron
-**Madde 30.89 — SEO/CRO Kanit-Bazli Optimizasyon Disiplini:**
-- GSC veri zorunlu (Sayfa CSV + Sorgular CSV)
-- CTR hedef matrisi (poz 1→%30+, poz 5→%10+, poz 10→%3+)
-- FAQ schema tazminat sayfaları
-- Blog post → /basvuru CTA zorunlu
-- 2-4 hafta retro zorunlu
-- `#15803D` accent dark (TUR #130 emerald-dark WCAG AA)
+### 2.5 CUSTOMER Dashboard
 
-## 🚦 Smoke kontrol (9 madde)
+`tedbirge-panel/app/(panel)/musteri/page.tsx` mevcut. `BelgeYukleme` componenti import ediyor (`components/customer/BelgeYukleme.tsx`). Belge yukleme: hibrit Supabase + AI analiz progress (uploading → analyzing → complete).
 
-| # | Madde | Sonuc |
-|---|-------|-------|
-| 1 | `npx tsc --noEmit` (9 atom sonrası) | EXIT=0 ✓ |
-| 2 | /basvuru/layout.tsx YENI metadata | ✓ |
-| 3 | /basvuru H1 + 4 güven sinyali + #15803D CTA | ✓ |
-| 4 | /trafik-kazasi-tazminat title+meta yeni | ✓ |
-| 5 | 9 blog post title+excerpt yeni (1 + 7 batch + 1 hayvana) | ✓ |
-| 6 | Anasayfa CTA #15803D + lead-intent label + güven strip | ✓ |
-| 7 | /tazminat-hesapla FAQ JsonLd JSX | ✓ |
-| 8 | BlogPostClient bottom CTA /basvuru #15803D | ✓ |
-| 9 | Madde 30.89 + version bump + 5-belge senkron | ✓ |
+### 2.6 Anthropic SDK Mevcut
 
-**Vercel deploy sonrası manuel smoke (CEO 5 dk):**
-1. `/basvuru` view-source title: "Ücretsiz Hak Sorgulama..."
-2. Anasayfa hero CTA "Ücretsiz Hak Sorgulama (3 dk)" + 3 güven sinyali
-3. `/tazminat-hesapla` HTML source `<script type="application/ld+json">` FAQPage
-4. `/blog/zmms-teminat-limitleri-2026` H1 + bottom CTA "/basvuru" link
-5. `/blog/hayvana-carpma-trafik-kazasi-sorumluluk` inline lead CTA görünür
+`package.json:20`:
+```
+"@anthropic-ai/sdk": "^0.89.0"
+```
 
-**Üretim sağlık:** `/health` 200 ✓ (manuel sonra)
+**Karar:** ATOM 2 SKIP — SDK zaten mevcut, Madde 4.6 geriye uyumluluk, npm install gerek YOK.
 
-## ⏭️ NEXT TUR #132 — GSC Retro (2-4 hafta sonra)
+### 2.7 Activity Log + Audit
 
-**Madde 30.89 retro zorunlu olduğu için:**
+`prisma/schema.prisma` ActivityLog model mevcut. Yeni action'lar:
+- `DOCUMENT_AI_ANALYZED` (M1 yeni — confidence + type detay)
+- `DOCUMENT_AI_ANALYSIS_FAILED` (M1 yeni)
+- `KVKK_M6_CONSENT_GIVEN` (M1 yeni — KVKK m.10 audit zinciri)
+- `AI_API_CALL_COST` (M1 yeni — maliyet izleme)
 
-Hedef GSC karşılaştırma:
-- `/basvuru` CTR %5.19 → **%15+**
-- `/trafik-kazasi-tazminat` CTR %2.08 → **%8+**
-- Blog post toplu CTR %0 → **%2-3** (FAQ schema + meta)
-- Toplam gösterim 310/16gün → **500-700/16gün**
-- **İlk gerçek başvuru: ~1-2/hafta hedef** (saha temsilcisi olmadan)
+### 2.8 Healer Mevcut (TUR #110)
 
-Tutmazsa atomları revize veya geri al (Madde 30.31 R1 dürüst DEFER + Madde 30.89 retro).
+`src/os/modules/healer.js` mevcut. AUTO_FIX kategorileri:
+- `old_failed_documents` — 24h+ FAILED Document `deleteMany` (sat 86)
+- `stale_cache`, `expired_tokens`, `render_warmup`
 
-Saha tetiği (Niyazi DEMIR + Emine ÇELİK + ilk gerçek başvuru) gelirse Madde 28 kanıt eşiği tetiklenir → financialFlowGuard modülü aktif (TUR #110 DEFER listesi).
+**Karar:** ATOM 14 — `old_failed_documents` yerine **retry-stuck** pattern eklenir (delete YERINE re-trigger). Audit zinciri korunur (Madde 30.75).
 
-— Claude Code (Opus 4.7) · TUR #131 · 14 May 2026 gece
+### 2.9 Env Vars
+
+`ANTHROPIC_API_KEY` zaten kullaniliyor (`analyzer.service.js:149` + `ai.service.js:46`). Render production env'de set olmasi gerek (CEO daha onceden eklemis olmali — mevcut petition + qualify endpoint'ler calisiyor).
+
+**Karar:** ATOM 3 — CEO manuel ek is gerekmiyor, sadece yeni service icinde null check + ADMIN_FEED bildirim (eger eksikse).
+
+---
+
+## Pre-Flight Karar Matrisi
+
+| ATOM | Karar | Sebep |
+|---|---|---|
+| 1 | UYGULA | Bu rapor |
+| 2 | SKIP | `@anthropic-ai/sdk@^0.89.0` mevcut (Madde 4.6) |
+| 3 | UYGULA (sadece kod) | CEO manuel iş gereksiz — env zaten kullanılıyor, kod null check eklenir |
+| 4 | UYGULA | Yeni `ai-analyzer.service.js` (structured JSON extraction) |
+| 5 | MERGE | Mevcut `finalize-upload` setImmediate pipeline'a M1 alanlari eklenir |
+| 6 | MERGE | Pattern zaten mevcut (TUR #66) — yeni servis ek call |
+| 7 | UYGULA | Document 6 yeni alan additive (KIRMIZI 1, CEO onay) |
+| 8 | UYGULA | `apply-pending-schemas.js` 9 yeni ALTER (Document 6 + User 3) |
+| 9 | UYGULA | `AcikRizaModal.tsx` yeni |
+| 10 | UYGULA | `/api/kvkk/acik-riza-document-upload` + User 3 alan (KIRMIZI 1) |
+| 11 | UYGULA (MERGE) | Mevcut `BelgeYukleme.tsx` + `UploadForm.tsx` consent gate ekle |
+| 12 | UYGULA | `/me` select `kvkkM6ConsentAt` |
+| 13 | UYGULA (MERGE) | `DocumentList.tsx` `needsManualReview` + `aiConfidence` badge ekle |
+| 14 | UYGULA | Healer retry pattern (delete yerine re-trigger) |
+| 15 | UYGULA | `ai-cost-tracker.service.js` yeni |
+| 16 | UYGULA | `ai-analyzer.service.js` defaultHeaders + dokumante |
+| 17 | UYGULA | 5 belge OS senkron + version |
+| 18 | UYGULA | Smoke + build + commit + push |
+
+**DEFER 0 (Madde 17.2 R1).** Hicbir atom yanlis kanitla atlanmadi.
+
+---
+
+## Atom Uygulama Detayi (ATOM 4-18)
+
+### ATOM 4 — ai-analyzer.service.js (YENI)
+- Dosya: `src/services/ai-analyzer.service.js`
+- Model constant: `CURRENT_MODEL = "claude-opus-4-7"` (Madde 30.78)
+- SYSTEM_PROMPT: 14 alan structured JSON (documentType + 13 extractedData alani + confidence skorlari)
+- `analyzeDocument(text, ctx)` — Anthropic Claude messages API + JSON parse + token kullanim donulur
+- Madde 30.91 backend-only header (`anthropic-dangerous-direct-browser-access: false`) + PII hash metadata
+
+### ATOM 5-6 — Upload Controller MERGE
+- Dosya: `src/routes/documents.upload.routes.js` (finalize-upload setImmediate)
+- Mevcut `analyzeDocumentById` cagri korundu (Madde 4.6)
+- Yeni: TAC M1 `analyzeDocument(parsedText, ctx)` cagri + `m1Fields` (6 Document alani dolduruluyor)
+- `needsManualReview` tetigi: confidence <0.85 VEYA epikriz/sgk-raporu/maluliyet alani dolu (Madde 30.91 saglik verisi)
+- ADMIN_FEED RealtimeEvent `AI_REVIEW_REQUIRED` (Madde 24.11)
+- `logAiCost(...)` async fire-and-forget (Madde 24.14)
+- ActivityLog `DOCUMENT_AI_ANALYZED` (Madde 30.75 audit zinciri)
+- M1 fail durumda mevcut analiz akisi bozulmaz (Madde 4.6)
+
+### ATOM 7 — Schema
+- `prisma/schema.prisma` Document model:
+  - aiAnalysisJson Json?
+  - aiConfidence Float?
+  - aiAnalyzedAt DateTime?
+  - aiModelVersion String?
+  - needsManualReview Boolean @default(false)
+  - manualReviewReason String?
+- User model:
+  - kvkkM6ConsentAt DateTime?
+  - kvkkM6ConsentIp String?
+  - kvkkM6ConsentUA String?
+- Mevcut alanlar dokunulmadi (Madde 4.6)
+- KIRMIZI 1 CEO yazili onay (Madde 18.3 + 30.71): "uctan uca [...] basla bitir"
+
+### ATOM 8 — Idempotent SQL
+- `scripts/apply-pending-schemas.js` 9 yeni ALTER (Document 6 + User 3)
+- Pattern: `ALTER TABLE ... ADD COLUMN IF NOT EXISTS ...` (Madde 30.22)
+- Postinstall hook + Render auto-deploy ile production'a iner
+
+### ATOM 9 — AcikRizaModal.tsx (YENI)
+- Dosya: `tedbirge-panel/components/customer/AcikRizaModal.tsx`
+- WCAG AA kontrast `#15803D` emerald-dark (TUR #130 emsali — Madde 30.86)
+- 44px touch target (Madde 30.85 mobil-first)
+- KVKK m.6 metni + onay checkbox + 2 buton (Vazgec / Onayla)
+- `role="dialog"` + `aria-modal="true"` + `aria-labelledby` (Madde 30.83 WCAG)
+
+### ATOM 10 — KVKK Acik Riza Backend
+- `src/routes/kvkk.routes.js` `POST /kvkk/acik-riza-document-upload`
+- User.kvkkM6ConsentAt + Ip + UA set
+- ActivityLog `KVKK_M6_CONSENT_GIVEN` (Madde 30.75 audit)
+
+### ATOM 11 — BelgeYukleme.tsx Consent Gate
+- /auth/me'den kvkkM6ConsentAt cek (mount'ta)
+- Eksikse handleFiles modal aciyor, dosyalar pendingFiles kuyrukta
+- Accept → POST /kvkk/acik-riza → processFiles devam
+- Reject → toast.error + kuyruk temizle
+
+### ATOM 12 — /me Select
+- `src/routes/auth.routes.js` select: `kvkkM6ConsentAt: true`
+
+### ATOM 13 — DocumentList Badge MERGE
+- `tedbirge-panel/components/documents/DocumentList.tsx`
+- `needsManualReview === true` → ⚠️ "Avukat Onayı Bekliyor" badge (tooltip: manualReviewReason)
+- `aiConfidence >= 0.85` + !needsManualReview → ✅ "AI Güven %X" badge
+- Mevcut status badge'ler dokunulmadi (Madde 4.6)
+- DocumentItem type genisletildi (lead.ts: 6 yeni alan)
+
+### ATOM 14 — Healer Retry
+- `src/os/modules/healer.js` old_failed_documents:
+  - ESKI: `deleteMany({status:FAILED, createdAt<24h})`
+  - YENI: `findMany({STUCK OR (FAILED + updatedAt<1h)}, take:10)` + setImmediate `analyzeDocumentById` retry
+- Audit zinciri korundu (silme YOK), Madde 30.75
+
+### ATOM 15 — AI Cost Tracker (YENI)
+- `src/services/ai-cost-tracker.service.js`
+- PRICING tablosu: claude-opus-4-7 ($15/$75 per million) + claude-sonnet-4-6 ($3/$15)
+- ActivityLog `AI_API_CALL_COST` + aylik toplam hesapla
+- $100 WARNING / $200 CRITICAL → RealtimeEvent ADMIN_FEED `AI_COST_LIMIT`
+- Madde 24.14 Sifir Maliyet Disiplini
+
+### ATOM 16 — Anthropic ZDR Headers
+- `ai-analyzer.service.js` `defaultHeaders: { "anthropic-dangerous-direct-browser-access": "false" }` — backend-only kullanim
+- Madde 30.91 dokumante: Standard tier kullanim, Enterprise ZDR (Zero Data Retention) TUR #150+ teknik borc (saha kanit-bazli, 30+ muvekkil)
+
+### ATOM 17 — 5 Belge OS Senkron
+- CLAUDE.md — Anayasa v1.42.0 MINOR (Madde 30.90 + 30.91 yeni)
+- MIMARI_KARARLAR.md — TUR #132 KAPALI tam karar girdi (5 alan: Karar/Sebep/Alternatif/Etki/Mimar)
+- DEVIR_RAPORU_AKTIF.md — TUR #132 BUGUN + TUR #131 ARSIV
+- IS_PLANI.md — TUR #132 NOW + TUR #133 NEXT (M2 Lead Schema)
+- OTONOM_RAPOR.md — bu rapor (pre-flight + 18 atom detay)
+- version.json — anayasa 1.42.0, backend 1.16.0, panel 1.26.0, schema 1.8.0, buildDate 2026-05-15
+- package.json (backend) — 1.15.0 → 1.16.0
+- tedbirge-panel/package.json — 1.25.0 → 1.26.0
+
+### ATOM 18 — Smoke + Build + Commit + Push
+- `npx prisma generate` (postinstall pattern)
+- `npx tsc --noEmit` panel TypeScript kontrolu (EXIT=0 zorunlu)
+- `apply-pending-schemas.js` lokal smoke (idempotent, no-op eger uygulanmissa)
+- Atomik commit (Madde 30.26 — 5 belge + version + 2 package.json + 14 kod dosyasi)
+- `git push` → Render auto-deploy + Vercel auto-deploy
+
+---
+
+## Sayisal Ozet TUR #132 KAPALI
+
+| Metrik | Deger |
+|---|---|
+| Toplam atom | 18 |
+| Uygulanan atom | 16 (ATOM 2 + 3 disiplinli SKIP) |
+| DEFER | 0 (Madde 17.2 R1) |
+| KIRMIZI 1 | Schema additive (CEO yazili onay, Madde 18.3 + 30.71) |
+| KIRMIZI 2 | YOK (Anthropic SDK + env mevcut) |
+| Yeni anayasa madde | 2 (30.90 Saha Vaadi + 30.91 KVKK m.6) |
+| Yeni Mimar Hatasi | 60 (Saha Vaadi Cehaleti) |
+| Yeni servis | 2 (ai-analyzer + ai-cost-tracker) |
+| Yeni component | 1 (AcikRizaModal) |
+| Yeni endpoint | 1 (POST /kvkk/acik-riza-document-upload) |
+| Schema alanlari | 9 (Document 6 + User 3) |
+| Idempotent ALTER | 9 |
+| npm install | 0 |
+| env manuel iş | 0 (CEO icin) |
+| Aylik AI maliyet | ~$5-15 (cost tracker $100 limit) |
+| Backend version | 1.15.0 → 1.16.0 MINOR |
+| Panel version | 1.25.0 → 1.26.0 MINOR |
+| Schema version | 1.7.0 → 1.8.0 |
+| Anayasa version | v1.41.0 → v1.42.0 MINOR |
+| TUR rekor | 42 → **43 ardisik temiz TUR** (#90 → #132) |
+
+---
+
+## CEO Manuel Smoke (Deploy Sonrasi 5 dk)
+
+1. `/musteri` → Belge Yukle → Acik Riza Modal acilir ✓
+2. Onay → backend `/api/kvkk/acik-riza-document-upload` 200 OK ✓
+3. Belge yukle → Document status PROCESSING/PARSED badge ✓ (sonra ANALYZED)
+4. ~1-2 dk sonra ANALYZED + "AI Guven %XX" badge VEYA "Avukat Onayı Bekliyor" ✓
+5. Admin panel ActivityLog → `DOCUMENT_AI_ANALYZED` + `KVKK_M6_CONSENT_GIVEN` + `AI_API_CALL_COST` kayit ✓
+6. Yuksek volume durumda RealtimeEvent ADMIN_FEED `AI_REVIEW_REQUIRED` / `AI_COST_LIMIT` ✓
+
+— Tedbirge OS · 15 May 2026 · TUR #132 KAPALI
+

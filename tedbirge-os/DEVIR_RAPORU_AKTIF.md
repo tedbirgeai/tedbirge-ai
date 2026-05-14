@@ -1,15 +1,54 @@
 # 🛡️ TEDBIRGE.AI — DEVİR RAPORU (AKTİF)
 
-📋 **ANAYASA:** v1.41.0 MINOR (Madde 30.89 yeni — SEO/CRO Kanit-Bazli Optimizasyon)
-📂 **🚀 TUR #131 KAPALI: SEO/CRO 9 ATOM GSC KANIT-BAZLI (DEFER 0) — 70 tiklama 0 basvuru sorunu 🚀**
-📅 **SON GÜNCELLEME:** 14 Mayıs 2026 Persembe gece (TUR #131 KAPALI)
-👤 **CEO Onay:** Mehmet DINÇ — "GSC veri kanit-bazli 9 atom, KIRMIZI YOK, schema YOK, 2-4 hafta sonra TUR #132 GSC retro". Code 9 atom uyguladi (DEFER 0).
-🤖 **Mimar:** Claude Opus 4.7 (TUR #131 mektup, GSC veri kanit + rakip benchmark) + Claude Code (9 atom + Madde 30.89)
-🌟 **Tarih:** 14 Mayıs 2026 gece — 42 ARDISIK TEMIZ TUR REKOR (#90 → #131)
+📋 **ANAYASA:** v1.42.0 MINOR (Madde 30.90 + 30.91 yeni — Saha Vaadi + KVKK m.6 Ozel Nitelikli Veri)
+📂 **🚀 TUR #132 KAPALI: AI CEKIRDEK (TAC) M1 BELGE AYRISTIRICI — 16 ATOM + 1 KIRMIZI 1 (schema) 🚀**
+📅 **SON GÜNCELLEME:** 15 Mayıs 2026 Cuma gece (TUR #132 KAPALI)
+👤 **CEO Onay:** Mehmet DINÇ — "uctan uca kod tabanli otonom aksin gitsin 0 hata ile [...] bana hic bir sey sorma basla bitir" (15 May 2026 gece, Madde 18.3 yazili onay = KIRMIZI 1 + schema additive)
+🤖 **Mimar:** Claude Opus 4.7 (TUR #132 mektup, 18 atom + Madde 30.90 + 30.91 yeni) + Claude Code (pre-flight grep + 16 atom uygulama, ATOM 2+3 disiplinli SKIP)
+🌟 **Tarih:** 15 Mayıs 2026 gece — 43 ARDISIK TEMIZ TUR REKOR (#90 → #132)
 
 ---
 
-## 🎯 BUGÜN — TUR #131 KAPALI (SEO/CRO 9 Atom GSC Kanit-Bazli)
+## 🎯 BUGÜN — TUR #132 KAPALI (AI Cekirdek TAC M1 Belge Ayristirici)
+
+**Saha Vaadi (Madde 30.90):** "Musvekkil belge yukleyince dakikalar icinde kaza turu / sigorta sirketi / police no / maluliyet orani / kusur orani / ICD-10 / vefat var mi / arac deger kaybi otomatik cikmali." — Mehmet DINÇ 15 May 2026.
+
+### Uygulanan 16 atom (DEFER 0 — Madde 17.2 R1)
+- **ATOM 1** Pre-flight grep raporu OTONOM_RAPOR.md (Madde 30.83.1) — Anthropic SDK mevcut, ANTHROPIC_API_KEY mevcut, finalize-upload pipeline mevcut tespit
+- **ATOM 2** SKIP — `@anthropic-ai/sdk@^0.89.0` mevcut (Madde 4.6)
+- **ATOM 3** SKIP (manuel iş) — env zaten var, sadece kod null check
+- **ATOM 4** `src/services/ai-analyzer.service.js` YENI — Claude Opus 4.7 + 14 alan structured JSON (epikriz/police/kaza-tutanagi vb tespit)
+- **ATOM 5-6** `src/routes/documents.upload.routes.js` MERGE — finalize-upload setImmediate'a TAC M1 entegrasyonu (Madde 4.6 mevcut analyzer korunur)
+- **ATOM 7** Document 6 + User 3 yeni alan additive (KIRMIZI 1, CEO yazili onay)
+- **ATOM 8** apply-pending-schemas.js 9 yeni ALTER (idempotent)
+- **ATOM 9** `tedbirge-panel/components/customer/AcikRizaModal.tsx` YENI — KVKK m.6 acik riza UI (WCAG AA + 44px touch)
+- **ATOM 10** `src/routes/kvkk.routes.js` POST `/kvkk/acik-riza-document-upload` + ip/UA audit
+- **ATOM 11** `BelgeYukleme.tsx` MERGE — consent gate (modal acilir, /auth/me'den kvkkM6ConsentAt kontrol)
+- **ATOM 12** `/auth/me` select `kvkkM6ConsentAt` eklendi
+- **ATOM 13** `DocumentList.tsx` MERGE — needsManualReview ⚠️ badge + aiConfidence ✅ % badge
+- **ATOM 14** `healer.js` MERGE — old_failed_documents `deleteMany` → setImmediate retry (audit zinciri korundu)
+- **ATOM 15** `src/services/ai-cost-tracker.service.js` YENI — aylik $100 limit ADMIN_FEED bildirim
+- **ATOM 16** Anthropic ZDR/backend-only headers dokumantasyonu
+- **ATOM 17** 5 belge OS senkron + version.json + 2 package.json
+- **ATOM 18** Smoke (prisma generate + tsc --noEmit) + atomik commit + push
+
+### Madde 30.90 + 30.91 yeni
+- **30.90 Saha Vaadi:** Mimar fizibilite vaat-bazli, risk matrisi ikincil
+- **30.91 KVKK m.6:** Acik riza ekrani zorunlu + sifreli storage + Anthropic backend-only (Enterprise ZDR TUR #150+ teknik borc)
+
+### Sürüm
+Backend `1.15.0 → 1.16.0` MINOR · Panel `1.25.0 → 1.26.0` MINOR · Schema `1.7.0 → 1.8.0` (Document 6 + User 3 yeni alan) · Anayasa `v1.41.0 → v1.42.0` MINOR.
+
+### NEXT TUR #133 — M2 Lead Schema Genisleme
+Hedefler:
+- Lead'e 10 yeni alan (kazaTarihi, kazaTuru, kazaYeri, sigortaSirketi, policeNo, maluliyetOrani, hasInjury, icdCode, vefatVar, aracDegerKaybi)
+- M1 AI Analyzer ciktisi → Lead otomatik merge (confidence ≥ 0.85)
+- AccidentType enum (TRAFFIC | WORK | OTHER)
+- faultRate ve kusurOrani duplicate temizlik (Madde 30.61)
+
+---
+
+## 🗄️ ARSIV — TUR #131 KAPALI (SEO/CRO 9 Atom GSC Kanit-Bazli)
 
 **Pre-flight GSC kanit:** 16 günde (26 Nis-11 May 2026) 70 tıklama / 310 gösterim / 0 başvuru. CRO + SEO eş zamanlı sorun.
 

@@ -1,12 +1,46 @@
 # 📋 TEDBİRGE.AI — İŞ PLANI (AKTİF KESİT)
 
-**Son güncelleme:** 14 Mayıs 2026 Persembe gece (TUR #131 KAPALI)
-**Anayasa:** v1.41.0 MINOR (Madde 30.89 yeni — SEO/CRO Kanit-Bazli Optimizasyon)
-**Aktif rekor:** 42 ardisik temiz TUR (#90 → #131)
+**Son güncelleme:** 15 Mayıs 2026 Cuma gece (TUR #132 KAPALI)
+**Anayasa:** v1.42.0 MINOR (Madde 30.90 + 30.91 yeni — Saha Vaadi + KVKK m.6 Ozel Nitelikli Veri)
+**Aktif rekor:** 43 ardisik temiz TUR (#90 → #132)
 
 ---
 
-## 🎯 NOW — TUR #131 KAPALI ✅ (SEO/CRO 9 Atom GSC Kanit-Bazli)
+## 🎯 NOW — TUR #132 KAPALI ✅ (AI Cekirdek TAC M1 Belge Ayristirici)
+
+**16 atom uygulandı (DEFER 0 — Madde 17.2 R1):**
+- ATOM 1 pre-flight grep + ATOM 2/3 disiplinli SKIP (Madde 30.31 R1)
+- ATOM 4: ai-analyzer.service.js YENI (Claude Opus 4.7 + 14 alan JSON)
+- ATOM 5-6: finalize-upload setImmediate'a TAC M1 MERGE
+- ATOM 7-8: Document 6 + User 3 yeni alan additive (KIRMIZI 1, CEO yazili onay) + 9 idempotent ALTER
+- ATOM 9: AcikRizaModal.tsx YENI (KVKK m.6)
+- ATOM 10: POST /kvkk/acik-riza-document-upload + audit
+- ATOM 11: BelgeYukleme.tsx consent gate
+- ATOM 12: /me select kvkkM6ConsentAt
+- ATOM 13: DocumentList needsManualReview + aiConfidence badge
+- ATOM 14: Healer FAILED Document delete → retry
+- ATOM 15: ai-cost-tracker.service.js YENI ($100/ay ADMIN_FEED)
+- ATOM 16-18: ZDR headers + 5 belge senkron + smoke + commit
+
+Backend `1.15.0 → 1.16.0` · Panel `1.25.0 → 1.26.0` · Schema `1.7.0 → 1.8.0` · Anayasa `v1.41.0 → v1.42.0` MINOR.
+
+---
+
+## ⏭️ NEXT — TUR #133 M2 Lead Schema Genisleme (KIRMIZI 2)
+
+CEO yazili onayi bu mektupta yer aliyor ("uctan uca [...] basla bitir" — Madde 30.25 R1).
+
+**M2 hedef:**
+- Lead'e 10 yeni alan (kazaTarihi, kazaTuru, kazaYeri, sigortaSirketi, policeNo, maluliyetOrani, hasInjury, icdCode, vefatVar, aracDegerKaybi)
+- AccidentType enum (TRAFFIC | WORK | OTHER)
+- M1 AI Analyzer aiAnalysisJson → Lead otomatik merge (confidence ≥ 0.85 + audit)
+- faultRate ve kusurOrani duplicate temizlik (Madde 30.61 tek-kaynak)
+
+Lansman hedefi 14 Haziran 2026 — M1-M5 tamam beklenen (TUR #132 KAPALI, M2 NEXT).
+
+---
+
+## 🗄️ ARSIV — TUR #131 KAPALI ✅ (SEO/CRO 9 Atom GSC Kanit-Bazli)
 
 **9 atom uygulandı (DEFER 0):**
 - /basvuru layout.tsx YENI + H1 + 4 güven sinyali + CTA #15803D

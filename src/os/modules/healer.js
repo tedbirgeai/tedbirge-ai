@@ -84,11 +84,34 @@ async function runAutoFix(finding) {
     let action = null;
 
     if (finding.category === "old_failed_documents") {
-      const cutoff = new Date(Date.now() - 24 * 60 * 60 * 1000);
-      const result = await prisma.document.deleteMany({
-        where: { status: "FAILED", createdAt: { lt: cutoff } },
+      // TUR #132 M1 — Madde 30.90 saha vaadi: FAILED Document'lar silinmek yerine retry edilir.
+      // 1 saatten uzun FAILED veya STUCK olanlar -> TAC M1 yeniden tetiklenir (max 10 batch).
+      // Audit zinciri korunur (silme YOK), Madde 30.75.
+      const retryCutoff = new Date(Date.now() - 60 * 60 * 1000);
+      const stuckDocs = await prisma.document.findMany({
+        where: {
+          OR: [
+            { status: "STUCK" },
+            { status: "FAILED", updatedAt: { lt: retryCutoff } },
+          ],
+          leadId: { not: null },
+        },
+        select: { id: true },
+        take: 10,
       });
-      action = `Deleted ${result.count} old FAILED documents`;
+
+      if (stuckDocs.length > 0) {
+        const { analyzeDocumentById } = require("../../services/uploadAnalysis.bridge");
+        for (const doc of stuckDocs) {
+          setImmediate(() => {
+            analyzeDocumentById(doc.id).catch((err) =>
+              console.warn(`[healer retry] ${doc.id} fail: ${err.message}`)
+            );
+          });
+        }
+      }
+
+      action = `Retry tetiklendi: ${stuckDocs.length} STUCK/FAILED Document (1h+)`;
     } else if (finding.category === "expired_tokens") {
       action = "Expired tokens cleanup";
     } else if (finding.category === "stale_cache") {

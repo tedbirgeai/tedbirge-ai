@@ -185,6 +185,28 @@ const STATEMENTS = [
   // User 24h onay penceresi alanlari (KVKK m.11 hak)
   `ALTER TABLE "User" ADD COLUMN IF NOT EXISTS "emailChangePendingUntil" TIMESTAMP(3)`,
   `ALTER TABLE "User" ADD COLUMN IF NOT EXISTS "phoneChangePendingUntil" TIMESTAMP(3)`,
+
+  // ─── TUR #132 M1 — AI Cekirdek (TAC) Belge Ayristirici (KIRMIZI 1, CEO yazili onay Madde 18.3 + 30.71) ──
+  // Document 6 yeni alan (additive, Madde 4.6 — mevcut aiAnalysis/extractedJson korunur)
+  // aiAnalysisJson: yapilandirilmis JSON cikti (documentType + extractedData + confidence)
+  // aiConfidence: 0.0-1.0 overall confidence skoru
+  // aiAnalyzedAt: AI analiz tamamlanma zamani
+  // aiModelVersion: kullanilan Claude model versiyonu (Madde 30.78)
+  // needsManualReview: <0.85 confidence VEYA saglik verisi (KVKK m.6) → avukat onay
+  // manualReviewReason: insan-okur kaltif/inceleme nedeni
+  `ALTER TABLE "Document" ADD COLUMN IF NOT EXISTS "aiAnalysisJson" JSONB`,
+  `ALTER TABLE "Document" ADD COLUMN IF NOT EXISTS "aiConfidence" DOUBLE PRECISION`,
+  `ALTER TABLE "Document" ADD COLUMN IF NOT EXISTS "aiAnalyzedAt" TIMESTAMP(3)`,
+  `ALTER TABLE "Document" ADD COLUMN IF NOT EXISTS "aiModelVersion" TEXT`,
+  `ALTER TABLE "Document" ADD COLUMN IF NOT EXISTS "needsManualReview" BOOLEAN NOT NULL DEFAULT false`,
+  `ALTER TABLE "Document" ADD COLUMN IF NOT EXISTS "manualReviewReason" TEXT`,
+
+  // ─── TUR #132 M1 — User KVKK m.6 acik riza alanlari (Madde 30.91 yeni) ───
+  // Ozel nitelikli kisisel veri (saglik epikriz/SGK raporu) icin acik riza zorunlu
+  // ip + UA kanit-bazli audit (Madde 30.75)
+  `ALTER TABLE "User" ADD COLUMN IF NOT EXISTS "kvkkM6ConsentAt" TIMESTAMP(3)`,
+  `ALTER TABLE "User" ADD COLUMN IF NOT EXISTS "kvkkM6ConsentIp" TEXT`,
+  `ALTER TABLE "User" ADD COLUMN IF NOT EXISTS "kvkkM6ConsentUA" TEXT`,
 ];
 
 (async () => {

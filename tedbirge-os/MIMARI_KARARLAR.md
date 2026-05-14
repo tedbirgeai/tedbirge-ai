@@ -6,6 +6,39 @@
 
 ---
 
+## 15 Mayis 2026 Cuma gece — TUR #132 KAPALI (AI Cekirdek TAC M1 Belge Ayristirici — Madde 30.90 + 30.91 yeni)
+
+**Karar:** TUR #132 mektup AI Cekirdek (TAC) M1 uctan uca uygulamasi. Code Madde 30.83.1 pre-flight grep (her atom kanit-bazli) + 16 atom UYGULA (2 disiplinli SKIP, DEFER 0). Belge yuklenince Anthropic Claude Opus 4.7 ile yapisal JSON (14 alan) cikarim, KVKK m.6 acik riza zorunlu, maliyet izleme, ADMIN_FEED bildirim.
+
+**Sebep:** Saha vaadi (Mehmet DINÇ 15 May 2026 gece) — "Musvekkil belge yukleyince dakikalar icinde kaza turu, sigorta sirketi, police no, maluliyet, kusur, ICD-10 otomatik cikmali." TUR #131.2'de mimar fizibilite "AI riski yuksek" gerekcesiyle vaadi erteledi → MH60 paterni tescil → Madde 30.90 Saha Vaadi Disiplini yeni.
+
+**Alternatif:**
+- MVP "manuel avukat girisi" — REDDEDILDI (saha vaadi ihlali, lansman 14 Haziran 2026 hedefi karsilamaz)
+- Yeni LLM (OpenAI / Google Gemini) — REDDEDILDI (Madde 4.6 + 24.14 mevcut Anthropic altyapi, npm install gereksiz)
+- Yeni model `claude-opus-4-20250514` — `claude-opus-4-7` tercih (anayasa CLAUDE.md guncel ID)
+- DocumentStatus enum'a PROCESSING/COMPLETED ekleme — REDDEDILDI (mevcut PARSED/ANALYZED yeterli, Madde 4.6)
+
+**Etki:**
+- Backend `1.15.0 → 1.16.0` MINOR (yeni 2 servis + finalize-upload MERGE)
+- Panel `1.25.0 → 1.26.0` MINOR (AcikRizaModal + BelgeYukleme MERGE + DocumentList badge)
+- Schema `1.7.0 → 1.8.0` (Document 6 + User 3 yeni alan additive, KIRMIZI 1 CEO yazili onay)
+- Anayasa `v1.41.0 → v1.42.0` MINOR (Madde 30.90 + 30.91 yeni)
+- 0 npm install (SDK mevcut) · 0 env manuel iş (ANTHROPIC_API_KEY mevcut) · ~$5-15/ay AI maliyet
+- 43 ardisik temiz TUR REKOR (#90 → #132)
+
+**Pre-flight kanit (Madde 30.83.1):**
+- `package.json:20` "@anthropic-ai/sdk": "^0.89.0" mevcut → ATOM 2 SKIP
+- `src/services/analyzer.service.js:149` + `ai.service.js:46` ANTHROPIC_API_KEY mevcut → ATOM 3 SKIP
+- `src/routes/documents.upload.routes.js:296` setImmediate fire-and-forget mevcut (TUR #66) → ATOM 5-6 MERGE
+- DocumentStatus PROCESSING/COMPLETED YOK → mevcut PARSED/ANALYZED kullan (Madde 4.6)
+- `src/os/modules/healer.js:86` old_failed_documents `deleteMany` → retry MERGE (audit korundu)
+
+**Mimar Hatasi 60 tescil:** Saha Vaadi Cehaleti. Mimar fizibilite raporlarinda musvekkil vaadi ile teknik durumu karsilastirmadi. CEO 15 May duzeltme → Madde 30.90 yeni.
+
+**Mimar:** Claude Opus 4.7 (TUR #132 mektup, 18 atom + Madde 30.90 + 30.91 yeni) + Claude Code (pre-flight grep + 16 atom uygulama, 2 disiplinli SKIP)
+
+---
+
 ## 14 Mayis 2026 Persembe gece — TUR #131 KAPALI (SEO/CRO 9 Atom GSC Kanit-Bazli — Madde 30.89 yeni)
 
 **Karar:** TUR #131 mektup GSC verisi (16 gun 70 tiklama, 0 basvuru) kanit-bazli yazildi. Code Madde 30.83.1 pre-flight (her atomda mektupta yazili grep komutlarini calistirdi) + 9 atom UYGULA, DEFER 0.

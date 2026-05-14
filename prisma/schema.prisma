@@ -158,6 +158,14 @@ model Document {
   category           String?
   compressionRatio   Float?
   originalSize       Int?
+  // TUR #132 M1 — AI Cekirdek TAC Belge Ayristirici (CEO yazili onay Madde 18.3 + 30.71)
+  // Additive (Madde 4.6) — mevcut aiAnalysis/extractedJson alanlari korunur
+  aiAnalysisJson     Json?
+  aiConfidence       Float?
+  aiAnalyzedAt       DateTime?
+  aiModelVersion     String?
+  needsManualReview  Boolean        @default(false)
+  manualReviewReason String?
   createdAt          DateTime       @default(now())
   updatedAt          DateTime       @updatedAt
   deletedAt          DateTime?
@@ -421,6 +429,10 @@ model User {
   // TUR #121 M4 — Email/Phone degisim 24h onay penceresi (Madde 30.71 + 30.80 KVKK m.11 hak)
   emailChangePendingUntil     DateTime?
   phoneChangePendingUntil     DateTime?
+  // TUR #132 M1 — KVKK m.6 ozel nitelikli veri acik riza (CEO yazili onay Madde 18.3 + 30.71 + 30.91)
+  kvkkM6ConsentAt             DateTime?
+  kvkkM6ConsentIp             String?
+  kvkkM6ConsentUA             String?
   hukukcuKomisyon             Float?               @default(20)
   primOrani                   Float?               @default(50)
   uzmanlik                    String?
