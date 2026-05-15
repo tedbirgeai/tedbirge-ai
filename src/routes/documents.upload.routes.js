@@ -483,6 +483,18 @@ router.post(
             console.error(`[finalize AI] FAILED update fail: ${updateErr.message}`);
           }
 
+          // TUR #132.3 HOTFIX — Madde 30.75 KVKK m.10 audit zinciri (kod gap)
+          // OTONOM_RAPOR.md:307 referansli action koda eklendi (saha tani icin Render log alternatifi)
+          await prisma.activityLog
+            .create({
+              data: {
+                leadId: doc.leadId,
+                action: "DOCUMENT_AI_ANALYSIS_FAILED",
+                detail: `documentId:${documentId} error:${(err.message || "n/a").slice(0, 500)}`,
+              },
+            })
+            .catch(() => {});
+
           // TUR #66 v2 A4 — ADMIN AI HATA bildirim (Madde 32.10)
           try {
             const lawyerNotif = require("../services/lawyerNotifications.service");
