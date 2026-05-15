@@ -235,7 +235,7 @@ async function runActiveTask() {
     const since24h = new Date(Date.now() - day);
     const unassigned = await prismaClient.lead.count({
       where: {
-        kazaTuru: "TRAFIK",
+        kazaTuru: "TRAFFIC",
         status: { in: ["NEW", "CONTACTED"] },
         assignments: { none: {} },
         createdAt: { lt: since24h },

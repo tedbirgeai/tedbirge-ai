@@ -167,13 +167,14 @@ async function autoAssignLead(leadId) {
   });
   if (lawyers.length === 0) return { ok: false, reason: "no_active_lawyer" };
 
-  // Uzmanlik eslesmesi (kazaTuru -> string match)
-  const kazaTipi = (lead.kazaTuru || "").toLowerCase();
+  // Uzmanlik eslesmesi (kazaTuru AccidentType enum -> uzmanlik string match)
+  // TUR #132.2.1 HOTFIX — TUR #132.1 enum gecisi sonrasi kazaTuru artik "TRAFIK"/"IS" degil "TRAFFIC"/"WORK"/"OTHER"
+  const kazaTuru = lead.kazaTuru || "";
   const matched = lawyers.filter((l) => {
     const uz = Array.isArray(l.uzmanlik) ? l.uzmanlik.join(" ").toLowerCase() : "";
     if (!uz) return false;
-    if (kazaTipi.includes("trafik") && uz.includes("trafik")) return true;
-    if (kazaTipi.includes("is") && uz.includes("is")) return true;
+    if (kazaTuru === "TRAFFIC" && uz.includes("trafik")) return true;
+    if (kazaTuru === "WORK" && uz.includes("is")) return true;
     return false;
   });
 
