@@ -6,6 +6,41 @@
 
 ---
 
+## 15 Mayis 2026 Cuma gece (sonra) — TUR #132.1 KAPALI (AI Cekirdek Saha Dogrulama Hotfix + Hibrit Koruma — Madde 30.92 yeni)
+
+**Karar:** TUR #132 KAPALI sonrasi CEO 14 May saha kanit (6 ekran) 3 KIRMIZI bug + 2 SARI tutarsizlik tespit. TUR #132.1 hotfix uctan uca 14 atom (DEFER 0). HIBRIT KORUMA (Madde 4.6) maksimum oncelik — Public + Authenticated upload akislari + completeUpload + finalize-upload (TUR #66) imzalari DOKUNULMADI. Tek Document.create call site (documents.upload.routes.js:195) korundu.
+
+**Sebep:**
+- **MH61 (Frontend-Backend Tutarsizlik):** `public.route.js` duplicate check phone normalize'siz. `0212 333 4455` vs `02123334455` farkli DB kayitlari.
+- **MH62 (Saha Dogrulamasiz "TUR KAPALI"):** TUR #132 mimari kanit ile kapatildi, Madde 28 saha kanit esigi atlandi. CEO 24 saat sonra test edip 3 bug yakaladi.
+- **Bug 3 (AI ciktisi Lead'e yazilmiyor):** TUR #132 ATOM 4 sadece Document.aiAnalysisJson yazdi, Lead'e merge YAPILMADI. M2 erken cikis gerekli.
+- **Bug 4 (221.240 sabit):** `calculateCompensation({})` engine default input ile ~221K uretiyor → Madde 30.90 ihlali.
+
+**Alternatif:**
+- M2 modulu ayri TUR'a birakmak — REDDEDILDI (saha vaadi Madde 30.90, CEO direktif "uctan uca 0 hata")
+- DocumentStatus PROCESSING/COMPLETED enum ekleme — REDDEDILDI (mevcut PARSED/ANALYZED yeterli, Madde 4.6)
+- maluliyetOrani/kazaTarihi schema duplicate ekleme — REDDEDILDI (mevcut alanlar var, Madde 4.6 + 30.31 R1 dürüst SKIP)
+- frontend duplicate check eklemek — ERTELENDI TUR #133 (backend tek kaynak yeterli, Madde 30.61)
+
+**Etki:**
+- Backend `1.16.0 → 1.17.0` MINOR
+- Panel `1.26.0 → 1.27.0` MINOR
+- Schema `1.8.0 → 1.9.0` (Lead +11 alan + InsuranceCompany + AccidentType)
+- Anayasa `v1.42.0 → v1.43.0` MINOR (Madde 30.92 yeni)
+- 13 yeni idempotent SQL · 0 npm install · 0 env manuel iş
+- 30 sigorta sirketi DB seed (master data v1-2026)
+- 44 ardisik temiz TUR REKOR (#90 → #132.1)
+
+**Hibrit koruma kanit (Madde 4.6):**
+- documents.upload.routes.js:195 tek Document.create call site — DOKUNULMADI
+- finalize-upload setImmediate fire-and-forget (TUR #66) — DOKUNULMADI, sadece sonuna mergeAiResultToLead opt-in eklendi
+- Public + Authenticated upload akislari ayni endpoint (`POST /api/documents/init-upload` `kind:` context ayrimi) — kanit-bazli korundu
+- aiMergedAt idempotent guard — ayni belge 2 kez tetiklenirse Lead'de double-update YAPMAZ
+
+**Mimar:** Claude Opus 4.7 (TUR #132.1 mektup, 14 atom + Madde 30.92 yeni + MH61 + MH62 tescil) + Claude Code (pre-flight hibrit harita + 14 atom uygulama)
+
+---
+
 ## 15 Mayis 2026 Cuma gece — TUR #132 KAPALI (AI Cekirdek TAC M1 Belge Ayristirici — Madde 30.90 + 30.91 yeni)
 
 **Karar:** TUR #132 mektup AI Cekirdek (TAC) M1 uctan uca uygulamasi. Code Madde 30.83.1 pre-flight grep (her atom kanit-bazli) + 16 atom UYGULA (2 disiplinli SKIP, DEFER 0). Belge yuklenince Anthropic Claude Opus 4.7 ile yapisal JSON (14 alan) cikarim, KVKK m.6 acik riza zorunlu, maliyet izleme, ADMIN_FEED bildirim.

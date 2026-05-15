@@ -1,0 +1,198 @@
+{
+  "version": "v1-2026",
+  "lastUpdated": "2026-05-15",
+  "source": "TSB (Turkiye Sigorta Birligi) public + Resmi Gazete",
+  "companies": [
+    {
+      "name": "Anadolu Sigorta",
+      "shortName": "Anadolu",
+      "kepAddress": "anadolu.sigorta@hs03.kep.tr",
+      "email": "info@anadolusigorta.com.tr",
+      "phone": "0850 7 24 0850",
+      "address": "Ruzgarli Bahce Mah. Kavak Sok. No:31 Beykoz ISTANBUL",
+      "policyPrefix": ["AS-", "ANAD-"]
+    },
+    {
+      "name": "Aksigorta",
+      "shortName": "Aksigorta",
+      "kepAddress": "aksigorta@hs01.kep.tr",
+      "email": "musteri@aksigorta.com.tr",
+      "phone": "0850 252 25 25",
+      "address": "Meclis-i Mebusan Cad. No:67 Salipazari ISTANBUL",
+      "policyPrefix": ["AKS-", "AK-"]
+    },
+    {
+      "name": "Allianz Sigorta",
+      "shortName": "Allianz",
+      "kepAddress": "allianz.sigorta@hs01.kep.tr",
+      "email": "info@allianz.com.tr",
+      "phone": "0850 399 99 99",
+      "address": "Allianz Kampus Kucukbakkalkoy Mah. Kayisdagi Cad. No:1 Atasehir ISTANBUL",
+      "policyPrefix": ["ALL-", "AZ-"]
+    },
+    {
+      "name": "AvivaSA Emeklilik ve Hayat",
+      "shortName": "AvivaSA",
+      "kepAddress": "avivasa@hs01.kep.tr",
+      "email": "musteri@avivasa.com.tr",
+      "phone": "0850 250 88 50",
+      "policyPrefix": ["AVS-"]
+    },
+    {
+      "name": "AXA Sigorta",
+      "shortName": "AXA",
+      "kepAddress": "axa.sigorta@hs01.kep.tr",
+      "email": "musteri@axasigorta.com.tr",
+      "phone": "0850 250 99 99",
+      "address": "Meclis-i Mebusan Cad. No:15 Salipazari ISTANBUL",
+      "policyPrefix": ["AXA-"]
+    },
+    {
+      "name": "Doga Sigorta",
+      "shortName": "Doga",
+      "kepAddress": "doga.sigorta@hs01.kep.tr",
+      "phone": "0850 222 36 42",
+      "policyPrefix": ["DG-", "DOGA-"]
+    },
+    {
+      "name": "Ethica Sigorta",
+      "shortName": "Ethica",
+      "kepAddress": "ethica.sigorta@hs01.kep.tr",
+      "policyPrefix": ["ETH-"]
+    },
+    {
+      "name": "Eureko Sigorta",
+      "shortName": "Eureko",
+      "kepAddress": "eureko.sigorta@hs01.kep.tr",
+      "policyPrefix": ["EUR-", "EUREKO-"]
+    },
+    {
+      "name": "Generali Sigorta",
+      "shortName": "Generali",
+      "kepAddress": "generali.sigorta@hs01.kep.tr",
+      "policyPrefix": ["GEN-"]
+    },
+    {
+      "name": "Groupama Sigorta",
+      "shortName": "Groupama",
+      "kepAddress": "groupama.sigorta@hs01.kep.tr",
+      "policyPrefix": ["GR-", "GRP-"]
+    },
+    {
+      "name": "Gulf Sigorta",
+      "shortName": "Gulf",
+      "kepAddress": "gulf.sigorta@hs01.kep.tr",
+      "policyPrefix": ["GULF-"]
+    },
+    {
+      "name": "HDI Sigorta",
+      "shortName": "HDI",
+      "kepAddress": "hdi.sigorta@hs01.kep.tr",
+      "policyPrefix": ["HDI-"]
+    },
+    {
+      "name": "Mapfre Sigorta",
+      "shortName": "Mapfre",
+      "kepAddress": "mapfre.sigorta@hs01.kep.tr",
+      "policyPrefix": ["MPF-", "MAPFRE-"]
+    },
+    {
+      "name": "Neova Sigorta",
+      "shortName": "Neova",
+      "kepAddress": "neova.sigorta@hs01.kep.tr",
+      "policyPrefix": ["NEO-", "NEOVA-"]
+    },
+    {
+      "name": "Orient Sigorta",
+      "shortName": "Orient",
+      "kepAddress": "orient.sigorta@hs01.kep.tr",
+      "policyPrefix": ["OR-", "ORIENT-"]
+    },
+    {
+      "name": "Quick Sigorta",
+      "shortName": "Quick",
+      "kepAddress": "quick.sigorta@hs01.kep.tr",
+      "policyPrefix": ["QCK-", "QUICK-"]
+    },
+    {
+      "name": "Ray Sigorta",
+      "shortName": "Ray",
+      "kepAddress": "ray.sigorta@hs01.kep.tr",
+      "policyPrefix": ["RAY-"]
+    },
+    {
+      "name": "Sompo Sigorta",
+      "shortName": "Sompo",
+      "kepAddress": "sompo.sigorta@hs01.kep.tr",
+      "policyPrefix": ["SMP-", "SOMPO-"]
+    },
+    {
+      "name": "Turk Nippon Sigorta",
+      "shortName": "Turk Nippon",
+      "kepAddress": "turknippon.sigorta@hs01.kep.tr",
+      "policyPrefix": ["TN-", "TURKNIPPON-"]
+    },
+    {
+      "name": "Turkiye Sigorta",
+      "shortName": "Turkiye",
+      "kepAddress": "turkiye.sigorta@hs01.kep.tr",
+      "policyPrefix": ["TRS-", "TURKIYE-"]
+    },
+    {
+      "name": "Unico Sigorta",
+      "shortName": "Unico",
+      "kepAddress": "unico.sigorta@hs01.kep.tr",
+      "policyPrefix": ["UNI-", "UNICO-"]
+    },
+    {
+      "name": "Zurich Sigorta",
+      "shortName": "Zurich",
+      "kepAddress": "zurich.sigorta@hs01.kep.tr",
+      "policyPrefix": ["ZUR-", "ZURICH-"]
+    },
+    {
+      "name": "Gunes Sigorta",
+      "shortName": "Gunes",
+      "kepAddress": "gunes.sigorta@hs01.kep.tr",
+      "policyPrefix": ["GN-", "GUNES-"]
+    },
+    {
+      "name": "Magdeburger Sigorta",
+      "shortName": "Magdeburger",
+      "policyPrefix": ["MAG-"]
+    },
+    {
+      "name": "Ankara Sigorta",
+      "shortName": "Ankara",
+      "policyPrefix": ["ANK-", "ANKARA-"]
+    },
+    {
+      "name": "Bereket Sigorta",
+      "shortName": "Bereket",
+      "policyPrefix": ["BRK-", "BEREKET-"]
+    },
+    {
+      "name": "Halk Sigorta",
+      "shortName": "Halk",
+      "policyPrefix": ["HLK-", "HALK-"]
+    },
+    {
+      "name": "Ziraat Sigorta",
+      "shortName": "Ziraat",
+      "policyPrefix": ["ZRT-", "ZIRAAT-"]
+    },
+    {
+      "name": "Vakif Emeklilik ve Hayat",
+      "shortName": "Vakif",
+      "policyPrefix": ["VKF-"]
+    },
+    {
+      "name": "Guvence Hesabi",
+      "shortName": "Guvence Hesabi",
+      "kepAddress": "guvencehesabi@hs01.kep.tr",
+      "phone": "0212 442 50 00",
+      "address": "Levent Mah. Comert Sk. No:1A Besiktas ISTANBUL",
+      "policyPrefix": []
+    }
+  ]
+}

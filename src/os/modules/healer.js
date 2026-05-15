@@ -32,6 +32,8 @@ const AUTO_FIX_CATEGORIES = [
   "old_failed_documents",
   "expired_tokens",
   "render_warmup",
+  // TUR #132.1 — AI Cekirdek M1 merge retry (Madde 30.90)
+  "stuck_ai_merge",
 ];
 
 // Suggest mode (öneri yazılacak) kategoriler
@@ -112,6 +114,32 @@ async function runAutoFix(finding) {
       }
 
       action = `Retry tetiklendi: ${stuckDocs.length} STUCK/FAILED Document (1h+)`;
+    } else if (finding.category === "stuck_ai_merge") {
+      // TUR #132.1 — Document.aiAnalysisJson dolu ama Lead.aiMergedAt null
+      // (mergeAiResultToLead boot sirasinda calismadiysa veya hata aldiysa retry)
+      const stuckMerge = await prisma.document.findMany({
+        where: {
+          status: "ANALYZED",
+          aiAnalysisJson: { not: null },
+          leadId: { not: null },
+          Lead: { aiMergedAt: null },
+        },
+        select: { id: true, aiAnalysisJson: true },
+        take: 10,
+      });
+
+      if (stuckMerge.length > 0) {
+        const { mergeAiResultToLead } = require("../../services/ai-analyzer.service");
+        for (const d of stuckMerge) {
+          setImmediate(() => {
+            mergeAiResultToLead(d.id, d.aiAnalysisJson).catch((err) =>
+              console.warn(`[healer ai-merge retry] ${d.id} fail: ${err.message}`)
+            );
+          });
+        }
+      }
+
+      action = `AI merge retry tetiklendi: ${stuckMerge.length} Document (Lead.aiMergedAt null)`;
     } else if (finding.category === "expired_tokens") {
       action = "Expired tokens cleanup";
     } else if (finding.category === "stale_cache") {

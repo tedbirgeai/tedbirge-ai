@@ -381,6 +381,22 @@ router.post(
             },
           });
 
+          // TUR #132.1 ATOM 6 — AI cikti Lead'e merge (Madde 30.90 saha vaadi)
+          // Madde 4.6 hibrit koruma: idempotent guard, avukat elle yazdiklari dokunulmaz
+          if (m1Fields.aiAnalysisJson && doc.leadId) {
+            try {
+              const { mergeAiResultToLead } = require("../services/ai-analyzer.service");
+              const mergeResult = await mergeAiResultToLead(documentId, m1Fields.aiAnalysisJson);
+              if (mergeResult?.merged) {
+                console.log(`[finalize AI] Lead ${doc.leadId} merge: ${mergeResult.fields?.length} alan, confidence ${mergeResult.confidence?.toFixed(2)}`);
+              } else {
+                console.log(`[finalize AI] Lead ${doc.leadId} merge skip: ${mergeResult?.reason}`);
+              }
+            } catch (mergeErr) {
+              console.warn(`[finalize AI] Lead merge fail: ${mergeErr.message}`);
+            }
+          }
+
           // Madde 30.75 KVKK m.10 audit zinciri — TAC M1 cikti detayi
           if (m1Fields.aiAnalysisJson) {
             await prisma.activityLog

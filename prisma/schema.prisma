@@ -186,6 +186,31 @@ model Durusma {
   Lead         Lead     @relation(fields: [leadId], references: [id])
 }
 
+// TUR #132.1 — Insurance master data (KIRMIZI 3, CEO yazili onay Madde 18.3 + 30.71 + 30.92)
+// Boot seed src/services/master-data.service.js — tedbirge-os/data/insurance-companies-v1.json
+model InsuranceCompany {
+  id           String   @id @default(cuid())
+  name         String   @unique
+  shortName    String?
+  kepAddress   String?
+  email        String?
+  phone        String?
+  address      String?
+  policyPrefix String[] @default([])
+  active       Boolean  @default(true)
+  dataVersion  String   @default("v1-2026")
+  leads        Lead[]
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+}
+
+// TUR #132.1 — Kaza turu (M2 erken cikis, KIRMIZI 2)
+enum AccidentType {
+  TRAFFIC
+  WORK
+  OTHER
+}
+
 // @deferred — AccidentCase ile birlikte gelir (Madde 33)
 model Evidence {
   id             String       @id @default(cuid())
@@ -286,6 +311,21 @@ model Lead {
   gclid                 String? // Google Click ID (server-side conversion)
   // TUR #110 C3 — Niyazi sahaya cikis ilk gercek lead milestone flag
   firstRealLead         Boolean          @default(false)
+  // TUR #132.1 — M2 erken cikis (KIRMIZI 2, CEO yazili onay Madde 18.3 + 30.71)
+  // Mevcut alanlar dokunulmaz (Madde 4.6): accidentDate, accidentType, maluliyetOrani, kusurOrani, faultRate, injurySeverity
+  // Sadece YENI alanlar additive — duplicate olusturma YOK:
+  kazaTuru              AccidentType?
+  kazaYeri              String?
+  insuranceCompanyId    String?
+  insuranceCompany      InsuranceCompany? @relation(fields: [insuranceCompanyId], references: [id])
+  policeNo              String?
+  hasInjury             Boolean          @default(false)
+  icdCode               String?
+  vefatVar              Boolean          @default(false)
+  aracDegerKaybi        Decimal?         @db.Decimal(12, 2)
+  // AI merge metadata (TUR #132 ATOM 6 entegrasyon)
+  aiMergedAt            DateTime?
+  aiMergeConfidence     Float?
   AccidentCase          AccidentCase[]
   judicialResponse      JudicialResponse?
   activities            ActivityLog[]

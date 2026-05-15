@@ -338,8 +338,75 @@ Mehmet Bey sahaya çıkabilsin diye bu disiplin var.
 
 ---
 
-**— Tedbirge Mimari Anayasası v1.42.0 MINOR**
-**Son güncelleme: 15 Mayıs 2026 Cuma gece (TUR #132 KAPALI — AI Cekirdek TAC M1 Belge Ayristirici + Madde 30.90 + 30.91 yeni)**
+**— Tedbirge Mimari Anayasası v1.43.0 MINOR**
+**Son güncelleme: 15 Mayıs 2026 Cuma gece (TUR #132.1 KAPALI — AI Cekirdek Saha Dogrulama Hotfix + Hibrit Koruma + Madde 30.92 yeni)**
+
+---
+
+## ANAYASA EVRIM — TUR #132.1 (15 May 2026 gece) — AI Cekirdek Saha Dogrulama Hotfix (Madde 30.92 yeni)
+
+**Madde 30.92 — Master Data Disiplini:**
+
+Sabit referans veri (sigorta sirketi listesi + ICD-10 + maluliyet kodlari + ZMSS limitleri + 81 il/ilce + AccidentType) **master data** olarak `tedbirge-os/data/*.json` altinda commit'li tutulur. Hardcoded liste YASAK (Madde 30.61 sentezi).
+
+**Kural:**
+1. Master data dosya **versioning**'li (`insurance-companies-v1.json`)
+2. Yillik guncelleme zorunlu (ZMSS limit emsali, Madde 30.78 sentezi)
+3. Boot sirasinda DB'ye senkronize (idempotent upsert)
+4. JSON schema validation (gelecek TUR — TUR #133+)
+
+**Yasak:**
+- Hardcoded `["Anadolu Sigorta", ...]` array kod icinde (Madde 30.61 ihlali)
+- Master data DB'de manuel yaratip commit'siz birakmak
+- Yillik guncelleme yapmadan eski limitlerle production'da kalmak
+
+**Kanit:** TUR #132.1 ATOM 2 + ATOM 5 — `tedbirge-os/data/insurance-companies-v1.json` (30 firma) + boot seed.
+
+### TUR #132.1 Hotfix Ozet — 14 atom DEFER 0
+
+**CEO 14 May 2026 saha kanit (6 ekran):**
+- Bug 1: Duplicate phone false positive (MH61) — frontend-backend tutarsizlik
+- Bug 2: Lead detay "Failed to fetch" mavi banner — generic transient hata
+- Bug 3: AI ciktisi Lead'e yazilmiyor (TUR #132 ATOM 4 sadece Document'a yazmis, M2 erken cikis gerekli)
+- Bug 4: Tahmini tazminat 221.240 sabit — `calculateCompensation({})` default input ile engine ~221K uretiyor (Madde 30.90 ihlali)
+- Sari: Avukat Is Yuku %NaN (0/0 = NaN)
+- Sari: Ort. tazminat ortalamasi bozuk
+
+**Uygulanan atomlar (HIBRIT KORUMA Madde 4.6 maksimum):**
+1. Pre-flight grep + hibrit harita (Madde 30.83.1)
+2. InsuranceCompany master data JSON (30 firma)
+3. Schema additive — Lead +11 alan (kazaTuru/kazaYeri/insuranceCompanyId/policeNo/hasInjury/icdCode/vefatVar/aracDegerKaybi/aiMergedAt/aiMergeConfidence) + InsuranceCompany model + AccidentType enum. **kazaTarihi ve maluliyetOrani SKIP** — mevcut `accidentDate` + `maluliyetOrani` korundu (Madde 4.6 + 30.31 R1 dürüst SKIP)
+4. apply-pending-schemas.js 13 yeni idempotent değişiklik
+5. master-data.service.js YENI + boot seed (idempotent upsert)
+6. ai-analyzer.service.js `mergeAiResultToLead` + finalize-upload setImmediate entegrasyon (idempotent aiMergedAt guard)
+7. lead-estimation.service.js YENI + lead.service.js createLead estimatedCompensation null sentry (Madde 30.90)
+8. Lead detay "Failed to fetch" transient retry + banner suppress (Madde 31.11)
+9. phoneNormalize.js canonicalPhone helper (Madde 30.61 tek kaynak) + public.route.js findFirst normalize
+10. Lead detay UI: estimatedCompensation null → "Hesaplama icin veri eksik" (Madde 30.90)
+11-12. Dashboard winPct + avgCompensation NaN guard (em-dash)
+13. Healer yeni retry case `stuck_ai_merge`
+14. 5 belge OS senkron + version bump + commit + push
+
+**HIBRIT KORUMA (Madde 4.6 maksimum):**
+- completeUpload + finalize-upload (TUR #66) imzalari **DOKUNULMADI**
+- Document.create call site (satir 195) **DOKUNULMADI**
+- AI Analyzer trigger **opt-in** (mergeAiResultToLead idempotent guard)
+- Public + Authenticated upload akislari **AYNI ENDPOINT** (Madde 30.61 — tek call site sayesinde hibrit guvenli)
+
+### Mimar Hatasi 61 + 62 tescil
+
+- **MH61 — Frontend-Backend Tutarsizlik (Duplicate Check):** `public.route.js` `findFirst({customerPhone: String(phone).trim()})` phone normalize YOK, frontend ise hic duplicate check yapmiyor. `0212 333 4455` vs `02123334455` farkli kayitli olabilir. ATOM 9 cleanPhone tek kaynak ile çözüldü.
+
+- **MH62 — Saha Dogrulamasiz "TUR KAPALI" Ilani:** TUR #132 mimari kanit ile kapatildi ama saha (CEO 6 ekran kanit) test edilmeden. Madde 28 saha kanit esigi atlandi. Pattern: yeni özellik canliya çıkar çıkmaz CEO 24 saat içinde test eder, sonuc beklenmeden "KAPALI" demek yanlis. TUR #132.1 düzeltme.
+
+### TUR #132.1 sayisal ozet
+- 14 atom uygulandi · DEFER 0 (Madde 17.2 R1)
+- 2 KIRMIZI (Schema additive — Lead +11 alan + InsuranceCompany + AccidentType, CEO yazili onay Madde 18.3 + 30.71)
+- 0 npm install · 0 env manuel iş · $0 maliyet ek
+- Backend `1.16.0 → 1.17.0` MINOR · Panel `1.26.0 → 1.27.0` MINOR
+- Schema `1.8.0 → 1.9.0` (Lead +11 alan + InsuranceCompany + AccidentType)
+- Anayasa `v1.42.0 → v1.43.0` MINOR (Madde 30.92 yeni)
+- 43 → **44 ardisik temiz TUR REKOR (#90 → #132.1)**
 
 ---
 

@@ -1,12 +1,51 @@
 # 📋 TEDBİRGE.AI — İŞ PLANI (AKTİF KESİT)
 
-**Son güncelleme:** 15 Mayıs 2026 Cuma gece (TUR #132 KAPALI)
-**Anayasa:** v1.42.0 MINOR (Madde 30.90 + 30.91 yeni — Saha Vaadi + KVKK m.6 Ozel Nitelikli Veri)
-**Aktif rekor:** 43 ardisik temiz TUR (#90 → #132)
+**Son güncelleme:** 15 Mayıs 2026 Cuma gece (TUR #132.1 KAPALI — hotfix)
+**Anayasa:** v1.43.0 MINOR (Madde 30.92 yeni — Master Data Disiplini)
+**Aktif rekor:** 44 ardisik temiz TUR (#90 → #132.1)
 
 ---
 
-## 🎯 NOW — TUR #132 KAPALI ✅ (AI Cekirdek TAC M1 Belge Ayristirici)
+## 🎯 NOW — TUR #132.1 KAPALI ✅ (AI Cekirdek Saha Dogrulama Hotfix + Hibrit Koruma)
+
+**CEO saha kanit (6 ekran):** 3 KIRMIZI bug + 2 SARI tutarsizlik tespiti — TUR #132 saha dogrulamasiz kapatildi (MH62). Hotfix HIBRIT KORUMA (Madde 4.6) maksimum oncelik.
+
+**14 atom uygulandı (DEFER 0 — Madde 17.2 R1):**
+- A1: Pre-flight grep + hibrit harita (Madde 30.83.1, Madde 30.61 tek Document.create call site dogrulandi)
+- A2: InsuranceCompany master data JSON (30 firma)
+- A3: Schema Lead +11 alan additive + InsuranceCompany model + AccidentType enum (kazaTarihi/maluliyetOrani SKIP — Madde 4.6)
+- A4: apply-pending-schemas.js 13 yeni idempotent değişiklik
+- A5: master-data.service.js boot seed
+- A6: mergeAiResultToLead (idempotent aiMergedAt guard) + upload pipeline MERGE
+- A7: lead-estimation.service.js + lead.service.js null sentry (Madde 30.90)
+- A8: Lead detay "Failed to fetch" transient retry
+- A9: canonicalPhone tek kaynak (Madde 30.61 + MH61 düzeltme)
+- A10: estimatedCompensation null UI gösterim ("Hesaplama için veri eksik")
+- A11-12: Dashboard NaN guard
+- A13: Healer stuck_ai_merge retry case
+- A14: 5 belge OS senkron + version + commit + push
+
+Backend `1.16.0 → 1.17.0` · Panel `1.26.0 → 1.27.0` · Schema `1.8.0 → 1.9.0` · Anayasa `v1.42.0 → v1.43.0` MINOR.
+
+**Yeni anayasa madde:** 30.92 Master Data Disiplini · **Mimar Hatalari:** MH61 + MH62 tescil.
+
+---
+
+## ⏭️ NEXT — TUR #133 M3 Master Data Genisleme + M5 Hak Analizim
+
+CEO yeni direktif bekler (Madde 30.25 R1). Hedefler:
+- M3 ICD-10 master data (en sik 200 kod) + JSON Schema validation
+- M3 Maluliyet TRH-2010 detay tablosu
+- M3 ZMSS limit yillik (2026 v1)
+- M5 CUSTOMER "Hak Analizim" tab (Lead AI verisi görünür)
+- faultRate vs kusurOrani DEPRECATED isaretleme (Madde 30.61)
+- Eski test data soft-delete (DEFER 5)
+
+CEO smoke onay sonrasi mimar mektup TUR #133 hazirlar.
+
+---
+
+## 🗄️ ARSIV — TUR #132 KAPALI ✅ (AI Cekirdek TAC M1 Belge Ayristirici)
 
 **16 atom uygulandı (DEFER 0 — Madde 17.2 R1):**
 - ATOM 1 pre-flight grep + ATOM 2/3 disiplinli SKIP (Madde 30.31 R1)

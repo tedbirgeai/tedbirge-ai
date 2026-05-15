@@ -18,6 +18,7 @@
 
 const Anthropic = require("@anthropic-ai/sdk");
 const crypto = require("crypto");
+const prisma = require("../config/db");
 
 // Madde 30.78 Framework Major Version Disiplini — guncel model constant.
 // Yeni model cikinca burayi guncelle, otomatik prod'a yansir.
@@ -147,7 +148,175 @@ async function analyzeDocument(extractedText, ctx = {}) {
   };
 }
 
+/**
+ * TUR #132.1 — AI cikti Lead'e merge (M2 erken cikis, Madde 30.90 saha vaadi).
+ *
+ * Madde 4.6 HIBRIT KORUMA:
+ * - Mevcut Lead alanlari avukat tarafindan elle duzenlenmisse DOKUNULMAZ.
+ * - Sadece null/bos alanlar AI'dan doldurulur.
+ * - Idempotent: ayni belge tekrar tetiklenirse double-update yapmaz (aiMergedAt guard).
+ * - leadId olmayan Document'lar (vekaletname admin upload vb.) etkilenmez.
+ *
+ * @param {string} documentId
+ * @param {object} aiResult — analyzeDocument.raw (documentType + extractedData + overallConfidence)
+ * @returns {Promise<{merged: boolean, reason?: string, fields?: string[], confidence?: number}>}
+ */
+async function mergeAiResultToLead(documentId, aiResult) {
+  const doc = await prisma.document.findUnique({
+    where: { id: documentId },
+    select: { id: true, leadId: true },
+  });
+
+  if (!doc?.leadId) {
+    return { merged: false, reason: "no_lead" };
+  }
+
+  // IDEMPOTENT GUARD — Lead zaten merge edilmisse atla
+  const existing = await prisma.lead.findUnique({
+    where: { id: doc.leadId },
+    select: {
+      aiMergedAt: true, aiMergeConfidence: true,
+      accidentDate: true, accidentType: true,
+      kazaTuru: true, kazaYeri: true,
+      insuranceCompanyId: true, policeNo: true,
+      maluliyetOrani: true, hasInjury: true, icdCode: true,
+      vefatVar: true, aracDegerKaybi: true,
+      faultRate: true, kusurOrani: true,
+      injurySeverity: true,
+    },
+  });
+
+  if (!existing) return { merged: false, reason: "lead_not_found" };
+  if (existing.aiMergedAt) {
+    return { merged: false, reason: "already_merged", at: existing.aiMergedAt };
+  }
+
+  const extracted = aiResult?.extractedData || {};
+  const overallConfidence = Number(aiResult?.overallConfidence) || 0;
+
+  // Madde 30.91 — dusuk confidence Lead'e yazma (sadece Document'ta sakla)
+  if (overallConfidence < 0.85) {
+    return { merged: false, reason: "low_confidence", confidence: overallConfidence };
+  }
+
+  // Sigorta sirketi adi → InsuranceCompany.id resolve (Madde 30.92)
+  let insuranceCompanyId = null;
+  if (extracted.sigortaSirketi && Number(extracted.sigortaSirketiConfidence) >= 0.7) {
+    try {
+      const matched = await prisma.insuranceCompany.findFirst({
+        where: {
+          OR: [
+            { name: { equals: extracted.sigortaSirketi, mode: "insensitive" } },
+            { shortName: { equals: extracted.sigortaSirketi, mode: "insensitive" } },
+            { name: { contains: extracted.sigortaSirketi, mode: "insensitive" } },
+          ],
+        },
+        select: { id: true },
+      });
+      if (matched) insuranceCompanyId = matched.id;
+    } catch (err) {
+      console.warn(`[ai-merge] InsuranceCompany resolve fail: ${err.message}`);
+    }
+  }
+
+  const updateData = {};
+
+  // Mevcut accidentDate null + AI guven yeterli → doldur (Madde 4.6, kazaTarihi duplicate ekleme)
+  if (!existing.accidentDate && extracted.kazaTarihi && Number(extracted.kazaTarihiConfidence) >= 0.7) {
+    const d = new Date(extracted.kazaTarihi);
+    if (!isNaN(d.getTime())) updateData.accidentDate = d;
+  }
+
+  // Mevcut accidentType (String) korunur — yeni kazaTuru (enum) ek typed alan
+  if (!existing.kazaTuru && extracted.kazaTuru && ["TRAFFIC", "WORK", "OTHER"].includes(extracted.kazaTuru) && Number(extracted.kazaTuruConfidence) >= 0.7) {
+    updateData.kazaTuru = extracted.kazaTuru;
+  }
+
+  if (!existing.kazaYeri && extracted.kazaYeri) {
+    updateData.kazaYeri = String(extracted.kazaYeri).slice(0, 200);
+  }
+
+  if (!existing.insuranceCompanyId && insuranceCompanyId) {
+    updateData.insuranceCompanyId = insuranceCompanyId;
+  }
+
+  if (!existing.policeNo && extracted.policeNo && Number(extracted.policeNoConfidence) >= 0.7) {
+    updateData.policeNo = String(extracted.policeNo).slice(0, 80);
+  }
+
+  // maluliyetOrani mevcut alan (Madde 4.6) — null ise doldur
+  if (existing.maluliyetOrani == null && extracted.maluliyetOrani != null && Number(extracted.maluliyetOraniConfidence) >= 0.7) {
+    const v = Number(extracted.maluliyetOrani);
+    if (Number.isFinite(v) && v >= 0 && v <= 100) updateData.maluliyetOrani = v;
+  }
+
+  if (extracted.yaralanmaVar === true || extracted.yaralanmaVar === false) {
+    updateData.hasInjury = extracted.yaralanmaVar;
+  }
+
+  if (!existing.icdCode && extracted.icdCode && Number(extracted.icdCodeConfidence) >= 0.7) {
+    updateData.icdCode = String(extracted.icdCode).slice(0, 20);
+  }
+
+  if (extracted.vefatVar === true || extracted.vefatVar === false) {
+    updateData.vefatVar = extracted.vefatVar;
+  }
+
+  if (existing.aracDegerKaybi == null && extracted.aracDegerKaybi != null) {
+    const v = Number(extracted.aracDegerKaybi);
+    if (Number.isFinite(v) && v >= 0) updateData.aracDegerKaybi = v;
+  }
+
+  // Kusur orani — mevcut faultRate ve kusurOrani (Madde 4.6 duplicate korundu, TUR #133 DEFER)
+  // Her ikisi de null ise kanonik kusurOrani (Turkce — TUR #115 emsali) doldur
+  if (existing.kusurOrani == null && existing.faultRate == null
+      && extracted.kusurOrani != null && Number(extracted.kusurOraniConfidence) >= 0.7) {
+    const v = Number(extracted.kusurOrani);
+    if (Number.isFinite(v) && v >= 0 && v <= 100) updateData.kusurOrani = v;
+  }
+
+  // AI merge metadata her zaman set edilir (idempotent guard icin)
+  updateData.aiMergedAt = new Date();
+  updateData.aiMergeConfidence = overallConfidence;
+
+  const dataFields = Object.keys(updateData).filter(k => !k.startsWith("aiMerge"));
+
+  if (dataFields.length === 0) {
+    // Sadece metadata yaz — guard tekrar tetiklemeyi durdurur
+    await prisma.lead.update({
+      where: { id: doc.leadId },
+      data: { aiMergedAt: updateData.aiMergedAt, aiMergeConfidence: updateData.aiMergeConfidence },
+    });
+    return { merged: false, reason: "no_new_data", confidence: overallConfidence };
+  }
+
+  await prisma.lead.update({
+    where: { id: doc.leadId },
+    data: updateData,
+  });
+
+  // KVKK m.10 audit (Madde 30.75)
+  await prisma.activityLog.create({
+    data: {
+      leadId: doc.leadId,
+      action: "LEAD_AI_MERGE",
+      detail: `documentId:${documentId} fields:${dataFields.join(",")} confidence:${overallConfidence.toFixed(2)}`,
+    },
+  }).catch(() => {});
+
+  // Tahmin yeniden hesapla (Madde 30.90 saha vaadi)
+  try {
+    const { recalculateEstimation } = require("./lead-estimation.service");
+    await recalculateEstimation(doc.leadId);
+  } catch (err) {
+    console.warn(`[ai-merge] recalculateEstimation fail: ${err.message}`);
+  }
+
+  return { merged: true, fields: dataFields, confidence: overallConfidence };
+}
+
 module.exports = {
   analyzeDocument,
+  mergeAiResultToLead,
   CURRENT_MODEL,
 };

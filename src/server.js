@@ -81,6 +81,16 @@ selfHealDatabase()
         else     logger.warn("[SMTP] Mock mod aktif (SMTP_PASS eksik veya bağlantı başarısız)");
       });
 
+      // TUR #132.1 — InsuranceCompany master data boot seed (Madde 30.92)
+      try {
+        const { seedInsuranceCompanies } = require("./services/master-data.service");
+        seedInsuranceCompanies()
+          .then(r => logger.info(`[master-data] InsuranceCompany seed: +${r.seeded||0} yeni / ~${r.updated||0} guncel`))
+          .catch(err => logger.error(`[master-data] seed fail: ${err.message}`));
+      } catch (e) {
+        logger.error(`[master-data] init fail: ${e.message}`);
+      }
+
       // TUR #55 A24 — Otonom katman (Auditor + Healer + Reporter)
       try { tur55Agents.startAgents(); }
       catch (e) { logger.error(`[AGENTS] start fail: ${e.message}`); }

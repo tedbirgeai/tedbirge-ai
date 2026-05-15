@@ -4,6 +4,7 @@ const { publicQueryLimiter } = require("../middlewares/rateLimiters");
 const env = require("../config/env");
 const prisma = require("../config/db");
 const leadService = require("../services/lead.service");
+const { canonicalPhone } = require("../utils/phoneNormalize");
 
 // TUR #64 — Madde 32.3: file upload artık /api/documents/init-upload (hibrit)
 // Bu endpoint sadece Lead create yapar, dosya beklemez (panel ayrı POST gönderir)
@@ -18,10 +19,23 @@ router.post("/public-lead", async (req, res) => {
       });
     }
 
-    const existingLead = await prisma.lead.findFirst({
-      where: { customerPhone: String(phone).trim() },
-      select: { leadCode: true },
+    // TUR #132.1 — Madde 30.61 + MH61: phone normalize ile duplicate check.
+    // 0212 333 4455 vs 02123334455 vs +90 212 333 44 55 hepsi ayni kanonik 10 hane.
+    const phoneCanon = canonicalPhone(phone);
+    if (!phoneCanon || phoneCanon.length < 10) {
+      return res.status(400).json({
+        success: false,
+        message: "Telefon numarasi formati gecersiz."
+      });
+    }
+
+    // Mevcut DB'deki tum lead'leri kontrol et — phone normalize'siz kayitli olabilir
+    // Madde 4.6 geriye uyumluluk: DB'deki ham phone alip canonical ile karsilastir.
+    const candidates = await prisma.lead.findMany({
+      where: { customerPhone: { not: null } },
+      select: { leadCode: true, customerPhone: true },
     });
+    const existingLead = candidates.find(l => canonicalPhone(l.customerPhone) === phoneCanon);
     if (existingLead) {
       return res.status(409).json({
         success: false,

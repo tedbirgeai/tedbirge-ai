@@ -16,7 +16,15 @@ async function createLead(data, ownerId = null, createdById = null) {
     throw new ApiError(400, "customerName ve customerPhone zorunludur");
   }
 
-  const compensation = calculateCompensation(data.compensationInput || {});
+  // TUR #132.1 — Madde 30.90 Saha Vaadi: gercek veri yoksa estimatedCompensation null.
+  // Public basvuru akisinda compensationInput gonderilmez → engine default ~221K uretir (yanlis sinyal).
+  // Sadece anlamli veri varsa hesap yap.
+  const ci = data.compensationInput || {};
+  const yeterliVeri = ci && (ci.age || ci.monthlyIncome || ci.maluliyetRate || ci.faultRate);
+  const compensation = yeterliVeri ? calculateCompensation(ci) : null;
+  const estimatedCompensation = compensation && compensation.netEstimate > 0
+    ? compensation.netEstimate
+    : null;
 
   const lead = await prisma.lead.create({
     data: {
@@ -29,7 +37,7 @@ async function createLead(data, ownerId = null, createdById = null) {
       injurySeverity: data.injurySeverity || null,
       accidentDate: data.accidentDate ? new Date(data.accidentDate) : null,
       accidentType: data.accidentType || null,
-      estimatedCompensation: compensation.netEstimate,
+      estimatedCompensation,
       kvkkConsentAt: data.kvkkConsentAt || null,
       healthDataConsentAt: data.healthDataConsentAt || null,
       qualificationScore: data.qualificationScore ?? 0,
@@ -52,7 +60,7 @@ async function createLead(data, ownerId = null, createdById = null) {
     data: {
       leadId: lead.id,
       action: "LEAD_CREATED",
-      detail: `Lead olusturuldu. Tahmini tazminat: ${compensation.netEstimate}`
+      detail: `Lead olusturuldu. Tahmini tazminat: ${estimatedCompensation != null ? estimatedCompensation : "n/a (veri eksik)"}`
     }
   });
 

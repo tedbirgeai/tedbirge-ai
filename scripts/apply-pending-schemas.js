@@ -207,6 +207,59 @@ const STATEMENTS = [
   `ALTER TABLE "User" ADD COLUMN IF NOT EXISTS "kvkkM6ConsentAt" TIMESTAMP(3)`,
   `ALTER TABLE "User" ADD COLUMN IF NOT EXISTS "kvkkM6ConsentIp" TEXT`,
   `ALTER TABLE "User" ADD COLUMN IF NOT EXISTS "kvkkM6ConsentUA" TEXT`,
+
+  // ─── TUR #132.1 — M2 erken cikis (KIRMIZI 2 + KIRMIZI 3, CEO yazili onay Madde 18.3 + 30.71) ──
+  // AccidentType enum (idempotent — pg_type kontrol)
+  `DO $$ BEGIN
+     CREATE TYPE "AccidentType" AS ENUM ('TRAFFIC', 'WORK', 'OTHER');
+   EXCEPTION WHEN duplicate_object THEN null;
+   END $$`,
+
+  // InsuranceCompany tablosu (Madde 30.92 Master Data Disiplini yeni)
+  `CREATE TABLE IF NOT EXISTS "InsuranceCompany" (
+     "id" TEXT NOT NULL,
+     "name" TEXT NOT NULL,
+     "shortName" TEXT,
+     "kepAddress" TEXT,
+     "email" TEXT,
+     "phone" TEXT,
+     "address" TEXT,
+     "policyPrefix" TEXT[] DEFAULT '{}',
+     "active" BOOLEAN NOT NULL DEFAULT TRUE,
+     "dataVersion" TEXT NOT NULL DEFAULT 'v1-2026',
+     "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+     "updatedAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+     CONSTRAINT "InsuranceCompany_pkey" PRIMARY KEY ("id")
+   )`,
+  `CREATE UNIQUE INDEX IF NOT EXISTS "InsuranceCompany_name_key" ON "InsuranceCompany"("name")`,
+
+  // Lead yeni 11 alan (Madde 4.6: mevcut accidentDate/accidentType/maluliyetOrani/kusurOrani/faultRate korunur)
+  `ALTER TABLE "Lead" ADD COLUMN IF NOT EXISTS "kazaTuru" "AccidentType"`,
+  `ALTER TABLE "Lead" ADD COLUMN IF NOT EXISTS "kazaYeri" TEXT`,
+  `ALTER TABLE "Lead" ADD COLUMN IF NOT EXISTS "insuranceCompanyId" TEXT`,
+  `ALTER TABLE "Lead" ADD COLUMN IF NOT EXISTS "policeNo" TEXT`,
+  `ALTER TABLE "Lead" ADD COLUMN IF NOT EXISTS "hasInjury" BOOLEAN NOT NULL DEFAULT FALSE`,
+  `ALTER TABLE "Lead" ADD COLUMN IF NOT EXISTS "icdCode" TEXT`,
+  `ALTER TABLE "Lead" ADD COLUMN IF NOT EXISTS "vefatVar" BOOLEAN NOT NULL DEFAULT FALSE`,
+  `ALTER TABLE "Lead" ADD COLUMN IF NOT EXISTS "aracDegerKaybi" DECIMAL(12, 2)`,
+  `ALTER TABLE "Lead" ADD COLUMN IF NOT EXISTS "aiMergedAt" TIMESTAMP(3)`,
+  `ALTER TABLE "Lead" ADD COLUMN IF NOT EXISTS "aiMergeConfidence" DOUBLE PRECISION`,
+
+  // FK Lead.insuranceCompanyId → InsuranceCompany.id (idempotent)
+  `DO $$
+   BEGIN
+     IF NOT EXISTS (
+       SELECT 1 FROM information_schema.table_constraints
+       WHERE constraint_name = 'Lead_insuranceCompanyId_fkey'
+     ) THEN
+       ALTER TABLE "Lead"
+         ADD CONSTRAINT "Lead_insuranceCompanyId_fkey"
+         FOREIGN KEY ("insuranceCompanyId")
+         REFERENCES "InsuranceCompany"(id)
+         ON DELETE SET NULL ON UPDATE CASCADE;
+     END IF;
+   END $$`,
+  `CREATE INDEX IF NOT EXISTS "Lead_insuranceCompanyId_idx" ON "Lead"("insuranceCompanyId")`,
 ];
 
 (async () => {

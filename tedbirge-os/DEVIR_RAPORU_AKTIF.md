@@ -1,15 +1,62 @@
 # 🛡️ TEDBIRGE.AI — DEVİR RAPORU (AKTİF)
 
-📋 **ANAYASA:** v1.42.0 MINOR (Madde 30.90 + 30.91 yeni — Saha Vaadi + KVKK m.6 Ozel Nitelikli Veri)
-📂 **🚀 TUR #132 KAPALI: AI CEKIRDEK (TAC) M1 BELGE AYRISTIRICI — 16 ATOM + 1 KIRMIZI 1 (schema) 🚀**
-📅 **SON GÜNCELLEME:** 15 Mayıs 2026 Cuma gece (TUR #132 KAPALI)
-👤 **CEO Onay:** Mehmet DINÇ — "uctan uca kod tabanli otonom aksin gitsin 0 hata ile [...] bana hic bir sey sorma basla bitir" (15 May 2026 gece, Madde 18.3 yazili onay = KIRMIZI 1 + schema additive)
-🤖 **Mimar:** Claude Opus 4.7 (TUR #132 mektup, 18 atom + Madde 30.90 + 30.91 yeni) + Claude Code (pre-flight grep + 16 atom uygulama, ATOM 2+3 disiplinli SKIP)
-🌟 **Tarih:** 15 Mayıs 2026 gece — 43 ARDISIK TEMIZ TUR REKOR (#90 → #132)
+📋 **ANAYASA:** v1.43.0 MINOR (Madde 30.92 yeni — Master Data Disiplini)
+📂 **🚀 TUR #132.1 KAPALI: AI CEKIRDEK SAHA DOGRULAMA HOTFIX + HIBRIT KORUMA — 14 ATOM 🚀**
+📅 **SON GÜNCELLEME:** 15 Mayıs 2026 Cuma gece (TUR #132.1 KAPALI — hotfix)
+👤 **CEO Onay:** Mehmet DINÇ — "belge yukleme hibrit sistemdir hic bir seyi bozmadan uctan uca kod tabanli otonom aksin gitsin 0 hata ile duzelt bana hic bir sey sorma basla bitir." (15 May 2026 gece, Madde 18.3 yazili onay = KIRMIZI 2 + KIRMIZI 3)
+🤖 **Mimar:** Claude Opus 4.7 (TUR #132.1 mektup, 14 atom + Madde 30.92 yeni + MH61 + MH62 tescil) + Claude Code (pre-flight grep hibrit harita + 14 atom uygulama)
+🌟 **Tarih:** 15 Mayıs 2026 gece — 44 ARDISIK TEMIZ TUR REKOR (#90 → #132.1)
 
 ---
 
-## 🎯 BUGÜN — TUR #132 KAPALI (AI Cekirdek TAC M1 Belge Ayristirici)
+## 🎯 BUGÜN — TUR #132.1 KAPALI (AI Cekirdek Saha Dogrulama Hotfix)
+
+**CEO 14 May 2026 saha kanit (6 ekran):** 3 KIRMIZI bug + 2 SARI tutarsizlik.
+
+### Bulgular ve Cozumler
+- **Bug 1 (MH61):** Duplicate phone false positive — `public.route.js` `findFirst({customerPhone: String(phone).trim()})` normalize'siz. ATOM 9: `canonicalPhone` helper tek kaynak (Madde 30.61) + DB'deki tum lead'leri kanonik karsilastir.
+- **Bug 2:** Lead detay "Failed to fetch" mavi banner — generic transient hata. ATOM 8: 2s sonra tek seferlik retry + banner suppress (Senaryo E).
+- **Bug 3:** AI ciktisi Lead'e yazilmiyor. ATOM 6: `mergeAiResultToLead` (idempotent aiMergedAt guard) + finalize-upload setImmediate entegrasyon.
+- **Bug 4:** Tahmini tazminat 221.240 sabit — `calculateCompensation({})` engine default ~221K uretiyor (Madde 30.90 ihlali). ATOM 7: `lead.service.js` createLead'de `compensationInput` yetersiz veri ise `estimatedCompensation: null` + `lead-estimation.service.js` AI merge sonrasi yeniden hesap.
+- **Sari:** Avukat Is Yuku %NaN. ATOM 11-12: `Number.isFinite` guard + 0 dava ise em-dash (Madde 31.11).
+
+### Uygulanan 14 atom (DEFER 0 — HIBRIT KORUMA Madde 4.6 maksimum)
+- ATOM 1: Pre-flight grep + hibrit harita (Madde 30.83.1)
+- ATOM 2: InsuranceCompany master data JSON (30 firma v1-2026)
+- ATOM 3: Schema additive — Lead +11 alan + InsuranceCompany model + AccidentType enum. **kazaTarihi + maluliyetOrani SKIP** (mevcut `accidentDate` + `maluliyetOrani` korundu, Madde 4.6 + 30.31 R1 dürüst SKIP)
+- ATOM 4: apply-pending-schemas.js 13 yeni idempotent değişiklik
+- ATOM 5: master-data.service.js YENI + server.js boot seed entegrasyon
+- ATOM 6: ai-analyzer.service.js `mergeAiResultToLead` + documents.upload.routes.js MERGE
+- ATOM 7: lead-estimation.service.js YENI + lead.service.js null sentry
+- ATOM 8: Lead detay loadLead transient retry pattern
+- ATOM 9: phoneNormalize.js + public.route.js findFirst kanonik karsilastirma
+- ATOM 10: Lead detay UI estimatedCompensation null gösterim (amber "veri eksik" card)
+- ATOM 11-12: Dashboard NaN guard (Avukat İş Yükü winPct + avgCompensation)
+- ATOM 13: Healer yeni retry case `stuck_ai_merge`
+- ATOM 14: 5 belge OS senkron + version + commit + push
+
+### Madde 30.92 yeni
+Master Data Disiplini — sabit referans veri JSON dosyalari versioning'li, boot seed idempotent upsert (Madde 30.61 sentezi).
+
+### Mimar Hatalari tescil
+- **MH61:** Frontend-Backend Tutarsizlik (Duplicate Check) — phone normalize'siz iki tarafta da
+- **MH62:** Saha Dogrulamasiz "TUR KAPALI" Ilani — Madde 28 saha kanit esigi atlandi
+
+### Sürüm
+Backend `1.16.0 → 1.17.0` MINOR · Panel `1.26.0 → 1.27.0` MINOR · Schema `1.8.0 → 1.9.0` · Anayasa `v1.42.0 → v1.43.0` MINOR.
+
+### NEXT TUR #133 — M3 Master Data + M5 Hak Analizim
+CEO yeni direktif bekler (Madde 30.25 R1). Hedef:
+- M3 ICD-10 master data (en sik 200 kod)
+- M3 Maluliyet TRH-2010 detay tablosu
+- M3 ZMSS limit yillik (2026 v1)
+- M5 CUSTOMER "Hak Analizim" tab (Lead AI verisi gorunur)
+- faultRate vs kusurOrani DEPRECATED isaretleme (Madde 30.61)
+- Eski test data soft-delete
+
+---
+
+## 🗄️ ARSIV — TUR #132 KAPALI (AI Cekirdek TAC M1 Belge Ayristirici)
 
 **Saha Vaadi (Madde 30.90):** "Musvekkil belge yukleyince dakikalar icinde kaza turu / sigorta sirketi / police no / maluliyet orani / kusur orani / ICD-10 / vefat var mi / arac deger kaybi otomatik cikmali." — Mehmet DINÇ 15 May 2026.
 
