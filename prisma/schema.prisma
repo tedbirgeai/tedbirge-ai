@@ -169,7 +169,10 @@ model Document {
   createdAt          DateTime       @default(now())
   updatedAt          DateTime       @updatedAt
   deletedAt          DateTime?
-  Lead               Lead?          @relation(fields: [leadId], references: [id])
+  // TUR #132.2 HOTFIX — relation field rename Lead -> lead (MH62 emsali)
+  // Mevcut leadId FK aynen korunur (Madde 4.6) — sadece Prisma Client API rename
+  // Document.lead.* erisimi documentAnalysis.job.js + ai-analyzer.service.js icin uyumlu
+  lead               Lead?          @relation(fields: [leadId], references: [id])
 }
 
 model Durusma {
