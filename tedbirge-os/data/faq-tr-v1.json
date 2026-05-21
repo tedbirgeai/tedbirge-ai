@@ -1,84 +1,630 @@
 {
-  "version": "v1-2026",
+  "version": "v2-2026",
   "lastUpdated": "2026-05-21",
+  "source": "Mehmet DINC 23 yillik Mesleki tecrubesi + Turk Hukuk pratigi",
+  "intentCount": 30,
+  "faqCount": 60,
+  "tbbCompliance": "Madde 25.3 R1 - Reklam yasagi: bilgilendirme tonu, vaad yok, avukat ovgusu yok",
+  "kvkkCompliance": "Madde 30.91 - Hassas saglik verisi UI'da rica esasli, lokal islem",
   "faqs": [
     {
       "id": "greeting-01",
       "intent": "GREETING",
-      "patterns": ["merhaba", "selam"],
-      "response": "Merhaba! Tedbirge AI Asistanina hos geldiniz. Trafik veya is kazasi hakkinda size nasil yardimci olabilirim?"
+      "patterns": [
+        "merhaba",
+        "selam",
+        "iyi günler",
+        "günaydın",
+        "iyi akşamlar",
+        "hello",
+        "hi"
+      ],
+      "response": "Merhaba! Tedbirge AI Asistanı'na hoş geldiniz. Trafik veya iş kazası hakkında size nasıl yardımcı olabilirim?\n\nSıkça sorulan konular:\n• Tazminat süresi (zamanaşımı)\n• Belge ne yüklemeliyim\n• Sigorta itirazı\n• Avukat seçimi\n\nDoğrudan başvuru için: https://tedbirge.ai/basvuru"
+    },
+    {
+      "id": "thanks-01",
+      "intent": "THANKS",
+      "patterns": [
+        "teşekkür",
+        "teşekkürler",
+        "sağolun",
+        "thank you"
+      ],
+      "response": "Rica ederim. Başka bir sorunuz varsa yardımcı olmaktan memnuniyet duyarım. İyi günler."
     },
     {
       "id": "traffic-01",
       "intent": "TRAFFIC_ACCIDENT",
-      "patterns": ["trafik kazasi gecirdim", "trafik kaza"],
-      "response": "Trafik kazasi gecirdiginizi ogrendim, gecmis olsun. Hukuki sureciniz hakkinda bilgi almak icin asagidaki sorulara cevap vermeniz yeterli:\n\n1. Kaza ne zaman oldu?\n2. Yaralanma yasandi mi?\n3. Karsi taraf var mi?\n\nVeya dogrudan ucretsiz basvuru yapabilirsiniz: https://tedbirge.ai/basvuru\n\nNot: Trafik kazalarinda zamanasimi 2 yildir (KTK m.109)."
+      "patterns": [
+        "trafik kazası geçirdim",
+        "trafik kaza",
+        "araç çarptı",
+        "araçla kaza",
+        "yolda kaza"
+      ],
+      "response": "Trafik kazası geçirdiğinizi öğrendim, geçmiş olsun. Hukuki süreciniz için 3 temel soru:\n\n1. Kaza ne zaman oldu? (Zamanaşımı 2 yıl - KTK m.109)\n2. Yaralanma yaşandı mı?\n3. Sigorta şirketi ile temas kuruldu mu?\n\nÜcretsiz ön inceleme: https://tedbirge.ai/basvuru\n\nNot: Trafik kazalarında zamanaşımı 2 yıldır (KTK m.109)."
     },
     {
       "id": "work-01",
       "intent": "WORK_ACCIDENT",
-      "patterns": ["is kazasi gecirdim", "is kaza"],
-      "response": "Is kazasi gecirdiginizi ogrendim, gecmis olsun. SGK'ya bildirildi mi? Hastane raporlariniz mevcut mu? Tedbirge.ai uzerinden ucretsiz on inceleme talep edebilirsiniz: https://tedbirge.ai/basvuru\n\nNot: Is kazalarinda zamanasimi 10 yildir (BK m.146)."
+      "patterns": [
+        "iş kazası geçirdim",
+        "iş kaza",
+        "işyerinde",
+        "mesai kazası",
+        "iş yerinde"
+      ],
+      "response": "İş kazası geçirdiğinizi öğrendim, geçmiş olsun.\n\nGerekli adımlar:\n1. SGK'ya bildirildi mi? (İşveren 3 iş günü içinde bildirim zorunlu)\n2. Hastane raporlarınız mevcut mu?\n3. Tanık var mı?\n\nİş kazalarında zamanaşımı 10 yıldır (TBK m.146).\n\nÜcretsiz ön inceleme: https://tedbirge.ai/basvuru"
     },
     {
-      "id": "compensation-01",
-      "intent": "COMPENSATION_ESTIMATE",
-      "patterns": ["tazminat ne kadar", "ne kadar alabilirim"],
-      "response": "Tazminat tutari; kaza turu, kusur orani, maluliyet derecesi, yas, gelir gibi faktorlere baglidir. Belgelerinizi yukledikten sonra Tedbirge AI Analyzer hak ettiginiz araligi tahmin eder.\n\nUcretsiz basvuru icin: https://tedbirge.ai/basvuru\n\nNot: Bu tahmindir, kesin sonuc mahkeme/uzlasma sonucunda belirlenir."
+      "id": "motorcycle-01",
+      "intent": "MOTORCYCLE_ACCIDENT",
+      "patterns": [
+        "motor kaza",
+        "motosiklet kaza",
+        "motorum",
+        "motorla kaza"
+      ],
+      "response": "Motosiklet kazası geçirdiğinizi öğrendim, geçmiş olsun.\n\nMotosiklet kazaları özellikle yaralanma ağır olabilir. Önemli noktalar:\n• Trafik tutanağı şart\n• Hastane epikrizi\n• Kask kullanım durumu (kusur değerlendirmesinde önemli)\n• Karşı tarafın sigortası\n\nZamanaşımı 2 yıl (KTK m.109).\n\nBaşvuru: https://tedbirge.ai/basvuru"
     },
     {
-      "id": "lawyer-01",
+      "id": "pedestrian-01",
+      "intent": "PEDESTRIAN_ACCIDENT",
+      "patterns": [
+        "yaya kaza",
+        "yaya çarp",
+        "yürürken çarp"
+      ],
+      "response": "Yaya olarak kazaya karıştıysanız:\n\n• Yaya geçidinde ise karşı taraf %100 kusurlu olabilir\n• Yaya geçidi dışında orantılı kusur dağılımı uygulanır\n• Hastane epikrizi + trafik tutanağı şart\n• ZMSS (zorunlu sigorta) kapsamında tazminat alabilirsiniz\n\nZamanaşımı 2 yıl.\n\nÜcretsiz başvuru: https://tedbirge.ai/basvuru"
+    },
+    {
+      "id": "timeline-traffic-01",
+      "intent": "ZAMANASIMI",
+      "patterns": [
+        "tazminat süresi",
+        "ne kadar süre",
+        "zamanaşımı",
+        "süre var mı",
+        "süre dolar mı",
+        "kaç yıl içinde",
+        "ne zamana kadar"
+      ],
+      "response": "Tazminat zamanaşımı süreleri:\n\n• Trafik kazası: 2 yıl (KTK m.109)\n• İş kazası: 10 yıl (TBK m.146)\n• Ceza davası açılmışsa: ceza zamanaşımı uygulanır (daha uzun)\n• Vefat halinde: 2 yıl (trafik) veya 10 yıl (iş)\n• Manevi tazminat: 2 yıl\n\nSüreler kaza tarihinden veya zararın öğrenildiği tarihten başlar.\n\nSüre dolmadan başvuru kritiktir: https://tedbirge.ai/basvuru"
+    },
+    {
+      "id": "timeline-process-01",
+      "intent": "DAVA_SURESI",
+      "patterns": [
+        "dava ne kadar sürer",
+        "ne kadar sürede sonuçlanır",
+        "kaç ay sürer",
+        "süreç ne kadar"
+      ],
+      "response": "Tazminat dava süreçleri (yaklaşık):\n\n• Sigorta ile sulh: 1-3 ay\n• Sigorta Tahkim Komisyonu: 4-8 ay\n• Asliye Ticaret Mahkemesi: 12-24 ay\n• Yargıtay temyiz: 6-18 ay ek süre\n\nSüreler dosya yoğunluğuna ve şehre göre değişir. Bilirkişi raporu süreyi etkiler.\n\nÜcretsiz değerlendirme: https://tedbirge.ai/basvuru"
+    },
+    {
+      "id": "compensation-amount-01",
+      "intent": "TAZMINAT_TUTARI",
+      "patterns": [
+        "tazminat ne kadar",
+        "ne kadar alabilirim",
+        "tutar",
+        "miktar",
+        "hesap"
+      ],
+      "response": "Tazminat tutarı şu faktörlere bağlıdır:\n\n• Kaza türü (trafik/iş/diğer)\n• Kusur oranı (sizin ve karşı tarafın)\n• Maluliyet derecesi (yüzde olarak)\n• Yaş (geriye kalan yaşam süresi)\n• Gelir (aylık net kazanç)\n• Vefat halinde destekten yoksun kalanlar\n\nBelgelerinizi yükledikten sonra Tedbirge AI Analyzer Aktüer hesap yapar.\n\nÜcretsiz tahmin: https://tedbirge.ai/basvuru\n\nNot: Bu tahmindir, kesin sonuç mahkeme/uzlaşma ile belirlenir."
+    },
+    {
+      "id": "lawyer-referral-01",
       "intent": "LAWYER_REFERRAL",
-      "patterns": ["avukat", "temsil"],
-      "response": "Tedbirge.ai, sisteme kayitli avukatlardan tercih yapabileceginiz dijital bir platformdur. Basvurunuz uygun avukatlara iletilir, siz secim yaparsiniz. Dogrudan avukat tutmak isterseniz: https://tedbirge.ai/avukatlar"
+      "patterns": [
+        "avukat",
+        "temsil",
+        "hukukçu",
+        "yasal temsil"
+      ],
+      "response": "Tedbirge.ai sisteminde kayıtlı avukatlardan tercih yapabileceğiniz dijital bir platformdur. Başvurunuz uygun avukatlara iletilir, siz seçim yaparsınız.\n\n• Avukat seçimi tamamen size aittir\n• Doğrudan iletişim mümkün\n• Vekalet süreci avukatınızla\n\nDoğrudan başvuru: https://tedbirge.ai/basvuru"
+    },
+    {
+      "id": "lawyer-fee-01",
+      "intent": "AVUKAT_UCRETI",
+      "patterns": [
+        "vekalet ücreti",
+        "avukat parası",
+        "avukat ödemesi",
+        "ne kadar ödeyeceğim",
+        "avukat ücreti"
+      ],
+      "response": "Avukat ücretleri:\n\n• Tedbirge platformu tamamen ÜCRETSİZDİR\n• Avukatlık ücreti avukatınızla anlaşacaksınız\n• Genellikle 'dava sonucu kazanılan tazminatın yüzdesi' olarak belirlenir\n• Avukatlık Asgari Ücret Tarifesi alt sınırdır\n• Ön görüşme ücretsiz olabilir\n\nDetay: https://tedbirge.ai/basvuru"
+    },
+    {
+      "id": "tedbirge-fee-01",
+      "intent": "TEDBIRGE_UCRET",
+      "patterns": [
+        "tedbirge ücret",
+        "tedbirge para",
+        "platform ücret",
+        "size ne ödeyeceğim"
+      ],
+      "response": "Tedbirge.ai platformu tamamen ÜCRETSİZDİR:\n\n• Başvuru ücretsiz\n• Belge analizi ücretsiz\n• Avukat seçimi ücretsiz\n• Süreç takibi ücretsiz\n\nSadece avukatınızla anlaşacağınız vekalet ücreti vardır (genelde dava sonucu kazanılan tazminattan yüzde olarak).\n\nBaşvuru: https://tedbirge.ai/basvuru"
     },
     {
       "id": "application-01",
       "intent": "APPLICATION_HOW",
-      "patterns": ["nasil basvururum", "basvuru nasil yapilir"],
-      "response": "Basvuru 3 dakika surer:\n\n1. https://tedbirge.ai/basvuru\n2. Ad, telefon, kaza ozeti\n3. Belge yukle (varsa)\n4. Onayli avukat secimi\n\nTamamen ucretsizdir, KVKK guvenlidir."
+      "patterns": [
+        "nasıl başvururum",
+        "başvuru nasıl",
+        "kayıt",
+        "form",
+        "üye olmak",
+        "nereden başlarım"
+      ],
+      "response": "Başvuru 3 dakika sürer:\n\n1. https://tedbirge.ai/basvuru sayfasına gidin\n2. Ad, telefon, kaza özeti yazın\n3. Belgeleriniz varsa yükleyin (PDF, fotoğraf)\n4. Açık rıza onayı verin (KVKK)\n5. Avukat seçimi için bekleyin\n\nTüm süreç ücretsizdir.\n\nDoğrudan başvuru: https://tedbirge.ai/basvuru"
     },
     {
       "id": "documents-01",
       "intent": "DOCUMENTS",
-      "patterns": ["hangi belgeler", "gerekli evrak"],
-      "response": "Onerilen belgeler:\n\n- Kaza tespit tutanagi\n- Hastane raporu / epikriz\n- Maluliyet raporu (varsa)\n- Sigorta policesi\n- Banka hesap bilgisi (tazminat odemesi icin)\n\nBelgeyi yukleyince Tedbirge AI Analyzer otomatik okur. Eksik belge varsa avukatinizla tamamlayabilirsiniz."
+      "patterns": [
+        "hangi belgeler",
+        "gerekli evrak",
+        "ne yüklemeliyim",
+        "döküman",
+        "belge listesi"
+      ],
+      "response": "Önerilen belgeler:\n\n📋 Temel:\n• Kaza tespit tutanağı\n• Kimlik fotokopisi\n• Sigorta poliçesi (varsa)\n\n🏥 Yaralanma varsa:\n• Hastane raporu / epikriz\n• Maluliyet raporu (varsa)\n• Reçeteler ve fatura\n\n💼 İş kazası ise:\n• SGK bildirimi\n• İş güvenliği raporu\n• Maaş bordrosu\n\n⚰️ Vefat halinde:\n• Ölüm belgesi\n• Veraset ilamı\n\nTedbirge AI Analyzer belgeleri otomatik okur. Eksik belge varsa avukatınız yönlendirir.\n\nBaşvuru: https://tedbirge.ai/basvuru"
     },
     {
-      "id": "insurance-01",
-      "intent": "INSURANCE",
-      "patterns": ["sigorta reddetti", "police"],
-      "response": "Sigorta sirketi tazminat odemesini reddetmisse veya yetersiz goruyorsaniz, hukuki surec baslatilabilir. Policenizi ve red yazisini yuklerseniz Tedbirge AI Analyzer durumu inceler, avukatiniz size yol gosterir."
+      "id": "insurance-dispute-01",
+      "intent": "SIGORTA_ITIRAZ",
+      "patterns": [
+        "sigorta itiraz",
+        "itiraz hakk",
+        "tahkim",
+        "sigorta reddetti",
+        "yetersiz tazminat",
+        "sigorta az ödedi"
+      ],
+      "response": "Sigorta tazminatı reddedildi veya yetersiz görüyorsanız:\n\n📋 Süreç adımları:\n1. Sigortaya yazılı başvuru (8 gün)\n2. Sigorta cevabı bekleme (15 gün)\n3. Sigorta Tahkim Komisyonu (4 ay süreç)\n4. Sulh Hukuk veya Asliye Ticaret Mahkemesi\n5. Yargıtay temyiz hakkı\n\nBelgeleri yüklediğinizde Tedbirge AI Analyzer durumu inceler.\n\nÜcretsiz değerlendirme: https://tedbirge.ai/basvuru"
     },
     {
-      "id": "price-01",
-      "intent": "PRICE_FEE",
-      "patterns": ["ucret", "kac para"],
-      "response": "Tedbirge.ai platform kullanimi tamamen UCRETSIZDIR.\n\nBasvuru -> Belge Analizi -> Avukat Tercih: tamamen ucretsiz.\n\nAvukat ucretleri ayridir (avukatinizla anlasacaksiniz), genelde dava sonucu kazanilan tazminattan yuzde olarak odenir."
+      "id": "insurance-tahkim-01",
+      "intent": "SIGORTA_TAHKIM",
+      "patterns": [
+        "tahkim komisyonu",
+        "sigorta tahkim",
+        "tahkim nedir"
+      ],
+      "response": "Sigorta Tahkim Komisyonu (STK):\n\n• Sigorta uyuşmazlıklarını mahkemeye gitmeden çözen kurum\n• Süre: yaklaşık 4 ay\n• Düşük ücret (mahkeme harçlarına göre)\n• Karar bağlayıcı (üst limit 30.000 TL üzerinde itiraz hakkı)\n• Avukat zorunlu değil ama önerilir\n\nDetay bilgi: https://tedbirge.ai/basvuru"
+    },
+    {
+      "id": "uninsured-01",
+      "intent": "SIGORTASIZ_ARAÇ",
+      "patterns": [
+        "karşı taraf sigortasız",
+        "sigortasız araç",
+        "kaçan sürücü",
+        "güvence hesabı",
+        "sigortası yok"
+      ],
+      "response": "Karşı taraf sigortasız veya kaçtıysa:\n\n🛡️ Güvence Hesabı devreye girer:\n• Sigortasız/kaçan araç kazaları için kurulmuş fon\n• 2918 sayılı KTK kapsamı\n• Başvuru süresi: 2 yıl\n• Maddi ve manevi tazminat talep edilebilir\n\n📞 Güvence Hesabı: 0212 442 50 00\n📧 guvencehesabi@hs01.kep.tr\n\nTedbirge süreçte size rehberlik eder: https://tedbirge.ai/basvuru"
+    },
+    {
+      "id": "license-01",
+      "intent": "EHLIYET_DURUMU",
+      "patterns": [
+        "ehliyetim yok",
+        "ehliyetsiz",
+        "sürücü belgesi yok",
+        "ehliyetsiz araç"
+      ],
+      "response": "Ehliyetsiz sürücü kazaya karıştıysa:\n\n• Kusur oranınız yüksek olabilir\n• Sigorta kasko + ZMSS reddedebilir veya kısmen ödeyebilir\n• Karşı tarafın kusuru tam ise yine tazminat hakkı kalır\n• Cezai süreç ayrıdır (kusur değerlendirmesini etkiler)\n\nHukuki durumunuz mutlaka incelenmelidir. Tüm hak kayıplarına yol açmaz.\n\nÜcretsiz değerlendirme: https://tedbirge.ai/basvuru"
+    },
+    {
+      "id": "alcohol-01",
+      "intent": "ALKOLLU_SURUS",
+      "patterns": [
+        "alkollü",
+        "alkolü",
+        "promil",
+        "içkili",
+        "sarhoş kaza"
+      ],
+      "response": "Alkollü/uyuşturucu etkisi altında kaza:\n\n• ZMSS sigortası ödeme yapmayabilir veya rücu hakkı kullanabilir\n• Kusur oranı yüksek olur\n• Cezai süreç ağırlaşır\n• Karşı tarafın kusuru tam ise yine kısmi tazminat hakkı var\n• Tedavi giderleri sosyal güvenlik kapsamı dışına çıkabilir\n\nHer durum farklıdır, hukuki değerlendirme şart:\nhttps://tedbirge.ai/basvuru"
+    },
+    {
+      "id": "court-required-01",
+      "intent": "MAHKEME_ZORUNLU",
+      "patterns": [
+        "mahkemeye gitmek",
+        "mahkeme zorunlu",
+        "dava açmak",
+        "sulh",
+        "uzlaşma"
+      ],
+      "response": "Mahkeme her zaman zorunlu değildir:\n\n🤝 Sulh yolları:\n• Sigorta ile doğrudan uzlaşma (hızlı)\n• Arabuluculuk (zorunlu, ücretsiz, 4 hafta)\n• Sigorta Tahkim Komisyonu (4 ay)\n\n⚖️ Mahkeme yolu:\n• Sulh Hukuk Mahkemesi (küçük tutarlar)\n• Asliye Ticaret Mahkemesi (sigorta davaları)\n• Asliye Hukuk Mahkemesi (kişiye karşı dava)\n\nAvukatınız en uygun yolu önerir.\n\nÜcretsiz başvuru: https://tedbirge.ai/basvuru"
+    },
+    {
+      "id": "yargitay-01",
+      "intent": "YARGITAY",
+      "patterns": [
+        "yargıtay",
+        "temyiz",
+        "temiz",
+        "üst mahkeme"
+      ],
+      "response": "Yargıtay temyiz hakkı:\n\n• Asliye Mahkemesi kararına itiraz yolu\n• Süre: kararın tebliğinden itibaren 15 gün\n• Yargıtay 17. Hukuk Dairesi (sigorta davaları)\n• Yargıtay 21. Hukuk Dairesi (iş davaları)\n• Süre: yaklaşık 6-18 ay\n• Kararı bozarsa: mahkeme yeniden bakar\n• Onayl arsa: karar kesinleşir\n\nDetay: https://tedbirge.ai/basvuru"
+    },
+    {
+      "id": "arabuluculuk-01",
+      "intent": "ARABULUCULUK",
+      "patterns": [
+        "arabuluculuk",
+        "arabulucu",
+        "tahkim öncesi"
+      ],
+      "response": "Arabuluculuk:\n\n• Ticari davalarda ZORUNLU dava şartı (6325 sayılı kanun)\n• Sigorta tazminatı davalarında zorunlu\n• Süre: 1-3 hafta\n• Ücretsiz (devlet bütçesinden)\n• Anlaşma sağlanırsa: dava açılmaz\n• Anlaşma sağlanmazsa: dava şartı yerine gelir\n• Avukat eşliğinde katılım önerilir\n\nDetay: https://tedbirge.ai/basvuru"
+    },
+    {
+      "id": "ksusur-01",
+      "intent": "KUSUR_ORANI",
+      "patterns": [
+        "kusur",
+        "suçlu kim",
+        "kusur oranı",
+        "kim haklı",
+        "kim kusurlu"
+      ],
+      "response": "Kusur oranı tazminat tutarını doğrudan etkiler:\n\n📋 Belirleme süreci:\n• Trafik tutanağı (ilk değerlendirme)\n• Bilirkişi raporu (mahkeme delili)\n• Şahit ifadeleri\n• Kamera kayıtları\n• Otopark/kavşak şartları\n\n📊 Örnek:\n• %100 kusurlu: tazminat alamaz\n• %20 kusurlu: tazminatın %80'i\n• %50 kusurlu: tazminatın %50'si\n\nTedbirge belgelerinizi analiz eder, kusur durumunuzu inceler.\n\nBaşvuru: https://tedbirge.ai/basvuru"
+    },
+    {
+      "id": "maluliyet-01",
+      "intent": "MALULIYET",
+      "patterns": [
+        "maluliyet",
+        "iş göremezlik",
+        "sakat",
+        "engellilik",
+        "maluliyet oranı"
+      ],
+      "response": "Maluliyet oranı tazminat hesabında kritiktir:\n\n📋 Maluliyet türleri:\n• Geçici iş göremezlik (iyileşme süreci)\n• Sürekli iş göremezlik (kalıcı zarar)\n• Tam maluliyet (%60 ve üzeri)\n\n🏥 Belirleyici belgeler:\n• Adli Tıp raporu\n• SGK Sağlık Kurulu raporu\n• Hastane epikrizi\n• Maluliyet ölçüm tablosu\n\nMaluliyet oranınız Tedbirge AI Analyzer ile belgeden okunur.\n\nÜcretsiz başvuru: https://tedbirge.ai/basvuru"
+    },
+    {
+      "id": "manevi-01",
+      "intent": "MANEVI_TAZMINAT",
+      "patterns": [
+        "manevi tazminat",
+        "manevi",
+        "acı",
+        "üzüntü"
+      ],
+      "response": "Manevi tazminat:\n\n• Bedensel zarar dışı tazminat\n• Üzüntü, acı, ruhsal zarar karşılığı\n• TBK m.56 (yaralanma) veya m.49 (vefat)\n• Mahkemenin takdir yetkisi vardır\n• Vefat halinde yakınlar talep eder\n• Genelde maddi tazminatın %10-30'u civarında\n\nHer dava ayrıdır. Tedbirge size yol gösterir.\n\nBaşvuru: https://tedbirge.ai/basvuru"
+    },
+    {
+      "id": "death-01",
+      "intent": "VEFAT_TAZMINAT",
+      "patterns": [
+        "öldü",
+        "vefat",
+        "destekten yoksun",
+        "ölüm tazminatı",
+        "eşim öldü",
+        "yakınım öldü"
+      ],
+      "response": "Kaza sonucu vefat halinde, başınız sağolsun.\n\n💔 Tazminat hakları:\n• Destekten yoksun kalma (eş, çocuk, anne-baba)\n• Cenaze giderleri\n• Manevi tazminat\n• SGK ölüm aylığı (iş kazası)\n• Sigorta hayat poliçesi (varsa)\n\n📋 Hesaplama faktörleri:\n• Vefat edenin yaşı ve geliri\n• Yakınların yaş ve sayısı\n• Geriye kalan çalışma yılı\n\nÜcretsiz başvuru: https://tedbirge.ai/basvuru\n\nNot: Trafik zamanaşımı 2 yıl, iş kazasında 10 yıldır."
+    },
+    {
+      "id": "cenaze-01",
+      "intent": "CENAZE_GIDERLERI",
+      "patterns": [
+        "cenaze masraf",
+        "defin gideri",
+        "cenaze gideri"
+      ],
+      "response": "Cenaze giderleri ZMSS kapsamındadır:\n\n• Defin masrafları\n• Cenaze yıkama, kefen\n• Cenaze taşıma\n• Cenaze yemeği (örf ve geleneklere göre makul tutar)\n• Mezar/lahit yapımı\n\nBelgelerle (makbuz, fatura) talep edilir. Genellikle ortalama tutarları aşmamalıdır.\n\nÜcretsiz değerlendirme: https://tedbirge.ai/basvuru"
+    },
+    {
+      "id": "child-victim-01",
+      "intent": "ÇOCUK_KAZA",
+      "patterns": [
+        "çocuğum yaralandı",
+        "çocuk kaza",
+        "küçük yaşta",
+        "vasi",
+        "çocuk tazminat"
+      ],
+      "response": "Reşit olmayan (18 yaş altı) kaza mağdurlarında:\n\n👨‍👩‍👦 Temsil:\n• Veli veya vasi başvuru yapar\n• Çocuk adına dava açılır\n• Mahkeme onayı gerekir (TMK m.342)\n\n💰 Tazminat hesabı:\n• Çocuğun yaşam beklentisi\n• Maluliyet derecesi\n• İleride elde edebileceği gelir\n• Eğitim ve gelişim kaybı\n\nÇocuklar için tazminat genelde yüksektir (uzun yaşam süresi).\n\nÜcretsiz başvuru: https://tedbirge.ai/basvuru"
+    },
+    {
+      "id": "pregnant-01",
+      "intent": "HAMILE_KAZA",
+      "patterns": [
+        "hamile",
+        "gebe",
+        "bebek düşüğü",
+        "anne karnında"
+      ],
+      "response": "Hamile iken geçirilen kaza:\n\n• Annenin yaralanmaları normal süreçten\n• Bebek düşüğü/anne kaybı ek tazminat\n• Anne karnındaki bebeğin sağlık zararı (cenin hukuku)\n• Doğum sonrası bebeğin etkileri\n\nHer durum tıbbi belgelerle değerlendirilir.\n\nÜcretsiz başvuru: https://tedbirge.ai/basvuru"
+    },
+    {
+      "id": "sgk-01",
+      "intent": "SGK_IS_KAZASI",
+      "patterns": [
+        "sgk",
+        "iş kazası bildirim",
+        "sigorta primi",
+        "sürekli iş göremezlik"
+      ],
+      "response": "İş kazasında SGK hakları:\n\n🛡️ Sağlanan haklar:\n• Geçici iş göremezlik ödeneği\n• Sürekli iş göremezlik geliri (maluliyet)\n• Tedavi giderleri\n• Ölüm halinde dul/yetim aylığı\n• Cenaze yardımı\n\n📋 Bildirim:\n• İşveren 3 iş günü içinde SGK'ya bildirim zorunlu\n• Geç bildirim halinde işveren cezalı\n\n⚖️ Ek haklar:\nSGK haklarından AYRI olarak işverenden tazminat talep edebilirsiniz (TBK m.49, m.56).\n\nÜcretsiz değerlendirme: https://tedbirge.ai/basvuru"
+    },
+    {
+      "id": "isveren-01",
+      "intent": "ISVEREN_SORUMLULUK",
+      "patterns": [
+        "işveren",
+        "işveren ödesin",
+        "işveren sorumlu",
+        "iş güvenliği"
+      ],
+      "response": "İşverenin sorumluluğu:\n\n📋 Yükümlülükler:\n• İş sağlığı ve güvenliği önlemleri (6331 sayılı kanun)\n• Eğitim sağlama\n• Koruyucu ekipman temini\n• Risk analizi yapma\n\n⚖️ İhlal halinde:\n• İdari para cezası\n• Cezai sorumluluk\n• Tazminat sorumluluğu (TBK m.66, 49, 56)\n• Rücu hakkı (SGK ödemelerinden sonra)\n\nİşveren kusurlu ise SGK haricinde EK tazminat talep edilir.\n\nÜcretsiz başvuru: https://tedbirge.ai/basvuru"
+    },
+    {
+      "id": "rucu-01",
+      "intent": "RUCU_HAKKI",
+      "patterns": [
+        "rücu",
+        "geri ödeme",
+        "sigorta geri talep"
+      ],
+      "response": "Rücu hakkı:\n\n📋 Sigorta rücu hakları:\n• Alkollü sürüş\n• Ehliyetsiz sürüş\n• Kasıt veya ağır kusur\n• Yetkisiz kullanım\n\n💰 Bu durumlarda sigorta ödediğini geri alabilir.\n\n🛡️ SGK rücu:\n• İşveren kusurlu ise SGK ödemelerini işverenden talep eder\n• Hukuki süreç gerekir\n\nDetaylı durum değerlendirmesi: https://tedbirge.ai/basvuru"
+    },
+    {
+      "id": "zmss-01",
+      "intent": "ZMSS_LIMIT",
+      "patterns": [
+        "zmss",
+        "zorunlu sigorta",
+        "trafik sigortası",
+        "sigorta limiti"
+      ],
+      "response": "ZMSS (Zorunlu Mali Sorumluluk Sigortası) limitleri (2026):\n\n📊 Karayolu Taşımacılık Sigorta Yönetmeliği:\n• Maddi: araç başına 1.000.000 TL\n• Bedensel zarar (kişi başı): 1.750.000 TL\n• Ölüm/sürekli sakatlık: 1.750.000 TL\n• Manevi tazminat: ayrı talep\n\nLimit üstü zararlar:\n• Kişiye karşı dava (TBK m.49, 56)\n• Manevi tazminat ayrı\n\nGüncel limit bilgisi için: https://tedbirge.ai/basvuru"
+    },
+    {
+      "id": "kasko-01",
+      "intent": "KASKO",
+      "patterns": [
+        "kasko",
+        "ihtiyari sigorta",
+        "kasko ödemesi"
+      ],
+      "response": "Kasko sigortası:\n\n• İHTIYARI sigorta (zorunlu değil)\n• Aracın hasarını karşılar\n• Genel şartlar:\n  - Hırsızlık\n  - Çarpma/devrilme\n  - Yangın\n  - Doğal afetler\n  - Cam kırılması\n\n⚠️ İstisnalar (ödenmez):\n• Alkollü sürüş\n• Ehliyetsiz sürüş\n• Kasıtlı zarar\n\nKasko + ZMSS kombinasyonu birlikte değerlendirilir.\n\nDetay: https://tedbirge.ai/basvuru"
+    },
+    {
+      "id": "plaka-01",
+      "intent": "PLAKA_OKUNMUYOR",
+      "patterns": [
+        "plaka",
+        "araç bulunamadı",
+        "plakayı göremedim",
+        "kaçan araç"
+      ],
+      "response": "Karşı tarafın plakası bilinmiyorsa:\n\n📋 Yapılacaklar:\n• Trafik polisi çağrın (resmi tutanak)\n• Şahit ifadelerini topla\n• Kamera kayıtlarını sorgula (belediye, AVM, MOBESE)\n• Olay yeri inceleme\n\n🛡️ Güvence Hesabı devreye girer:\n• Plakası belirlenemeyen araçlar için fon\n• Bedensel zarar kapsamı\n• Başvuru süresi 2 yıl\n\nÜcretsiz değerlendirme: https://tedbirge.ai/basvuru"
+    },
+    {
+      "id": "fatura-01",
+      "intent": "TEDAVI_FATURA",
+      "patterns": [
+        "tedavi fatura",
+        "ilaç parası",
+        "ameliyat ücreti",
+        "doktor"
+      ],
+      "response": "Tedavi giderleri:\n\n💊 Talep edilebilir:\n• Hastane masrafları\n• Ameliyat ücretleri\n• İlaç giderleri (reçeteli)\n• Fizyoterapi\n• Protez/ortez giderleri\n• Yol/refakatçi giderleri\n• Özel hemşire (medikal gereklilik varsa)\n\n📋 Belge:\n• Fatura, makbuz\n• Reçete\n• Hastane raporu\n\nSGK'lı iseniz: SGK karşılayan giderler hariç talep edilir. Fark talep edilebilir.\n\nÜcretsiz değerlendirme: https://tedbirge.ai/basvuru"
     },
     {
       "id": "kvkk-01",
       "intent": "KVKK_PRIVACY",
-      "patterns": ["kvkk", "verilerim guvende mi"],
-      "response": "Verileriniz Turkiye'de saklanir, KVKK uyumludur:\n\n- Saglik verisi (epikriz) icin acik riza istenir\n- Yurt disina veri transferi YAPILMAZ\n- Diledigimiz an silme talebi gonderebilirsiniz\n- ISO 27001 hazirligindayiz\n\nDetay: https://tedbirge.ai/kvkk"
+      "patterns": [
+        "kvkk",
+        "verilerim",
+        "gizlilik",
+        "güvenli",
+        "silinir mi",
+        "paylaşır mı"
+      ],
+      "response": "Verileriniz Türkiye'de saklanır, KVKK uyumludur:\n\n🔒 Güvence:\n• Sağlık verisi (epikriz) için açık rıza istenir (KVKK m.6)\n• Yurt dışına veri transferi YAPILMAZ (KVKK m.9)\n• ISO 27001 hazırlığındayız\n• Verilerinize sadece atanan avukatınız erişir\n\n📋 Haklarınız:\n• Dilediğiniz an silme talebi (KVKK m.11)\n• Bilgi alma hakkı\n• Düzeltme talebi\n• İşlemeye itiraz\n\nDetay: https://tedbirge.ai/kvkk"
     },
     {
-      "id": "about-01",
+      "id": "data-delete-01",
+      "intent": "VERI_SILME",
+      "patterns": [
+        "verilerimi sil",
+        "kayıt silme",
+        "hesap kapatma",
+        "veri silmek"
+      ],
+      "response": "Veri silme talebi (KVKK m.11):\n\n📋 Süreç:\n1. tedbirge.ai/kvkk sayfasından talep\n2. Veya kvkk@tedbirge.ai mail\n3. 30 gün içinde işleme alınır\n4. Onay maili gönderilir\n\n⚠️ İstisna:\n• Aktif hukuki süreç varsa silme ertelenebilir (KVKK m.7)\n• Yasal saklama yükümlülüğü\n\nDetay: https://tedbirge.ai/kvkk"
+    },
+    {
+      "id": "about-tedbirge-01",
       "intent": "ABOUT_TEDBIRGE",
-      "patterns": ["tedbirge nedir", "hakkinizda"],
-      "response": "Tedbirge.ai, Turkiye'nin dijital hukuk platformudur. Trafik ve is kazasi magdurlarina:\n\n- Ucretsiz basvuru\n- AI destekli belge analizi (Tedbirge AI Analyzer)\n- Sisteme kayitli avukatlardan tercih\n- KVKK guvenli surec yonetimi\n\nDaha fazla: https://tedbirge.ai/hakkimizda"
+      "patterns": [
+        "tedbirge nedir",
+        "hakkınızda",
+        "siz kimsiniz",
+        "şirket",
+        "firma",
+        "ekip"
+      ],
+      "response": "Tedbirge.ai, Türkiye'nin dijital hukuk platformudur:\n\n🇹🇷 Hizmetlerimiz:\n• Ücretsiz başvuru kabul\n• AI destekli belge analizi (Tedbirge AI Analyzer)\n• Sisteme kayıtlı avukatlardan tercih\n• KVKK güvenli süreç yönetimi\n• 7/24 başvuru\n\n⚖️ Uzmanlık:\n• Trafik kazası tazminatı\n• İş kazası tazminatı\n• Sigorta uyuşmazlıkları\n\nDaha fazla: https://tedbirge.ai/hakkimizda"
     },
     {
-      "id": "timeout-01",
-      "intent": "TIMEOUT_LIMITATION",
-      "patterns": ["zamanasimi", "sure"],
-      "response": "Zamanasimi sureleri:\n\n- Trafik kazasi: 2 yil (KTK m.109)\n- Is kazasi: 10 yil (BK m.146)\n- Manevi tazminat: 2 yil\n- Suc tarihinden itibaren baslar\n\nSureniz dolmak uzereyse ACELE edin. Hemen basvuru: https://tedbirge.ai/basvuru"
+      "id": "ai-asistan-01",
+      "intent": "AI_ASISTAN_NEDIR",
+      "patterns": [
+        "ai asistanı",
+        "yapay zeka",
+        "robot mu",
+        "chatbot"
+      ],
+      "response": "Tedbirge AI Asistanı:\n\n🤖 Özellikler:\n• Türkiye'ye özel hazırlanmış\n• Türk Hukuku temelli\n• KVKK güvenli (verileriniz Türkiye'de)\n• Tamamen ücretsiz\n• Bilgilendirici - hukuki tavsiye DEĞİL\n• 7/24 erişim\n\n⚠️ Önemli:\n• Genel bilgi sunar, somut tavsiye için avukat şart\n• Cevaplar her duruma uymayabilir\n• Karmaşık durumlar için profesyonel destek alın\n\nBaşvuru: https://tedbirge.ai/basvuru"
+    },
+    {
+      "id": "address-01",
+      "intent": "ADRES_ILETISIM",
+      "patterns": [
+        "adresi",
+        "ofis",
+        "nereden ulaş",
+        "telefon",
+        "iletişim"
+      ],
+      "response": "Tedbirge.ai iletişim:\n\n🌐 Web: https://tedbirge.ai\n📋 Başvuru: https://tedbirge.ai/basvuru\n📧 E-posta: bilgi@tedbirge.ai\n📋 KVKK: kvkk@tedbirge.ai\n\nTüm süreçler dijital olarak yürütülür. Yüz yüze görüşme ihtiyacı durumunda avukatınızla doğrudan iletişim kurabilirsiniz."
+    },
+    {
+      "id": "where-01",
+      "intent": "HIZMET_BOLGESI",
+      "patterns": [
+        "nerede hizmet",
+        "hangi şehirler",
+        "il",
+        "şehir",
+        "türkiye geneli mi"
+      ],
+      "response": "Tedbirge.ai Türkiye geneli hizmet vermektedir:\n\n🇹🇷 Tüm 81 ilden başvuru kabul edilir\n⚖️ Sisteme kayıtlı avukatlar farklı şehirlerden\n📱 Tamamen dijital süreç (yüz yüze gereksinim yok)\n📋 Davanız şehrinizde, ilgili mahkemede görülür\n\nBaşvuru: https://tedbirge.ai/basvuru"
+    },
+    {
+      "id": "before-01",
+      "intent": "ESKI_DOSYAM_VAR",
+      "patterns": [
+        "eski davam var",
+        "açtığım dava",
+        "başvurum vardı",
+        "önceki dosyam"
+      ],
+      "response": "Mevcut dosyanız varsa:\n\n📋 Durum değerlendirmesi:\n• Mevcut avukatınız var ise süreç onun yönetiminde\n• Vekalet değişikliği mümkün (ek süreç)\n• İkinci görüş için Tedbirge'e başvurabilirsiniz\n• Davaniz ne aşamada öğrenmemiz gerekir\n\nMevcut belgelerinizi yükleyin, durum incelensin: https://tedbirge.ai/basvuru"
+    },
+    {
+      "id": "tanik-01",
+      "intent": "TANIK",
+      "patterns": [
+        "tanık",
+        "şahit",
+        "şahitliği",
+        "kimse görmedi"
+      ],
+      "response": "Tanık önemli delil unsurudur:\n\n📋 Tanık konuları:\n• Kaza anına ait olaylar\n• Olay yerine ilk gelen\n• Yaralının durumu\n• Karşı tarafın davranışı\n\n📞 Tanık bilgileri:\n• Ad-soyad\n• Telefon\n• Adres\n• İmza (sonradan ifade için)\n\nTanık yoksa: kamera kayıtları, kaza yeri inceleme, olay yerindeki izler bilirkişi raporunu destekler.\n\nBaşvuru: https://tedbirge.ai/basvuru"
+    },
+    {
+      "id": "kamera-01",
+      "intent": "KAMERA_KAYIT",
+      "patterns": [
+        "kamera",
+        "kayıt",
+        "mobese",
+        "güvenlik kamerası"
+      ],
+      "response": "Kamera kayıtları kritik delildir:\n\n📹 Kayıt kaynakları:\n• MOBESE (belediye kamera sistemleri)\n• AVM kamerası\n• Iş yeri kameraları\n• Trafik kameraları (KGM)\n• Apartman/site kameraları\n• Otoyol kameraları\n\n📋 Talep:\n• Saklama süresi genelde 30-90 gün (acil talep şart)\n• Yazılı başvuru gerekir\n• Avukat aracılığıyla daha hızlı\n• Mahkeme yazısı ile zorunlu kılınabilir\n\nÜcretsiz başvuru: https://tedbirge.ai/basvuru"
+    },
+    {
+      "id": "bilirkisi-01",
+      "intent": "BILIRKISI",
+      "patterns": [
+        "bilirkişi",
+        "ekspertiz",
+        "rapor",
+        "bilirkişi raporu"
+      ],
+      "response": "Bilirkişi raporu davada belirleyicidir:\n\n📋 Türleri:\n• Trafik bilirkişisi (kusur oranı)\n• Tıbbi bilirkişi (maluliyet)\n• Aktüer bilirkişi (tazminat hesabı)\n• Adli Tıp Kurumu (vefat halinde)\n\n💰 Ücret:\n• Adli Tıp ücretsiz\n• Özel bilirkişi: ücretli (10.000-30.000 TL aralığı)\n• Mahkeme bilirkişi: harç içinde\n\n⚖️ İtiraz hakkı:\n• Bilirkişi raporuna 2 hafta içinde itiraz\n• Yeniden bilirkişi atanabilir\n\nDetay: https://tedbirge.ai/basvuru"
+    },
+    {
+      "id": "epikriz-01",
+      "intent": "EPIKRIZ",
+      "patterns": [
+        "epikriz",
+        "hastane raporu",
+        "tıbbi rapor",
+        "tedavi belgesi"
+      ],
+      "response": "Epikriz (hastane raporu) çok önemli:\n\n📋 İçeriği:\n• Hastalığın seyri\n• Tedavi süreci\n• Operasyonlar (varsa)\n• İlaç tedavileri\n• Taburcu durumu\n• İSG raporu\n• ICD-10 tanı kodları\n\n🏥 Nasıl alınır:\n• Tedavi gördüğünüz hastane\n• Tedavi sırası: anında verilir\n• Sonradan talep: yazılı dilekçe\n• Adli Tıp talep edebilir\n\nTedbirge AI Analyzer epikrizi otomatik okur ve maluliyet/tedavi süresini çıkarır.\n\nBaşvuru: https://tedbirge.ai/basvuru"
+    },
+    {
+      "id": "faiz-01",
+      "intent": "FAIZ_TAZMINAT",
+      "patterns": [
+        "faiz",
+        "yasal faiz",
+        "ek faiz"
+      ],
+      "response": "Tazminata faiz işletme:\n\n📊 Faiz türleri:\n• Yasal faiz (kanuni faiz)\n• Ticari faiz (genellikle uygulanmaz)\n• Reeskont faizi\n\n📋 Başlangıç tarihi:\n• Kaza tarihi (zarar tarihi)\n• Veya talep tarihi (ihtarname)\n• Veya dava tarihi (hesaplama yönüne göre)\n\n💰 Faiz oranı:\n• Yasal faiz değişken (TCMB belirler)\n• 2026 için tahmini %35-45 aralığı\n\nDetay hesap: https://tedbirge.ai/basvuru"
+    },
+    {
+      "id": "ortak-01",
+      "intent": "ORTAK_KAZA",
+      "patterns": [
+        "iki taraflı kusur",
+        "ikimiz de kusurlu",
+        "ortak kusur"
+      ],
+      "response": "İki taraflı kusur (kompansatuar kusur):\n\n📊 Tazminat hesabı:\n• Sizin kusur oranınız tazminattan düşülür\n• %30 kusurlu iseniz: tazminatın %70'i\n• Karşı tarafın da kusuru tazminatından düşülür\n\n📋 Örnek:\n• Toplam zarar: 100.000 TL\n• Siz %40 kusurlu, karşı taraf %60 kusurlu\n• Sizin alacağınız: 60.000 TL\n• Karşı tarafın alacağı (size karşı): 40.000 TL\n\nNet sonuç: 20.000 TL (siz karşı taraftan alırsınız)\n\nDetay: https://tedbirge.ai/basvuru"
+    },
+    {
+      "id": "delay-01",
+      "intent": "GECIKMIS_BASVURU",
+      "patterns": [
+        "geç başvuru",
+        "süre geçti mi",
+        "gecikti",
+        "uzun zaman oldu"
+      ],
+      "response": "Geç başvuru durumu:\n\n⚠️ Zamanaşımı süreleri:\n• Trafik: 2 yıl\n• İş kazası: 10 yıl\n• Cezada zamanaşımı varsa: daha uzun olabilir\n\n📋 Süre dolduysa:\n• Tazminat talep hakkı düşmüş olabilir\n• İstisnalar mümkün (kusurun sonradan öğrenilmesi)\n• Cezai süreç paralel ise süreyi etkileyebilir\n\nKesin değerlendirme için belgelerinizi yükleyin: https://tedbirge.ai/basvuru\n\nNot: Süre dolmadan başvurmak kritiktir. Şüpheli durumlarda hızla danışın."
+    },
+    {
+      "id": "passenger-01",
+      "intent": "YOLCU_TAZMINAT",
+      "patterns": [
+        "yolcuydum",
+        "yolcu",
+        "ben kullanmıyordum",
+        "arka koltukta"
+      ],
+      "response": "Yolcu olarak yaralandıysanız:\n\n📋 Tazminat hakkı:\n• Aracın ZMSS'sinden talep (yolcular kapsama dahil)\n• Sürücü kusurlu ise yine tazminat alırsınız\n• Aileniz olan sürücü olsa bile haklarınız var\n• Karşı araçtan ek talep (çift kaza)\n\n⚠️ İstisna:\n• Aracın sahibi/kullanıcısı yolcuysa farklılık olabilir\n\nÜcretsiz değerlendirme: https://tedbirge.ai/basvuru"
+    },
+    {
+      "id": "police-01",
+      "intent": "POLICE_NUMARASI",
+      "patterns": [
+        "poliçe numarası",
+        "police no",
+        "sigorta no"
+      ],
+      "response": "Sigorta poliçe numarası nasıl bulunur:\n\n📋 Kaynaklar:\n• Sigorta poliçesi belgesi\n• ZMSS makbuzu (araç ruhsatı yanı)\n• Sigorta şirketi müşteri hattı\n• e-Devlet üzerinden (Trafik Sigortası Bilgi Merkezi - TRAMER)\n• SBM (Sigorta Bilgi ve Gözetim Merkezi)\n\n💡 TRAMER:\n• https://tramer.org.tr\n• Aracın plakası ile sorgulayabilirsiniz\n\nDetay: https://tedbirge.ai/basvuru"
+    },
+    {
+      "id": "process-01",
+      "intent": "SUREC_NASIL",
+      "patterns": [
+        "nasıl bir süreç",
+        "ne olacak",
+        "süreç adımları"
+      ],
+      "response": "Tedbirge süreciniz:\n\n📋 Adım adım:\n1️⃣ Başvuru (3 dakika, ücretsiz)\n2️⃣ Belge yükleme (PDF, fotoğraf)\n3️⃣ Tedbirge AI Analyzer inceler\n4️⃣ Avukat seçimi (size öneriler sunulur)\n5️⃣ Vekalet süreci (avukatınızla)\n6️⃣ Sigorta/Tahkim/Mahkeme süreci\n7️⃣ Sonuç ve tazminat tahsili\n\n⏱️ Süre:\n• Uzlaşma: 1-3 ay\n• Tahkim: 4-8 ay\n• Mahkeme: 12-24 ay\n\nBaşvuru: https://tedbirge.ai/basvuru"
+    },
+    {
+      "id": "garage-01",
+      "intent": "ARAÇ_DEGER_KAYBI",
+      "patterns": [
+        "değer kaybı",
+        "araç değer",
+        "ikinci el",
+        "araç hasar"
+      ],
+      "response": "Araç değer kaybı (yedek araç tazminatı):\n\n📋 Talep koşulları:\n• Trafik kazası sonucu\n• Onarım sonrası ikinci el satış değeri düşüşü\n• Bilirkişi tespiti gerekir\n• ZMSS kapsamında talep edilebilir\n\n💰 Hesaplama:\n• Aracın yaşı\n• Kilometresi\n• Marka/model\n• Hasarın türü ve büyüklüğü\n• Onarım maliyetinin %5-15'i civarında olabilir\n\nÜcretsiz değerlendirme: https://tedbirge.ai/basvuru"
     },
     {
       "id": "fallback-01",
       "intent": "FALLBACK",
       "patterns": [],
-      "response": "Sorunuzu tam anlayamadim. Su konularda size yardimci olabilirim:\n\n- Trafik kazasi tazminati\n- Is kazasi tazminati\n- Belge yukleme\n- Avukat tercihi\n- Basvuru sureci\n\nDogrudan basvuru icin: https://tedbirge.ai/basvuru\n\nIsterseniz baska bir sekilde sorabilirsiniz."
+      "response": "Sorunuzu tam anlayamadım. Yardımcı olabileceğim konular:\n\n🚗 Trafik/iş kazası tazminatı\n📋 Belge yükleme\n⚖️ Avukat tercihi\n💰 Tazminat hesabı\n📅 Zamanaşımı (2 yıl trafik, 10 yıl iş)\n🛡️ Sigorta itirazı\n📞 KVKK ve veri güvenliği\n\nDoğrudan başvuru: https://tedbirge.ai/basvuru\n\nFarklı bir şekilde sorabilirsiniz veya doğrudan başvuru yaparak avukatımızla görüşebilirsiniz."
     }
   ]
 }
