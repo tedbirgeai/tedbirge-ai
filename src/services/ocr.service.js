@@ -1,4 +1,4 @@
-﻿const fs = require("fs");
+const fs = require("fs");
 const os = require("os");
 const path = require("path");
 const crypto = require("crypto");
@@ -103,7 +103,7 @@ async function convertPdfToPngPages(pdfPath) {
   ]);
 
   const pages = listPagePngs(tempDir, outputPrefix);
-console.log("[OCR] convertPdfToPngPages:done", pages.length);
+  console.log("[OCR] convertPdfToPngPages:done", pages.length);
 
   if (!pages.length) {
     throw new Error("PDF sayfalari PNG'ye cevrilemedi");
@@ -135,7 +135,7 @@ async function runTesseract(imagePath) {
   ]);
 
   const txtPath = outputBase + ".txt";
-console.log("[OCR] runTesseract:done", txtPath);
+  console.log("[OCR] runTesseract:done", txtPath);
 
   if (!fs.existsSync(txtPath)) {
     throw new Error("OCR output yok");
@@ -168,7 +168,7 @@ async function runOcr(input) {
   console.log("[OCR] runOcr:start");
   const originalPath = resolveInputPath(input);
   const tempPath = copyToTemp(originalPath);
-console.log("[OCR] runOcr:tempPath", tempPath);
+  console.log("[OCR] runOcr:tempPath", tempPath);
 
   const ext = path.extname(tempPath).toLowerCase();
 
@@ -188,13 +188,25 @@ async function extractTextWithOcr(input) {
  * Claude Vision ile belgeden metin cikarma.
  * PDF ve image (JPG/PNG/WEBP) destekler.
  * Binary gerektirmez — Render'da calisir.
+ *
+ * TUR #132.8 — Madde 24.14 R1 AI Bagimsizlik:
+ * Mock mode'da veya API key yoksa sessiz bos string doner.
+ * Pattern engine devralir, sistem cokmez.
  */
 async function extractTextWithVision(buffer, mimeType) {
-  const Anthropic = require("@anthropic-ai/sdk");
+  // TUR #132.8 - Mock mode kontrolu (Madde 24.14 R1)
+  // Anthropic Vision olmadan sessiz fallback
+  const isMockMode = process.env.ANALYSIS_MODE === "mock" ||
+    process.env.AI_PROVIDER === "mock" ||
+    process.env.AI_ANALYZER_DISABLED === "true" ||
+    !process.env.ANTHROPIC_API_KEY;
 
-  if (!process.env.ANTHROPIC_API_KEY) {
-    throw new Error("Vision icin ANTHROPIC_API_KEY gerekli");
+  if (isMockMode) {
+    console.log("[ocr.vision] Mock mode aktif - Vision atlandi (Madde 24.14 R1 AI Bagimsizlik)");
+    return "";
   }
+
+  const Anthropic = require("@anthropic-ai/sdk");
 
   const client = new Anthropic.default({
     apiKey: process.env.ANTHROPIC_API_KEY
@@ -205,34 +217,40 @@ async function extractTextWithVision(buffer, mimeType) {
   const sourceType = mimeType === "application/pdf" ? "document" : "image";
   const contentBlock = sourceType === "document"
     ? {
-        type: "document",
-        source: { type: "base64", media_type: "application/pdf", data: base64 }
-      }
+      type: "document",
+      source: { type: "base64", media_type: "application/pdf", data: base64 }
+    }
     : {
-        type: "image",
-        source: { type: "base64", media_type: mimeType, data: base64 }
-      };
+      type: "image",
+      source: { type: "base64", media_type: mimeType, data: base64 }
+    };
 
-  const response = await client.messages.create({
-    model: "claude-sonnet-4-6",
-    max_tokens: 8192,
-    messages: [{
-      role: "user",
-      content: [
-        contentBlock,
-        {
-          type: "text",
-          text: "Sen bir Turk hukuk uzmanisin. Yuklenmis belgeyi SATIR SATIR oku ve TAM METNI cikar.\n\nKURALLAR:\n- Belgede gorunen TUM metni dahil et (baslik, altyazi, dipnot, damga, imza satiri)\n- Tablolari | ile ayirarak koru\n- Sayi, tarih, isim, TC kimlik, plaka gibi detaylari DEGISTIRMEDEN aktar\n- El yazisi varsa [El yazisi: ...] ile isaretle\n- Okunamayan kisimlari [Okunmuyor] ile isaretle\n- Kendi yorumunu EKLEME — sadece belgede yazan\n- Ciktiyi markdown formatinda ver\n\nSadece belge metnini dondur. Baslangicta veya sonunda aciklama yazma."
-        }
-      ]
-    }]
-  });
+  try {
+    const response = await client.messages.create({
+      model: "claude-sonnet-4-6",
+      max_tokens: 8192,
+      messages: [{
+        role: "user",
+        content: [
+          contentBlock,
+          {
+            type: "text",
+            text: "Sen bir Turk hukuk uzmanisin. Yuklenmis belgeyi SATIR SATIR oku ve TAM METNI cikar.\n\nKURALLAR:\n- Belgede gorunen TUM metni dahil et (baslik, altyazi, dipnot, damga, imza satiri)\n- Tablolari | ile ayirarak koru\n- Sayi, tarih, isim, TC kimlik, plaka gibi detaylari DEGISTIRMEDEN aktar\n- El yazisi varsa [El yazisi: ...] ile isaretle\n- Okunamayan kisimlari [Okunmuyor] ile isaretle\n- Kendi yorumunu EKLEME — sadece belgede yazan\n- Ciktiyi markdown formatinda ver\n\nSadece belge metnini dondur. Baslangicta veya sonunda aciklama yazma."
+          }
+        ]
+      }]
+    });
 
-  const textBlocks = response.content
-    .filter(block => block.type === "text")
-    .map(block => block.text);
+    const textBlocks = response.content
+      .filter(block => block.type === "text")
+      .map(block => block.text);
 
-  return textBlocks.join("\n").trim();
+    return textBlocks.join("\n").trim();
+  } catch (error) {
+    // TUR #132.8 - API hatasi durumunda sessiz fallback (credit, rate limit, network)
+    console.warn("[ocr.vision] API hatasi - sessiz fallback:", error.message);
+    return "";
+  }
 }
 
 module.exports = {
@@ -245,13 +263,3 @@ module.exports = {
   convertPdfToPng,
   convertPdfToPngPages
 };
-
-
-
-
-
-
-
-
-
-
