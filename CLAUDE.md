@@ -338,8 +338,85 @@ Mehmet Bey sahaya çıkabilsin diye bu disiplin var.
 
 ---
 
-**— Tedbirge Mimari Anayasası v1.43.0 MINOR**
-**Son güncelleme: 15 Mayıs 2026 Cuma gece (TUR #132.1 KAPALI — AI Cekirdek Saha Dogrulama Hotfix + Hibrit Koruma + Madde 30.92 yeni)**
+**— Tedbirge Mimari Anayasası v1.44.0 MINOR**
+**Son güncelleme: 21 Mayıs 2026 Perşembe (TUR #132.4 KAPALI — TAC Tam Bagimsiz AI Cekirdek + Madde 24.14 R1 genisleme + MH71 yeni)**
+
+---
+
+## ANAYASA EVRIM — TUR #132.4 (21 May 2026) — TAC Tam Bagimsiz (Madde 24.14 R1 genisleme + MH71 yeni)
+
+**Madde 24.14 R1 KALIN — AI Bagimsizlik Disiplini (TUR #132.4 genisleme):**
+
+Tedbirge AI Cekirdek (TAC) icerisindeki **iki ana modul** (Belge Ayristirici + Chat Asistani) **Tedbirge mulkudur**:
+
+1. **Tedbirge AI Analyzer** (`pattern-engine.service.js` + 4 master data JSON)
+   - Rule-based 14 alan cikarim (kazaTuru/maluliyetOrani/policeNo/icdCode/...)
+   - $0 maliyet, KVKK lokal (yurt disi transferi YOK)
+   - mergeAiResultToLead aynen korundu (Madde 4.6 KALIN)
+
+2. **Tedbirge AI Asistani** (`chatbot.service.js` + `intent-engine.service.js` + `faq-tr-v1.json`)
+   - 13 intent + 13 FAQ
+   - Mevcut ChatSession + ChatMessage tablolari reuse (Madde 4.6 KALIN — KIRMIZI 5 dürüst SKIP)
+   - "LexScan AI" → "Tedbirge AI Asistani" rename (UI + backend)
+
+**Yasak:**
+- Tedbirge AI Analyzer + Asistani disinda yeni AI cekirdek modulu eklemek (yeni Madde 18.3 onayi olmadan)
+- pattern-engine + intent-engine ciktilarini dis API'ye gondermek (Madde 30.91 KVKK m.6 ihlali)
+
+**Madde 4.6 KALIN korumasi:**
+- Diger 11 Anthropic kullanan servis (ai/contract/muhatapAI/bilirkisi/ocr/...) DOKUNULMADI
+- `@anthropic-ai/sdk` package.json'da KALDI (KIRMIZI 7 dürüst SKIP)
+- mergeAiResultToLead pipeline (TUR #132.1) aynen calisti
+- ChatSession + ChatMessage tablo semasi DEGISMEDI
+
+**Yeni Mimar Hatasi 71 — Anthropic Kullanim Haritasi Eksikligi:**
+
+**Pattern (TUR #132.4 emsali):** Mimar mektubu sadece 2 Anthropic-kullanici dosyayi (ai-analyzer + lexscan) hedefliyordu. Pre-flight grep 13 dosya tespit etti. 11 dosya hala Anthropic kullaniyor (petition AI, contract AI, muhatap AI, bilirkisi AI, OCR, OS modules, ...). `@anthropic-ai/sdk` package.json'dan kaldirilirsa 11 servis crash eder, Madde 4.6 KALIN ihlali.
+
+**Duzeltme:** Madde 30.83.1 (Pre-Flight Disiplini) genisletme — paket-seviyesi degisikligi oneren mektup, tum paket-kullanici dosyalari grep zorunlu. Mimar mektubu yazimi oncesi `grep -rn "package_name" tedbirge/ tedbirge-panel/` cikti tam liste icerir.
+
+### TUR #132.4 Atom Ozet (17 uygulandi / 3 dürüst SKIP)
+
+**Uygulanan (17 atom):**
+1. Pre-flight grep (Madde 30.83.1) — 13 Anthropic dosya tespit
+2. ai-analyzer.service.js — pattern-engine'e cevrildi
+3. 4 pattern JSON (tedbirge-os/data/patterns/v1)
+4. pattern-engine.service.js YENI (rule-based 14 alan)
+5. mergeAiResultToLead KORU (Madde 4.6 KALIN)
+6. lexscan.controller.js — chatbot.service'e cevrildi
+7. intent-engine.service.js YENI (13 intent)
+8. faq-tr-v1.json YENI (13 FAQ)
+9. chatbot.service.js YENI (mevcut ChatSession + ChatMessage reuse)
+10. AiChatWidget.tsx rename (Tedbirge AI Asistani + T avatar + sessionKey)
+11. admin.ai-training.routes.js YENI (FAQ + fallback + conversations)
+12. dashboard/ai-egitim/page.tsx YENI (3 tab)
+13. Marka temizlik (LexScan/claude-sonnet UI'dan kalkti)
+14. Smoke (prisma generate + pattern + intent + tsc noEmit EXIT=0)
+15. 5 belge OS senkron
+16. Version bump (backend 1.17→1.18, panel 1.27→1.28, anayasa v1.43→v1.44)
+17. Atomik commit + push
+
+**SKIP (3 atom — dürüst DEFER, Madde 30.31 R1):**
+- A7 (Anthropic uninstall) — MH71: 11 servis aktif kullaniyor, Madde 4.6 KALIN > KIRMIZI 7
+- A14 (ChatLog schema) — Mevcut ChatSession + ChatMessage tablolari reuse, Madde 4.6 KALIN > KIRMIZI 5
+- A15 (Idempotent SQL) — A14 ile birlikte SKIP
+
+### TUR #132.4 sayisal ozet
+- 20 atom mektup · 17 uygulandi · 3 SKIP (Madde 30.31 R1 dürüst)
+- 0 KIRMIZI uygulandi (3 KIRMIZI: 1 dolayli rename + 2 SKIP)
+- 0 npm install · 0 env manuel · 0 schema degisikligi · $0 maliyet
+- Backend `1.17.0 → 1.18.0` MINOR · Panel `1.27.0 → 1.28.0` MINOR
+- Schema `1.9.0` sabit (KIRMIZI 5 SKIP)
+- Anayasa `v1.43.0 → v1.44.0` MINOR (Madde 24.14 R1 genisleme + MH71 yeni)
+- 44 → **45 ardisik temiz TUR REKOR (#90 → #132.4)**
+
+### Saha Etkisi
+- LexScan AI chat widget → "Tedbirge AI Asistani" markasi
+- claude-sonnet-4-6 footer kalkti
+- AI Analyzer Anthropic Opus → pattern-engine v1 ($0, KVKK lokal)
+- Chat AI Anthropic Sonnet → intent-engine v1 + 13 FAQ ($0)
+- mergeAiResultToLead pipeline DOKUNULMADI (TUR #132.1 emsali)
+- 11 diger AI servisi (petition/contract/muhatapAI/bilirkisi/ocr/...) DEGISMEDI
 
 ---
 

@@ -1,0 +1,84 @@
+{
+  "version": "v1-2026",
+  "lastUpdated": "2026-05-21",
+  "faqs": [
+    {
+      "id": "greeting-01",
+      "intent": "GREETING",
+      "patterns": ["merhaba", "selam"],
+      "response": "Merhaba! Tedbirge AI Asistanina hos geldiniz. Trafik veya is kazasi hakkinda size nasil yardimci olabilirim?"
+    },
+    {
+      "id": "traffic-01",
+      "intent": "TRAFFIC_ACCIDENT",
+      "patterns": ["trafik kazasi gecirdim", "trafik kaza"],
+      "response": "Trafik kazasi gecirdiginizi ogrendim, gecmis olsun. Hukuki sureciniz hakkinda bilgi almak icin asagidaki sorulara cevap vermeniz yeterli:\n\n1. Kaza ne zaman oldu?\n2. Yaralanma yasandi mi?\n3. Karsi taraf var mi?\n\nVeya dogrudan ucretsiz basvuru yapabilirsiniz: https://tedbirge.ai/basvuru\n\nNot: Trafik kazalarinda zamanasimi 2 yildir (KTK m.109)."
+    },
+    {
+      "id": "work-01",
+      "intent": "WORK_ACCIDENT",
+      "patterns": ["is kazasi gecirdim", "is kaza"],
+      "response": "Is kazasi gecirdiginizi ogrendim, gecmis olsun. SGK'ya bildirildi mi? Hastane raporlariniz mevcut mu? Tedbirge.ai uzerinden ucretsiz on inceleme talep edebilirsiniz: https://tedbirge.ai/basvuru\n\nNot: Is kazalarinda zamanasimi 10 yildir (BK m.146)."
+    },
+    {
+      "id": "compensation-01",
+      "intent": "COMPENSATION_ESTIMATE",
+      "patterns": ["tazminat ne kadar", "ne kadar alabilirim"],
+      "response": "Tazminat tutari; kaza turu, kusur orani, maluliyet derecesi, yas, gelir gibi faktorlere baglidir. Belgelerinizi yukledikten sonra Tedbirge AI Analyzer hak ettiginiz araligi tahmin eder.\n\nUcretsiz basvuru icin: https://tedbirge.ai/basvuru\n\nNot: Bu tahmindir, kesin sonuc mahkeme/uzlasma sonucunda belirlenir."
+    },
+    {
+      "id": "lawyer-01",
+      "intent": "LAWYER_REFERRAL",
+      "patterns": ["avukat", "temsil"],
+      "response": "Tedbirge.ai, sisteme kayitli avukatlardan tercih yapabileceginiz dijital bir platformdur. Basvurunuz uygun avukatlara iletilir, siz secim yaparsiniz. Dogrudan avukat tutmak isterseniz: https://tedbirge.ai/avukatlar"
+    },
+    {
+      "id": "application-01",
+      "intent": "APPLICATION_HOW",
+      "patterns": ["nasil basvururum", "basvuru nasil yapilir"],
+      "response": "Basvuru 3 dakika surer:\n\n1. https://tedbirge.ai/basvuru\n2. Ad, telefon, kaza ozeti\n3. Belge yukle (varsa)\n4. Onayli avukat secimi\n\nTamamen ucretsizdir, KVKK guvenlidir."
+    },
+    {
+      "id": "documents-01",
+      "intent": "DOCUMENTS",
+      "patterns": ["hangi belgeler", "gerekli evrak"],
+      "response": "Onerilen belgeler:\n\n- Kaza tespit tutanagi\n- Hastane raporu / epikriz\n- Maluliyet raporu (varsa)\n- Sigorta policesi\n- Banka hesap bilgisi (tazminat odemesi icin)\n\nBelgeyi yukleyince Tedbirge AI Analyzer otomatik okur. Eksik belge varsa avukatinizla tamamlayabilirsiniz."
+    },
+    {
+      "id": "insurance-01",
+      "intent": "INSURANCE",
+      "patterns": ["sigorta reddetti", "police"],
+      "response": "Sigorta sirketi tazminat odemesini reddetmisse veya yetersiz goruyorsaniz, hukuki surec baslatilabilir. Policenizi ve red yazisini yuklerseniz Tedbirge AI Analyzer durumu inceler, avukatiniz size yol gosterir."
+    },
+    {
+      "id": "price-01",
+      "intent": "PRICE_FEE",
+      "patterns": ["ucret", "kac para"],
+      "response": "Tedbirge.ai platform kullanimi tamamen UCRETSIZDIR.\n\nBasvuru -> Belge Analizi -> Avukat Tercih: tamamen ucretsiz.\n\nAvukat ucretleri ayridir (avukatinizla anlasacaksiniz), genelde dava sonucu kazanilan tazminattan yuzde olarak odenir."
+    },
+    {
+      "id": "kvkk-01",
+      "intent": "KVKK_PRIVACY",
+      "patterns": ["kvkk", "verilerim guvende mi"],
+      "response": "Verileriniz Turkiye'de saklanir, KVKK uyumludur:\n\n- Saglik verisi (epikriz) icin acik riza istenir\n- Yurt disina veri transferi YAPILMAZ\n- Diledigimiz an silme talebi gonderebilirsiniz\n- ISO 27001 hazirligindayiz\n\nDetay: https://tedbirge.ai/kvkk"
+    },
+    {
+      "id": "about-01",
+      "intent": "ABOUT_TEDBIRGE",
+      "patterns": ["tedbirge nedir", "hakkinizda"],
+      "response": "Tedbirge.ai, Turkiye'nin dijital hukuk platformudur. Trafik ve is kazasi magdurlarina:\n\n- Ucretsiz basvuru\n- AI destekli belge analizi (Tedbirge AI Analyzer)\n- Sisteme kayitli avukatlardan tercih\n- KVKK guvenli surec yonetimi\n\nDaha fazla: https://tedbirge.ai/hakkimizda"
+    },
+    {
+      "id": "timeout-01",
+      "intent": "TIMEOUT_LIMITATION",
+      "patterns": ["zamanasimi", "sure"],
+      "response": "Zamanasimi sureleri:\n\n- Trafik kazasi: 2 yil (KTK m.109)\n- Is kazasi: 10 yil (BK m.146)\n- Manevi tazminat: 2 yil\n- Suc tarihinden itibaren baslar\n\nSureniz dolmak uzereyse ACELE edin. Hemen basvuru: https://tedbirge.ai/basvuru"
+    },
+    {
+      "id": "fallback-01",
+      "intent": "FALLBACK",
+      "patterns": [],
+      "response": "Sorunuzu tam anlayamadim. Su konularda size yardimci olabilirim:\n\n- Trafik kazasi tazminati\n- Is kazasi tazminati\n- Belge yukleme\n- Avukat tercihi\n- Basvuru sureci\n\nDogrudan basvuru icin: https://tedbirge.ai/basvuru\n\nIsterseniz baska bir sekilde sorabilirsiniz."
+    }
+  ]
+}

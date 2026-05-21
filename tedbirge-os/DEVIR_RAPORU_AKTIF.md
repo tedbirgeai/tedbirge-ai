@@ -1,15 +1,54 @@
 # 🛡️ TEDBIRGE.AI — DEVİR RAPORU (AKTİF)
 
-📋 **ANAYASA:** v1.43.0 MINOR (Madde 30.92 yeni — Master Data Disiplini)
-📂 **🚀 TUR #132.1 KAPALI: AI CEKIRDEK SAHA DOGRULAMA HOTFIX + HIBRIT KORUMA — 14 ATOM 🚀**
-📅 **SON GÜNCELLEME:** 15 Mayıs 2026 Cuma gece (TUR #132.1 KAPALI — hotfix)
-👤 **CEO Onay:** Mehmet DINÇ — "belge yukleme hibrit sistemdir hic bir seyi bozmadan uctan uca kod tabanli otonom aksin gitsin 0 hata ile duzelt bana hic bir sey sorma basla bitir." (15 May 2026 gece, Madde 18.3 yazili onay = KIRMIZI 2 + KIRMIZI 3)
-🤖 **Mimar:** Claude Opus 4.7 (TUR #132.1 mektup, 14 atom + Madde 30.92 yeni + MH61 + MH62 tescil) + Claude Code (pre-flight grep hibrit harita + 14 atom uygulama)
-🌟 **Tarih:** 15 Mayıs 2026 gece — 44 ARDISIK TEMIZ TUR REKOR (#90 → #132.1)
+📋 **ANAYASA:** v1.44.0 MINOR (Madde 24.14 R1 genisleme + MH71 yeni)
+📂 **🚀 TUR #132.4 KAPALI: TAC TAM BAGIMSIZ AI CEKIRDEK — 17 atom + 3 dürüst SKIP 🚀**
+📅 **SON GÜNCELLEME:** 21 Mayıs 2026 Perşembe (TUR #132.4 KAPALI)
+👤 **CEO Onay:** Mehmet DINÇ — "tek komutla uçtan uca kod kanıtlı otonom aksın gitsin 0 hata ile düzelt 🇹🇷⚖️ Tedbirge AI analyzer ve 🇹🇷⚖️ Tedbirge AI — kendi beyni, kendi mülkiyeti, kendi öğrenmesi. bana hiç bir şey sorma başla bitir." (15 May 2026 gece, Madde 18.3 yazılı onay)
+🤖 **Mimar:** Claude Opus 4.7 (TUR #132.4 mektup, 20 atom + Madde 24.14 R1 genisleme + MH71 yeni) + Claude Code (pre-flight grep + 17 atom uygulama + 3 dürüst SKIP)
+🌟 **Tarih:** 21 Mayıs 2026 — 45 ARDISIK TEMIZ TUR REKOR (#90 → #132.4)
 
 ---
 
-## 🎯 BUGÜN — TUR #132.1 KAPALI (AI Cekirdek Saha Dogrulama Hotfix)
+## 🎯 BUGÜN — TUR #132.4 KAPALI (TAC Tam Bagimsiz AI Cekirdek)
+
+**CEO direktifi:** Tedbirge AI Analyzer + Tedbirge AI Asistani — kendi beyni, kendi mulkiyeti, kendi ogrenmesi.
+
+### Uygulanan 17 Atom (DEFER 0 — Madde 17.2 R1 uctan uca)
+- A1: Pre-flight grep — 13 Anthropic dosya tespit (MH71 emsali)
+- A2: ai-analyzer.service.js Anthropic söküm + pattern-engine entegrasyon
+- A3: 4 pattern JSON (accident-type + injury-disability + insurance-policy + medical-icd10 v1)
+- A4: pattern-engine.service.js YENI (rule-based 14 alan, $0)
+- A5: mergeAiResultToLead KORU (Madde 4.6 KALIN — TUR #132.1 emsali aynen)
+- A6: lexscan.controller.js Anthropic söküm + chatbot.service entegrasyon
+- A7: intent-engine.service.js YENI (13 intent)
+- A8: faq-tr-v1.json YENI (13 FAQ + fallback)
+- A9: chatbot.service.js YENI (ChatSession + ChatMessage reuse)
+- A10: AiChatWidget.tsx — Tedbirge AI Asistani + T avatar + sessionKey
+- A11: admin.ai-training.routes.js YENI (FAQ + fallback + conversations)
+- A12: dashboard/ai-egitim/page.tsx YENI (3 tab — ADMIN)
+- A13: Marka temizlik (LexScan/claude-sonnet UI'dan kalkti)
+- A14: Smoke (prisma generate + pattern + intent + tsc noEmit EXIT=0)
+- A15: 5 belge OS senkron + version.json bump
+- A16: Atomik commit + push
+
+### Dürüst SKIP (3 atom — Madde 30.31 R1)
+- A7 mektup (Anthropic uninstall) → MH71: 11 servis aktif kullanıyor, Madde 4.6 KALIN > KIRMIZI 7
+- A14 mektup (ChatLog schema) → Mevcut ChatSession + ChatMessage reuse, KIRMIZI 5 SKIP
+- A15 mektup (Idempotent SQL) → A14 ile birlikte SKIP
+
+### AI durumu
+- ✅ Tedbirge AI Analyzer LIVE (pattern-engine v1, $0, KVKK lokal)
+- ✅ Tedbirge AI Asistani LIVE (intent-engine v1 + 13 FAQ, $0)
+- 🟢 11 diger AI servisi (petition/contract/muhatapAI/bilirkisi/ocr/...) DOKUNULMADI (Madde 4.6 KALIN)
+- 🟢 mergeAiResultToLead pipeline (TUR #132.1) aynen calisti
+
+### Mimar Hatasi 71 tescil
+
+**Anthropic Kullanim Haritasi Eksikligi** — Mimar mektubu sadece 2 dosyayi hedefliyordu, pre-flight 13 dosya tespit etti. Madde 30.83.1 (Pre-Flight Disiplini) genisletme: paket-seviyesi degisiklik onerisi tum kullanici dosyalari grep zorunlu.
+
+---
+
+## ESKI: TUR #132.1 KAPALI (AI Cekirdek Saha Dogrulama Hotfix)
 
 **CEO 14 May 2026 saha kanit (6 ekran):** 3 KIRMIZI bug + 2 SARI tutarsizlik.
 

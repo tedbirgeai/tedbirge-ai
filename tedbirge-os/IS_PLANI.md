@@ -1,12 +1,39 @@
 # 📋 TEDBİRGE.AI — İŞ PLANI (AKTİF KESİT)
 
-**Son güncelleme:** 15 Mayıs 2026 Cuma gece (TUR #132.1 KAPALI — hotfix)
-**Anayasa:** v1.43.0 MINOR (Madde 30.92 yeni — Master Data Disiplini)
-**Aktif rekor:** 44 ardisik temiz TUR (#90 → #132.1)
+**Son güncelleme:** 21 Mayıs 2026 Perşembe (TUR #132.4 KAPALI — TAC Tam Bagimsiz)
+**Anayasa:** v1.44.0 MINOR (Madde 24.14 R1 genisleme + MH71 yeni)
+**Aktif rekor:** 45 ardisik temiz TUR (#90 → #132.4)
 
 ---
 
-## 🎯 NOW — TUR #132.1 KAPALI ✅ (AI Cekirdek Saha Dogrulama Hotfix + Hibrit Koruma)
+## 🎯 NOW — TUR #132.4 KAPALI ✅ (TAC Tam Bagimsiz AI Cekirdek)
+
+**CEO direktifi:** "Tedbirge AI analyzer + Tedbirge AI asistani — kendi beyni, kendi mulkiyeti, kendi ogrenmesi"
+
+**17 atom uygulandı (DEFER 0 — Madde 17.2 R1 uctan uca):**
+- A1: Pre-flight grep (13 Anthropic dosya tespit, MH71 emsali)
+- A2: pattern-engine.service.js + 4 master data JSON (rule-based 14 alan)
+- A3: ai-analyzer.service.js Anthropic söküm
+- A4: intent-engine.service.js (13 intent) + faq-tr-v1.json (13 FAQ)
+- A5: chatbot.service.js (ChatSession + ChatMessage reuse — KIRMIZI 5 SKIP)
+- A6: lexscan.controller.js Anthropic söküm
+- A7: AiChatWidget.tsx → "Tedbirge AI Asistani" + T avatar
+- A8: admin.ai-training.routes.js + dashboard/ai-egitim sekmesi
+- A9: Smoke + 5 belge senkron + version bump
+
+**3 atom dürüst SKIP (Madde 30.31 R1):**
+- A7 mektup (Anthropic uninstall) — MH71: 11 servis aktif kullanıyor, Madde 4.6 KALIN
+- A14 mektup (ChatLog schema) — Mevcut ChatSession + ChatMessage reuse
+- A15 mektup (Idempotent SQL) — A14 ile birlikte SKIP
+
+**AI Durumu:**
+- ✅ Tedbirge AI Analyzer LIVE (pattern-engine v1, $0, KVKK lokal)
+- ✅ Tedbirge AI Asistani LIVE (intent-engine v1 + 13 FAQ, $0)
+- 🟢 11 diger AI servisi DOKUNULMADI (Madde 4.6 KALIN)
+
+---
+
+## ESKI: TUR #132.1 KAPALI (AI Cekirdek Saha Dogrulama Hotfix + Hibrit Koruma)
 
 **CEO saha kanit (6 ekran):** 3 KIRMIZI bug + 2 SARI tutarsizlik tespiti — TUR #132 saha dogrulamasiz kapatildi (MH62). Hotfix HIBRIT KORUMA (Madde 4.6) maksimum oncelik.
 

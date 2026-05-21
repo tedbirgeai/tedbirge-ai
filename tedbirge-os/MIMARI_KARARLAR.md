@@ -6,6 +6,62 @@
 
 ---
 
+## 21 Mayis 2026 Persembe — TUR #132.4 KAPALI (TAC Tam Bagimsiz AI Cekirdek — Madde 24.14 R1 genisleme + MH71 yeni)
+
+**Karar:** Tedbirge AI Cekirdek (TAC) iki ana modulu (Belge Ayristirici + Chat Asistani) Anthropic'ten tam bagimsiz hale getirildi. 17 atom uygulandi, 3 atom dürüst SKIP (Madde 30.31 R1). 0 schema degisikligi, 0 npm install, 0 env manuel, $0 maliyet.
+
+**CEO direktifi (Madde 18.3 yazili onay, 15 May 2026 gece):** "tek komutla uçtan uca kod kanıtlı otonom aksın gitsin 0 hata ile düzelt 🇹🇷⚖️ Tedbirge AI analyzer ve 🇹🇷⚖️ Tedbirge AI — kendi beyni, kendi mülkiyeti, kendi öğrenmesi. bana hiç bir şey sorma başla bitir."
+
+**Uygulanan ana cozumler:**
+
+1. **Tedbirge AI Analyzer (Belge Ayristirici)** — `pattern-engine.service.js`
+   - Rule-based 14 alan cikarim (kazaTuru/maluliyetOrani/policeNo/icdCode/...)
+   - 4 master data JSON: accident-type + injury-disability + insurance-policy + medical-icd10 v1
+   - $0 maliyet, KVKK lokal (yurt disi transferi YOK)
+   - `mergeAiResultToLead` (TUR #132.1) aynen korundu (Madde 4.6 KALIN)
+
+2. **Tedbirge AI Asistani (Chat)** — `chatbot.service.js`
+   - 13 intent (GREETING/TRAFFIC_ACCIDENT/WORK_ACCIDENT/COMPENSATION_ESTIMATE/...)
+   - 13 FAQ (faq-tr-v1.json)
+   - Mevcut `ChatSession` + `ChatMessage` tablolari reuse (intent + confidence `metadataJson`'a)
+   - "LexScan AI" → "Tedbirge AI Asistani" rename (UI + backend dokumantasyon)
+   - "T" avatar (#15803D koyu yesil) + "Cevrimici" (model adi YOK)
+
+3. **Admin AI Egitimi sekmesi** — `dashboard/ai-egitim`
+   - 3 tab: FAQ Yonetimi / Konusma Loglari / Cevaplanmayan
+   - Endpoint: `/api/admin/ai-training/{faq,fallback,conversations}` (ADMIN only)
+
+**Dürüst SKIP (3 atom — Madde 30.31 R1):**
+
+- **A7 (KIRMIZI 7 — Anthropic uninstall):** Pre-flight grep 13 dosya tespit etti. 11 dosya (ai/contract/muhatapAI/bilirkisi/ocr/analyzer/llmRouter/ai-cost-tracker/os.modules.ai/costGuard/anthropic adapter) aktif Anthropic kullaniyor. Paket package.json'dan kaldirilirsa 11 servis crash eder. **Madde 4.6 KALIN > KIRMIZI 7 sessiz onay.** Mimar Hatasi 71 (MH71) tescil — paket-seviyesi degisiklik onerisi tum kullanici grep zorunlu (Madde 30.83.1 genisleme).
+
+- **A14 (KIRMIZI 5 — ChatLog schema):** Mevcut `ChatMessage` modeli `(sessionId, leadId, sender, message, metadataJson)` ve `ChatSession (sessionKey UNIQUE)` zaten ayni semantiği kapsiyor. Mektubun istedigi yeni `ChatLog + ChatMessage` semasi (chatLogId/role/content/intent/confidence) MEVCUT `ChatMessage` ile cakisirdi. **Madde 4.6 KALIN:** mevcut tablolari reuse, intent + confidence `metadataJson` JSON alanina yaz. Schema migration GEREKMEZ.
+
+- **A15 (Idempotent SQL):** A14 SKIP olunca otomatik SKIP. Schema `1.9.0` sabit.
+
+**Sebep:**
+- CEO direktifi "Tedbirge mulkiyeti AI cekirdek" — KVKK m.9 yurt disi transfer riskini sifirlamak (Anthropic Standard tier orta vadeli teknik borc)
+- AI Analyzer + Chat Asistani Tedbirge mulkiyetinde, $0 maliyet, ogrenebilir (FAQ + pattern data versiyon kontrollu)
+- Diger 11 AI servisi (petition/contract/muhatapAI/bilirkisi/ocr/...) hassasiyet acisindan rule-based'e cevirmeye uygun degil — gercek LLM gerekli (gelecek TUR'larda enterprise tier veya self-hosted LLM)
+
+**Alternatif:**
+- 13 Anthropic dosyayi hepsini Anthropic'ten sokmek — REDDEDILDI (Madde 4.6 KALIN ihlali, petition/contract/muhatapAI gibi servisler rule-based'e ugun degil)
+- Mektubun yeni ChatLog tablo onerisi — REDDEDILDI (mevcut ChatSession+ChatMessage tablolar zaten dogru semantik)
+- @anthropic-ai/sdk paket package.json'dan kaldirma — REDDEDILDI (11 servis dependency)
+- Tedbirge AI Analyzer rule-based yerine self-hosted LLM (llama/qwen) — ERTELENDI (Madde 4.6 + altyapi maliyet, TUR #150+ teknik borc)
+
+**Etki:**
+- Backend `1.17.0 → 1.18.0` MINOR (+3 yeni service + 1 yeni route + 4 pattern JSON + 1 FAQ JSON)
+- Panel `1.27.0 → 1.28.0` MINOR (AiChatWidget rename + yeni ai-egitim sekme)
+- Anayasa `v1.43.0 → v1.44.0` MINOR (Madde 24.14 R1 genisleme + MH71 yeni)
+- Schema `1.9.0` sabit (KIRMIZI 5 SKIP)
+- AI maliyet: 2 modulu icin $0/ay (Anthropic Opus belge + Anthropic Sonnet chat → pattern-engine + intent-engine)
+- 45 ARDISIK TEMIZ TUR REKOR (#90 → #132.4)
+
+**Mimar:** Claude Opus 4.7 (TUR #132.4 mektup, 20 atom) + Claude Code (Opus 4.7 1M context — 21 May 2026 pre-flight + 17 uygulama + 3 dürüst SKIP)
+
+---
+
 ## 15 Mayis 2026 Cuma gece (sonra) — TUR #132.1 KAPALI (AI Cekirdek Saha Dogrulama Hotfix + Hibrit Koruma — Madde 30.92 yeni)
 
 **Karar:** TUR #132 KAPALI sonrasi CEO 14 May saha kanit (6 ekran) 3 KIRMIZI bug + 2 SARI tutarsizlik tespit. TUR #132.1 hotfix uctan uca 14 atom (DEFER 0). HIBRIT KORUMA (Madde 4.6) maksimum oncelik — Public + Authenticated upload akislari + completeUpload + finalize-upload (TUR #66) imzalari DOKUNULMADI. Tek Document.create call site (documents.upload.routes.js:195) korundu.

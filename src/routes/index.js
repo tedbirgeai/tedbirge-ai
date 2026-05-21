@@ -43,6 +43,8 @@ const adminSozlesmelerRoutes = require("./admin-sozlesmeler.routes");
 const uyapRoutes = require("./uyap.routes");
 // TUR #110 C1 — JudicialResponse veri toplama (KIRMIZI — Madde 28)
 const judicialRoutes = require("./judicial.routes");
+// TUR #132.4 — Admin AI Egitimi (Tedbirge AI Asistani FAQ + fallback + conversations)
+const adminAiTrainingRoutes = require("./admin.ai-training.routes");
 
 const router = express.Router();
 
@@ -95,6 +97,8 @@ router.use('/', adminSozlesmelerRoutes);
 router.use('/', uyapRoutes);
 // TUR #110 C1 — JudicialResponse (Madde 28 + KIRMIZI nokta)
 router.use('/', judicialRoutes);
+// TUR #132.4 — Admin AI Egitimi
+router.use('/admin/ai-training', adminAiTrainingRoutes);
 
 module.exports = router;
 

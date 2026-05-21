@@ -1,0 +1,33 @@
+{
+  "version": "v1-2026",
+  "lastUpdated": "2026-05-21",
+  "patterns": {
+    "maluliyet": {
+      "regex": [
+        "%\\s*([0-9]+(?:[.,][0-9]+)?)\\s*(?:oraninda\\s+)?maluliyet",
+        "maluliyet\\s+oran(?:i)\\s*[:.]?\\s*%?\\s*([0-9]+(?:[.,][0-9]+)?)",
+        "is\\s*gucu\\s*kayb(?:i)\\s*%?\\s*([0-9]+(?:[.,][0-9]+)?)",
+        "surekli\\s*is\\s*goremezlik\\s*([0-9]+(?:[.,][0-9]+)?)"
+      ],
+      "extractionField": "maluliyetOrani",
+      "type": "percentage"
+    },
+    "yaralanma_var": {
+      "keywords": [
+        "yaralanm", "yarali", "hastane yatis", "hospitalize",
+        "ameliyat", "operasyon", "cerrahi", "epikriz",
+        "kemik kirigi", "fraktur", "darbe", "kontuzyon"
+      ],
+      "extractionField": "hasInjury",
+      "type": "boolean"
+    },
+    "vefat": {
+      "keywords": [
+        "vefat", "olum", "exitus", "mortis",
+        "olu", "destekten yoksun"
+      ],
+      "extractionField": "vefatVar",
+      "type": "boolean"
+    }
+  }
+}
