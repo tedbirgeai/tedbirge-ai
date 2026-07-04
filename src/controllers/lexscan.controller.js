@@ -1,19 +1,13 @@
-/**
- * Tedbirge AI Asistani — Herkese acik chat endpoint'i
- * TUR #132.4 (21 May 2026) — Anthropic SDK kaldirildi (Madde 24.14 R1 KALIN)
- *
- * Eski: claude-sonnet-4-6 (Anthropic, ucretli, KVKK yurt disi transferi)
- * Yeni: chatbot.service.js (Tedbirge rule-based intent engine + FAQ, $0, KVKK lokal)
- *
- * Route adi "lexscan" geriye uyumluluk icin korunur (Madde 4.6) — frontend cagrisi
- * `/api/lexscan/chat` URL'i degismez. Marka "Tedbirge AI Asistani" olarak gosterilir.
- */
-
 "use strict";
 
 const asyncHandler = require("../utils/asyncHandler");
 const chatbot = require("../services/chatbot.service");
+const prisma = require("../config/db");
 
+/**
+ * Tedbirge AI Asistani — Herkese acik chat endpoint'i
+ * (Degismedi — mevcut $0 rule-based motor, chatbot.service.js)
+ */
 exports.chat = asyncHandler(async (req, res) => {
   const { messages, sessionId, sessionKey, leadId } = req.body || {};
 
@@ -23,7 +17,6 @@ exports.chat = asyncHandler(async (req, res) => {
       .json({ success: false, message: "Mesaj listesi bos olamaz." });
   }
 
-  // Son kullanici mesajini al
   const lastUserMessage = [...messages]
     .reverse()
     .find((m) => m && m.role === "user");
@@ -52,4 +45,53 @@ exports.chat = asyncHandler(async (req, res) => {
       sessionKey: reply.sessionKey,
     },
   });
+});
+
+/**
+ * YENİ — Ana sayfa hero asistanındaki "0 sürtünme" e-posta yakalama.
+ *
+ * Kasıtlı olarak YENİ bir Prisma modeli/migration İSTEMEZ (0 hata ilkesi):
+ * mevcut ChatSession + ChatMessage + ActivityLog tablolarını, chatbot.service.js
+ * ile aynı desende yeniden kullanır. Kayıt, "AI Eğitimi" / Audit Log
+ * ekranlarınızdan zaten görülebilir; ayrı bir CRM alanı gerekirse (Lead'e
+ * otomatik dönüştürme) bu, ayrı ve bilinçli bir sonraki adımdır.
+ */
+exports.captureEmail = asyncHandler(async (req, res) => {
+  const { sessionKey, email } = req.body || {};
+
+  const cleanEmail = String(email || "").trim().toLowerCase();
+  const emailOk = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(cleanEmail);
+  if (!emailOk) {
+    return res
+      .status(400)
+      .json({ success: false, message: "Geçerli bir e-posta girin." });
+  }
+  if (!sessionKey) {
+    return res
+      .status(400)
+      .json({ success: false, message: "Oturum bulunamadı, sohbeti yeniden başlatın." });
+  }
+
+  const session = await prisma.chatSession.findUnique({ where: { sessionKey } });
+
+  if (session) {
+    await prisma.chatMessage.create({
+      data: {
+        sessionId: session.id,
+        sender: "lead_capture",
+        message: cleanEmail,
+        metadataJson: JSON.stringify({ type: "email_capture" }),
+      },
+    });
+  }
+
+  // Admin'in göreceği yer: Dashboard → Audit Log (mevcut ekran, yeni sayfa yok)
+  await prisma.activityLog.create({
+    data: {
+      action: "HERO_ASSISTANT_EMAIL_CAPTURED",
+      detail: `sessionKey:${sessionKey} email:${cleanEmail}`,
+    },
+  });
+
+  res.json({ success: true, data: { saved: true } });
 });
