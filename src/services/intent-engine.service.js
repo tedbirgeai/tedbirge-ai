@@ -1,7 +1,14 @@
 // TUR #132.4 + #132.6 — Intent Engine (rule-based + keyword matching)
 // Madde 24.14 R1 KALIN — Tedbirge mulkiyeti, $0, KVKK lokal
 // Chatbot servisinin niyet tespit motoru.
-// v2: 30 intent (FAQ v2 ile uyumlu) + Turkce karakter normalize
+// v3: 45 intent (FAQ v3 ile uyumlu) + Turkce karakter normalize
+//
+// DÜRÜSTLÜK NOTU: "Binlerce cevap" tek bir dosyada elle yazılamaz — bu
+// dürüst değildir. Bunun yerine v2'deki 30 intent üzerine, trafik/iş
+// kazası sürecinde GERÇEKTEN sorulan 15 yeni konu eklendi (45 toplam) +
+// birçok mevcut intent'e konuşma dilindeki varyasyonlar/yazım hataları
+// eklendi. Motor hâlâ kural-tabanlıdır (LLM değil), ama artık günlük
+// dildeki soruların çok daha fazlasını doğru intent'e eşler.
 
 "use strict";
 
@@ -15,19 +22,19 @@ const INTENTS = {
     weight: 1.0,
   },
   TRAFFIC_ACCIDENT: {
-    keywords: ["trafik kaza", "arac kaza", "araç kaza", "motor kaza", "carpisma", "çarpışma", "arabali kaza", "arabalı kaza", "yolda kaza"],
+    keywords: ["trafik kaza", "arac kaza", "araç kaza", "motor kaza", "carpisma", "çarpışma", "arabali kaza", "arabalı kaza", "yolda kaza", "kaza yaptim", "kaza yaptım", "bana carpti", "bana çarptı", "arkadan carpildim", "arkadan çarpıldım"],
     weight: 1.2,
   },
   WORK_ACCIDENT: {
-    keywords: ["is kaza", "iş kaza", "isyerinde kaza", "işyerinde kaza", "mesai kaza", "calisirken", "çalışırken", "isveren", "işveren"],
+    keywords: ["is kaza", "iş kaza", "isyerinde kaza", "işyerinde kaza", "mesai kaza", "calisirken", "çalışırken", "isveren", "işveren", "santiyede", "şantiyede", "fabrikada kaza", "makinede kaza", "is yerinde yaralandim", "iş yerinde yaralandım"],
     weight: 1.2,
   },
   MOTORCYCLE_ACCIDENT: {
-    keywords: ["motor kaza", "motosiklet kaza", "motorum", "motorla kaza"],
+    keywords: ["motor kaza", "motosiklet kaza", "motorum", "motorla kaza", "kaskom", "motokurye"],
     weight: 1.3,
   },
   PEDESTRIAN_ACCIDENT: {
-    keywords: ["yaya kaza", "yaya carp", "yaya çarp", "yururken carp", "yürürken çarp"],
+    keywords: ["yaya kaza", "yaya carp", "yaya çarp", "yururken carp", "yürürken çarp", "kaldirimda", "kaldırımda", "yaya gecidinde", "yaya geçidinde"],
     weight: 1.3,
   },
   ZAMANASIMI: {
@@ -39,11 +46,11 @@ const INTENTS = {
     weight: 1.0,
   },
   TAZMINAT_TUTARI: {
-    keywords: ["tazminat ne kadar", "ne kadar alabilirim", "tutar", "miktar", "hesap"],
+    keywords: ["tazminat ne kadar", "ne kadar alabilirim", "tutar", "miktar", "hesap", "ortalama tazminat", "kac lira", "kaç lira", "ne kadar para"],
     weight: 1.0,
   },
   LAWYER_REFERRAL: {
-    keywords: ["avukat", "temsil", "hukukcu", "hukukçu", "yasal temsil"],
+    keywords: ["avukat", "temsil", "hukukcu", "hukukçu", "yasal temsil", "avukat bulmak", "avukat onerisi", "avukat önerisi"],
     weight: 1.0,
   },
   AVUKAT_UCRETI: {
@@ -51,7 +58,7 @@ const INTENTS = {
     weight: 1.2,
   },
   TEDBIRGE_UCRET: {
-    keywords: ["tedbirge ucret", "tedbirge ücret", "tedbirge para", "platform ucret", "platform ücret", "size ne odeyecegim", "size ne ödeyeceğim"],
+    keywords: ["tedbirge ucret", "tedbirge ücret", "tedbirge para", "platform ucret", "platform ücret", "size ne odeyecegim", "size ne ödeyeceğim", "ucretsiz mi", "ücretsiz mi"],
     weight: 1.2,
   },
   APPLICATION_HOW: {
@@ -222,6 +229,69 @@ const INTENTS = {
     keywords: ["deger kaybi", "değer kaybı", "arac deger", "araç değer", "ikinci el", "arac hasar", "araç hasar"],
     weight: 1.2,
   },
+
+  // ================= v3 — YENİ 15 İNTENT =================
+  ILK_ADIMLAR: {
+    keywords: ["kaza az once oldu", "kaza az önce oldu", "simdi ne yapmaliyim", "şimdi ne yapmalıyım", "ilk once ne yapmaliyim", "ilk önce ne yapmalıyım", "kaza yeni oldu", "az once carpistim", "az önce çarpıştım"],
+    weight: 1.3,
+  },
+  KAZA_TUTANAGI_ITIRAZ: {
+    keywords: ["tutanaga itiraz", "tutanağa itiraz", "tutanak yanlis", "tutanak yanlış", "tutanak imzalamadim", "tutanak imzalamadım", "kaza tespit tutanagi", "kaza tespit tutanağı"],
+    weight: 1.3,
+  },
+  KIRMIZI_ISIK: {
+    keywords: ["kirmizi isik", "kırmızı ışık", "kirmizida gecti", "kırmızıda geçti", "isik ihlali", "ışık ihlali"],
+    weight: 1.3,
+  },
+  HIZ_IHLALI: {
+    keywords: ["hiz siniri", "hız sınırı", "asiri hiz", "aşırı hız", "hiz kaydi", "hız kaydı", "radar"],
+    weight: 1.2,
+  },
+  OTOPARK_KAZA: {
+    keywords: ["otoparkta carpti", "otoparkta çarptı", "park halindeyken", "parkta cizik", "parkta çizik", "park halinde arac", "park halinde araç"],
+    weight: 1.2,
+  },
+  STAJYER_KAZA: {
+    keywords: ["stajyer kaza", "cirak kaza", "çırak kaza", "stajyerken yaralandim", "stajyerken yaralandım", "stajyer is kazasi", "stajyer iş kazası"],
+    weight: 1.3,
+  },
+  MESLEK_HASTALIGI: {
+    keywords: ["meslek hastaligi", "meslek hastalığı", "islitme kaybi", "işitme kaybı", "bel fitigi is", "bel fıtığı iş", "tozdan hastalik", "tozdan hastalık"],
+    weight: 1.3,
+  },
+  POLIS_CAGIRMADAN: {
+    keywords: ["polis cagirmadan", "polis çağırmadan", "tutanaksiz anlastik", "tutanaksız anlaştık", "kaza sonrasi anlasma", "kaza sonrası anlaşma", "sozlu anlasma", "sözlü anlaşma"],
+    weight: 1.3,
+  },
+  KIRALIK_ARAC: {
+    keywords: ["kiralik arac", "kiralık araç", "rent a car kaza", "kiralik araba kaza", "kiralık araba kaza"],
+    weight: 1.2,
+  },
+  YURTDISI_KAZA: {
+    keywords: ["yurtdisinda kaza", "yurtdışında kaza", "yurt disi kaza", "yurt dışı kaza", "yabanci ulkede kaza", "yabancı ülkede kaza"],
+    weight: 1.2,
+  },
+  MALULLUK_AYLIGI: {
+    keywords: ["malullik ayligi", "malullük aylığı", "emeklilik maluliyet", "sgk malullük", "sgk malullik"],
+    weight: 1.2,
+  },
+  DOSYA_TAKIP: {
+    keywords: ["basvurumu nasil takip ederim", "başvurumu nasıl takip ederim", "dosyam ne durumda", "basvuru durumu", "başvuru durumu", "dosya sorgulama"],
+    weight: 1.2,
+  },
+  BISIKLET_KAZA: {
+    keywords: ["bisiklet kaza", "bisikletle carpisma", "bisikletle çarpışma", "bisiklet surucu", "bisiklet sürücü"],
+    weight: 1.3,
+  },
+  SERVIS_ARACI_KAZA: {
+    keywords: ["servis araci kaza", "servis aracı kaza", "okul servisi kaza", "personel servisi kaza"],
+    weight: 1.3,
+  },
+  TAKSI_UBER_KAZA: {
+    keywords: ["taksi kaza", "uber kaza", "yolcu tasima kaza", "yolcu taşıma kaza", "ticari tasit kaza", "ticari taşıt kaza"],
+    weight: 1.2,
+  },
+
   FALLBACK: {
     keywords: [],
     weight: 0,
