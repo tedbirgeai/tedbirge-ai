@@ -60,12 +60,17 @@ async function runProspectFollowUp() {
 
       try {
         const r = await sendProspectFollowUpEmail(email);
+        if (r?.success) sent++;
+      } catch (e) {
+        // Gönderim başarısız (geçersiz/sahte adres, dolu kutu, vb.) — YİNE DE
+        // "denendi" olarak işaretle. Önceki hata: başarısızlıkta bu kayıt hiç
+        // yazılmıyordu, bu da job'un HER SAAT aynı kötü adrese yeniden denemesine
+        // ve size sürekli "teslim edilemedi" bildirimi düşmesine yol açıyordu.
+        logger.error(`[ProspectFollowUp] Gönderim hatası (${email}): ${e.message}`);
+      } finally {
         await prisma.activityLog.create({
           data: { action: "PROSPECT_FOLLOWUP_SENT", detail: `email:${email}` },
         });
-        if (r?.success) sent++;
-      } catch (e) {
-        logger.error(`[ProspectFollowUp] Gönderim hatası (${email}): ${e.message}`);
       }
     }
 
