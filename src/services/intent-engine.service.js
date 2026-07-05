@@ -12,7 +12,78 @@
 
 "use strict";
 
-const INTENTS = {
+function normalize(text) {
+  return String(text || "")
+    .toLocaleLowerCase("tr-TR")
+    .replace(/i̇/g, "i")
+    .replace(/I/g, "i")
+    .replace(/[.,!?;:()"']/g, " ")
+    .replace(/\s+/g, " ")
+    .trim();
+}
+
+// Türkçe'de en sık eklenen çekim ekleri — kaba ama etkili bir "gövdeleme"
+// (stemming). "çarptı" / "çarpması" / "çarpan" gibi varyasyonların hepsi
+// aynı kökle eşleşsin diye kelimenin sonundaki bu ekleri kırpar.
+const SUFFIXES = [
+  "lerinden", "larından", "lerinde", "larında", "lerini", "larını",
+  "diğim", "diğin", "dığı", "diği", "dığım",
+  "yordu", "yorum", "yorsun",
+  "acağım", "eceğim", "acaktı", "ecekti",
+  "mıştı", "mişti", "muştu", "müştü",
+  "ması", "mesi", "manın", "menin",
+  "dan", "den", "tan", "ten",
+  "nın", "nin", "nun", "nün",
+  "ları", "leri", "lar", "ler",
+  "dım", "dim", "dum", "düm", "tım", "tim", "tum", "tüm",
+  "dı", "di", "du", "dü", "tı", "ti", "tu", "tü",
+  "ım", "im", "um", "üm",
+  "ın", "in", "un", "ün",
+  "a", "e", "ı", "i", "u", "ü", "o", "ö",
+];
+
+function stem(word) {
+  let w = word;
+  // en uzun ekten başlayarak TEK bir ek kırp (agresif çoklu kırpma yanlış
+  // pozitif üretir, tek seferlik kırpma yeterli iyileştirme sağlar)
+  for (const suf of SUFFIXES) {
+    if (w.length - suf.length >= 3 && w.endsWith(suf)) {
+      w = w.slice(0, -suf.length);
+      break;
+    }
+  }
+  return w;
+}
+
+function tokenize(text) {
+  return normalize(text)
+    .split(" ")
+    .filter((w) => w.length >= 2)
+    .map(stem);
+}
+
+/**
+ * ESKİ ALGORİTMA HATASI (kullanıcı raporuyla tespit edildi):
+ * "kavşaktan karşıya geçerken bir araba çarptı bana" cümlesi, kayıtlı
+ * "bana çarptı" kalıbıyla SIRA FARKLI olduğu için (mesajda "çarptı bana")
+ * hiç eşleşmedi — çünkü eski motor birebir alt-dizi (substring) arıyordu.
+ * Konuşma dili kelime sırasını asla garanti etmez.
+ *
+ * YENİ ALGORİTMA: kelime sırasından bağımsız, gövdelenmiş kelime örtüşmesi.
+ * Her anahtar kelime öbeği kendi kelimelerine bölünür; mesajda o kelimelerin
+ * kaçı (sırası önemsiz, hafif çekim farklarına toleranslı) geçiyorsa o
+ * oranda puan verilir. "çarptı bana" ile "bana çarptı" artık AYNI skoru
+ * üretir. Bu, motoru gerçek konuşma diline çok daha dayanıklı yapar.
+ */
+function scorePhraseOverlap(phraseTokens, messageTokenSet) {
+  if (phraseTokens.length === 0) return 0;
+  let hits = 0;
+  for (const t of phraseTokens) {
+    if (messageTokenSet.has(t)) hits++;
+  }
+  return hits / phraseTokens.length; // 0..1
+}
+
   GREETING: {
     keywords: ["merhaba", "selam", "iyi gunler", "iyi günler", "gunaydin", "günaydın", "iyi aksamlar", "iyi akşamlar", "hello", "hi"],
     weight: 1.0,
@@ -22,7 +93,7 @@ const INTENTS = {
     weight: 1.0,
   },
   TRAFFIC_ACCIDENT: {
-    keywords: ["trafik kaza", "arac kaza", "araç kaza", "motor kaza", "carpisma", "çarpışma", "arabali kaza", "arabalı kaza", "yolda kaza", "kaza yaptim", "kaza yaptım", "bana carpti", "bana çarptı", "arkadan carpildim", "arkadan çarpıldım"],
+    keywords: ["trafik kaza", "arac kaza", "araç kaza", "motor kaza", "carpisma", "çarpışma", "arabali kaza", "arabalı kaza", "yolda kaza", "kaza yaptim", "kaza yaptım", "bana carpti", "bana çarptı", "carpti bana", "çarptı bana", "arkadan carpildim", "arkadan çarpıldım", "araba carpti", "araba çarptı", "kavsakta kaza", "kavşakta kaza", "kavsaktan", "kavşaktan"],
     weight: 1.2,
   },
   WORK_ACCIDENT: {
@@ -34,7 +105,7 @@ const INTENTS = {
     weight: 1.3,
   },
   PEDESTRIAN_ACCIDENT: {
-    keywords: ["yaya kaza", "yaya carp", "yaya çarp", "yururken carp", "yürürken çarp", "kaldirimda", "kaldırımda", "yaya gecidinde", "yaya geçidinde"],
+    keywords: ["yaya kaza", "yaya carp", "yaya çarp", "yururken carp", "yürürken çarp", "kaldirimda", "kaldırımda", "yaya gecidinde", "yaya geçidinde", "karsiya gecerken", "karşıya geçerken", "yolun karsisina gecerken", "yolun karşısına geçerken"],
     weight: 1.3,
   },
   ZAMANASIMI: {
@@ -306,16 +377,24 @@ function normalize(text) {
 }
 
 function detectIntent(message) {
-  const norm = normalize(message);
+  const messageTokens = tokenize(message);
+  const messageTokenSet = new Set(messageTokens);
   const scores = {};
 
   for (const [intent, config] of Object.entries(INTENTS)) {
-    scores[intent] = 0;
+    let total = 0;
     for (const kw of config.keywords) {
-      if (norm.includes(normalize(kw))) {
-        scores[intent] += config.weight;
+      const phraseTokens = tokenize(kw);
+      const overlap = scorePhraseOverlap(phraseTokens, messageTokenSet);
+      // Tam eşleşme (1.0 örtüşme) tam ağırlık alır; kısmi örtüşme
+      // (ör. 2 kelimeden 1'i) orantılı ama daha düşük puan alır — bu
+      // sayede "araba çarptı bana" gibi karışık sıralı cümleler de
+      // yeterli sinyal biriktirip doğru intent'i tetikleyebiliyor.
+      if (overlap >= 0.5) {
+        total += config.weight * overlap;
       }
     }
+    scores[intent] = total;
   }
 
   const sorted = Object.entries(scores)
