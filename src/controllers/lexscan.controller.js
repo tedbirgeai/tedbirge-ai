@@ -34,6 +34,20 @@ async function isEmailUnsubscribed(email) {
 }
 
 /**
+ * Bu e-postaya DAHA ÖNCE karşılama e-postası gönderilmiş mi?
+ * (0 hata ilkesi: yeni tablo yok — WELCOME_EMAIL_SENT ActivityLog'unu okur.)
+ */
+async function hasWelcomeAlreadySent(email) {
+  const clean = String(email || "").trim().toLowerCase();
+  if (!clean) return false;
+  const logs = await prisma.activityLog.findMany({
+    where: { action: "WELCOME_EMAIL_SENT" },
+    take: 5000,
+  });
+  return logs.some((l) => String(l.detail || "").trim().toLowerCase() === `email:${clean}`);
+}
+
+/**
  * Tedbirge AI Asistani — Herkese acik chat endpoint'i
  * (Degismedi — mevcut $0 rule-based motor, chatbot.service.js)
  */
@@ -122,12 +136,27 @@ exports.captureEmail = asyncHandler(async (req, res) => {
     },
   });
 
-  // YENİ — Karşılama e-postası. Fire-and-forget: e-posta gönderimi kullanıcıyı
-  // BEKLETMEZ (response hemen döner), gönderim arka planda denenir. SMTP
-  // ayarlı değilse email.service kendi mock moduna düşer, hata fırlatmaz.
-  sendProspectWelcomeEmail(cleanEmail).catch((e) =>
-    console.error("[lexscan] karşılama e-postası hatası:", e.message)
-  );
+  // YENİ — Karşılama e-postası, TEK SEFERLİK.
+  //
+  // BUG DÜZELTMESİ (kullanıcı raporuyla tespit edildi): Bu uç, kullanıcı
+  // e-posta kutusuna her tıkladığında (ör. test amaçlı, ya da sayfa
+  // yeniden yüklenip formu tekrar gönderdiğinde) çağrılabiliyordu ve HİÇBİR
+  // "bu e-postaya daha önce hoş geldin maili gitti mi?" kontrolü yoktu —
+  // bu yüzden AYNI kişiye 3 ayrı karşılama e-postası gitti. Artık önce
+  // WELCOME_EMAIL_SENT kaydı kontrol ediliyor; daha önce gönderildiyse
+  // ikinci bir karşılama maili ASLA gitmiyor (ActivityLog kaydı hâlâ
+  // "e-posta bırakıldı" olarak her seferinde düşer — Müvekkil Adayları
+  // listesi zaten en güncel kaydı gösterdiği için buna dokunulmadı).
+  const alreadyWelcomed = await hasWelcomeAlreadySent(cleanEmail);
+  if (!alreadyWelcomed) {
+    sendProspectWelcomeEmail(cleanEmail)
+      .then(() =>
+        prisma.activityLog.create({
+          data: { action: "WELCOME_EMAIL_SENT", detail: `email:${cleanEmail}` },
+        })
+      )
+      .catch((e) => console.error("[lexscan] karşılama e-postası hatası:", e.message));
+  }
 
   res.json({ success: true, data: { saved: true } });
 });
