@@ -84,6 +84,7 @@ function scorePhraseOverlap(phraseTokens, messageTokenSet) {
   return hits / phraseTokens.length; // 0..1
 }
 
+const INTENTS = {
   GREETING: {
     keywords: ["merhaba", "selam", "iyi gunler", "iyi günler", "gunaydin", "günaydın", "iyi aksamlar", "iyi akşamlar", "hello", "hi"],
     weight: 1.0,
@@ -368,13 +369,6 @@ function scorePhraseOverlap(phraseTokens, messageTokenSet) {
     weight: 0,
   },
 };
-
-function normalize(text) {
-  return String(text || "")
-    .toLocaleLowerCase("tr-TR")
-    .replace(/i̇/g, "i")
-    .replace(/I/g, "i");
-}
 
 function detectIntent(message) {
   const messageTokens = tokenize(message);
