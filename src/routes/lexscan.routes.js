@@ -13,4 +13,7 @@ router.post("/capture-email", ctrl.captureEmail);
 // YENİ — Müvekkil Adayları listesi, SADECE ADMIN (panel: /dashboard/muvekkil-adaylari)
 router.get("/prospects", auth, role("ADMIN"), ctrl.listProspects);
 
+// YENİ — Seçili adaylara özel gün/kampanya e-postası, SADECE ADMIN
+router.post("/send-campaign", auth, role("ADMIN"), ctrl.sendCampaign);
+
 module.exports = router;

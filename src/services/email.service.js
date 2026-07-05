@@ -427,6 +427,49 @@ async function sendEmailChangedInfo(oldEmail, newEmail, revertTokenUrl) {
   return sendEmail({ to: oldEmail, subject, html });
 }
 
+// ─── YENİ — Tedbirge AI Asistanı "Müvekkil Adayı" e-posta katmanı ────────────
+// (0 hata ilkesi: yeni tablo/migration yok, mevcut unsubscribe token +
+// wrapHtml/sendEmail çekirdeği yeniden kullanılıyor.)
+
+async function sendProspectWelcomeEmail(email) {
+  if (!email) return;
+  const html = wrapHtml(
+    "Tedbirge AI'ya Hoş Geldiniz",
+    `<h2>Merhaba,</h2>
+    <p>Tedbirge AI Asistanı üzerinden bıraktığınız e-posta adresini aldık. Trafik veya iş kazanızla ilgili sorunuz olduğunda asistanımıza tekrar yazabilir, ya da doğrudan ücretsiz ön değerlendirme için başvurabilirsiniz.</p>
+    <a class="cta" href="https://tedbirge.ai/basvuru">Ücretsiz Başvuru Yap</a>
+    <p style="font-size:13px;color:#94a3b8;margin-top:20px">Bu bir tek seferlik karşılama e-postasıdır — spam göndermeyiz.</p>`,
+    { preheader: "Tedbirge AI'ya hoş geldiniz", unsubscribeFooter: buildUnsubscribeFooter({ email }) }
+  );
+  return sendEmail({ to: email, subject: "👋 Tedbirge AI'ya Hoş Geldiniz", html });
+}
+
+async function sendProspectFollowUpEmail(email) {
+  if (!email) return;
+  const html = wrapHtml(
+    "Hâlâ Yardımcı Olabiliriz",
+    `<h2>Sorunuz mu vardı?</h2>
+    <p>Bir süre önce Tedbirge AI Asistanı'na kazanızla ilgili bir soru bırakmıştınız. Süreç genelde zamanaşımına tabidir (trafik kazasında 2 yıl, iş kazasında 10 yıl) — erken başvuru hak kaybını önler.</p>
+    <a class="cta" href="https://tedbirge.ai/basvuru">Ücretsiz Ön Değerlendirme Al</a>
+    <p style="font-size:13px;color:#94a3b8;margin-top:20px">İsterseniz artık bu tür hatırlatmaları almayabilirsiniz — aşağıdaki bağlantıdan tek tıkla çıkabilirsiniz.</p>`,
+    { preheader: "Başvurunuzu tamamlamayı unutmayın", unsubscribeFooter: buildUnsubscribeFooter({ email }) }
+  );
+  return sendEmail({ to: email, subject: "Hâlâ yardımcı olabiliriz — Tedbirge AI", html });
+}
+
+async function sendProspectCampaignEmail(email, subject, message) {
+  if (!email) return;
+  const safeMessage = String(message || "").replace(/\n/g, "<br/>");
+  const html = wrapHtml(
+    subject,
+    `<h2>${subject}</h2>
+    <p>${safeMessage}</p>
+    <a class="cta" href="https://tedbirge.ai/basvuru">Tedbirge.ai'yi Ziyaret Et</a>`,
+    { preheader: subject, unsubscribeFooter: buildUnsubscribeFooter({ email }) }
+  );
+  return sendEmail({ to: email, subject, html });
+}
+
 module.exports = {
   sendEmail,
   verifyConnection,
@@ -438,4 +481,8 @@ module.exports = {
   // TUR #121 M4 — Email OTP + KVKK m.11 cift kanal
   sendOtpEmail,
   sendEmailChangedInfo,
+  // YENİ — Müvekkil Adayı e-posta katmanı
+  sendProspectWelcomeEmail,
+  sendProspectFollowUpEmail,
+  sendProspectCampaignEmail,
 };

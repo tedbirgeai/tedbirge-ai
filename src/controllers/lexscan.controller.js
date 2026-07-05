@@ -3,6 +3,35 @@
 const asyncHandler = require("../utils/asyncHandler");
 const chatbot = require("../services/chatbot.service");
 const prisma = require("../config/db");
+const {
+  sendProspectWelcomeEmail,
+  sendProspectFollowUpEmail,
+  sendProspectCampaignEmail,
+} = require("../services/email.service");
+
+/**
+ * Bir e-postanın daha önce "abonelikten çıktım" dediğini kontrol eder.
+ * Mevcut unsubscribe.routes.js'in yazdığı MARKETING_UNSUBSCRIBE ActivityLog
+ * kayıtlarını okur (yeni tablo YOK — 0 hata ilkesi). detail alanı JSON
+ * string olarak { email, channel, ... } tutar.
+ */
+async function isEmailUnsubscribed(email) {
+  const clean = String(email || "").trim().toLowerCase();
+  if (!clean) return false;
+  const logs = await prisma.activityLog.findMany({
+    where: { action: "MARKETING_UNSUBSCRIBE" },
+    orderBy: { createdAt: "desc" },
+    take: 2000,
+  });
+  return logs.some((l) => {
+    try {
+      const d = JSON.parse(l.detail || "{}");
+      return (d.email || "").trim().toLowerCase() === clean;
+    } catch {
+      return false;
+    }
+  });
+}
 
 /**
  * Tedbirge AI Asistani — Herkese acik chat endpoint'i
@@ -85,7 +114,7 @@ exports.captureEmail = asyncHandler(async (req, res) => {
     });
   }
 
-  // Admin'in göreceği yer: Dashboard → Audit Log (mevcut ekran, yeni sayfa yok)
+  // Admin'in göreceği yer: Dashboard → Müvekkil Adayları (bkz. listProspects)
   await prisma.activityLog.create({
     data: {
       action: "HERO_ASSISTANT_EMAIL_CAPTURED",
@@ -93,7 +122,50 @@ exports.captureEmail = asyncHandler(async (req, res) => {
     },
   });
 
+  // YENİ — Karşılama e-postası. Fire-and-forget: e-posta gönderimi kullanıcıyı
+  // BEKLETMEZ (response hemen döner), gönderim arka planda denenir. SMTP
+  // ayarlı değilse email.service kendi mock moduna düşer, hata fırlatmaz.
+  sendProspectWelcomeEmail(cleanEmail).catch((e) =>
+    console.error("[lexscan] karşılama e-postası hatası:", e.message)
+  );
+
   res.json({ success: true, data: { saved: true } });
+});
+
+/**
+ * YENİ — Admin'in seçtiği müvekkil adaylarına toplu "özel gün / kampanya"
+ * e-postası gönderir. Abonelikten çıkmış adresler otomatik atlanır.
+ */
+exports.sendCampaign = asyncHandler(async (req, res) => {
+  const { emails, subject, message } = req.body || {};
+  if (!Array.isArray(emails) || emails.length === 0) {
+    return res.status(400).json({ success: false, message: "En az bir e-posta seçin." });
+  }
+  if (!subject || !message) {
+    return res.status(400).json({ success: false, message: "Konu ve mesaj zorunludur." });
+  }
+
+  const results = [];
+  for (const email of emails) {
+    const clean = String(email).trim().toLowerCase();
+    const blocked = await isEmailUnsubscribed(clean);
+    if (blocked) {
+      results.push({ email: clean, sent: false, reason: "unsubscribed" });
+      continue;
+    }
+    const r = await sendProspectCampaignEmail(clean, subject, message).catch((e) => ({
+      success: false,
+      error: e.message,
+    }));
+    results.push({ email: clean, sent: !!r?.success, mock: !!r?.mock });
+    if (r?.success) {
+      await prisma.activityLog.create({
+        data: { action: "PROSPECT_CAMPAIGN_SENT", detail: `email:${clean} subject:${subject}` },
+      });
+    }
+  }
+
+  res.json({ success: true, data: { results } });
 });
 
 /**
@@ -128,6 +200,26 @@ exports.listProspects = asyncHandler(async (req, res) => {
   }
 
   const prospects = Array.from(byEmail.values());
+
+  // Her adayın abonelikten çıkıp çıkmadığını işaretle (panelde soluk/etiketli gösterilir)
+  const unsubLogs = await prisma.activityLog.findMany({
+    where: { action: "MARKETING_UNSUBSCRIBE" },
+    take: 2000,
+  });
+  const unsubEmails = new Set(
+    unsubLogs
+      .map((l) => {
+        try {
+          return (JSON.parse(l.detail || "{}").email || "").trim().toLowerCase();
+        } catch {
+          return null;
+        }
+      })
+      .filter(Boolean)
+  );
+  for (const p of prospects) {
+    p.unsubscribed = unsubEmails.has(p.email.trim().toLowerCase());
+  }
 
   // Her aday için o oturumdaki ilk kullanıcı mesajını (kaza özeti) ekle —
   // panelde "ne hakkında yazmış" görülebilsin diye.

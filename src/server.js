@@ -5,6 +5,7 @@ const app = require("./app");
 const env = require("./config/env");
 const logger = require("./config/logger");
 const { startDeadlineChecker } = require("./jobs/deadlineChecker.job");
+const { startProspectFollowUp } = require("./jobs/prospectFollowUp.job");
 const { verifyConnection: verifySmtp } = require("./services/email.service");
 const tedbirgeOS = require("./os");
 const tur55Agents = require("./agents/runner");
@@ -57,6 +58,7 @@ selfHealDatabase()
       logger.info(`Server running on http://localhost:${env.port}`);
       startOcrWorker();
       startDeadlineChecker();
+      startProspectFollowUp();
       // SMTP bağlantı kontrolü — mock modda sessizce atlanır
       if (process.env.OS_ENABLED !== "false") {
         tedbirgeOS.runBoot().then(r => {
