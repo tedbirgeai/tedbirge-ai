@@ -95,3 +95,58 @@ exports.captureEmail = asyncHandler(async (req, res) => {
 
   res.json({ success: true, data: { saved: true } });
 });
+
+/**
+ * YENİ — Müvekkil Adayları listesi (ADMIN-only, panel'de ayrı ekran).
+ *
+ * Yeni Prisma modeli/migration İSTEMEZ (0 hata ilkesi): ActivityLog'daki
+ * HERO_ASSISTANT_EMAIL_CAPTURED kayıtlarını okuyup "sessionKey:X email:Y"
+ * formatındaki detail alanını ayrıştırır. Aynı e-posta birden fazla kez
+ * bırakmışsa (aynı sohbete tekrar döndüyse) SADECE en güncel kaydı tutar —
+ * liste kalabalıklaşmaz.
+ */
+exports.listProspects = asyncHandler(async (req, res) => {
+  const logs = await prisma.activityLog.findMany({
+    where: { action: "HERO_ASSISTANT_EMAIL_CAPTURED" },
+    orderBy: { createdAt: "desc" },
+    take: 500,
+  });
+
+  const byEmail = new Map();
+  for (const log of logs) {
+    const detail = String(log.detail || "");
+    const emailMatch = detail.match(/email:(\S+)/);
+    const sessionMatch = detail.match(/sessionKey:(\S+)/);
+    const email = emailMatch?.[1] || null;
+    if (!email) continue;
+    if (byEmail.has(email)) continue; // en güncel (ilk gelen, DESC sıralı) kalır
+    byEmail.set(email, {
+      email,
+      sessionKey: sessionMatch?.[1] || null,
+      capturedAt: log.createdAt,
+    });
+  }
+
+  const prospects = Array.from(byEmail.values());
+
+  // Her aday için o oturumdaki ilk kullanıcı mesajını (kaza özeti) ekle —
+  // panelde "ne hakkında yazmış" görülebilsin diye.
+  for (const p of prospects) {
+    if (!p.sessionKey) {
+      p.firstMessage = null;
+      continue;
+    }
+    const session = await prisma.chatSession.findUnique({ where: { sessionKey: p.sessionKey } });
+    if (!session) {
+      p.firstMessage = null;
+      continue;
+    }
+    const firstMsg = await prisma.chatMessage.findFirst({
+      where: { sessionId: session.id, sender: "user" },
+      orderBy: { createdAt: "asc" },
+    });
+    p.firstMessage = firstMsg?.message?.slice(0, 200) || null;
+  }
+
+  res.json({ success: true, data: { prospects, total: prospects.length } });
+});
