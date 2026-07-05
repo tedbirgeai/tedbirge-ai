@@ -198,6 +198,30 @@ exports.sendCampaign = asyncHandler(async (req, res) => {
 });
 
 /**
+ * YENİ — Admin'in bir müvekkil adayını manuel "iletişime geçildi / yanıtladı"
+ * olarak işaretlemesi.
+ *
+ * DÜRÜSTLÜK NOTU: E-postanın gerçekten okunduğunu teknik olarak güvenilir
+ * şekilde tespit etmek MÜMKÜN DEĞİLDİR (okundu-bilgisi / pixel-tracking
+ * tutarsızdır, çoğu istemci engeller) — bu yüzden sahte bir "okundu" rozeti
+ * eklemedik. Bunun yerine gerçek bir CRM pratiği kullanıyoruz: admin,
+ * telefonla/e-postayla görüştükten sonra durumu ELLE işaretler. Yeni tablo
+ * yok (0 hata ilkesi) — ActivityLog'a PROSPECT_CONTACT_STATUS olarak yazılır.
+ */
+exports.setProspectStatus = asyncHandler(async (req, res) => {
+  const { email, status } = req.body || {};
+  const clean = String(email || "").trim().toLowerCase();
+  const allowed = ["NEW", "CONTACTED", "REPLIED"];
+  if (!clean || !allowed.includes(status)) {
+    return res.status(400).json({ success: false, message: "Geçersiz e-posta veya durum." });
+  }
+  await prisma.activityLog.create({
+    data: { action: "PROSPECT_CONTACT_STATUS", detail: `email:${clean} status:${status}` },
+  });
+  res.json({ success: true, data: { email: clean, status } });
+});
+
+/**
  * YENİ — Müvekkil Adayları listesi (ADMIN-only, panel'de ayrı ekran).
  *
  * Yeni Prisma modeli/migration İSTEMEZ (0 hata ilkesi): ActivityLog'daki
@@ -248,6 +272,25 @@ exports.listProspects = asyncHandler(async (req, res) => {
   );
   for (const p of prospects) {
     p.unsubscribed = unsubEmails.has(p.email.trim().toLowerCase());
+  }
+
+  // Her adayın en güncel iletişim durumunu (Yeni/Arandı-Yazıldı/Yanıtlandı) ekle
+  const statusLogs = await prisma.activityLog.findMany({
+    where: { action: "PROSPECT_CONTACT_STATUS" },
+    orderBy: { createdAt: "desc" },
+    take: 3000,
+  });
+  const statusByEmail = new Map();
+  for (const log of statusLogs) {
+    const detail = String(log.detail || "");
+    const email = detail.match(/email:(\S+)/)?.[1];
+    const status = detail.match(/status:(\S+)/)?.[1];
+    if (email && status && !statusByEmail.has(email)) {
+      statusByEmail.set(email, status); // DESC sıralı, ilk gelen en güncel
+    }
+  }
+  for (const p of prospects) {
+    p.contactStatus = statusByEmail.get(p.email.trim().toLowerCase()) || "NEW";
   }
 
   // Her aday için o oturumdaki ilk kullanıcı mesajını (kaza özeti) ekle —

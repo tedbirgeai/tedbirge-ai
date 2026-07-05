@@ -16,4 +16,7 @@ router.get("/prospects", auth, role("ADMIN"), ctrl.listProspects);
 // YENİ — Seçili adaylara özel gün/kampanya e-postası, SADECE ADMIN
 router.post("/send-campaign", auth, role("ADMIN"), ctrl.sendCampaign);
 
+// YENİ — Bir adayın iletişim durumunu (Yeni/Arandı-Yazıldı/Yanıtlandı) işaretle, SADECE ADMIN
+router.post("/prospects/status", auth, role("ADMIN"), ctrl.setProspectStatus);
+
 module.exports = router;
