@@ -15,6 +15,30 @@ const crypto = require("crypto");
 const prisma = require("../config/db");
 const intentEngine = require("./intent-engine.service");
 const localAI = require("./localAI.service");
+const bedesten = require("./bedesten.service");
+
+// Kullanıcı a\u00e7\u0131k\u00e7a emsal karar/Yarg\u0131tay iste\u011fi belirtti mi? Kural motoru
+// ba\u015fka bir intent'e (\u00f6r. "sigorta itiraz") y\u00fcksek g\u00fcvenle e\u015fle\u015fse bile,
+// bu durumda ger\u00e7ek karar arama sonucunu CEVABA EKLE\u0130YORUZ \u2014 aksi halde
+// kullan\u0131c\u0131n\u0131n asl\u0131nda sordu\u011fu \u015fey (\"emsal karar var m\u0131?\") hi\u00e7 yan\u0131tlanmadan
+// genel bir prosed\u00fcr metniyle ge\u00e7i\u015ftirilmi\u015f olurdu.
+const EMSAL_ISTEK_DESENI = /emsal|yargıtay karar|içtihat|yargı kararı/i;
+
+async function emsalEkiUret(text) {
+  try {
+    const kararlar = await bedesten.searchEmsalKararlar({ phrase: text, pageSize: 2 });
+    if (!kararlar.length) {
+      return "\n\n📌 Sorduğunuz konuyla ilgili şu an güncel bir emsal karar bulunamadı. Belgelerinizi yüklerseniz durumunuzu daha net değerlendirebiliriz.";
+    }
+    const satirlar = kararlar
+      .map((k) => `• ${k.birimAdi || "Yargıtay"}, Esas ${k.esasNo || "?"} / Karar ${k.kararNo || "?"} (${k.tarih || "tarih yok"})`)
+      .join("\n");
+    return `\n\n📌 İlgili gerçek emsal kararlar (T.C. Adalet Bakanlığı resmi kaynağı):\n${satirlar}`;
+  } catch (err) {
+    console.log(`[chatbot] emsal eki atlandı: ${err.message}`);
+    return "";
+  }
+}
 
 const FAQ_PATH = path.resolve(__dirname, "../../tedbirge-os/data/faq-tr-v1.json");
 let faqs = [];
@@ -97,6 +121,12 @@ async function processMessage({ message, sessionKey, userId, leadId, ipHash }) {
     } catch (err) {
       console.log(`[chatbot] yerel AI devreye girmedi, FAQ fallback kullanildi: ${err.message}`);
     }
+  } else if (EMSAL_ISTEK_DESENI.test(text)) {
+    // Kural motoru ba\u015fka bir intent'e e\u015fle\u015fti ama kullan\u0131c\u0131 a\u00e7\u0131k\u00e7a
+    // emsal/Yarg\u0131tay karar\u0131 istedi \u2014 asl\u0131nda sorulan\u0131 yan\u0131ts\u0131z b\u0131rakmamak
+    // i\u00e7in ger\u00e7ek karar sonucunu cevaba ekliyoruz.
+    responseText += await emsalEkiUret(text);
+    engineUsed += "+bedesten-emsal";
   }
 
   // Audit + konusma history (mevcut ChatSession + ChatMessage tablolari)
