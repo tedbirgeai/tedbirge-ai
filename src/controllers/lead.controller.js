@@ -5,7 +5,7 @@ const { createWhatsappRedirect, markRedirected } = require("../services/whatsapp
 const { runWorkflow } = require("../services/workflow.service");
 const { getUyapStatus, saveUyapData } = require("../services/uyap.service");
 const { getSgkData } = require("../services/sgk.service");
-const { getEmsalKararlar } = require("../services/emsal.service");
+const bedesten = require("../services/bedesten.service");
 const { generateKazaRaporu } = require("../services/kazaRapor.service");
 const { generatePetition } = require("../services/ai.service");
 const prisma = require("../config/db");
@@ -313,10 +313,15 @@ exports.verifyLead = asyncHandler(async (req, res) => {
   });
 });
 
+// Sağlık taraması bulgusu — bu endpoint önceden emsal.service.js'deki
+// UYDURMA (sahte esas/karar no'lu) verileri döndürüyordu; sadece "_temsili: true"
+// etiketiyle işaretliydi ama bir avukatın gerçek dava ekranında görmesi
+// yanıltıcı bir risk taşıyordu. Artık chatbot'taki ile aynı gerçek, resmi
+// kaynağa (bedesten.adalet.gov.tr) bağlı — sahte veri tamamen kaldırıldı.
 exports.getEmsalKararlar = asyncHandler(async (req, res) => {
   const lead = await prisma.lead.findUnique({
     where: { id: req.params.id },
-    select: { accidentType: true, assignments: true }
+    select: { accidentType: true, accidentSummary: true, assignments: true }
   });
   if (!lead) return res.status(404).json({ success: false, message: "Lead bulunamadı." });
   if (req.user?.role === "LAWYER") {
@@ -325,8 +330,31 @@ exports.getEmsalKararlar = asyncHandler(async (req, res) => {
     );
     if (!isAssigned) return res.status(403).json({ success: false, message: "Bu dosyaya erişim yetkiniz yok." });
   }
-  const kararlar = getEmsalKararlar(lead.accidentType);
-  res.json({ success: true, data: kararlar });
+
+  const tip = (lead.accidentType || "").toUpperCase();
+  const isIsKazasi = tip.includes("IS") || tip.includes("İŞ") || tip.includes("WORK") || tip.includes("MESLEK");
+  const phrase = lead.accidentSummary?.trim()
+    ? lead.accidentSummary.trim().slice(0, 200)
+    : isIsKazasi
+      ? "iş kazası tazminat maluliyet"
+      : "trafik kazası tazminat maluliyet";
+
+  try {
+    const kararlar = await bedesten.searchEmsalKararlar({ phrase, pageSize: 5 });
+    return res.json({
+      success: true,
+      data: kararlar,
+      kaynak: "bedesten.adalet.gov.tr (T.C. Adalet Bakanlığı resmi karar veritabanı)",
+    });
+  } catch (err) {
+    // Kaynağa ulaşılamadı — sahte veri ASLA üretilmez, dürüst boş sonuç döner.
+    return res.json({
+      success: true,
+      data: [],
+      kaynak: null,
+      uyari: "Şu an güncel emsal karar kaynağına ulaşılamadı, lütfen tekrar deneyin.",
+    });
+  }
 });
 
 exports.getKazaRaporu = asyncHandler(async (req, res) => {
