@@ -100,7 +100,7 @@ exports.chat = asyncHandler(async (req, res) => {
  * otomatik dönüştürme) bu, ayrı ve bilinçli bir sonraki adımdır.
  */
 exports.captureEmail = asyncHandler(async (req, res) => {
-  const { sessionKey, email } = req.body || {};
+  const { sessionKey, email, source, note } = req.body || {};
 
   const cleanEmail = String(email || "").trim().toLowerCase();
   const emailOk = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(cleanEmail);
@@ -109,30 +109,34 @@ exports.captureEmail = asyncHandler(async (req, res) => {
       .status(400)
       .json({ success: false, message: "Geçerli bir e-posta girin." });
   }
-  if (!sessionKey) {
-    return res
-      .status(400)
-      .json({ success: false, message: "Oturum bulunamadı, sohbeti yeniden başlatın." });
-  }
-
-  const session = await prisma.chatSession.findUnique({ where: { sessionKey } });
-
-  if (session) {
-    await prisma.chatMessage.create({
-      data: {
-        sessionId: session.id,
-        sender: "lead_capture",
-        message: cleanEmail,
-        metadataJson: JSON.stringify({ type: "email_capture" }),
-      },
-    });
+  // ÖNCEKİ KURAL: sessionKey zorunluydu (sadece Tedbirge AI Asistanı sohbetinden
+  // gelen yakalamalar için tasarlanmıştı). Artık "Tazminat Hesapla" aracı gibi
+  // sohbet oturumu OLMAYAN yüzeylerden de e-posta yakalanabiliyor — sessionKey
+  // artık opsiyonel; verilmediğinde sadece ChatSession/ChatMessage adımı atlanır,
+  // ActivityLog kaydı ve karşılama e-postası aynen çalışır.
+  if (sessionKey) {
+    const session = await prisma.chatSession.findUnique({ where: { sessionKey } });
+    if (session) {
+      await prisma.chatMessage.create({
+        data: {
+          sessionId: session.id,
+          sender: "lead_capture",
+          message: cleanEmail,
+          metadataJson: JSON.stringify({ type: "email_capture" }),
+        },
+      });
+    }
   }
 
   // Admin'in göreceği yer: Dashboard → Müvekkil Adayları (bkz. listProspects)
+  // "source" ve "note" (ör. hesaplama aracı sonucu) da detail alanına eklenir —
+  // panelde hangi yüzeyden geldiği ve varsa hesap özeti görülebilsin diye.
+  const sourceTag = source ? ` source:${String(source).slice(0, 40)}` : "";
+  const noteTag = note ? ` note:${String(note).slice(0, 200)}` : "";
   await prisma.activityLog.create({
     data: {
       action: "HERO_ASSISTANT_EMAIL_CAPTURED",
-      detail: `sessionKey:${sessionKey} email:${cleanEmail}`,
+      detail: `sessionKey:${sessionKey || "-"} email:${cleanEmail}${sourceTag}${noteTag}`,
     },
   });
 
@@ -245,9 +249,11 @@ exports.listProspects = asyncHandler(async (req, res) => {
     const email = emailMatch?.[1] || null;
     if (!email) continue;
     if (byEmail.has(email)) continue; // en güncel (ilk gelen, DESC sıralı) kalır
+    const sourceMatch = detail.match(/source:(\S+)/);
     byEmail.set(email, {
       email,
       sessionKey: sessionMatch?.[1] || null,
+      source: sourceMatch?.[1] || "asistan",
       capturedAt: log.createdAt,
     });
   }
