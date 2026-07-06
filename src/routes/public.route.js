@@ -829,6 +829,24 @@ router.post("/public/kvkk-request", async (req, res) => {
   }
 });
 
+// ─── TUR YENİ: Otonom Hukuki Haberler (gerçek Yargıtay kararları, $0) ──────
+const fs = require("fs");
+const path = require("path");
+const HABERLER_CACHE_PATH = path.resolve(__dirname, "../../tedbirge-os/data/haberler-cache.json");
+
+router.get("/haberler", (req, res) => {
+  try {
+    const raw = fs.readFileSync(HABERLER_CACHE_PATH, "utf-8");
+    const data = JSON.parse(raw);
+    return res.json({ success: true, data });
+  } catch (err) {
+    return res.json({
+      success: true,
+      data: { generatedAt: null, kaynak: null, haberler: [] },
+    });
+  }
+});
+
 module.exports = router;
 
 

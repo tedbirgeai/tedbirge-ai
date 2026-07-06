@@ -1,0 +1,4 @@
+{
+  "_not": "Bu dosya, Admin panelindeki 'Otomatik Öğrenme' ekranından onaylanan yeni intent'leri barındırır. intent-engine.service.js açılışta ve her promote sonrası bu dosyayı 45 çekirdek intent'in ÜZERİNE ekler — çekirdek dosyaya hiç dokunmaz, bu yüzden güvenlidir (bozuk bir kayıt en kötü ihtimalle kendi intent'ini etkiler).",
+  "intents": {}
+}
