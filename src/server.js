@@ -7,6 +7,7 @@ const logger = require("./config/logger");
 const { startDeadlineChecker } = require("./jobs/deadlineChecker.job");
 const { startProspectFollowUp } = require("./jobs/prospectFollowUp.job");
 const { startHaberlerRefresh } = require("./jobs/haberlerRefresh.job");
+const { startSahaSinyalleri } = require("./jobs/sahaSinyalleri.job");
 const { verifyConnection: verifySmtp } = require("./services/email.service");
 const tedbirgeOS = require("./os");
 const tur55Agents = require("./agents/runner");
@@ -61,6 +62,7 @@ selfHealDatabase()
       startDeadlineChecker();
       startProspectFollowUp();
       startHaberlerRefresh();
+      startSahaSinyalleri();
       // SMTP bağlantı kontrolü — mock modda sessizce atlanır
       if (process.env.OS_ENABLED !== "false") {
         tedbirgeOS.runBoot().then(r => {

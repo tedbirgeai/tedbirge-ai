@@ -45,6 +45,8 @@ const uyapRoutes = require("./uyap.routes");
 const judicialRoutes = require("./judicial.routes");
 // TUR #132.4 — Admin AI Egitimi (Tedbirge AI Asistani FAQ + fallback + conversations)
 const adminAiTrainingRoutes = require("./admin.ai-training.routes");
+// "7/24 Dijital Bekçi" — Saha Sinyalleri (kamuya açık haber taraması, otomatik temas YOK)
+const sahaSinyalleriRoutes = require("./saha-sinyalleri.route");
 
 const router = express.Router();
 
@@ -99,6 +101,7 @@ router.use('/', uyapRoutes);
 router.use('/', judicialRoutes);
 // TUR #132.4 — Admin AI Egitimi
 router.use('/admin/ai-training', adminAiTrainingRoutes);
+router.use('/admin/saha-sinyalleri', sahaSinyalleriRoutes);
 
 module.exports = router;
 
