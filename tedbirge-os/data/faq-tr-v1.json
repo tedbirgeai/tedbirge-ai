@@ -203,7 +203,7 @@
       "id": "zmss-01",
       "intent": "ZMSS_LIMIT",
       "patterns": ["zmss", "zorunlu sigorta", "trafik sigortası", "sigorta limiti"],
-      "response": "ZMSS (Zorunlu Mali Sorumluluk Sigortası) limitleri (2026):\n\n📊 Karayolu Taşımacılık Sigorta Yönetmeliği:\n• Maddi: araç başına 1.000.000 TL\n• Bedensel zarar (kişi başı): 1.750.000 TL\n• Ölüm/sürekli sakatlık: 1.750.000 TL\n• Manevi tazminat: ayrı talep\n\nLimit üstü zararlar:\n• Kişiye karşı dava (TBK m.49, 56)\n• Manevi tazminat ayrı\n\nGüncel limit bilgisi için: https://tedbirge.ai/basvuru"
+      "response": "ZMSS (Zorunlu Mali Sorumluluk Sigortası) limitleri (2026, SEDDK resmi tarifesi):\n\n📊 Otomobil için (01.01.2026-31.12.2026):\n• Maddi: araç başına 400.000 TL, kaza başına 800.000 TL\n• Bedensel zarar (kişi başı): 3.600.000 TL\n• Bedensel zarar (kaza başı): 18.000.000 TL\n• Manevi tazminat: ayrı talep, limit dışı\n\nLimit üstü zararlar:\n• Kişiye karşı dava (TBK m.49, 56)\n• Kusurlu tarafın İMM poliçesi veya şahsi malvarlığı\n\nGüncel limit bilgisi için: https://tedbirge.ai/basvuru"
     },
     {
       "id": "kasko-01",

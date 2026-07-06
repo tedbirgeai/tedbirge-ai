@@ -181,7 +181,7 @@ Sigorta: ${sigortaSirketi}, Poliçe: ${policeNo}`;
     typeSpecificPrompt = `
 Sigorta şirketinin ret yazısını esas alarak itiraz dilekçesi yaz.
 KTK, TBK ve güncel Yargıtay içtihatlarını kullanarak her ret gerekçeye ayrı itiraz paragrafı yaz.
-2026 ZMSS limitleri: Ölüm 1.540.000 TL, Sakatlık 924.000 TL.`;
+2026 ZMSS limitleri (SEDDK resmi): Bedensel zarar kişi başına 3.600.000 TL, kaza başına 18.000.000 TL. Maddi zarar araç başına 400.000 TL, kaza başına 800.000 TL.`;
   } else if (type === "ASLIYE_HUKUK" || type === "CIVIL_COURT" || type === "COURT_PETITION") {
     typeSpecificPrompt = `
 HMK m.119 gerekliliklerine göre tam dava dilekçesi yaz:
@@ -214,9 +214,9 @@ Türk hukuku (Borçlar Kanunu, KTK, TTK, SGK mevzuatı) standartlarına uygun, p
 Dilekçe yapısı: Başlık → Tarih → İlgili Makam → Taraflar → Açıklama bölümü → Hukuki dayanak maddeleri → Talep → Saygılar
 Gerçek madde numaralarını kullan (BK m.49, KTK m.85 gibi). Eksik bilgi varsa "[...bilgi...]" şeklinde yer tutucu bırak.
 
-Güncel 2026 hukuki limitleri ve referansları:
-- ZMSS (Zorunlu Mali Sorumluluk Sigortası) ölüm tazminat limiti: 1.540.000 TL
-- ZMSS sakatlık tazminat limiti: 924.000 TL
+Güncel 2026 hukuki limitleri ve referansları (SEDDK resmi tarifesi):
+- ZMSS bedensel zarar tazminat limiti: kişi başına 3.600.000 TL, kaza başına 18.000.000 TL
+- ZMSS maddi zarar limiti: araç başına 400.000 TL, kaza başına 800.000 TL
 - SGK 2026 prime esas kazanç tavanı: 270.300 TL/ay
 - Trafik kazası zamanaşımı: 2 yıl (TBK m.72 / KTK m.109)
 - İş kazası zamanaşımı: 10 yıl (BK m.146)
