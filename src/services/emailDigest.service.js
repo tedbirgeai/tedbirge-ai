@@ -1,10 +1,16 @@
 // TUR #71 A23 — EmailDigest sabah 09:00 inbox raporu
 // Madde 30.14 — EmailDigest Disiplini
+//
+// DÜZELTME: mehmet@tedbirge.ai kutusu hiç açılmamış (gerçek posta kutusu yok),
+// bu yüzden her sabah bu adrese giden rapor "kullanıcı bulunamadı" olarak
+// geri dönüyor ve gönderen kutuya (tedbirge34@gmail.com) her gün rahatsız
+// edici bounce bildirimi düşüyordu. Varsayılan artık gerçekten var olan,
+// gönderimi de yapan kutu — CEO_EMAIL env değişkeni tanımlıysa o kullanılır.
 
 const prisma = require("../config/db");
 const { sendEmail } = require("./email.service");
 
-const CEO_EMAIL = process.env.CEO_EMAIL || "mehmet@tedbirge.ai";
+const CEO_EMAIL = process.env.CEO_EMAIL || process.env.SMTP_USER || "tedbirge34@gmail.com";
 
 function formatDate(d) {
   return new Date(d).toLocaleString("tr-TR", { dateStyle: "full" });
