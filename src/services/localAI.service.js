@@ -24,24 +24,44 @@
 
 const { getZMSSLimitsByDate } = require("../data/zmss-limits");
 const { SURE_KURALLARI } = require("../data/sureKurallari");
+const bedesten = require("./bedesten.service");
 
 const OLLAMA_HOST = process.env.OLLAMA_HOST || "http://127.0.0.1:11434";
 const MODEL = process.env.OLLAMA_MODEL || "qwen2.5:7b";
 const TIMEOUT_MS = parseInt(process.env.LOCAL_AI_TIMEOUT_MS, 10) || 25000;
 
+// Gerçek Yargıtay/Danıştay emsal kararı (bakanlığın resmi Bedesten kaynağından)
+// arar ve bağlama ekler. Ulaşılamazsa (hız limiti/geçici kesinti) sessizce
+// atlanır — sahte veri asla üretilmez, sadece o bölüm bağlamdan eksik kalır.
+async function fetchEmsalContext(message) {
+  try {
+    const kararlar = await bedesten.searchEmsalKararlar({ phrase: message, pageSize: 2 });
+    if (!kararlar.length) return "";
+    const satirlar = kararlar
+      .map((k) => `- ${k.birimAdi || "Yargıtay"}, Esas ${k.esasNo || "?"} / Karar ${k.kararNo || "?"} (${k.tarih || "tarih yok"})`)
+      .join("\n");
+    return `\n\nGERÇEK EMSAL KARARLAR (bedesten.adalet.gov.tr, resmi kaynak — sadece künye, tam metin istenirse ayrıca getirilir):\n${satirlar}`;
+  } catch (err) {
+    console.log(`[localAI] emsal karar araması atlandı: ${err.message}`);
+    return "";
+  }
+}
+
 // Modelin uydurmaması için verdiğimiz TEK gerçek kaynak seti.
-function buildGroundingContext() {
+async function buildGroundingContext(message) {
   const zmss = getZMSSLimitsByDate(new Date());
   const sureSatirlari = SURE_KURALLARI.map(
     (s) => `- ${s.etiket} (${s.yasalDayanak}): ${s.sureGun ? s.sureGun + " gün" : "hesaplama gerektirir"}`
   ).join("\n");
+
+  const emsalContext = message ? await fetchEmsalContext(message) : "";
 
   return (
     `GÜNCEL ZMSS LİMİTLERİ (${zmss.yil}, kaynak: ${zmss.kaynak}):\n` +
     `- Kişi başı bedeni: ${zmss.bedeni_kisi.toLocaleString("tr-TR")} TL\n` +
     `- Kaza başı bedeni: ${zmss.bedeni_kaza.toLocaleString("tr-TR")} TL\n` +
     `- Araç başı maddi: ${zmss.maddi_arac.toLocaleString("tr-TR")} TL\n\n` +
-    `SÜRE/ZAMANAŞIMI KURALLARI:\n${sureSatirlari}`
+    `SÜRE/ZAMANAŞIMI KURALLARI:\n${sureSatirlari}${emsalContext}`
   );
 }
 
@@ -63,7 +83,7 @@ KESİN KURALLAR:
  * @throws modelin ulaşılamaz/yapılandırılmamış/zaman aşımı olması durumunda
  */
 async function reason(message) {
-  const context = buildGroundingContext();
+  const context = await buildGroundingContext(message);
   const prompt = `${SYSTEM_PROMPT}\n\nGERÇEK KAYNAK:\n${context}\n\nKULLANICI SORUSU: ${message}\n\nCEVABIN:`;
 
   const controller = new AbortController();
