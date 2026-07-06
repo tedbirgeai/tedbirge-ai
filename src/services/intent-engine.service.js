@@ -12,6 +12,40 @@
 
 "use strict";
 
+const fs = require("fs");
+const path = require("path");
+
+// ── OTONOM ÖĞRENME (0 maliyet) ──────────────────────────────────────────
+// Admin panelindeki "Otomatik Öğrenme" ekranından onaylanan yeni intent'ler
+// bu dosyaya yazılır. Çekirdek 45 intent'e HİÇ dokunulmaz — bu dosya sadece
+// üzerine eklenir, bu yüzden bozuk bir özel kayıt en kötü ihtimalle kendi
+// intent'ini etkiler, sistemi çökertmez (try/catch ile korunur).
+const CUSTOM_INTENTS_PATH = path.resolve(
+  __dirname,
+  "../../tedbirge-os/data/custom-intents-v1.json"
+);
+
+function loadCustomIntents() {
+  try {
+    const raw = JSON.parse(fs.readFileSync(CUSTOM_INTENTS_PATH, "utf-8"));
+    return raw.intents || {};
+  } catch (err) {
+    console.error("[intent-engine] custom-intents okuma hatasi:", err.message);
+    return {};
+  }
+}
+
+function getCustomIntents() {
+  return { ...customIntents };
+}
+
+function reload() {
+  customIntents = loadCustomIntents();
+  console.log(
+    `[intent-engine] reload: ${Object.keys(customIntents).length} ozel intent yuklendi`
+  );
+}
+
 function normalize(text) {
   return String(text || "")
     .toLocaleLowerCase("tr-TR")
@@ -370,12 +404,21 @@ const INTENTS = {
   },
 };
 
+// Açılışta özel (kullanıcı onaylı) intent'leri yükle ve çekirdeğe ekle.
+let customIntents = loadCustomIntents();
+console.log(`[intent-engine] ${Object.keys(customIntents).length} ozel (otomatik ogrenilen) intent yuklendi`);
+
+function allIntents() {
+  return { ...INTENTS, ...customIntents };
+}
+
 function detectIntent(message) {
   const messageTokens = tokenize(message);
   const messageTokenSet = new Set(messageTokens);
   const scores = {};
+  const active = allIntents();
 
-  for (const [intent, config] of Object.entries(INTENTS)) {
+  for (const [intent, config] of Object.entries(active)) {
     let total = 0;
     for (const kw of config.keywords) {
       const phraseTokens = tokenize(kw);
@@ -405,4 +448,4 @@ function detectIntent(message) {
   };
 }
 
-module.exports = { detectIntent, INTENTS };
+module.exports = { detectIntent, INTENTS, tokenize, reload, getCustomIntents };

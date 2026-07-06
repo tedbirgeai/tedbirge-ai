@@ -14,6 +14,7 @@ const path = require("path");
 const crypto = require("crypto");
 const prisma = require("../config/db");
 const intentEngine = require("./intent-engine.service");
+const localAI = require("./localAI.service");
 
 const FAQ_PATH = path.resolve(__dirname, "../../tedbirge-os/data/faq-tr-v1.json");
 let faqs = [];
@@ -80,7 +81,23 @@ async function processMessage({ message, sessionKey, userId, leadId, ipHash }) {
 
   // Intent tespit (Tedbirge rule-based engine, $0)
   const { intent, confidence } = intentEngine.detectIntent(text);
-  const responseText = findResponse(intent);
+  let responseText = findResponse(intent);
+  let engineUsed = "tedbirge-intent-engine-v1";
+
+  // Kural motoru anlayamadıysa (FALLBACK), yerel açık-model muhakeme
+  // katmanına devret — SADECE gerçek verilerle (ZMSS limitleri, süre
+  // kuralları) yanıt üretir, uydurmaz. Yapılandırılmamışsa veya donanım
+  // yetersizse (zaman aşımı) sessizce eski davranışa (FAQ fallback metni)
+  // döner — kullanıcı asla hata görmez, "0 hata" ilkesi korunur.
+  if (intent === "FALLBACK") {
+    try {
+      const local = await localAI.reason(text);
+      responseText = local.text;
+      engineUsed = `tedbirge-local-ai (${local.model}, ${local.latencyMs}ms)`;
+    } catch (err) {
+      console.log(`[chatbot] yerel AI devreye girmedi, FAQ fallback kullanildi: ${err.message}`);
+    }
+  }
 
   // Audit + konusma history (mevcut ChatSession + ChatMessage tablolari)
   let session = null;
@@ -120,7 +137,7 @@ async function processMessage({ message, sessionKey, userId, leadId, ipHash }) {
         metadataJson: JSON.stringify({
           intent,
           confidence,
-          engine: "tedbirge-intent-engine-v1",
+          engine: engineUsed,
         }),
       },
     });
@@ -128,8 +145,8 @@ async function processMessage({ message, sessionKey, userId, leadId, ipHash }) {
     console.error("[chatbot] log hatasi:", err.message);
   }
 
-  // FALLBACK audit (admin sonradan FAQ ekler)
-  if (intent === "FALLBACK") {
+  // FALLBACK audit (yerel AI de cevap veremediyse, admin sonradan FAQ ekler)
+  if (intent === "FALLBACK" && engineUsed === "tedbirge-intent-engine-v1") {
     try {
       await prisma.activityLog.create({
         data: {

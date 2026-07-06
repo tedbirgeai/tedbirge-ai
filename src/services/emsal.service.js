@@ -1,6 +1,16 @@
 /**
  * Emsal Yargıtay Kararları Servisi
- * Mock veri — ileride gerçek Yargıtay/Emsal API ile değiştirilebilir
+ *
+ * ⚠️ DÜRÜSTLÜK UYARISI: Aşağıdaki kayıtlar TEMSİLİDİR — gerçek Yargıtay
+ * kararları DEĞİLDİR (esas/karar no'ları uydurmadır). Yargıtay'ın ücretsiz,
+ * toplu erişilebilir resmi bir API'si yok (sadece tekil arama arayüzü var,
+ * otomasyona kapalı) — bu yüzden gerçek/güncel emsal veritabanı ancak
+ * ücretli bir servise (Lexpera, Kazancı, Legalbank vb.) abone olunarak
+ * sağlanabilir. Bu dosya HİÇBİR controller/route tarafından çağrılmıyor
+ * (kontrol edildi) — yani şu an kullanıcıya ulaşmıyor. Gerçek emsal
+ * özelliği istenirse: (a) ücretli bir emsal API'sine abone olunmalı, ya da
+ * (b) bu veriler UI'da "örnek/temsili" ibaresiyle açıkça işaretlenmeli.
+ * Onaysız olarak gerçek karar diye sunulmamalıdır.
  */
 
 const EMSAL_TRAFIK = [
@@ -126,11 +136,16 @@ const EMSAL_IS_KAZASI = [
  */
 function getEmsalKararlar(accidentType) {
   const tip = (accidentType || "").toUpperCase();
-  if (tip.includes("IS") || tip.includes("İŞ") || tip.includes("WORK") || tip.includes("MESLEK")) {
-    return EMSAL_IS_KAZASI;
-  }
-  // Varsayılan: trafik
-  return EMSAL_TRAFIK;
+  const kararlar = tip.includes("IS") || tip.includes("İŞ") || tip.includes("WORK") || tip.includes("MESLEK")
+    ? EMSAL_IS_KAZASI
+    : EMSAL_TRAFIK;
+
+  // Her sonuca açık uyarı ekle — UI bunu göstermeden karar metnini kullanmamalı.
+  return kararlar.map((k) => ({
+    ...k,
+    _temsili: true,
+    _uyari: "Bu temsili bir örnektir, gerçek bir Yargıtay kararını yansıtmaz.",
+  }));
 }
 
 module.exports = { getEmsalKararlar };
