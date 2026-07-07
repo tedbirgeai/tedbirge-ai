@@ -35,6 +35,68 @@ const KONULAR = [
   { phrase: "manevi tazminat kaza", kategori: "Yargıtay" },
 ];
 
+// EKLENTİ — SGK/Mevzuat kaynağı: Bedesten SADECE mahkeme kararlarını kapsar,
+// SGK genelgeleri/Resmi Gazete duyuruları farklı bir kaynak gerektirir.
+// $0, kamuya açık, resmi/güvenilir haber kaynaklarını (Google Haberler RSS)
+// tarayan aynı desen (bkz. sahaSinyalleri.job.js) — sahte veri YOK, sadece
+// gerçek haber başlığı + kaynak + link.
+const MEVZUAT_SORGULARI = [
+  { q: "SGK genelge iş kazası", kategori: "SGK" },
+  { q: "ZMSS Resmi Gazete SEDDK", kategori: "Mevzuat" },
+  { q: "trafik sigortası yönetmelik değişikliği", kategori: "Mevzuat" },
+];
+
+function buildMevzuatRssUrl(query) {
+  const encoded = encodeURIComponent(query);
+  return `https://news.google.com/rss/search?q=${encoded}&hl=tr&gl=TR&ceid=TR:tr`;
+}
+
+function parseMevzuatRssItems(xml) {
+  const items = [];
+  const itemBlocks = xml.match(/<item>[\s\S]*?<\/item>/g) || [];
+  for (const block of itemBlocks.slice(0, 3)) {
+    const title = (block.match(/<title>([\s\S]*?)<\/title>/) || [])[1] || "";
+    const link = (block.match(/<link>([\s\S]*?)<\/link>/) || [])[1] || "";
+    const pubDate = (block.match(/<pubDate>([\s\S]*?)<\/pubDate>/) || [])[1] || "";
+    const source = (block.match(/<source[^>]*>([\s\S]*?)<\/source>/) || [])[1] || "";
+    items.push({
+      baslik: title.replace(/<!\[CDATA\[|\]\]>/g, "").trim(),
+      link: link.trim(),
+      tarih: pubDate.trim(),
+      kaynak: source.replace(/<!\[CDATA\[|\]\]>/g, "").trim() || "Google Haberler",
+    });
+  }
+  return items;
+}
+
+async function fetchMevzuatHaberleri() {
+  const toplanan = [];
+  for (const sorgu of MEVZUAT_SORGULARI) {
+    try {
+      const controller = new AbortController();
+      const timer = setTimeout(() => controller.abort(), 8000);
+      const res = await fetch(buildMevzuatRssUrl(sorgu.q), { signal: controller.signal });
+      clearTimeout(timer);
+      if (!res.ok) throw new Error(`RSS ${res.status}`);
+      const xml = await res.text();
+      const items = parseMevzuatRssItems(xml);
+      for (const item of items) {
+        if (!item.baslik) continue;
+        toplanan.push({
+          baslik: item.baslik,
+          ozet: `Kaynak: ${item.kaynak}. Güncel SGK/mevzuat gelişmesi — tam metin için habere gidin.`,
+          kategori: sorgu.kategori,
+          tarih: item.tarih || null,
+          link: item.link || null,
+        });
+      }
+    } catch (err) {
+      logger.warn(`[HaberlerRefresh] Mevzuat "${sorgu.q}" araması atlandı: ${err.message}`);
+    }
+  }
+  return toplanan;
+}
+
 function ozetUret(k, kategori) {
   const daire = k.birimAdi || "Yargıtay";
   const tur = k.kararTuru ? ` — ${k.kararTuru}` : "";
@@ -48,7 +110,7 @@ function ozetUret(k, kategori) {
 }
 
 async function runHaberlerRefresh() {
-  logger.info("[HaberlerRefresh] Başladı — gerçek Yargıtay kararları taranıyor");
+  logger.info("[HaberlerRefresh] Başladı — gerçek Yargıtay kararları + SGK/mevzuat taranıyor");
   const toplanan = [];
   const gorulenIds = new Set();
 
@@ -65,6 +127,14 @@ async function runHaberlerRefresh() {
       // kısmi güncelleme, sıfır çökme.
       logger.warn(`[HaberlerRefresh] "${konu.phrase}" araması atlandı: ${err.message}`);
     }
+  }
+
+  // EKLENTİ — SGK/Mevzuat haberleri (Yargıtay kararlarından ayrı kaynak).
+  try {
+    const mevzuatHaberleri = await fetchMevzuatHaberleri();
+    toplanan.push(...mevzuatHaberleri);
+  } catch (err) {
+    logger.warn(`[HaberlerRefresh] Mevzuat taraması genel hata: ${err.message}`);
   }
 
   if (toplanan.length === 0) {
