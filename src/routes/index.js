@@ -47,6 +47,8 @@ const judicialRoutes = require("./judicial.routes");
 const adminAiTrainingRoutes = require("./admin.ai-training.routes");
 // "7/24 Dijital Bekçi" — Saha Sinyalleri (kamuya açık haber taraması, otomatik temas YOK)
 const sahaSinyalleriRoutes = require("./saha-sinyalleri.route");
+// YENİ — "Bültenimize Kaydol" halka açık abonelik (0 migration, ActivityLog tabanlı)
+const newsletterRoutes = require("./newsletter.routes");
 
 const router = express.Router();
 
@@ -102,6 +104,7 @@ router.use('/', judicialRoutes);
 // TUR #132.4 — Admin AI Egitimi
 router.use('/admin/ai-training', adminAiTrainingRoutes);
 router.use('/admin/saha-sinyalleri', sahaSinyalleriRoutes);
+router.use('/', newsletterRoutes);
 
 module.exports = router;
 

@@ -97,9 +97,9 @@ const REPLY_TO = () => process.env.SMTP_REPLY_TO || process.env.SMTP_USER || nul
 
 // ─── İYS opt-out footer ──────────────────────────────────────────────────────
 
-function buildUnsubscribeFooter({ leadId, email }) {
+function buildUnsubscribeFooter({ leadId, email, channel = "email" }) {
   try {
-    const token = generateUnsubscribeToken({ leadId, email, channel: "email" });
+    const token = generateUnsubscribeToken({ leadId, email, channel });
     const base = process.env.PUBLIC_BASE_URL || "https://www.tedbirge.ai";
     const url = `${base}/api/unsubscribe?token=${encodeURIComponent(token)}`;
     return `<p style="font-size:11px;color:#94a3b8;margin-top:12px;text-align:center;">Bu iletiyi almak istemiyorsaniz <a href="${url}" style="color:#94a3b8;">buradan abonelikten cikabilirsiniz</a>. Tedbirge LegalTech.</p>`;
@@ -470,6 +470,32 @@ async function sendProspectCampaignEmail(email, subject, message) {
   return sendEmail({ to: email, subject, html });
 }
 
+// ─── YENİ — "Bültenimize Kaydol" e-posta katmanı (0 hata ilkesi: yeni
+// tablo yok, mevcut unsubscribe token + wrapHtml çekirdeği reused) ──────
+
+async function sendNewsletterConfirmationEmail(email, confirmUrl) {
+  if (!email) return;
+  const html = wrapHtml(
+    "Aboneliğinizi Onaylayın",
+    `<h2>Son Bir Adım Kaldı</h2>
+    <p>Tedbirge AI bültenine kaydolmak için aşağıdaki bağlantıya tıklayarak e-posta adresinizi onaylayın. Bu, spam/sahte kayıtları engellemek için standart bir güvenlik adımıdır.</p>
+    <a class="cta" href="${confirmUrl}">Aboneliğimi Onayla</a>
+    <p style="font-size:13px;color:#94a3b8;margin-top:20px">Bu kaydı siz başlatmadıysanız, bu e-postayı görmezden gelebilirsiniz — hiçbir işlem yapılmayacaktır.</p>`,
+    { preheader: "Tedbirge AI bülten aboneliğinizi onaylayın" }
+  );
+  return sendEmail({ to: email, subject: "📬 Tedbirge AI Bülten Aboneliğinizi Onaylayın", html });
+}
+
+async function sendNewsletterBulletinEmail(email, subject, htmlBody) {
+  if (!email) return;
+  const html = wrapHtml(
+    subject,
+    htmlBody,
+    { preheader: subject, unsubscribeFooter: buildUnsubscribeFooter({ email, channel: "newsletter" }) }
+  );
+  return sendEmail({ to: email, subject, html });
+}
+
 module.exports = {
   sendEmail,
   verifyConnection,
@@ -485,4 +511,7 @@ module.exports = {
   sendProspectWelcomeEmail,
   sendProspectFollowUpEmail,
   sendProspectCampaignEmail,
+  // YENİ — "Bültenimize Kaydol" e-posta katmanı
+  sendNewsletterConfirmationEmail,
+  sendNewsletterBulletinEmail,
 };
